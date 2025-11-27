@@ -11,7 +11,15 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger
 } from "@widgets/navigation-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@shared/ui/Sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription
+} from "@shared/ui/Sheet";
+
 import { Button } from "@shared/ui/Button";
 import { UnderlineLink } from "@shared/ui/UnderlineLink";
 
@@ -412,12 +420,22 @@ function MobileNav() {
         side="right"
         className="w-full border-l border-white/10 bg-linear-to-b from-[#18181a]/98 via-[#16161a]/98 to-[#18181a]/98 px-0 pt-0 pb-0 sm:w-[85vw] sm:max-w-sm"
       >
-        <div className="flex items-center justify-between border-b border-white/8 px-6 py-4">
-          <div className="flex items-center gap-2">
-            <span className="bg-gradient-kleff h-6 w-6 rounded-lg shadow-lg" />
-            <span className="text-foreground text-base font-semibold">Kleff</span>
+        <SheetHeader className="border-b border-white/8 px-6 py-4">
+          <div className="flex items-center justify-between">
+            <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-2">
+              <KleffDot variant="full" size={22} />
+              <span className="text-foreground text-[13px] font-semibold tracking-[0.32em] uppercase">
+                LEFF
+              </span>
+            </Link>
           </div>
-        </div>
+
+          <SheetTitle className="sr-only">Kleff navigation</SheetTitle>
+          <SheetDescription className="sr-only">
+            Main navigation menu for the Kleff platform, including product, developer, and solution
+            links.
+          </SheetDescription>
+        </SheetHeader>
 
         <nav className="overflow-y-auto px-4 py-4" style={{ maxHeight: "calc(100vh - 73px)" }}>
           <div className="space-y-4">

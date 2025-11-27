@@ -3,7 +3,7 @@ import { UnderlineLink } from "@shared/ui/UnderlineLink";
 export function AppFooter() {
   return (
     <footer className="border-t border-white/5 bg-black/40">
-      <div className="app-container flex flex-col gap-3 py-4 text-[11px] text-neutral-500 sm:flex-row sm:items-center sm:justify-between">
+      <div className="app-container flex flex-col items-center gap-3 py-4 text-center text-[11px] text-neutral-500 sm:flex-row sm:items-center sm:justify-between sm:text-left">
         <div className="flex items-center gap-2">
           <span className="bg-kleff-primary h-5 w-5 rounded-lg" />
           <div className="flex flex-col">
@@ -14,7 +14,7 @@ export function AppFooter() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px]">
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] sm:justify-end">
           <UnderlineLink to="/docs" className="text-neutral-500 hover:text-neutral-200">
             Docs
           </UnderlineLink>

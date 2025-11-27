@@ -22,7 +22,10 @@ export function LandingPage() {
 
       <Section className="flex flex-col items-center gap-12 pt-20 pb-16 text-center lg:flex-row lg:items-start lg:py-24 lg:text-left">
         <div className="max-w-xl flex-1 space-y-7">
-          <div className="inline-flex flex-wrap items-center gap-2">
+          <div className="inline-flex rounded-full bg-white/5 px-3 py-1 text-[10px] text-neutral-300 sm:hidden">
+            Open-source • Self-hosted or fully managed
+          </div>
+          <div className="hidden flex-wrap items-center gap-2 sm:flex">
             <Badge
               variant="gradient"
               className="flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-medium"
@@ -86,7 +89,11 @@ export function LandingPage() {
             </Link>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 pt-3 text-[11px] text-neutral-500 sm:justify-start">
+          <div className="mt-2 flex justify-center text-[11px] text-neutral-500 sm:hidden">
+            <span>Trusted by teams running Next.js, Go APIs, and microservices.</span>
+          </div>
+
+          <div className="hidden flex-wrap items-center justify-center gap-x-6 gap-y-2 pt-3 text-[11px] text-neutral-500 sm:flex sm:justify-start">
             <span className="font-medium text-neutral-400">Trusted by teams running:</span>
             <span className="rounded-full border border-white/10 px-3 py-1 text-[10px] tracking-[0.15em] text-neutral-400 uppercase">
               Next.js
