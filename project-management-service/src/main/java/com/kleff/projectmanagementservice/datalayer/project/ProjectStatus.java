@@ -1,4 +1,4 @@
-package com.kleff.projectmanagementservice.datalayer;
+package com.kleff.projectmanagementservice.datalayer.project;
 
 public enum ProjectStatus {
     ACTIVE,
