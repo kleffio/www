@@ -37,20 +37,9 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
     }
 
-    @PutMapping("/{projectId}")
-    public ResponseEntity<Project> updateProject(
-            @PathVariable String projectId,
-            @RequestBody Project updatedProject) {
-        try {
-            Project project = projectService.updateProject(projectId, updatedProject);
-            return ResponseEntity.ok(project);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
 
     @PatchMapping("/{projectId}")
-    public ResponseEntity<Project> partialUpdateProject(
+    public ResponseEntity<Project> patchProject(
             @PathVariable String projectId,
             @RequestBody Project updatedProject) {
         try {
