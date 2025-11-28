@@ -12,7 +12,7 @@ public interface ProjectService {
     Project getProjectById(String projectId);
 
     Project createProject(Project project);
-    Project updateProject(Project project);
+    Project updateProject(String projectId, Project updatedProject);
     Project deleteProject(String projectId);
 
 }
