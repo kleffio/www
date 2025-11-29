@@ -22,10 +22,154 @@ import {
   BarChart3
 } from "lucide-react";
 
+const dashboardData = {
+  quickStats: [
+    {
+      title: "Requests (24h)",
+      value: "2.4M",
+      change: "+12.3%",
+      trend: "up"
+    },
+    {
+      title: "Bandwidth",
+      value: "847 GB",
+      change: "+8.1%",
+      trend: "up"
+    },
+    {
+      title: "Active Deployments",
+      value: "12",
+      subtitle: "8 regions",
+      trend: "neutral"
+    },
+    {
+      title: "Uptime (30d)",
+      value: "99.98%",
+      subtitle: "Excellent",
+      trend: "up"
+    }
+  ],
+  
+  trafficMetrics: {
+    totalRequests: {
+      value: "2,487,392",
+      change: "+12.3% from yesterday",
+      trend: "up"
+    },
+    avgResponseTime: {
+      value: "94ms",
+      change: "18ms faster",
+      trend: "up"
+    },
+    cacheHitRate: {
+      value: "94.2%",
+      subtitle: "Optimal performance"
+    }
+  },
+  
+  trafficChart: [
+    { height: 65, value: "1.8M", time: "00:00" },
+    { height: 78, value: "2.1M", time: "02:00" },
+    { height: 82, value: "2.2M", time: "04:00" },
+    { height: 71, value: "1.9M", time: "06:00" },
+    { height: 88, value: "2.4M", time: "08:00" },
+    { height: 92, value: "2.5M", time: "10:00" },
+    { height: 85, value: "2.3M", time: "12:00" },
+    { height: 79, value: "2.1M", time: "14:00" },
+    { height: 95, value: "2.6M", time: "16:00" },
+    { height: 100, value: "2.7M", time: "18:00" },
+    { height: 97, value: "2.6M", time: "20:00" },
+    { height: 89, value: "2.4M", time: "22:00" }
+  ],
+  
+  recentDeployments: [
+    {
+      branch: "production",
+      commit: "a3f8d2c",
+      message: "feat: add user authentication",
+      time: "2 minutes ago",
+      status: "deployed",
+      statusVariant: "success"
+    },
+    {
+      branch: "staging",
+      commit: "b7e4f91",
+      message: "fix: resolve API timeout issues",
+      time: "18 minutes ago",
+      status: "building",
+      statusVariant: "warning"
+    },
+    {
+      branch: "preview",
+      commit: "c9d2a5e",
+      message: "chore: update dependencies",
+      time: "1 hour ago",
+      status: "ready",
+      statusVariant: "outline"
+    }
+  ],
+  
+  security: {
+    ssl: {
+      title: "SSL/TLS",
+      status: "Active",
+      badge: "Enabled",
+      variant: "success"
+    },
+    ddos: {
+      title: "DDoS Protection",
+      status: "Under attack mode off",
+      badge: "Active",
+      variant: "success"
+    },
+    summary: {
+      threats: "847",
+      incidents: "0"
+    }
+  },
+  
+  infrastructure: [
+    {
+      icon: Server,
+      title: "Active Regions",
+      description: "8 edge locations worldwide"
+    },
+    {
+      icon: Cpu,
+      title: "Compute Usage",
+      description: "67% capacity • 2.4K vCPU hours"
+    },
+    {
+      icon: HardDrive,
+      title: "Storage",
+      description: "124 GB used of 500 GB"
+    },
+    {
+      icon: BarChart3,
+      title: "DNS Queries",
+      description: "1.2M queries in last 24h"
+    }
+  ],
+  
+  quickActions: [
+    {
+      icon: GitBranch,
+      label: "Create New Deployment"
+    },
+    {
+      icon: Activity,
+      label: "View Analytics"
+    },
+    {
+      icon: Shield,
+      label: "Security Settings"
+    }
+  ]
+};
+
 export function Dashboard() {
   return (
     <div className="bg-kleff-bg relative isolate flex h-screen overflow-hidden">
-      {/* Background effects - matching LandingPage exactly */}
       <div className="pointer-events-none absolute inset-0 -z-20">
         <div className="bg-modern-noise bg-kleff-spotlight h-full w-full opacity-60" />
         <div className="bg-kleff-grid absolute inset-0 opacity-[0.25]" />
@@ -33,14 +177,10 @@ export function Dashboard() {
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-40 bg-linear-to-b from-white/10 via-transparent" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-40 bg-linear-to-t from-black via-transparent" />
 
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
       <div className="flex-1 overflow-auto">
-        {/* Content */}
         <div className="app-container py-8">
-          {/* Header */}
           <div className="mb-8">
             <div className="flex items-start justify-between">
               <div>
@@ -60,42 +200,28 @@ export function Dashboard() {
             </div>
           </div>
 
-          {/* Quick Stats */}
           <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <MiniCard title="Requests (24h)">
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-semibold text-neutral-50">2.4M</span>
-                <StatBadge color="green">+12.3%</StatBadge>
-              </div>
-            </MiniCard>
-
-            <MiniCard title="Bandwidth">
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-semibold text-neutral-50">847 GB</span>
-                <StatBadge color="green">+8.1%</StatBadge>
-              </div>
-            </MiniCard>
-
-            <MiniCard title="Active Deployments">
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-semibold text-neutral-50">12</span>
-                <StatBadge color="white">8 regions</StatBadge>
-              </div>
-            </MiniCard>
-
-            <MiniCard title="Uptime (30d)">
-              <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-semibold text-neutral-50">99.98%</span>
-                <StatBadge color="green">Excellent</StatBadge>
-              </div>
-            </MiniCard>
+            {dashboardData.quickStats.map((stat, i) => (
+              <MiniCard key={i} title={stat.title}>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-semibold text-neutral-50">{stat.value}</span>
+                  {stat.change && (
+                    <StatBadge color={stat.trend === "up" ? "green" : "white"}>
+                      {stat.change}
+                    </StatBadge>
+                  )}
+                  {stat.subtitle && (
+                    <StatBadge color={stat.trend === "up" ? "green" : "white"}>
+                      {stat.subtitle}
+                    </StatBadge>
+                  )}
+                </div>
+              </MiniCard>
+            ))}
           </div>
 
-          {/* Main Grid */}
           <div className="grid gap-6 lg:grid-cols-3">
-            {/* Left Column - Takes 2 columns */}
             <div className="space-y-6 lg:col-span-2">
-              {/* Traffic Analytics */}
               <div>
                 <div className="mb-4 flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-neutral-50">Traffic & Performance</h2>
@@ -114,10 +240,12 @@ export function Dashboard() {
                         <span>Total Requests</span>
                       </div>
                       <div>
-                        <div className="text-2xl font-semibold text-neutral-50">2,487,392</div>
+                        <div className="text-2xl font-semibold text-neutral-50">
+                          {dashboardData.trafficMetrics.totalRequests.value}
+                        </div>
                         <div className="mt-1 flex items-center gap-1 text-xs text-emerald-400">
                           <TrendingUp className="h-3 w-3" />
-                          <span>+12.3% from yesterday</span>
+                          <span>{dashboardData.trafficMetrics.totalRequests.change}</span>
                         </div>
                       </div>
                     </div>
@@ -128,10 +256,12 @@ export function Dashboard() {
                         <span>Avg Response Time</span>
                       </div>
                       <div>
-                        <div className="text-2xl font-semibold text-neutral-50">94ms</div>
+                        <div className="text-2xl font-semibold text-neutral-50">
+                          {dashboardData.trafficMetrics.avgResponseTime.value}
+                        </div>
                         <div className="mt-1 flex items-center gap-1 text-xs text-emerald-400">
                           <TrendingUp className="h-3 w-3" />
-                          <span>18ms faster</span>
+                          <span>{dashboardData.trafficMetrics.avgResponseTime.change}</span>
                         </div>
                       </div>
                     </div>
@@ -142,9 +272,11 @@ export function Dashboard() {
                         <span>Cache Hit Rate</span>
                       </div>
                       <div>
-                        <div className="text-2xl font-semibold text-neutral-50">94.2%</div>
+                        <div className="text-2xl font-semibold text-neutral-50">
+                          {dashboardData.trafficMetrics.cacheHitRate.value}
+                        </div>
                         <div className="mt-1 flex items-center gap-1 text-xs text-neutral-400">
-                          <span>Optimal performance</span>
+                          <span>{dashboardData.trafficMetrics.cacheHitRate.subtitle}</span>
                         </div>
                       </div>
                     </div>
@@ -152,20 +284,7 @@ export function Dashboard() {
 
                   <div className="mt-4 h-32 rounded-lg bg-black/40 p-4">
                     <div className="flex h-full items-end gap-1">
-                      {[
-                        { height: 65, value: "1.8M", time: "00:00" },
-                        { height: 78, value: "2.1M", time: "02:00" },
-                        { height: 82, value: "2.2M", time: "04:00" },
-                        { height: 71, value: "1.9M", time: "06:00" },
-                        { height: 88, value: "2.4M", time: "08:00" },
-                        { height: 92, value: "2.5M", time: "10:00" },
-                        { height: 85, value: "2.3M", time: "12:00" },
-                        { height: 79, value: "2.1M", time: "14:00" },
-                        { height: 95, value: "2.6M", time: "16:00" },
-                        { height: 100, value: "2.7M", time: "18:00" },
-                        { height: 97, value: "2.6M", time: "20:00" },
-                        { height: 89, value: "2.4M", time: "22:00" }
-                      ].map((bar, i) => (
+                      {dashboardData.trafficChart.map((bar, i) => (
                         <div key={i} className="group relative flex-1 flex items-end h-full">
                           <div
                             className="w-full rounded-t transition-all duration-200 group-hover:brightness-125"
@@ -174,7 +293,6 @@ export function Dashboard() {
                               background: 'linear-gradient(to top, #facc15, #fb923c, #f97316)'
                             }}
                           />
-                          {/* Tooltip */}
                           <div className="pointer-events-none absolute -top-16 left-1/2 z-10 -translate-x-1/2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                             <div className="rounded-lg border border-white/20 bg-black/95 px-3 py-2 shadow-lg backdrop-blur-sm">
                               <div className="whitespace-nowrap text-xs font-semibold text-neutral-50">
@@ -184,7 +302,6 @@ export function Dashboard() {
                                 {bar.time}
                               </div>
                             </div>
-                            {/* Arrow */}
                             <div className="absolute left-1/2 top-full -translate-x-1/2">
                               <div className="h-0 w-0 border-x-4 border-t-4 border-x-transparent border-t-black/95" />
                             </div>
@@ -196,7 +313,6 @@ export function Dashboard() {
                 </SoftPanel>
               </div>
 
-              {/* Recent Deployments */}
               <div>
                 <div className="mb-4 flex items-center justify-between">
                   <h2 className="text-lg font-semibold text-neutral-50">Recent Deployments</h2>
@@ -209,66 +325,34 @@ export function Dashboard() {
                 </div>
                 <SoftPanel>
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between rounded-lg bg-black/40 px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <GradientIcon icon={GitBranch} />
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-neutral-200">
-                              production
-                            </span>
-                            <span className="font-mono text-xs text-neutral-500">•</span>
-                            <span className="font-mono text-xs text-neutral-400">a3f8d2c</span>
-                          </div>
-                          <div className="text-xs text-neutral-400">
-                            feat: add user authentication • 2 minutes ago
-                          </div>
-                        </div>
-                      </div>
-                      <Badge variant="success">Deployed</Badge>
-                    </div>
-
-                    <div className="flex items-center justify-between rounded-lg bg-black/40 px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <GradientIcon icon={GitBranch} />
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-neutral-200">staging</span>
-                            <span className="font-mono text-xs text-neutral-500">•</span>
-                            <span className="font-mono text-xs text-neutral-400">b7e4f91</span>
-                          </div>
-                          <div className="text-xs text-neutral-400">
-                            fix: resolve API timeout issues • 18 minutes ago
+                    {dashboardData.recentDeployments.map((deployment, i) => (
+                      <div key={i} className="flex items-center justify-between rounded-lg bg-black/40 px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <GradientIcon icon={GitBranch} />
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-neutral-200">
+                                {deployment.branch}
+                              </span>
+                              <span className="font-mono text-xs text-neutral-500">•</span>
+                              <span className="font-mono text-xs text-neutral-400">{deployment.commit}</span>
+                            </div>
+                            <div className="text-xs text-neutral-400">
+                              {deployment.message} • {deployment.time}
+                            </div>
                           </div>
                         </div>
+                        <Badge variant={deployment.statusVariant as any}>
+                          {deployment.status.charAt(0).toUpperCase() + deployment.status.slice(1)}
+                        </Badge>
                       </div>
-                      <Badge variant="warning">Building</Badge>
-                    </div>
-
-                    <div className="flex items-center justify-between rounded-lg bg-black/40 px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <GradientIcon icon={GitBranch} />
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-neutral-200">preview</span>
-                            <span className="font-mono text-xs text-neutral-500">•</span>
-                            <span className="font-mono text-xs text-neutral-400">c9d2a5e</span>
-                          </div>
-                          <div className="text-xs text-neutral-400">
-                            chore: update dependencies • 1 hour ago
-                          </div>
-                        </div>
-                      </div>
-                      <Badge variant="outline">Ready</Badge>
-                    </div>
+                    ))}
                   </div>
                 </SoftPanel>
               </div>
             </div>
 
-            {/* Right Column */}
             <div className="space-y-6">
-              {/* Security Status */}
               <div>
                 <h2 className="mb-4 text-lg font-semibold text-neutral-50">Security</h2>
                 <SoftPanel>
@@ -279,11 +363,17 @@ export function Dashboard() {
                           <Shield className="h-4 w-4 text-emerald-400" />
                         </div>
                         <div>
-                          <div className="text-sm font-medium text-neutral-200">SSL/TLS</div>
-                          <div className="text-xs text-neutral-400">Active</div>
+                          <div className="text-sm font-medium text-neutral-200">
+                            {dashboardData.security.ssl.title}
+                          </div>
+                          <div className="text-xs text-neutral-400">
+                            {dashboardData.security.ssl.status}
+                          </div>
                         </div>
                       </div>
-                      <Badge variant="success">Enabled</Badge>
+                      <Badge variant={dashboardData.security.ssl.variant as any}>
+                        {dashboardData.security.ssl.badge}
+                      </Badge>
                     </div>
 
                     <div className="flex items-center justify-between">
@@ -292,18 +382,24 @@ export function Dashboard() {
                           <Lock className="h-4 w-4 text-emerald-400" />
                         </div>
                         <div>
-                          <div className="text-sm font-medium text-neutral-200">DDoS Protection</div>
-                          <div className="text-xs text-neutral-400">Under attack mode off</div>
+                          <div className="text-sm font-medium text-neutral-200">
+                            {dashboardData.security.ddos.title}
+                          </div>
+                          <div className="text-xs text-neutral-400">
+                            {dashboardData.security.ddos.status}
+                          </div>
                         </div>
                       </div>
-                      <Badge variant="success">Active</Badge>
+                      <Badge variant={dashboardData.security.ddos.variant as any}>
+                        {dashboardData.security.ddos.badge}
+                      </Badge>
                     </div>
 
                     <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3">
                       <div className="text-xs text-emerald-200">
                         <div className="font-medium">24h Security Summary</div>
                         <div className="mt-1 text-emerald-300/80">
-                          847 threats blocked • 0 incidents
+                          {dashboardData.security.summary.threats} threats blocked • {dashboardData.security.summary.incidents} incidents
                         </div>
                       </div>
                     </div>
@@ -311,60 +407,35 @@ export function Dashboard() {
                 </SoftPanel>
               </div>
 
-              {/* Infrastructure */}
               <div>
                 <h2 className="mb-4 text-lg font-semibold text-neutral-50">Infrastructure</h2>
                 <SoftPanel>
                   <div className="space-y-3">
-                    <FeatureRow
-                      icon={Server}
-                      title="Active Regions"
-                      description="8 edge locations worldwide"
-                    />
-                    <FeatureRow
-                      icon={Cpu}
-                      title="Compute Usage"
-                      description="67% capacity • 2.4K vCPU hours"
-                    />
-                    <FeatureRow
-                      icon={HardDrive}
-                      title="Storage"
-                      description="124 GB used of 500 GB"
-                    />
-                    <FeatureRow
-                      icon={BarChart3}
-                      title="DNS Queries"
-                      description="1.2M queries in last 24h"
-                    />
+                    {dashboardData.infrastructure.map((item, i) => (
+                      <FeatureRow
+                        key={i}
+                        icon={item.icon}
+                        title={item.title}
+                        description={item.description}
+                      />
+                    ))}
                   </div>
                 </SoftPanel>
               </div>
 
-              {/* Quick Actions */}
               <div>
                 <h2 className="mb-4 text-lg font-semibold text-neutral-50">Quick Actions</h2>
                 <div className="space-y-2">
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start border-white/20 bg-white/5 text-sm text-neutral-200 hover:border-white/40 hover:bg-white/10"
-                  >
-                    <GitBranch className="h-4 w-4" />
-                    Create New Deployment
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start border-white/20 bg-white/5 text-sm text-neutral-200 hover:border-white/40 hover:bg-white/10"
-                  >
-                    <Activity className="h-4 w-4" />
-                    View Analytics
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start border-white/20 bg-white/5 text-sm text-neutral-200 hover:border-white/40 hover:bg-white/10"
-                  >
-                    <Shield className="h-4 w-4" />
-                    Security Settings
-                  </Button>
+                  {dashboardData.quickActions.map((action, i) => (
+                    <Button
+                      key={i}
+                      variant="outline"
+                      className="w-full justify-start border-white/20 bg-white/5 text-sm text-neutral-200 hover:border-white/40 hover:bg-white/10"
+                    >
+                      <action.icon className="h-4 w-4" />
+                      {action.label}
+                    </Button>
+                  ))}
                 </div>
               </div>
             </div>
