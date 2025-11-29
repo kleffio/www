@@ -151,13 +151,45 @@ export function Dashboard() {
                   </div>
 
                   <div className="mt-4 h-32 rounded-lg bg-black/40 p-4">
-                    <div className="flex h-full items-end justify-between gap-1">
-                      {[65, 78, 82, 71, 88, 92, 85, 79, 95, 100, 97, 89].map((height, i) => (
-                        <div
-                          key={i}
-                          className="bg-gradient-kleff flex-1 rounded-t opacity-80"
-                          style={{ height: `${height}%` }}
-                        />
+                    <div className="flex h-full items-end gap-1">
+                      {[
+                        { height: 65, value: "1.8M", time: "00:00" },
+                        { height: 78, value: "2.1M", time: "02:00" },
+                        { height: 82, value: "2.2M", time: "04:00" },
+                        { height: 71, value: "1.9M", time: "06:00" },
+                        { height: 88, value: "2.4M", time: "08:00" },
+                        { height: 92, value: "2.5M", time: "10:00" },
+                        { height: 85, value: "2.3M", time: "12:00" },
+                        { height: 79, value: "2.1M", time: "14:00" },
+                        { height: 95, value: "2.6M", time: "16:00" },
+                        { height: 100, value: "2.7M", time: "18:00" },
+                        { height: 97, value: "2.6M", time: "20:00" },
+                        { height: 89, value: "2.4M", time: "22:00" }
+                      ].map((bar, i) => (
+                        <div key={i} className="group relative flex-1 flex items-end h-full">
+                          <div
+                            className="w-full rounded-t transition-all duration-200 group-hover:brightness-125"
+                            style={{ 
+                              height: `${bar.height}%`,
+                              background: 'linear-gradient(to top, #facc15, #fb923c, #f97316)'
+                            }}
+                          />
+                          {/* Tooltip */}
+                          <div className="pointer-events-none absolute -top-16 left-1/2 z-10 -translate-x-1/2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                            <div className="rounded-lg border border-white/20 bg-black/95 px-3 py-2 shadow-lg backdrop-blur-sm">
+                              <div className="whitespace-nowrap text-xs font-semibold text-neutral-50">
+                                {bar.value}
+                              </div>
+                              <div className="whitespace-nowrap text-[10px] text-neutral-400">
+                                {bar.time}
+                              </div>
+                            </div>
+                            {/* Arrow */}
+                            <div className="absolute left-1/2 top-full -translate-x-1/2">
+                              <div className="h-0 w-0 border-x-4 border-t-4 border-x-transparent border-t-black/95" />
+                            </div>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
