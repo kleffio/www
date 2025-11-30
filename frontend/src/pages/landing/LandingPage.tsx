@@ -70,7 +70,7 @@ export function LandingPage() {
           </div>
 
           <div className="flex flex-col items-center gap-3 pt-2 sm:flex-row sm:items-center">
-            <Link to="/auth/sign-up" className="w-full sm:w-auto">
+            <Link to="/dashboard" className="w-full sm:w-auto">
               <Button
                 size="lg"
                 className="bg-gradient-kleff w-full rounded-full px-8 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
