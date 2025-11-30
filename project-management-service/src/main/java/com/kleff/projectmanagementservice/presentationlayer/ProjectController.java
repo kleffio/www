@@ -1,8 +1,10 @@
 package com.kleff.projectmanagementservice.presentationlayer;
 
 import com.kleff.projectmanagementservice.buisnesslayer.ProjectService;
+import com.kleff.projectmanagementservice.buisnesslayer.ProjectServiceImpl;
 import com.kleff.projectmanagementservice.datalayer.project.Project;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,11 @@ import java.util.List;
 public class ProjectController {
 
     private final ProjectService projectService;
+
+    @Autowired
+    public ProjectController(ProjectServiceImpl projectService) {
+        this.projectService = projectService;
+    }
 
     @GetMapping("/owner/{ownerId}")
     public ResponseEntity<List<Project>> getAllOwnedProjects(@PathVariable String ownerId) {

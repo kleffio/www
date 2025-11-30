@@ -3,12 +3,16 @@ package com.kleff.projectmanagementservice.buisnesslayer;
 import com.kleff.projectmanagementservice.datalayer.project.Project;
 import com.kleff.projectmanagementservice.datalayer.project.ProjectRepository;
 import com.kleff.projectmanagementservice.datalayer.project.ProjectStatus;
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
 
+@Service
 public class ProjectServiceImpl implements ProjectService {
+
     private ProjectRepository projectRepository;
+
     public ProjectServiceImpl(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
     }
