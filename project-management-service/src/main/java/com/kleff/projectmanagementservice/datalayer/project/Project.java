@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 
 import java.util.Date;
 import java.util.Map;
@@ -27,8 +29,9 @@ public class Project {
     String repositoryUrl;
     String branch;
     String dockerComposePath;
-    //Currently impossible to use we need to figure out a better way of storing them
-//    Map<String, String> environmentVariables;
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
+    Map<String, String> environmentVariables;
     ProjectStatus projectStatus;
     Date createdDate;
     Date updatedDate;

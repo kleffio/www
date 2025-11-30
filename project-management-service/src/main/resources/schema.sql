@@ -10,6 +10,7 @@ CREATE TABLE projects (
                           repository_url VARCHAR(500) NOT NULL ,
                           branch VARCHAR(100) DEFAULT 'main',
                           docker_compose_path VARCHAR(500),
+                          environment_variables JSONB,
                           project_status VARCHAR(50) NOT NULL,
                           created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                           updated_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
