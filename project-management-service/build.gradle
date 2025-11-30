@@ -1,7 +1,7 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '4.0.0'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '3.3.5'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'com.kleff'
@@ -9,44 +9,47 @@ version = '0.0.1-SNAPSHOT'
 description = 'project-management-service'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
+
+    // ---- Runtime / application dependencies ----
+
+    // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.36'
     annotationProcessor 'org.projectlombok:lombok:1.18.36'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.postgresql:postgresql'
+
+    // Data access
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+
+    // Database
+    runtimeOnly 'org.postgresql:postgresql'   // version managed by Spring Boot
+
+    // Hypersistence Utils (Hibernate 6.3 compatible)
     implementation 'io.hypersistence:hypersistence-utils-hibernate-63:3.7.0'
-	implementation 'org.springframework.boot:spring-boot-starter-restclient'
-	implementation 'org.springframework.boot:spring-boot-starter-webclient'
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
-    implementation 'io.hypersistence:hypersistence-utils-hibernate-63:3.7.0'
-    implementation 'org.projectlombok:lombok'
-    runtimeOnly 'org.postgresql:postgresql'
+
+    // Web: MVC (blocking) + WebClient (for HTTP calls)
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux' // WebClient only; no reactive server activated unless you add controllers
+
+    // ---- Test dependencies ----
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-jdbc-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-restclient-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-webclient-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-webflux-test'
-	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
     testCompileOnly 'org.projectlombok:lombok:1.18.36'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
 
-
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
