@@ -7,5 +7,5 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, String> {
-    Project findByProjectId(UUID projectId);
+    Project findByProjectId(String projectId);
 }

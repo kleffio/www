@@ -23,7 +23,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Project getProjectById(UUID projectId) {
+    public Project getProjectById(String projectId) {
         try {
             return projectRepository.findByProjectId(projectId);
         }
@@ -73,7 +73,7 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     @Override
-    public Project deleteProject(UUID projectId) {
+    public Project deleteProject(String projectId) {
         Project toDelete = projectRepository.findByProjectId(projectId);
         toDelete.setProjectStatus(ProjectStatus.DELETED);
         return projectRepository.save(toDelete);
