@@ -189,7 +189,7 @@ export function Dashboard() {
                   Monitor your deployments, traffic, and infrastructure health
                 </p>
               </div>
-              <Link to="/deploy-new-project">
+              <Link to="/dashboard/projects/create">
                 <Button
                   size="lg"
                   className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
