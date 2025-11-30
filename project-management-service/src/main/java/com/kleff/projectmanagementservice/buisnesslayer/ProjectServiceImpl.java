@@ -59,6 +59,9 @@ public class ProjectServiceImpl implements ProjectService {
             if (updatedProject.getProjectStatus() != null) {
                 existing.setProjectStatus(updatedProject.getProjectStatus());
             }
+            if (updatedProject.getEnvironmentVariables() != null) {
+                existing.setEnvironmentVariables(updatedProject.getEnvironmentVariables());
+            }
 
             existing.setUpdatedDate(new Date());
             return projectRepository.save(existing);
