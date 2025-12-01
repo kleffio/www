@@ -21,7 +21,7 @@ function SidebarItem({ to, icon: Icon, label, isActive }: SidebarItemProps) {
           : "text-neutral-400 hover:bg-white/5 hover:text-neutral-200"
       )}
     >
-      <Icon className="h-4 w-4 flex-shrink-0" />
+      <Icon className="h-4 w-4 shrink-0" />
       <span className="hidden sm:inline">{label}</span>
     </Link>
   );
@@ -32,10 +32,23 @@ export function Sidebar() {
 
   return (
     <div className="flex h-screen w-16 flex-col border-r border-white/10 bg-black/40 sm:w-64">
+<<<<<<< HEAD
       <div className="flex items-center gap-2 border-b border-white/10 px-4 py-4">
         <KleffDot size={24} />
         <span className="hidden text-lg font-semibold text-neutral-50 sm:inline">Kleff</span>
       </div>
+=======
+      <Link
+        to="/dashboard"
+        className="flex items-center justify-center gap-2 px-3 py-4 sm:justify-start"
+      >
+        <KleffDot variant="full" size={22} />
+
+        <span className="text-foreground hidden text-[14px] font-semibold tracking-[0.32em] uppercase sm:inline">
+          LEFF
+        </span>
+      </Link>
+>>>>>>> 9abad9539028c91216b9890f886d20e1d87a44c1
 
       <nav className="flex-1 space-y-1 p-3">
         <SidebarItem

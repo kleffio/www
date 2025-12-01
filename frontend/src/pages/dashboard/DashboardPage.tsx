@@ -167,7 +167,7 @@ const dashboardData = {
   ]
 };
 
-export function Dashboard() {
+export function DashboardPage() {
   return (
     <div className="bg-kleff-bg relative isolate flex h-screen overflow-hidden">
       <div className="pointer-events-none absolute inset-0 -z-20">
