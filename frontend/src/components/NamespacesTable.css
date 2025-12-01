@@ -1,0 +1,75 @@
+.namespaces-table {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.table-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+.table-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  border-bottom: 1px solid #333;
+}
+
+th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #a0a0a0;
+  text-transform: uppercase;
+}
+
+tbody tr {
+  border-bottom: 1px solid #333;
+  transition: background 0.2s ease;
+}
+
+tbody tr:last-child {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background: #2a2a2a;
+}
+
+td {
+  padding: 16px;
+  font-size: 14px;
+  color: #ffffff;
+}
+
+.namespace-name {
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+.pod-count {
+  font-weight: 600;
+}
+
+.cpu-usage,
+.memory-usage {
+  font-family: "Courier New", monospace;
+  color: #a0a0a0;
+}

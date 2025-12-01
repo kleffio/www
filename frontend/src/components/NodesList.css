@@ -1,0 +1,132 @@
+.nodes-list {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.list-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  color: #ffffff;
+}
+
+.list-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.nodes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.node-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s ease;
+}
+
+.node-card:hover {
+  border-color: #444;
+  background: #252525;
+}
+
+.node-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.node-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.node-status {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.status-ready {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+
+.status-notready {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.node-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.metric-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.metric-label {
+  font-size: 12px;
+  color: #a0a0a0;
+  font-weight: 500;
+}
+
+.metric-bar-container {
+  position: relative;
+  height: 24px;
+  background: #0a0a0a;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+}
+
+.metric-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.metric-bar.cpu {
+  background: linear-gradient(180deg, #fb923c 0%, #f59e0b 50%, #fbbf24 100%);
+}
+
+.metric-bar.memory {
+  background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+}
+
+.metric-value {
+  position: relative;
+  z-index: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-left: auto;
+}
+
+.pod-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+}

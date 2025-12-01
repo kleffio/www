@@ -1,7 +1,7 @@
-import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, FolderKanban, Boxes } from "lucide-react";
 import { cn } from "@shared/lib/utils";
 import { KleffDot } from "@shared/ui/KleffDot";
+import { Boxes, FolderKanban, LayoutDashboard, Server } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 interface SidebarItemProps {
   to: string;
@@ -31,10 +31,10 @@ export function Sidebar() {
   const location = useLocation();
 
   return (
-    <div className="flex h-screen w-16 sm:w-64 flex-col border-r border-white/10 bg-black/40">
+    <div className="flex h-screen w-16 flex-col border-r border-white/10 bg-black/40 sm:w-64">
       <div className="flex items-center gap-2 border-b border-white/10 px-4 py-4">
         <KleffDot size={24} />
-        <span className="hidden sm:inline text-lg font-semibold text-neutral-50">Kleff</span>
+        <span className="hidden text-lg font-semibold text-neutral-50 sm:inline">Kleff</span>
       </div>
 
       <nav className="flex-1 space-y-1 p-3">
@@ -56,16 +56,22 @@ export function Sidebar() {
           label="Nodes"
           isActive={location.pathname === "/dashboard/nodes"}
         />
+        <SidebarItem
+          to="/dashboard/system"
+          icon={Server}
+          label="System"
+          isActive={location.pathname === "/dashboard/system"}
+        />
       </nav>
 
       <div className="border-t border-white/10 p-3 sm:p-4">
-        <div className="flex items-center justify-center sm:justify-start gap-3 rounded-lg bg-white/5 px-2 sm:px-3 py-2">
-          <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-kleff text-sm font-semibold text-black">
+        <div className="flex items-center justify-center gap-3 rounded-lg bg-white/5 px-2 py-2 sm:justify-start sm:px-3">
+          <div className="bg-gradient-kleff flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold text-black">
             N
           </div>
-          <div className="hidden sm:block flex-1 min-w-0">
-            <div className="text-xs font-medium text-neutral-200 truncate">Nathan</div>
-            <div className="text-[10px] text-neutral-500 truncate">nathan@kleff.io</div>
+          <div className="hidden min-w-0 flex-1 sm:block">
+            <div className="truncate text-xs font-medium text-neutral-200">Nathan</div>
+            <div className="truncate text-[10px] text-neutral-500">nathan@kleff.io</div>
           </div>
         </div>
       </div>
