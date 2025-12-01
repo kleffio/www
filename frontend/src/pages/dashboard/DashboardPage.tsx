@@ -49,7 +49,7 @@ const dashboardData = {
       trend: "up"
     }
   ],
-  
+
   trafficMetrics: {
     totalRequests: {
       value: "2,487,392",
@@ -66,7 +66,7 @@ const dashboardData = {
       subtitle: "Optimal performance"
     }
   },
-  
+
   trafficChart: [
     { height: 65, value: "1.8M", time: "00:00" },
     { height: 78, value: "2.1M", time: "02:00" },
@@ -81,7 +81,7 @@ const dashboardData = {
     { height: 97, value: "2.6M", time: "20:00" },
     { height: 89, value: "2.4M", time: "22:00" }
   ],
-  
+
   recentDeployments: [
     {
       branch: "production",
@@ -108,7 +108,7 @@ const dashboardData = {
       statusVariant: "outline"
     }
   ],
-  
+
   security: {
     ssl: {
       title: "SSL/TLS",
@@ -127,7 +127,7 @@ const dashboardData = {
       incidents: "0"
     }
   },
-  
+
   infrastructure: [
     {
       icon: Server,
@@ -150,7 +150,7 @@ const dashboardData = {
       description: "1.2M queries in last 24h"
     }
   ],
-  
+
   quickActions: [
     {
       icon: GitBranch,
@@ -167,7 +167,7 @@ const dashboardData = {
   ]
 };
 
-export function Dashboard() {
+export function DashboardPage() {
   return (
     <div className="bg-kleff-bg relative isolate flex h-screen overflow-hidden">
       <div className="pointer-events-none absolute inset-0 -z-20">
@@ -285,24 +285,24 @@ export function Dashboard() {
                   <div className="mt-4 h-32 rounded-lg bg-black/40 p-4">
                     <div className="flex h-full items-end gap-1">
                       {dashboardData.trafficChart.map((bar, i) => (
-                        <div key={i} className="group relative flex-1 flex items-end h-full">
+                        <div key={i} className="group relative flex h-full flex-1 items-end">
                           <div
                             className="w-full rounded-t transition-all duration-200 group-hover:brightness-125"
-                            style={{ 
+                            style={{
                               height: `${bar.height}%`,
-                              background: 'linear-gradient(to top, #facc15, #fb923c, #f97316)'
+                              background: "linear-gradient(to top, #facc15, #fb923c, #f97316)"
                             }}
                           />
                           <div className="pointer-events-none absolute -top-16 left-1/2 z-10 -translate-x-1/2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                             <div className="rounded-lg border border-white/20 bg-black/95 px-3 py-2 shadow-lg backdrop-blur-sm">
-                              <div className="whitespace-nowrap text-xs font-semibold text-neutral-50">
+                              <div className="text-xs font-semibold whitespace-nowrap text-neutral-50">
                                 {bar.value}
                               </div>
-                              <div className="whitespace-nowrap text-[10px] text-neutral-400">
+                              <div className="text-[10px] whitespace-nowrap text-neutral-400">
                                 {bar.time}
                               </div>
                             </div>
-                            <div className="absolute left-1/2 top-full -translate-x-1/2">
+                            <div className="absolute top-full left-1/2 -translate-x-1/2">
                               <div className="h-0 w-0 border-x-4 border-t-4 border-x-transparent border-t-black/95" />
                             </div>
                           </div>
@@ -326,7 +326,10 @@ export function Dashboard() {
                 <SoftPanel>
                   <div className="space-y-3">
                     {dashboardData.recentDeployments.map((deployment, i) => (
-                      <div key={i} className="flex items-center justify-between rounded-lg bg-black/40 px-4 py-3">
+                      <div
+                        key={i}
+                        className="flex items-center justify-between rounded-lg bg-black/40 px-4 py-3"
+                      >
                         <div className="flex items-center gap-3">
                           <GradientIcon icon={GitBranch} />
                           <div>
@@ -335,7 +338,9 @@ export function Dashboard() {
                                 {deployment.branch}
                               </span>
                               <span className="font-mono text-xs text-neutral-500">•</span>
-                              <span className="font-mono text-xs text-neutral-400">{deployment.commit}</span>
+                              <span className="font-mono text-xs text-neutral-400">
+                                {deployment.commit}
+                              </span>
                             </div>
                             <div className="text-xs text-neutral-400">
                               {deployment.message} • {deployment.time}
@@ -399,7 +404,8 @@ export function Dashboard() {
                       <div className="text-xs text-emerald-200">
                         <div className="font-medium">24h Security Summary</div>
                         <div className="mt-1 text-emerald-300/80">
-                          {dashboardData.security.summary.threats} threats blocked • {dashboardData.security.summary.incidents} incidents
+                          {dashboardData.security.summary.threats} threats blocked •{" "}
+                          {dashboardData.security.summary.incidents} incidents
                         </div>
                       </div>
                     </div>

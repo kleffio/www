@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import { AppLayout } from "@app/layout/AppLayout";
 import { LandingPage } from "@pages/landing/LandingPage";
-import { Dashboard } from "@pages/Dashboard/Dashboard";
+import { DashboardPage } from "@pages/dashboard/DashboardPage";
 import { ErrorPage } from "@app/error/ErrorPage";
 
 export const router = createBrowserRouter([
@@ -19,7 +19,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: <Dashboard />,
+    element: <DashboardPage />,
     errorElement: <ErrorPage />
-  },
+  }
 ]);
