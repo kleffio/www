@@ -75,9 +75,7 @@ export const ResourceChart: React.FC<Props> = ({
         : { month: "short", day: "numeric", hour: "2-digit" };
 
   const timeFormatter = (ts: number | string) => {
-    // Recharts may pass tick values in seconds or milliseconds — normalize here
-    const raw = typeof ts === "number" ? ts : Number(ts);
-    const n = raw < 1e12 ? raw * 1000 : raw;
+    const n = typeof ts === "number" ? ts : Number(ts);
     return new Date(n).toLocaleTimeString("en-US", tickOptions as any);
   };
 

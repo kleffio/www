@@ -1,5 +1,4 @@
 import { Sidebar } from "@shared/ui/Sidebar";
-import { SoftPanel } from "@shared/ui/SoftPanel";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { MetricCard } from "../../components/MetricCard";
@@ -18,7 +17,6 @@ import "./MetricsDashboard.css";
 
 export const MetricsDashboard: React.FC = () => {
   const [overview, setOverview] = useState<ClusterOverview | null>(null);
-  const [duration, setDuration] = useState<string>("1h");
   const [requestsMetric, setRequestsMetric] = useState<MetricCardType | null>(null);
   const [podsMetric, setPodsMetric] = useState<MetricCardType | null>(null);
   const [nodesMetric, setNodesMetric] = useState<MetricCardType | null>(null);
@@ -29,6 +27,7 @@ export const MetricsDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const [duration, setDuration] = useState<string>("1h");
 
   const fetchData = async () => {
     try {
@@ -44,9 +43,9 @@ export const MetricsDashboard: React.FC = () => {
         namespacesRes
       ] = await Promise.all([
         metricsApi.getOverview(),
-        metricsApi.getRequestsMetric(duration),
-        metricsApi.getPodsMetric(duration),
-        metricsApi.getNodesMetric(duration),
+        metricsApi.getRequestsMetric("1h"),
+        metricsApi.getPodsMetric("1h"),
+        metricsApi.getNodesMetric("1h"),
         metricsApi.getCpuUtilization(duration),
         metricsApi.getMemoryUtilization(duration),
         metricsApi.getNodes(),
@@ -93,26 +92,9 @@ export const MetricsDashboard: React.FC = () => {
             <div className="flex items-start justify-between">
               <div>
                 <h1 className="text-3xl font-semibold text-neutral-50">Metrics Overview</h1>
-                <p className="mt-1 text-sm text-neutral-400">Monitor your Kubernetes cluster metrics</p>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <label htmlFor="duration-select" className="text-sm text-neutral-400">
-                  Range
-                </label>
-                <select
-                  id="duration-select"
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                  className="rounded-md border border-white/10 bg-black/30 px-2 py-1 text-sm text-neutral-200"
-                >
-                  <option value="1m">1m</option>
-                  <option value="5m">5m</option>
-                  <option value="15m">15m</option>
-                  <option value="1h">1h</option>
-                  <option value="6h">6h</option>
-                  <option value="24h">24h</option>
-                </select>
+                <p className="mt-1 text-sm text-neutral-400">
+                  Monitor your Kubernetes cluster metrics
+                </p>
               </div>
             </div>
           </div>
@@ -144,60 +126,72 @@ export const MetricsDashboard: React.FC = () => {
             )}
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <div className="space-y-6">
+          <div className="space-y-6">
+            {/* Performance Section - Full Width */}
+            <div>
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-neutral-50">Performance</h2>
+                <select
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  className="rounded border border-white/20 bg-white/5 px-2 py-1 text-sm text-neutral-200 hover:border-white/40"
+                >
+                  <option value="1m">1 minute</option>
+                  <option value="5m">5 minutes</option>
+                  <option value="15m">15 minutes</option>
+                  <option value="1h">1 hour</option>
+                  <option value="6h">6 hours</option>
+                  <option value="24h">24 hours</option>
+                </select>
+              </div>
+              <div className="grid gap-4 lg:grid-cols-2">
+                {cpuData && (
+                  <ResourceChart
+                    title="CPU Utilization"
+                    data={cpuData}
+                    color="#fb923c"
+                    loading={loading}
+                  />
+                )}
+                {memoryData && (
+                  <ResourceChart
+                    title="Memory Utilization"
+                    data={memoryData}
+                    color="#10b981"
+                    loading={loading}
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Infrastructure and Node Metrics - Side by Side */}
+            <div className="grid gap-6 lg:grid-cols-2">
               <div>
-                <h2 className="mb-4 text-lg font-semibold text-neutral-50">Performance</h2>
-                <div className="space-y-4">
-                  <div className="charts-grid">
-                    {cpuData && (
-                      <ResourceChart
-                        title="CPU Utilization"
-                        data={cpuData}
-                        color="#fb923c"
-                        loading={loading}
-                      />
-                    )}
-                    {memoryData && (
-                      <ResourceChart
-                        title="Memory Utilization"
-                        data={memoryData}
-                        color="#10b981"
-                        loading={loading}
-                      />
-                    )}
-                  </div>
+                <h2 className="mb-4 text-lg font-semibold text-neutral-50">Infrastructure</h2>
+                <div className="h-96 overflow-y-auto rounded-lg border border-white/10 bg-black/20">
+                  <NamespacesTable namespaces={namespaces} loading={loading} />
                 </div>
               </div>
 
               <div>
-                <h2 className="mb-4 text-lg font-semibold text-neutral-50">Infrastructure</h2>
-                <div className="space-y-4">
-                  <div className="infrastructure-grid">
-                    <NamespacesTable namespaces={namespaces} loading={loading} />
-                  </div>
+                <h2 className="mb-4 text-lg font-semibold text-neutral-50">Node Metrics</h2>
+                <div className="h-96 overflow-y-auto rounded-lg border border-white/10 bg-black/20">
+                  <NodesList nodes={nodes} loading={loading} />
                 </div>
               </div>
             </div>
 
-            <div className="space-y-6">
-              <div>
-                <h2 className="mb-4 text-lg font-semibold text-neutral-50">Actions</h2>
-                <div className="space-y-2">
-                  <button
-                    className="w-full justify-start rounded-md border border-white/20 bg-white/5 px-3 py-2 text-sm text-neutral-200 hover:border-white/40 hover:bg-white/10"
-                    onClick={() => fetchData()}
-                  >
-                    <RefreshCw className="mr-2 inline-block h-4 w-4" /> Refresh Metrics
-                  </button>
-                </div>
+            {/* Actions - Below */}
+            <div>
+              <h2 className="mb-4 text-lg font-semibold text-neutral-50">Actions</h2>
+              <div className="space-y-2">
+                <button
+                  className="w-full justify-start rounded-md border border-white/20 bg-white/5 px-3 py-2 text-sm text-neutral-200 hover:border-white/40 hover:bg-white/10"
+                  onClick={() => fetchData()}
+                >
+                  <RefreshCw className="mr-2 inline-block h-4 w-4" /> Refresh Metrics
+                </button>
               </div>
-
-              {/* place node metrics in the right column space */}
-              <SoftPanel>
-                <h3 className="mb-2 text-sm font-semibold text-neutral-200">Node Metrics</h3>
-                <NodesList nodes={nodes} loading={loading} />
-              </SoftPanel>
             </div>
           </div>
           {/* (removed bottom duplicates - Nodes now live in right column) */}
