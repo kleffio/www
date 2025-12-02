@@ -119,7 +119,7 @@ export const MetricsDashboard: React.FC = () => {
                 <select
                   value={duration}
                   onChange={(e) => setDuration(e.target.value)}
-                  className="rounded-lg border-2 border-blue-500/50 bg-blue-500/10 px-4 py-2.5 text-base font-medium text-neutral-50 shadow-lg shadow-blue-500/20 transition-all hover:border-blue-400 hover:bg-blue-500/20 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/50 focus:outline-none"
+                  className="rounded-lg border-2 border-white/20 bg-white/5 px-4 py-2.5 text-base font-medium text-neutral-50 shadow-lg shadow-black/20 transition-all hover:border-white/30 hover:bg-white/10 focus:border-white/40 focus:ring-2 focus:ring-white/20 focus:outline-none [&>option]:bg-neutral-900 [&>option]:text-neutral-50"
                 >
                   <option value="1m">Last 1 minute</option>
                   <option value="5m">Last 5 minutes</option>
