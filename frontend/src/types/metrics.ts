@@ -43,3 +43,19 @@ export interface NamespaceMetric {
   cpuUsage: number;
   memoryUsage: number;
 }
+
+export interface DatabaseMetrics {
+  diskReadBytesPerSec: number;
+  diskWriteBytesPerSec: number;
+  diskReadOpsPerSec: number;
+  diskWriteOpsPerSec: number;
+  networkReceiveBytesPerSec: number;
+  networkTransmitBytesPerSec: number;
+  networkReceiveOpsPerSec: number;
+  networkTransmitOpsPerSec: number;
+  diskReadHistory: TimeSeriesDataPoint[];
+  diskWriteHistory: TimeSeriesDataPoint[];
+  networkReceiveHistory: TimeSeriesDataPoint[];
+  networkTransmitHistory: TimeSeriesDataPoint[];
+  source: string;
+}

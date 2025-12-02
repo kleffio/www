@@ -1,6 +1,7 @@
 import axios from "axios";
 import type {
   ClusterOverview,
+  DatabaseMetrics,
   MetricCard,
   NamespaceMetric,
   NodeMetric,
@@ -31,5 +32,11 @@ export const metricsApi = {
 
   getNodes: () => api.get<NodeMetric[]>("/nodes"),
 
-  getNamespaces: () => api.get<NamespaceMetric[]>("/namespaces")
+  getNamespaces: () => api.get<NamespaceMetric[]>("/namespaces"),
+
+  getDatabaseIoMetrics: (duration = "1h") =>
+    api.get<DatabaseMetrics>("/database-io", { params: { duration } }),
+
+  getTenantsMetric: (duration = "1h") =>
+    api.get<MetricCard>("/tenants-metric", { params: { duration } })
 };

@@ -1,7 +1,7 @@
 import { ErrorPage } from "@app/error/ErrorPage";
 import { AppLayout } from "@app/layout/AppLayout";
 import { DashboardPage } from "@pages/dashboard/DashboardPage";
-import { MetricsDashboard } from "@pages/Dashboard/MetricsDashboard";
+import { MetricsDashboard } from "@pages/dashboard/MetricsDashboard";
 import { LandingPage } from "@pages/landing/LandingPage";
 import { createBrowserRouter } from "react-router-dom";
 export const router = createBrowserRouter([

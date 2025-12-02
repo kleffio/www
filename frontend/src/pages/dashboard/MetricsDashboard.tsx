@@ -7,7 +7,7 @@ import { NodesList } from "../../components/NodesList";
 import { ResourceChart } from "../../components/ResourceChart";
 import { metricsApi } from "../../services/metricsApi";
 import type {
-  ClusterOverview,
+  DatabaseMetrics,
   MetricCard as MetricCardType,
   NamespaceMetric,
   NodeMetric,
@@ -15,13 +15,26 @@ import type {
 } from "../../types/metrics";
 import "./MetricsDashboard.css";
 
+// Helper function to format bytes
+const formatBytes = (bytes: number): string => {
+  if (bytes >= 1099511627776) {
+    return `${(bytes / 1099511627776).toFixed(1)} TB`;
+  } else if (bytes >= 1073741824) {
+    return `${(bytes / 1073741824).toFixed(1)} GB`;
+  } else if (bytes >= 1048576) {
+    return `${(bytes / 1048576).toFixed(1)} MB`;
+  }
+  return `${(bytes / 1024).toFixed(1)} KB`;
+};
+
 export const MetricsDashboard: React.FC = () => {
-  const [overview, setOverview] = useState<ClusterOverview | null>(null);
   const [requestsMetric, setRequestsMetric] = useState<MetricCardType | null>(null);
   const [podsMetric, setPodsMetric] = useState<MetricCardType | null>(null);
   const [nodesMetric, setNodesMetric] = useState<MetricCardType | null>(null);
+  const [tenantsMetric, setTenantsMetric] = useState<MetricCardType | null>(null);
   const [cpuData, setCpuData] = useState<ResourceUtilization | null>(null);
   const [memoryData, setMemoryData] = useState<ResourceUtilization | null>(null);
+  const [databaseIoData, setDatabaseIoData] = useState<DatabaseMetrics | null>(null);
   const [nodes, setNodes] = useState<NodeMetric[]>([]);
   const [namespaces, setNamespaces] = useState<NamespaceMetric[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,31 +46,34 @@ export const MetricsDashboard: React.FC = () => {
     try {
       setError(null);
       const [
-        overviewRes,
         requestsRes,
         podsRes,
         nodesMetricRes,
+        tenantsRes,
         cpuRes,
         memoryRes,
+        databaseIoRes,
         nodesRes,
         namespacesRes
       ] = await Promise.all([
-        metricsApi.getOverview(),
         metricsApi.getRequestsMetric("1h"),
         metricsApi.getPodsMetric("1h"),
         metricsApi.getNodesMetric("1h"),
+        metricsApi.getTenantsMetric("1h"),
         metricsApi.getCpuUtilization(duration),
         metricsApi.getMemoryUtilization(duration),
+        metricsApi.getDatabaseIoMetrics(duration),
         metricsApi.getNodes(),
         metricsApi.getNamespaces()
       ]);
 
-      setOverview(overviewRes.data);
       setRequestsMetric(requestsRes.data);
       setPodsMetric(podsRes.data);
       setNodesMetric(nodesMetricRes.data);
+      setTenantsMetric(tenantsRes.data);
       setCpuData(cpuRes.data);
       setMemoryData(memoryRes.data);
+      setDatabaseIoData(databaseIoRes.data);
       setNodes(nodesRes.data);
       setNamespaces(namespacesRes.data);
       setLastUpdate(new Date());
@@ -96,6 +112,24 @@ export const MetricsDashboard: React.FC = () => {
                   Monitor your Kubernetes cluster metrics
                 </p>
               </div>
+
+              {/* Time Range Selector - Prominent Position */}
+              <div className="flex flex-col items-end gap-2">
+                <label className="text-sm font-medium text-neutral-300">Time Range</label>
+                <select
+                  value={duration}
+                  onChange={(e) => setDuration(e.target.value)}
+                  className="rounded-lg border-2 border-blue-500/50 bg-blue-500/10 px-4 py-2.5 text-base font-medium text-neutral-50 shadow-lg shadow-blue-500/20 transition-all hover:border-blue-400 hover:bg-blue-500/20 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/50 focus:outline-none"
+                >
+                  <option value="1m">Last 1 minute</option>
+                  <option value="5m">Last 5 minutes</option>
+                  <option value="15m">Last 15 minutes</option>
+                  <option value="1h">Last 1 hour</option>
+                  <option value="6h">Last 6 hours</option>
+                  <option value="24h">Last 24 hours</option>
+                </select>
+                <span className="text-xs text-neutral-500">Affects all time-series data</span>
+              </div>
             </div>
           </div>
 
@@ -110,40 +144,84 @@ export const MetricsDashboard: React.FC = () => {
             {requestsMetric && <MetricCard metric={requestsMetric} loading={loading} />}
             {podsMetric && <MetricCard metric={podsMetric} loading={loading} />}
             {nodesMetric && <MetricCard metric={nodesMetric} loading={loading} />}
-            {overview && overview.cpuUsagePercent != null && (
+            {tenantsMetric && (
               <MetricCard
-                metric={{
-                  title: "CPU Usage",
-                  value: `${overview.cpuUsagePercent.toFixed(1)}%`,
-                  rawValue: overview.cpuUsagePercent,
-                  changePercent: "+0.0%",
-                  changeLabel: "Cluster average",
-                  status: overview.cpuUsagePercent > 80 ? "critical" : "good",
-                  sparkline: []
-                }}
+                metric={{ ...tenantsMetric, changeLabel: "Hardcoded value" }}
                 loading={loading}
               />
             )}
           </div>
 
+          {/* Database Metrics Section */}
+          <div className="mb-6">
+            <h2 className="mb-4 text-lg font-semibold text-neutral-50">
+              Database Usage Metrics
+              {databaseIoData && databaseIoData.source && (
+                <span className="ml-2 text-sm font-normal text-neutral-400">
+                  ({databaseIoData.source})
+                </span>
+              )}
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {databaseIoData && (
+                <>
+                  <MetricCard
+                    metric={{
+                      title: "DB Disk Read",
+                      value: formatBytes(databaseIoData.diskReadBytesPerSec) + "/s",
+                      rawValue: databaseIoData.diskReadBytesPerSec,
+                      changePercent: `${databaseIoData.diskReadOpsPerSec.toFixed(0)} ops/s`,
+                      changeLabel: "Storage operations",
+                      status: "good",
+                      sparkline: databaseIoData.diskReadHistory || []
+                    }}
+                    loading={loading}
+                  />
+                  <MetricCard
+                    metric={{
+                      title: "DB Disk Write",
+                      value: formatBytes(databaseIoData.diskWriteBytesPerSec) + "/s",
+                      rawValue: databaseIoData.diskWriteBytesPerSec,
+                      changePercent: `${databaseIoData.diskWriteOpsPerSec.toFixed(0)} ops/s`,
+                      changeLabel: "Storage operations",
+                      status: "good",
+                      sparkline: databaseIoData.diskWriteHistory || []
+                    }}
+                    loading={loading}
+                  />
+                  <MetricCard
+                    metric={{
+                      title: "DB Network In",
+                      value: formatBytes(databaseIoData.networkReceiveBytesPerSec) + "/s",
+                      rawValue: databaseIoData.networkReceiveBytesPerSec,
+                      changePercent: `${databaseIoData.networkReceiveOpsPerSec.toFixed(0)} pkt/s`,
+                      changeLabel: "Connection traffic",
+                      status: "good",
+                      sparkline: databaseIoData.networkReceiveHistory || []
+                    }}
+                    loading={loading}
+                  />
+                  <MetricCard
+                    metric={{
+                      title: "DB Network Out",
+                      value: formatBytes(databaseIoData.networkTransmitBytesPerSec) + "/s",
+                      rawValue: databaseIoData.networkTransmitBytesPerSec,
+                      changePercent: `${databaseIoData.networkTransmitOpsPerSec.toFixed(0)} pkt/s`,
+                      changeLabel: "Query responses",
+                      status: "good",
+                      sparkline: databaseIoData.networkTransmitHistory || []
+                    }}
+                    loading={loading}
+                  />
+                </>
+              )}
+            </div>
+          </div>
+
           <div className="space-y-6">
             {/* Performance Section - Full Width */}
             <div>
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-neutral-50">Performance</h2>
-                <select
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                  className="rounded border border-white/20 bg-white/5 px-2 py-1 text-sm text-neutral-200 hover:border-white/40"
-                >
-                  <option value="1m">1 minute</option>
-                  <option value="5m">5 minutes</option>
-                  <option value="15m">15 minutes</option>
-                  <option value="1h">1 hour</option>
-                  <option value="6h">6 hours</option>
-                  <option value="24h">24 hours</option>
-                </select>
-              </div>
+              <h2 className="mb-4 text-lg font-semibold text-neutral-50">Performance</h2>
               <div className="grid gap-4 lg:grid-cols-2">
                 {cpuData && (
                   <ResourceChart
