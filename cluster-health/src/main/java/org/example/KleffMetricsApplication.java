@@ -15,9 +15,9 @@ public class KleffMetricsApplication {
 
     @Bean
     public WebClient webClient(@Value("${prometheus.url}") String prometheusUrl) {
-        System.out.println("\n✅ Kleff Metrics Backend Started!");
-        System.out.println("📊 Prometheus URL: " + prometheusUrl);
-        System.out.println("📍 API Endpoints: http://localhost:8080/api/metrics/*\n");
+        System.out.println("\n Kleff Metrics Backend Started!");
+        System.out.println("Prometheus URL: " + prometheusUrl);
+        System.out.println("API Endpoints: http://localhost:8080/api/metrics/*\n");
 
         return WebClient.builder()
                 .baseUrl(prometheusUrl)

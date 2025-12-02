@@ -42,7 +42,6 @@ public class MetricsServiceImpl implements MetricsService {
         log.info("MetricsService initialized with Prometheus URL: {}", prometheusUrl);
     }
 
-    // ==================== PROMETHEUS QUERY METHODS ====================
 
     private String executeQuery(String query) {
         try {
@@ -93,7 +92,6 @@ public class MetricsServiceImpl implements MetricsService {
         }
     }
 
-    // ==================== PARSING METHODS ====================
 
     private double parseSingleValue(String jsonResponse) {
         try {
@@ -451,13 +449,10 @@ public class MetricsServiceImpl implements MetricsService {
         long now = System.currentTimeMillis() / 1000;
         long start = now - parseDuration(duration);
 
-        // Target database pods specifically (PostgreSQL, MySQL, etc.)
-        // This filters for common database container names
+       
         String dbPodFilter = "container=~\".*postgres.*|.*mysql.*|.*mariadb.*|.*mongodb.*|.*redis.*\"";
         
-        // === DISK I/O METRICS (Storage Operations) ===
         
-        // Disk read bytes per second - for database pods
         String readBytesQuery = String.format(
             "sum(rate(container_fs_reads_bytes_total{%s}[5m]))", dbPodFilter
         );
@@ -466,7 +461,6 @@ public class MetricsServiceImpl implements MetricsService {
                 executeRangeQuery(readBytesQuery, String.valueOf(start), String.valueOf(now), "5m")
         );
 
-        // Disk write bytes per second - for database pods
         String writeBytesQuery = String.format(
             "sum(rate(container_fs_writes_bytes_total{%s}[5m]))", dbPodFilter
         );
@@ -475,21 +469,18 @@ public class MetricsServiceImpl implements MetricsService {
                 executeRangeQuery(writeBytesQuery, String.valueOf(start), String.valueOf(now), "5m")
         );
 
-        // Disk read operations per second
+
         String readOpsQuery = String.format(
             "sum(rate(container_fs_reads_total{%s}[5m]))", dbPodFilter
         );
         double currentReadOps = parseSingleValue(executeQuery(readOpsQuery));
 
-        // Disk write operations per second
         String writeOpsQuery = String.format(
             "sum(rate(container_fs_writes_total{%s}[5m]))", dbPodFilter
         );
         double currentWriteOps = parseSingleValue(executeQuery(writeOpsQuery));
 
-        // === NETWORK I/O METRICS (Database Connections/Queries) ===
-        
-        // Network receive bytes per second - for database pods
+
         String networkReceiveQuery = String.format(
             "sum(rate(container_network_receive_bytes_total{%s}[5m]))", dbPodFilter
         );
@@ -498,7 +489,7 @@ public class MetricsServiceImpl implements MetricsService {
                 executeRangeQuery(networkReceiveQuery, String.valueOf(start), String.valueOf(now), "5m")
         );
 
-        // Network transmit bytes per second - for database pods
+
         String networkTransmitQuery = String.format(
             "sum(rate(container_network_transmit_bytes_total{%s}[5m]))", dbPodFilter
         );
@@ -507,13 +498,12 @@ public class MetricsServiceImpl implements MetricsService {
                 executeRangeQuery(networkTransmitQuery, String.valueOf(start), String.valueOf(now), "5m")
         );
 
-        // Network receive packets per second
+
         String networkReceiveOpsQuery = String.format(
             "sum(rate(container_network_receive_packets_total{%s}[5m]))", dbPodFilter
         );
         double currentNetworkReceiveOps = parseSingleValue(executeQuery(networkReceiveOpsQuery));
 
-        // Network transmit packets per second
         String networkTransmitOpsQuery = String.format(
             "sum(rate(container_network_transmit_packets_total{%s}[5m]))", dbPodFilter
         );
@@ -540,7 +530,7 @@ public class MetricsServiceImpl implements MetricsService {
     public MetricCard getTenantCountMetric(String duration) {
         log.info("Fetching tenant count metric");
 
-        // Hardcoded for now as per requirements
+
         double tenantCount = 3.0;
 
         return MetricCard.builder()
@@ -554,7 +544,6 @@ public class MetricsServiceImpl implements MetricsService {
                 .build();
     }
 
-    // ==================== HELPER METHODS ====================
 
     private String getIssueFromPhase(String phase) {
         return switch (phase) {

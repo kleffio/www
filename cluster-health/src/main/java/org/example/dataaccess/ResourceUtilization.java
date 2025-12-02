@@ -1,11 +1,11 @@
 package org.example.dataaccess;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -14,6 +14,6 @@ import java.util.List;
 public class ResourceUtilization {
     private double currentValue;
     private double changePercent;
-    private String trend;  // "up", "down", "stable"
+    private String trend;  
     private List<TimeSeriesDataPoint> history;
 }

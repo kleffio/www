@@ -1,17 +1,5 @@
 package org.example.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.example.dataaccess.MetricCard;
-import org.example.dataaccess.NamespaceMetric;
-import org.example.dataaccess.NodeMetric;
-import org.example.dataaccess.ResourceUtilization;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.example.dataaccess.*;
-
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -19,6 +7,22 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.example.dataaccess.ClusterOverview;
+import org.example.dataaccess.MetricCard;
+import org.example.dataaccess.NamespaceMetric;
+import org.example.dataaccess.NodeMetric;
+import org.example.dataaccess.ResourceUtilization;
+import org.example.dataaccess.TimeSeriesDataPoint;
+import org.example.dataaccess.UnhealthyPod;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -37,9 +41,7 @@ public class PrometheusService {
         log.info("PrometheusService initialized with URL: {}", prometheusUrl);
     }
 
-    /**
-     * Execute PromQL query - Using YOUR working pattern!
-     */
+
     private String executeQuery(String query) {
         try {
             log.debug("Executing query: {}", query);
@@ -64,9 +66,7 @@ public class PrometheusService {
         }
     }
 
-    /**
-     * Execute PromQL range query for time-series data (for charts!)
-     */
+ 
     private String executeRangeQuery(String query, String start, String end, String step) {
         try {
             log.debug("Executing range query: {}", query);
@@ -94,9 +94,7 @@ public class PrometheusService {
         }
     }
 
-    /**
-     * Parse single value from Prometheus response
-     */
+ 
     private double parseSingleValue(String jsonResponse) {
         try {
             JsonNode root = objectMapper.readTree(jsonResponse);
@@ -115,9 +113,7 @@ public class PrometheusService {
         }
     }
 
-    /**
-     * Parse multiple values with labels from Prometheus response
-     */
+
     private Map<String, Double> parseMultipleValues(String jsonResponse, String labelKey) {
         Map<String, Double> results = new HashMap<>();
         try {
@@ -140,33 +136,25 @@ public class PrometheusService {
         return results;
     }
 
-    /**
-     * Get overview metrics for dashboard
-     */
+  
     public ClusterOverview getOverviewMetrics() {
         log.info("Fetching overview metrics");
 
-        // Total nodes
         String nodesQuery = "count(kube_node_info)";
         double totalNodes = parseSingleValue(executeQuery(nodesQuery));
 
-        // Running nodes (Ready status)
         String runningNodesQuery = "count(kube_node_status_condition{condition=\"Ready\",status=\"true\"})";
         double runningNodes = parseSingleValue(executeQuery(runningNodesQuery));
 
-        // Total pods
         String podsQuery = "count(kube_pod_info)";
         double totalPods = parseSingleValue(executeQuery(podsQuery));
 
-        // Total namespaces
         String namespacesQuery = "count(count by (namespace) (kube_pod_info))";
         double totalNamespaces = parseSingleValue(executeQuery(namespacesQuery));
 
-        // CPU usage percentage
         String cpuQuery = "100 * sum(rate(container_cpu_usage_seconds_total{container!=\"\"}[5m])) / sum(machine_cpu_cores)";
         double cpuUsage = parseSingleValue(executeQuery(cpuQuery));
 
-        // Memory usage percentage
         String memoryQuery = "100 * sum(container_memory_working_set_bytes{container!=\"\"}) / sum(machine_memory_bytes)";
         double memoryUsage = parseSingleValue(executeQuery(memoryQuery));
 
@@ -180,14 +168,11 @@ public class PrometheusService {
                 .build();
     }
 
-    /**
-     * Get per-node metrics
-     */
+ 
     public List<NodeMetric> getNodeMetrics() {
         log.info("Fetching node metrics");
         List<NodeMetric> nodes = new ArrayList<>();
 
-        // Get node names
         String nodeNamesQuery = "kube_node_info";
         String nodeNamesResponse = executeQuery(nodeNamesQuery);
 
@@ -198,32 +183,27 @@ public class PrometheusService {
             for (JsonNode item : resultArray) {
                 String nodeName = item.path("metric").path("node").asText();
 
-                // CPU usage per node
                 String cpuQuery = String.format(
                         "100 * sum(rate(container_cpu_usage_seconds_total{node=\"%s\"}[5m])) / sum(machine_cpu_cores{node=\"%s\"})",
                         nodeName, nodeName
                 );
                 double cpuUsage = parseSingleValue(executeQuery(cpuQuery));
 
-                // Memory usage per node
                 String memoryQuery = String.format(
                         "100 * sum(container_memory_working_set_bytes{node=\"%s\"}) / sum(machine_memory_bytes{node=\"%s\"})",
                         nodeName, nodeName
                 );
                 double memoryUsage = parseSingleValue(executeQuery(memoryQuery));
 
-                // Disk usage per node
                 String diskQuery = String.format(
                         "100 * (1 - sum(node_filesystem_avail_bytes{node=\"%s\"}) / sum(node_filesystem_size_bytes{node=\"%s\"}))",
                         nodeName, nodeName
                 );
                 double diskUsage = parseSingleValue(executeQuery(diskQuery));
 
-                // Pod count per node
                 String podCountQuery = String.format("count(kube_pod_info{node=\"%s\"})", nodeName);
                 double podCount = parseSingleValue(executeQuery(podCountQuery));
 
-                // Node status
                 String statusQuery = String.format(
                         "kube_node_status_condition{node=\"%s\",condition=\"Ready\",status=\"true\"}",
                         nodeName
@@ -247,26 +227,20 @@ public class PrometheusService {
         return nodes;
     }
 
-    /**
-     * Get namespace metrics
-     */
+
     public List<NamespaceMetric> getNamespaceMetrics() {
         log.info("Fetching namespace metrics");
         List<NamespaceMetric> namespaces = new ArrayList<>();
 
-        // Pods per namespace
         String podQuery = "count(kube_pod_info) by (namespace)";
         Map<String, Double> podCounts = parseMultipleValues(executeQuery(podQuery), "namespace");
 
-        // CPU per namespace (rate over 5 minutes, results in cores used)
         String cpuQuery = "sum(rate(container_cpu_usage_seconds_total[5m])) by (namespace)";
         Map<String, Double> cpuUsage = parseMultipleValues(executeQuery(cpuQuery), "namespace");
 
-        // Memory per namespace - returns bytes, we'll convert to MB
         String memoryQuery = "sum(container_memory_working_set_bytes) by (namespace)";
         Map<String, Double> memoryBytes = parseMultipleValues(executeQuery(memoryQuery), "namespace");
 
-        // Combine all metrics
         for (String namespace : podCounts.keySet()) {
             double memoryMB = memoryBytes.getOrDefault(namespace, 0.0) / 1024.0 / 1024.0;
 
@@ -281,14 +255,11 @@ public class PrometheusService {
         return namespaces;
     }
 
-    /**
-     * Get unhealthy services (pods not in Running/Succeeded state)
-     */
+
     public List<UnhealthyPod> getUnhealthyServices() {
         log.info("Fetching unhealthy services");
         List<UnhealthyPod> unhealthyServices = new ArrayList<>();
 
-        // Get pods in Pending, Failed, or Unknown state (where value = 1 means that's the actual state)
         String[] badPhases = {"Pending", "Failed", "Unknown"};
 
         for (String phase : badPhases) {
@@ -328,9 +299,7 @@ public class PrometheusService {
         };
     }
 
-    /**
-     * Parse time-series data from Prometheus range query response
-     */
+  
     private List<TimeSeriesDataPoint> parseTimeSeriesData(String jsonResponse) {
         List<TimeSeriesDataPoint> dataPoints = new ArrayList<>();
         try {
@@ -358,17 +327,13 @@ public class PrometheusService {
         return dataPoints;
     }
 
-    /**
-     * Get resource utilization with time-series data for charts
-     */
+ 
     public ResourceUtilization getCpuUtilization(String duration) {
         log.info("Fetching CPU utilization for duration: {}", duration);
 
-        // Current CPU usage
         String cpuQuery = "100 * sum(rate(container_cpu_usage_seconds_total{container!=\"\"}[5m])) / sum(machine_cpu_cores)";
         double currentCpu = parseSingleValue(executeQuery(cpuQuery));
 
-        // Historical CPU usage (last hour, 5min intervals)
         long now = System.currentTimeMillis() / 1000;
         long start = now - parseDuration(duration);
         String cpuRangeQuery = "100 * sum(rate(container_cpu_usage_seconds_total{container!=\"\"}[5m])) / sum(machine_cpu_cores)";
@@ -376,7 +341,6 @@ public class PrometheusService {
                 executeRangeQuery(cpuRangeQuery, String.valueOf(start), String.valueOf(now), "5m")
         );
 
-        // Calculate change percentage
         double changePercent = calculateChangePercent(history, currentCpu);
         String trend = determineTrend(changePercent);
 
@@ -388,9 +352,7 @@ public class PrometheusService {
                 .build();
     }
 
-    /**
-     * Get memory utilization with time-series data
-     */
+
     public ResourceUtilization getMemoryUtilization(String duration) {
         log.info("Fetching memory utilization for duration: {}", duration);
 
@@ -414,9 +376,7 @@ public class PrometheusService {
                 .build();
     }
 
-    /**
-     * Get pod count time-series
-     */
+ 
     public MetricCard getPodCountMetric(String duration) {
         log.info("Fetching pod count metric for duration: {}", duration);
 
@@ -442,9 +402,7 @@ public class PrometheusService {
                 .build();
     }
 
-    /**
-     * Get node count metric
-     */
+
     public MetricCard getNodeCountMetric(String duration) {
         log.info("Fetching node count metric");
 
@@ -470,13 +428,10 @@ public class PrometheusService {
                 .build();
     }
 
-    /**
-     * Get request count metric (example for traffic charts)
-     */
+  
     public MetricCard getRequestCountMetric(String duration) {
         log.info("Fetching request count metric");
 
-        // This is an example - adjust the query based on your actual metrics
         String requestQuery = "sum(rate(container_network_receive_bytes_total[5m]))";
         double currentRequests = parseSingleValue(executeQuery(requestQuery));
 
@@ -499,14 +454,13 @@ public class PrometheusService {
                 .build();
     }
 
-    // Helper methods
     private long parseDuration(String duration) {
         return switch (duration.toLowerCase()) {
             case "1h" -> 3600;
             case "6h" -> 21600;
             case "24h", "1d" -> 86400;
             case "7d" -> 604800;
-            default -> 3600; // Default 1 hour
+            default -> 3600;
         };
     }
 

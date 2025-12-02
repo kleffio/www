@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class TimeSeriesDataPoint {
-    private long timestamp;      // Unix timestamp in seconds
-    private double value;        // Metric value at this timestamp
+    private long timestamp;    
+    private double value;    
 }

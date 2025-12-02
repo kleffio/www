@@ -1,11 +1,11 @@
 package org.example.dataaccess;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -17,6 +17,6 @@ public class MetricCard {
     private double rawValue;
     private String changePercent;
     private String changeLabel;
-    private String status;  // "excellent", "good", "warning", "critical"
+    private String status;  
     private List<TimeSeriesDataPoint> sparkline;
 }
