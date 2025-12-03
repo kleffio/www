@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Sidebar } from "@shared/ui/Sidebar";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Badge } from "@shared/ui/Badge";
@@ -7,6 +7,7 @@ import { MiniCard } from "@shared/ui/MiniCard";
 import { FeatureRow } from "@shared/ui/FeatureRow";
 import { GradientIcon } from "@shared/ui/GradientIcon";
 import { Button } from "@shared/ui/Button";
+import { CreateProjectModal } from "@shared/ui/CreateProjectModal";
 import {
   Activity,
   GitBranch,
@@ -168,6 +169,8 @@ const dashboardData = {
 };
 
 export function Dashboard() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="bg-kleff-bg relative isolate flex h-screen overflow-hidden">
       <div className="pointer-events-none absolute inset-0 -z-20">
@@ -189,14 +192,13 @@ export function Dashboard() {
                   Monitor your deployments, traffic, and infrastructure health
                 </p>
               </div>
-              <Link to="/dashboard/projects/create">
-                <Button
-                  size="lg"
-                  className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
-                >
-                  Deploy New Project
-                </Button>
-              </Link>
+              <Button
+                onClick={() => setIsModalOpen(true)}
+                size="lg"
+                className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
+              >
+                Deploy New Project
+              </Button>
             </div>
           </div>
 
@@ -442,6 +444,12 @@ export function Dashboard() {
           </div>
         </div>
       </div>
+
+      <CreateProjectModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

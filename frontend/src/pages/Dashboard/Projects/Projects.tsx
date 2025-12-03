@@ -1,9 +1,9 @@
 import { Sidebar } from "@shared/ui/Sidebar";
-import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axiosInstance from "@shared/axiosInstance/axiosInstance";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Button } from "@shared/ui/Button";
+import { CreateProjectModal } from "@shared/ui/CreateProjectModal";
 
 type Project = {
   projectId?: string;
@@ -18,6 +18,7 @@ export function Projects() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -64,14 +65,13 @@ export function Projects() {
                       <p className="mt-1 text-sm text-neutral-400">Manage your projects and deployments</p>
                     </div>
 
-                    <Link to="/dashboard/projects/create">
-                      <Button
-                        size="lg"
-                        className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
-                      >
-                        Create Project
-                      </Button>
-                    </Link>
+                    <Button
+                      onClick={() => setIsModalOpen(true)}
+                      size="lg"
+                      className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
+                    >
+                      Create Project
+                    </Button>
                   </div>
 
                   {loading ? (
@@ -120,6 +120,12 @@ export function Projects() {
           </section>
         </section>
       </section>
+
+      <CreateProjectModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={() => setIsModalOpen(false)}
+      />
     </section>
   );
 }
