@@ -47,31 +47,31 @@ export function CreateProject() {
   };
 
   return (
-    <div className="bg-kleff-bg relative isolate flex h-screen overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 -z-20">
-        <div className="bg-modern-noise bg-kleff-spotlight h-full w-full opacity-60" />
-        <div className="bg-kleff-grid absolute inset-0 opacity-[0.25]" />
-      </div>
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-40 bg-linear-to-b from-white/10 via-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-40 bg-linear-to-t from-black via-transparent" />
+    <section className="bg-kleff-bg relative isolate flex h-screen overflow-hidden">
+      <section className="pointer-events-none absolute inset-0 -z-20">
+        <section className="bg-modern-noise bg-kleff-spotlight h-full w-full opacity-60" />
+        <section className="bg-kleff-grid absolute inset-0 opacity-[0.25]" />
+      </section>
+      <section className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-40 bg-linear-to-b from-white/10 via-transparent" />
+      <section className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-40 bg-linear-to-t from-black via-transparent" />
 
       <Sidebar />
 
-      <div className="flex-1 overflow-auto">
-        <div className="app-container py-8">
-          <div className="mb-8">
-            <div className="flex items-start justify-between">
-              <div>
+      <section className="flex-1 overflow-auto">
+        <section className="app-container py-8">
+          <section className="mb-8">
+            <section className="flex items-start justify-between">
+              <section>
                 <h1 className="text-3xl font-semibold text-neutral-50">Create Project</h1>
                 <p className="mt-1 text-sm text-neutral-400">Set up a new project for deployment</p>
-              </div>
-            </div>
-          </div>
+              </section>
+            </section>
+          </section>
 
-          <div className="grid gap-6 max-w-2xl">
+          <section className="grid gap-6 max-w-2xl">
             <SoftPanel>
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
+                <section>
                   <label htmlFor="name" className="block text-sm font-medium text-neutral-200 mb-2">
                     Project Name *
                   </label>
@@ -84,9 +84,9 @@ export function CreateProject() {
                     className="w-full rounded-lg border border-white/10 bg-black/40 px-4 py-2 text-neutral-50 placeholder-neutral-500 transition-colors hover:border-white/20 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400/50"
                     placeholder="My awesome project"
                   />
-                </div>
+                </section>
 
-                <div>
+                <section>
                   <label htmlFor="description" className="block text-sm font-medium text-neutral-200 mb-2">
                     Description
                   </label>
@@ -99,9 +99,9 @@ export function CreateProject() {
                     placeholder="A brief description of your project"
                     rows={4}
                   />
-                </div>
+                </section>
 
-                <div>
+                <section>
                   <label htmlFor="repositoryUrl" className="block text-sm font-medium text-neutral-200 mb-2">
                     Repository URL
                   </label>
@@ -114,9 +114,9 @@ export function CreateProject() {
                     className="w-full rounded-lg border border-white/10 bg-black/40 px-4 py-2 text-neutral-50 placeholder-neutral-500 transition-colors hover:border-white/20 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400/50"
                     placeholder="https://github.com/user/repo"
                   />
-                </div>
+                </section>
 
-                <div>
+                <section>
                   <label htmlFor="branch" className="block text-sm font-medium text-neutral-200 mb-2">
                     Branch
                   </label>
@@ -128,9 +128,9 @@ export function CreateProject() {
                     className="w-full rounded-lg border border-white/10 bg-black/40 px-4 py-2 text-neutral-50 placeholder-neutral-500 transition-colors hover:border-white/20 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400/50"
                     placeholder="main"
                   />
-                </div>
+                </section>
 
-                <div>
+                <section>
                   <label htmlFor="dockerComposePath" className="block text-sm font-medium text-neutral-200 mb-2">
                     Docker Compose Path
                   </label>
@@ -142,9 +142,9 @@ export function CreateProject() {
                     className="w-full rounded-lg border border-white/10 bg-black/40 px-4 py-2 text-neutral-50 placeholder-neutral-500 transition-colors hover:border-white/20 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400/50"
                     placeholder="docker-compose.yml"
                   />
-                </div>
+                </section>
 
-                <div className="flex gap-3 pt-2">
+                <section className="flex gap-3 pt-2">
                   <Button
                     type="submit"
                     disabled={isSubmitting}
@@ -160,12 +160,12 @@ export function CreateProject() {
                   >
                     Cancel
                   </Button>
-                </div>
+                </section>
               </form>
             </SoftPanel>
-          </div>
-        </div>
-      </div>
-    </div>
+          </section>
+        </section>
+      </section>
+    </section>
   );
 }
