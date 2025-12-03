@@ -1,40 +1,22 @@
 import axios from 'axios';
-import process from 'process';
+
+//THIS SHOULD BE REPLACED BY THE API-GATEWAY WHEN DONE
+const DEFAULT_BASE =  'http://localhost:8080';
 
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3000',
+  baseURL: DEFAULT_BASE,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request interceptor
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Response interceptor
-axiosInstance.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('authToken');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
+export function createServiceClient(baseUrl?: string) {
+  return axios.create({
+    baseURL: baseUrl || DEFAULT_BASE,
+    timeout: 10000,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
 
 export default axiosInstance;

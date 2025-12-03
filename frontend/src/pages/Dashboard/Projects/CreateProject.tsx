@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiClient } from "@shared/api/client";
+import axiosInstance from "@shared/axiosInstance/axiosInstance";
 import { Sidebar } from "@shared/ui/Sidebar";
 
 export function CreateProject() {
@@ -11,6 +11,8 @@ export function CreateProject() {
   const [branch, setBranch] = useState("");
   const [dockerComposePath, setDockerComposePath] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const projectId = 'Owner123';
+  const ownerId = 'Owner123';
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -18,14 +20,20 @@ export function CreateProject() {
 
     try {
       const payload = {
+        projectId,
         name,
         description,
+        ownerId,
         repositoryUrl,
         branch,
         dockerComposePath,
       } as const;
 
-      await apiClient.post("/api/v1/projects", payload);
+     
+      const url = `/api/v1/projects`;
+      // eslint-disable-next-line no-console
+      console.debug("Creating project via:", url, payload);
+      await axiosInstance.post(url, payload);
       navigate("/dashboard/projects");
     } catch (err) {
       // TODO: handle and show error to user

@@ -23,9 +23,15 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
-    @GetMapping("/owner/{ownerId}")
+    @GetMapping
+    public List<Project> getAllProjects() {
+        return projectService.getAllOwnedProjects();
+    }
+
+    //this only gets all projects
+    @GetMapping("/owner")
     public ResponseEntity<List<Project>> getAllOwnedProjects(@PathVariable String ownerId) {
-        List<Project> projects = projectService.getAllOwnedProjects(ownerId);
+        List<Project> projects = projectService.getAllOwnedProjects();
         return ResponseEntity.ok(projects);
     }
 
