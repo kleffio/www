@@ -2,6 +2,8 @@ import { Sidebar } from "@shared/ui/Sidebar";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axiosInstance from "@shared/axiosInstance/axiosInstance";
+import { SoftPanel } from "@shared/ui/SoftPanel";
+import { Button } from "@shared/ui/Button";
 
 type Project = {
   projectId?: string;
@@ -56,53 +58,61 @@ export function Projects() {
             <section className="flex items-start justify-between">
               <section>
                 <section className="p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h1 className="text-2xl font-bold">Projects</h1>
-                    <Link
-                      to="/dashboard/projects/create"
-                      className="bg-sky-600 text-white px-3 py-2 rounded"
-                    >
-                      Create Project
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h1 className="text-3xl font-semibold text-neutral-50">Projects</h1>
+                      <p className="mt-1 text-sm text-neutral-400">Manage your projects and deployments</p>
+                    </div>
+
+                    <Link to="/dashboard/projects/create">
+                      <Button
+                        size="lg"
+                        className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
+                      >
+                        Create Project
+                      </Button>
                     </Link>
                   </div>
 
                   {loading ? (
-                    <p>Loading projects…</p>
+                    <div className="text-sm text-neutral-400">Loading projects…</div>
                   ) : error ? (
-                    <p className="text-red-600">{error}</p>
+                    <div className="text-sm text-rose-400">{error}</div>
                   ) : projects.length === 0 ? (
-                    <p>No projects yet.</p>
+                    <div className="text-sm text-neutral-400">No projects yet.</div>
                   ) : (
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Repository</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Branch</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Docker Compose</th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {projects.map((p) => (
-                            <tr key={p.projectId ?? p.name}>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{p.name}</td>
-                              <td className="px-6 py-4 whitespace-normal text-sm text-gray-700">{p.description ?? "—"}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-blue-600">
-                                {p.repositoryUrl ? (
-                                  <a href={p.repositoryUrl} target="_blank" rel="noreferrer" className="underline">Repo</a>
-                                ) : (
-                                  "—"
-                                )}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{p.branch ?? "—"}</td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{p.dockerComposePath ?? "—"}</td>
+                    <SoftPanel>
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full border-collapse">
+                          <thead>
+                            <tr className="text-xs text-neutral-400/90 border-b border-white/10">
+                              <th className="text-left py-3 px-4">Name</th>
+                              <th className="text-left py-3 px-4">Description</th>
+                              <th className="text-left py-3 px-4">Repository</th>
+                              <th className="text-left py-3 px-4">Branch</th>
+                              <th className="text-left py-3 px-4">Docker Compose</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                          </thead>
+                          <tbody>
+                            {projects.map((p) => (
+                              <tr key={p.projectId ?? p.name} className="border-b border-white/6">
+                                <td className="py-3 px-4 text-sm text-neutral-50 font-medium">{p.name}</td>
+                                <td className="py-3 px-4 text-sm text-neutral-300">{p.description ?? "—"}</td>
+                                <td className="py-3 px-4 text-sm">
+                                  {p.repositoryUrl ? (
+                                    <a href={p.repositoryUrl} target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline">Repo</a>
+                                  ) : (
+                                    <span className="text-neutral-400">—</span>
+                                  )}
+                                </td>
+                                <td className="py-3 px-4 text-sm text-neutral-300">{p.branch ?? "—"}</td>
+                                <td className="py-3 px-4 text-sm text-neutral-300">{p.dockerComposePath ?? "—"}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </SoftPanel>
                   )}
                 </section>
               </section>

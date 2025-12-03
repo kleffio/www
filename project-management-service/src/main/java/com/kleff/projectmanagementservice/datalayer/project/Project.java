@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
@@ -26,12 +27,9 @@ public class Project {
     private String name;
     private String description;
     private String ownerId;
-    private String repositoryUrl;
-    private String branch;
-    private String dockerComposePath;
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    private Map<String, String> environmentVariables;
+    private ArrayList<String> stackId;
     private ProjectStatus projectStatus;
     private Date createdDate;
     private Date updatedDate;
