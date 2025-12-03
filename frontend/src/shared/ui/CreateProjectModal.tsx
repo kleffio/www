@@ -15,7 +15,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
   const [description, setDescription] = useState("");
   const [collaborators, setCollaborators] = useState<string[]>([]);
   const [collaboratorInput, setCollaboratorInput] = useState("");
-  const [containers, setContainers] = useState<string[]>([]);
+  const [stackId, setContainers] = useState<string[]>([]);
   const [containerInput, setContainerInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,8 +33,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
         name,
         description,
         ownerId,
-        collaborators,
-        containers,
+        stackId,
       } as const;
 
       const url = `/api/v1/projects`;
@@ -188,7 +187,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       if (containerInput.trim()) {
-                        setContainers([...containers, containerInput]);
+                        setContainers([...stackId, containerInput]);
                         setContainerInput("");
                       }
                     }
@@ -200,7 +199,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                   type="button"
                   onClick={() => {
                     if (containerInput.trim()) {
-                      setContainers([...containers, containerInput]);
+                      setContainers([...stackId, containerInput]);
                       setContainerInput("");
                     }
                   }}
@@ -209,14 +208,14 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                   Add
                 </Button>
               </div>
-              {containers.length > 0 && (
+              {stackId.length > 0 && (
                 <div className="flex flex-wrap gap-2">
-                  {containers.map((container, idx) => (
+                  {stackId.map((container, idx) => (
                     <div key={idx} className="flex items-center gap-2 bg-emerald-500/20 border border-emerald-500/50 rounded-lg px-3 py-1">
                       <span className="text-sm text-emerald-200">{container}</span>
                       <button
                         type="button"
-                        onClick={() => setContainers(containers.filter((_, i) => i !== idx))}
+                        onClick={() => setContainers(stackId.filter((_, i) => i !== idx))}
                         className="text-emerald-400 hover:text-emerald-300"
                       >
                         ×
