@@ -52,22 +52,9 @@ public class ProjectServiceImpl implements ProjectService {
             if (updatedProject.getOwnerId() != null) {
                 existing.setOwnerId(updatedProject.getOwnerId());
             }
-            if (updatedProject.getRepositoryUrl() != null) {
-                existing.setRepositoryUrl(updatedProject.getRepositoryUrl());
-            }
-            if (updatedProject.getBranch() != null) {
-                existing.setBranch(updatedProject.getBranch());
-            }
-            if (updatedProject.getDockerComposePath() != null) {
-                existing.setDockerComposePath(updatedProject.getDockerComposePath());
-            }
             if (updatedProject.getProjectStatus() != null) {
                 existing.setProjectStatus(updatedProject.getProjectStatus());
             }
-            if (updatedProject.getEnvironmentVariables() != null) {
-                existing.setEnvironmentVariables(updatedProject.getEnvironmentVariables());
-            }
-
             existing.setUpdatedDate(new Date());
             return projectRepository.save(existing);
 
