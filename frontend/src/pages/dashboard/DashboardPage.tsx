@@ -1,7 +1,5 @@
-import { Link } from "react-router-dom";
 import { useState } from "react";
-import { Sidebar } from "@app/layout/DashboardHeader";
-import { CreateProjectModal } from "@shared/ui/CreateProjectModal";
+import { CreateProjectModal } from "@widgets/CreateProjectModal";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Badge } from "@shared/ui/Badge";
 import { StatBadge } from "@shared/ui/StatBadge";
@@ -174,7 +172,7 @@ export function DashboardPage() {
 
   return (
     <div className="app-container py-8">
-          <section className="mb-8">
+      <section className="mb-8">
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-3xl font-semibold text-neutral-50">Overview</h1>
