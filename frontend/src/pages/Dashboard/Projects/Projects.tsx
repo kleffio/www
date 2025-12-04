@@ -1,4 +1,4 @@
-import { Sidebar } from "@shared/ui/Sidebar";
+import { Sidebar } from "@app/layout/Sidebar";
 import { useEffect, useState } from "react";
 import axiosInstance from "@shared/axiosInstance/axiosInstance";
 import { SoftPanel } from "@shared/ui/SoftPanel";

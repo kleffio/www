@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sidebar } from "@shared/ui/Sidebar";
+import { Sidebar } from "@app/layout/Sidebar";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Badge } from "@shared/ui/Badge";
 import { StatBadge } from "@shared/ui/StatBadge";
