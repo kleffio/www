@@ -1,8 +1,9 @@
 import { createBrowserRouter } from "react-router-dom";
 import { AppLayout } from "@app/layout/AppLayout";
 import { LandingPage } from "@pages/landing/LandingPage";
-import { DashboardPage } from "@pages/dashboard/DashboardPage";
 import { ErrorPage } from "@app/error/ErrorPage";
+import { ProjectsPage } from "@pages/projects/ProjectsPage";
+import { DashboardPage } from "@pages/dashboard/DashboardPage";
 import { DashboardLayout } from "@app/layout/DashboardLayout";
 
 export const router = createBrowserRouter([
@@ -26,6 +27,10 @@ export const router = createBrowserRouter([
       {
         index: true,
         element: <DashboardPage />
+      },
+      {
+        path: "projects",
+        element: <ProjectsPage />
       }
     ]
   },

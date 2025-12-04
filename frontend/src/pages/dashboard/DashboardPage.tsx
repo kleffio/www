@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { Sidebar } from "@app/layout/DashboardHeader";
+import { useState } from "react";
+import { CreateProjectModal } from "@widgets/CreateProjectModal";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Badge } from "@shared/ui/Badge";
 import { StatBadge } from "@shared/ui/StatBadge";
@@ -168,6 +168,8 @@ const dashboardData = {
 };
 
 export function DashboardPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="app-container py-8">
       <section className="mb-8">
@@ -178,14 +180,13 @@ export function DashboardPage() {
               Monitor your deployments, traffic, and infrastructure health
             </p>
           </div>
-          <Link to="/deploy-new-project">
-            <Button
-              size="lg"
-              className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
-            >
-              Deploy New Project
-            </Button>
-          </Link>
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            size="lg"
+            className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
+          >
+            Deploy New Project
+          </Button>
         </div>
       </section>
 
@@ -435,6 +436,12 @@ export function DashboardPage() {
           </div>
         </section>
       </section>
+
+      <CreateProjectModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }
