@@ -1,8 +1,9 @@
 import { useState, type FormEvent } from "react";
-import axiosInstance from "@shared/axiosInstance/axiosInstance";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Button } from "@shared/ui/Button";
 import { X } from "lucide-react";
+
+import createProject from "@features/projects/api/createProject";
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -10,11 +11,7 @@ interface CreateProjectModalProps {
   onSuccess?: () => void;
 }
 
-export function CreateProjectModal({
-  isOpen,
-  onClose,
-  onSuccess,
-}: CreateProjectModalProps) {
+export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProjectModalProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [repositoryUrl, setRepositoryUrl] = useState("");
@@ -45,22 +42,18 @@ export function CreateProjectModal({
     setError(null);
 
     try {
-      const payload = {
+      await createProject({
         name: name.trim(),
         description: description.trim() || undefined,
         repositoryUrl: repositoryUrl.trim() || undefined,
         branch: branch.trim() || undefined,
-        dockerComposePath: dockerComposePath.trim() || undefined,
-      } as const;
-
-      const url = "/api/v1/projects";
-      await axiosInstance.post(url, payload);
+        dockerComposePath: dockerComposePath.trim() || undefined
+      });
 
       resetForm();
       onSuccess?.();
       onClose();
     } catch (err) {
-      // eslint-disable-next-line no-console
       console.error(err);
       setError("Failed to create project. Please try again.");
     } finally {
@@ -74,21 +67,15 @@ export function CreateProjectModal({
 
   return (
     <section className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       <section className="relative z-10 w-full max-w-lg px-4 sm:px-0">
         <SoftPanel className="border border-white/10 bg-black/70 shadow-2xl shadow-black/60">
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-neutral-50">
-                Create project
-              </h2>
+              <h2 className="text-lg font-semibold text-neutral-50">Create project</h2>
               <p className="mt-1 text-xs text-neutral-400">
-                Define the basics of your project. You can configure deployments
-                later.
+                Define the basics of your project. You can configure deployments later.
               </p>
             </div>
 
@@ -111,7 +98,7 @@ export function CreateProjectModal({
             <div className="space-y-1.5">
               <label
                 htmlFor="project-name"
-                className="block text-xs font-medium uppercase tracking-wide text-neutral-300"
+                className="block text-xs font-medium tracking-wide text-neutral-300 uppercase"
               >
                 Project name <span className="text-red-400">*</span>
               </label>
@@ -129,7 +116,7 @@ export function CreateProjectModal({
             <div className="space-y-1.5">
               <label
                 htmlFor="project-description"
-                className="block text-xs font-medium uppercase tracking-wide text-neutral-300"
+                className="block text-xs font-medium tracking-wide text-neutral-300 uppercase"
               >
                 Description
               </label>
@@ -138,7 +125,7 @@ export function CreateProjectModal({
                 name="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className={`${inputBase} min-h-[80px] resize-y`}
+                className={`${inputBase} min-h-20 resize-y`}
                 placeholder="Short summary of what this project does."
               />
             </div>
@@ -146,7 +133,7 @@ export function CreateProjectModal({
             <div className="space-y-1.5">
               <label
                 htmlFor="project-repo"
-                className="block text-xs font-medium uppercase tracking-wide text-neutral-300"
+                className="block text-xs font-medium tracking-wide text-neutral-300 uppercase"
               >
                 Repository URL
               </label>
@@ -165,7 +152,7 @@ export function CreateProjectModal({
               <div className="space-y-1.5">
                 <label
                   htmlFor="project-branch"
-                  className="block text-xs font-medium uppercase tracking-wide text-neutral-300"
+                  className="block text-xs font-medium tracking-wide text-neutral-300 uppercase"
                 >
                   Branch
                 </label>
@@ -183,7 +170,7 @@ export function CreateProjectModal({
               <div className="space-y-1.5">
                 <label
                   htmlFor="project-compose"
-                  className="block text-xs font-medium uppercase tracking-wide text-neutral-300"
+                  className="block text-xs font-medium tracking-wide text-neutral-300 uppercase"
                 >
                   Docker Compose path
                 </label>
