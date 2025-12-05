@@ -1,0 +1,45 @@
+name: Push to Azure Container Registry
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Login to ACR
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ vars.ACR_LOGIN_SERVER }}
+        username: ${{ vars.ACR_USERNAME }}
+        password: ${{ vars.ACR_PASSWORD }}
+
+    - name: Build and push frontend image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./www/frontend
+        push: true
+        tags: ${{ vars.ACR_LOGIN_SERVER }}/frontend:latest
+
+    - name: Build and push project-management-service image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./www/project-management-service
+        push: true
+        tags: ${{ vars.ACR_LOGIN_SERVER }}/project-management-service:latest
+
+    - name: Build and push user-service image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./www/user-service
+        push: true
+        tags: ${{ vars.ACR_LOGIN_SERVER }}/user-service:latest
