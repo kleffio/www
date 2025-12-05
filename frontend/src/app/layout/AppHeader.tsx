@@ -1,6 +1,7 @@
 import * as React from "react";
-import { Link } from "react-router-dom";
-import { MenuIcon, RocketIcon, ShieldIcon, ChevronDown } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "react-oidc-context";
+import { MenuIcon, RocketIcon, ShieldIcon, ChevronDown, Settings, LogOut } from "lucide-react";
 
 import { cn } from "@shared/lib/utils";
 import {
@@ -22,6 +23,8 @@ import {
 
 import { Button } from "@shared/ui/Button";
 import { UnderlineLink } from "@shared/ui/UnderlineLink";
+import { UserMenu } from "@shared/ui/UserMenu";
+import { logoutEverywhere } from "@features/auth/api/logout"; // Import the new component
 
 import {
   Cpu,
@@ -148,12 +151,23 @@ const MEGA_SECTIONS: MegaSection[] = [
 ];
 
 export function AppHeader() {
+  const auth = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    if (auth.isAuthenticated) {
+      navigate("/dashboard");
+    } else {
+      navigate("/auth/signin");
+    }
+  };
+
   return (
     <header className="border-border/60 sticky top-0 z-40 border-b">
-      <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-[#0f0f10]/95 via-[#0f0f10]/90 to-[#0f0f10]/95" />
-      <div className="pointer-events-none absolute inset-0 shadow-[0_1px_0_0_rgba(255,255,255,0.03)]" />
+      <div className="pointer-events-none absolute inset-0 z-0 bg-linear-to-b from-[#0f0f10]/95 via-[#0f0f10]/90 to-[#0f0f10]/95" />
+      <div className="pointer-events-none absolute inset-0 z-0 shadow-[0_1px_0_0_rgba(255,255,255,0.03)]" />
 
-      <div className="app-container relative flex h-12 items-center gap-6 md:h-14">
+      <div className="app-container relative z-10 flex h-12 items-center gap-6 md:h-14">
         <div className="flex flex-1 items-center gap-6">
           <Link to="/" className="flex items-center gap-2">
             <div className="flex items-center gap-2">
@@ -169,46 +183,54 @@ export function AppHeader() {
           </div>
         </div>
 
-        <div className="hidden items-center gap-2 lg:flex">
-          <Link to="/auth/sign-in">
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-white/18 bg-transparent text-[11px] font-medium hover:border-white/40 hover:bg-white/5"
-            >
-              Sign in
-            </Button>
-          </Link>
+        {/* Desktop Auth Controls */}
+        <div className="hidden items-center gap-3 lg:flex">
+          {auth.isAuthenticated ? (
+            <UserMenu variant="compact" align="right" />
+          ) : (
+            <>
+              <Button
+                onClick={handleLogin}
+                variant="outline"
+                size="sm"
+                className="border-white/18 bg-transparent text-[11px] font-medium hover:border-white/40 hover:bg-white/5"
+              >
+                Sign in
+              </Button>
 
-          <Link to="/auth/sign-up">
-            <Button
-              size="sm"
-              className="bg-gradient-kleff text-[11px] font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
-            >
-              Start your project
-            </Button>
-          </Link>
+              <Button
+                onClick={handleLogin}
+                size="sm"
+                className="bg-gradient-kleff text-[11px] font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
+              >
+                Start your project
+              </Button>
+            </>
+          )}
         </div>
 
+        {/* Mobile Controls */}
         <div className="flex items-center gap-2 lg:hidden">
-          <Link to="/auth/sign-in">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted hover:text-foreground hidden text-[11px] font-medium sm:inline-flex"
-            >
-              Sign in
-            </Button>
-          </Link>
+          {!auth.isAuthenticated && (
+            <>
+              <Button
+                onClick={handleLogin}
+                variant="ghost"
+                size="sm"
+                className="text-muted hover:text-foreground hidden text-[11px] font-medium sm:inline-flex"
+              >
+                Sign in
+              </Button>
 
-          <Link to="/auth/sign-up">
-            <Button
-              size="sm"
-              className="bg-gradient-kleff hidden text-[11px] font-semibold text-black shadow-md shadow-black/40 hover:brightness-110 sm:inline-flex"
-            >
-              Start
-            </Button>
-          </Link>
+              <Button
+                onClick={handleLogin}
+                size="sm"
+                className="bg-gradient-kleff hidden text-[11px] font-semibold text-black shadow-md shadow-black/40 hover:brightness-110 sm:inline-flex"
+              >
+                Start
+              </Button>
+            </>
+          )}
 
           <MobileNav />
         </div>
@@ -381,6 +403,7 @@ function AnimatedContent(props: React.ComponentPropsWithoutRef<typeof Navigation
 /* ---------- Mobile nav ---------- */
 
 function MobileNav() {
+  const auth = useAuth();
   const [open, setOpen] = React.useState(false);
   const [expandedSections, setExpandedSections] = React.useState<Set<string>>(new Set(["product"]));
 
@@ -516,20 +539,75 @@ function MobileNav() {
               ))}
             </div>
 
-            <div className="space-y-2 border-t border-white/8 pt-4">
-              <Link to="/auth/sign-in" onClick={() => setOpen(false)} className="block">
-                <Button
-                  variant="outline"
-                  className="h-11 w-full border-white/20 bg-transparent font-medium hover:border-white/40 hover:bg-white/5"
-                >
-                  Sign in
-                </Button>
-              </Link>
-              <Link to="/auth/sign-up" onClick={() => setOpen(false)} className="block">
-                <Button className="bg-gradient-kleff h-11 w-full font-semibold text-black shadow-lg hover:brightness-110">
-                  Start your project
-                </Button>
-              </Link>
+            <div className="border-t border-white/8 pt-4">
+              {auth.isAuthenticated ? (
+                <div className="space-y-3 px-2 pb-2">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-gradient-kleff flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-black">
+                      {(
+                        auth.user?.profile.preferred_username ||
+                        auth.user?.profile.name ||
+                        auth.user?.profile.email ||
+                        "K"
+                      )
+                        .charAt(0)
+                        .toUpperCase()}
+                    </div>
+                    <div className="flex min-w-0 flex-1 flex-col">
+                      <span className="truncate text-sm font-medium text-neutral-200">
+                        {auth.user?.profile.preferred_username ||
+                          auth.user?.profile.name ||
+                          "Account"}
+                      </span>
+                      {auth.user?.profile.email && (
+                        <span className="truncate text-xs text-neutral-400">
+                          {auth.user.profile.email}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <Link to="/dashboard/settings" onClick={() => setOpen(false)}>
+                      <Button
+                        variant="outline"
+                        className="flex w-full items-center justify-center gap-2 border-white/10 bg-white/5 py-2 font-medium text-neutral-200 hover:border-white/20 hover:bg-white/10"
+                      >
+                        <Settings className="h-4 w-4 opacity-80" />
+                        Profile &amp; settings
+                      </Button>
+                    </Link>
+
+                    <Button
+                      onClick={async () => {
+                        setOpen(false);
+                        await logoutEverywhere(auth);
+                      }}
+                      variant="outline"
+                      className="flex w-full items-center justify-center gap-2 border-red-500/20 bg-red-500/10 py-2 font-medium text-red-300 hover:border-red-500/30 hover:bg-red-500/20"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign out
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2 px-2">
+                  <Link to="/auth/sign-in" onClick={() => setOpen(false)} className="block">
+                    <Button
+                      variant="outline"
+                      className="h-11 w-full border-white/20 bg-transparent font-medium hover:border-white/40 hover:bg-white/5"
+                    >
+                      Sign in
+                    </Button>
+                  </Link>
+                  <Link to="/auth/signin" onClick={() => setOpen(false)} className="block">
+                    <Button className="bg-gradient-kleff h-11 w-full font-semibold text-black shadow-lg hover:brightness-110">
+                      Start your project
+                    </Button>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </nav>

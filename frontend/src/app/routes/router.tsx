@@ -1,10 +1,13 @@
 import { createBrowserRouter } from "react-router-dom";
 import { AppLayout } from "@app/layout/AppLayout";
 import { LandingPage } from "@pages/landing/LandingPage";
+import { CallbackPage } from "@pages/auth/CallbackPage";
 import { ErrorPage } from "@app/error/ErrorPage";
 import { ProjectsPage } from "@pages/projects/ProjectsPage";
 import { DashboardPage } from "@pages/dashboard/DashboardPage";
 import { DashboardLayout } from "@app/layout/DashboardLayout";
+import { ProtectedRoute } from "@app/routing/ProtectedRoute";
+import { ProjectsProvider } from "@features/projects/context/ProjectsContext";
 
 export const router = createBrowserRouter([
   {
@@ -14,14 +17,30 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <LandingPage />,
-        errorElement: <ErrorPage />
+        element: <LandingPage />
+      },
+      {
+        path: "auth",
+        children: [
+          {
+            path: "signin",
+            element: <CallbackPage />
+          },
+          {
+            path: "callback",
+            element: <CallbackPage />
+          }
+        ]
       }
     ]
   },
   {
     path: "/dashboard",
-    element: <DashboardLayout />,
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
     errorElement: <ErrorPage />,
     children: [
       {
@@ -30,8 +49,12 @@ export const router = createBrowserRouter([
       },
       {
         path: "projects",
-        element: <ProjectsPage />
+        element: (
+          <ProjectsProvider>
+            <ProjectsPage />
+          </ProjectsProvider>
+        )
       }
     ]
-  },
+  }
 ]);

@@ -1,49 +1,46 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu } from "lucide-react";
-import {
-  Sheet,
-  SheetTrigger,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@shared/ui/Sheet";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, Settings, LogOut } from "lucide-react";
+
+import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from "@shared/ui/Sheet";
 import { KleffDot } from "@shared/ui/KleffDot";
 import { cn } from "@shared/lib/utils";
-import {
-  DASHBOARD_NAV_ITEMS,
-  isNavItemActive,
-} from "@app/layout/DashboardNav";
+import { DASHBOARD_NAV_ITEMS, isNavItemActive } from "@app/layout/DashboardNav";
+import { useIdentity } from "@features/auth/hooks/useIdentity";
+import { Button } from "@shared/ui/Button";
+
+import { logoutEverywhere } from "@features/auth/api/logout";
 
 export function DashboardHeader() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const { auth, name, email, initial, isAuthenticated } = useIdentity();
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
     const mq = window.matchMedia("(min-width: 1024px)");
-
-    const handleChange = (event: MediaQueryListEvent) => {
-      if (event.matches) {
-        setOpen(false);
-      }
-    };
-
-    if (mq.matches) setOpen(false);
-
-    mq.addEventListener("change", handleChange);
-    return () => mq.removeEventListener("change", handleChange);
+    const handle = (e: MediaQueryListEvent) => e.matches && setOpen(false);
+    mq.addEventListener("change", handle);
+    return () => mq.removeEventListener("change", handle);
   }, []);
+
+  const handleSettings = () => {
+    setOpen(false);
+    navigate("/dashboard/settings");
+  };
+
+  const handleLogout = async () => {
+    setOpen(false);
+    await logoutEverywhere(auth);
+  };
 
   return (
     <header className="border-b border-white/10 bg-black/70 backdrop-blur-md lg:hidden">
       <div className="app-container flex h-12 items-center justify-between gap-4">
-        <Link to="/dashboard" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <KleffDot variant="full" size={20} />
-          <span className="text-[10px] font-semibold tracking-[0.32em] text-neutral-100">
-            LEFF
-          </span>
+          <span className="text-[10px] font-semibold tracking-[0.32em] text-neutral-100">LEFF</span>
         </Link>
 
         <Sheet open={open} onOpenChange={setOpen}>
@@ -60,7 +57,7 @@ export function DashboardHeader() {
               "w-full max-w-none sm:w-3/4 sm:max-w-sm"
             )}
           >
-            <SheetHeader className="sm:hidden flex flex-row items-center justify-between border-b border-white/10 px-4 py-3 text-left">
+            <SheetHeader className="flex flex-row items-center justify-between border-b border-white/10 px-4 py-3 text-left sm:hidden">
               <div className="flex items-center gap-2">
                 <KleffDot variant="full" size={22} />
                 <SheetTitle className="text-xs font-semibold tracking-[0.32em] text-neutral-100">
@@ -70,7 +67,7 @@ export function DashboardHeader() {
             </SheetHeader>
 
             <nav className="flex-1 px-4 py-5">
-              <p className="mb-4 text-[11px] font-medium uppercase tracking-[0.16em] text-neutral-500">
+              <p className="mb-4 text-[11px] font-medium tracking-[0.16em] text-neutral-500 uppercase">
                 Navigation
               </p>
 
@@ -87,15 +84,14 @@ export function DashboardHeader() {
                       className={cn(
                         "flex items-center gap-3 rounded-2xl px-3 py-2 text-sm transition-all",
                         active
-                          ? "bg-gradient-to-r from-white/12 to-white/5 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.04)]"
+                          ? "bg-linear-to-r from-white/12 to-white/5 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.04)]"
                           : "text-neutral-300 hover:bg-white/5 hover:text-white"
                       )}
                     >
                       <span
                         className={cn(
-                          "flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-neutral-200 transition-colors",
-                          active &&
-                            "border-[#FFD56A]/70 bg-[#FFD56A]/10 text-[#FFD56A]"
+                          "flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-neutral-200",
+                          active && "border-[#FFD56A]/70 bg-[#FFD56A]/10 text-[#FFD56A]"
                         )}
                       >
                         <Icon className="h-4 w-4" />
@@ -106,6 +102,39 @@ export function DashboardHeader() {
                 })}
               </div>
             </nav>
+
+            {isAuthenticated && (
+              <div className="space-y-3 border-t border-white/10 p-4 pb-6">
+                <div className="flex items-center gap-3">
+                  <div className="bg-gradient-kleff flex h-10 w-10 items-center justify-center rounded-full font-semibold text-black">
+                    {initial}
+                  </div>
+                  <div className="flex min-w-0 flex-col">
+                    <span className="truncate text-sm font-medium">{name}</span>
+                    <span className="truncate text-xs text-neutral-400">{email}</span>
+                  </div>
+                </div>
+
+                <div className="mt-2 flex flex-col gap-2">
+                  <Button
+                    onClick={handleSettings}
+                    variant="secondary"
+                    className="flex items-center justify-center gap-2 border border-white/10 bg-white/5 py-2 font-medium text-neutral-200 hover:bg-white/10"
+                  >
+                    <Settings size={16} className="opacity-80" />
+                    Profile & settings
+                  </Button>
+
+                  <Button
+                    onClick={handleLogout}
+                    className="flex items-center justify-center gap-2 border border-red-500/20 bg-red-500/10 py-2 font-medium text-red-300 hover:bg-red-500/20"
+                  >
+                    <LogOut size={16} />
+                    Sign out
+                  </Button>
+                </div>
+              </div>
+            )}
           </SheetContent>
         </Sheet>
       </div>

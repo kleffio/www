@@ -1,14 +1,14 @@
+import type { ElementType } from "react";
 import { Link, useLocation } from "react-router-dom";
+
 import { cn } from "@shared/lib/utils";
 import { KleffDot } from "@shared/ui/KleffDot";
-import {
-  DASHBOARD_NAV_ITEMS,
-  isNavItemActive,
-} from "@app/layout/DashboardNav";
+import { UserMenu } from "@shared/ui/UserMenu";
+import { DASHBOARD_NAV_ITEMS, isNavItemActive } from "@app/layout/DashboardNav";
 
 interface SidebarItemProps {
   to: string;
-  icon: React.ElementType;
+  icon: ElementType;
   label: string;
   isActive?: boolean;
 }
@@ -21,15 +21,11 @@ function SidebarItem({ to, icon: Icon, label, isActive }: SidebarItemProps) {
         "group relative flex items-center gap-3 rounded-md px-3 py-2 transition-all",
         isActive
           ? "bg-white/10 text-white"
-          : "text-neutral-400 hover:bg-white/5 hover:text-white/90",
+          : "text-neutral-400 hover:bg-white/5 hover:text-white/90"
       )}
     >
       {isActive && (
-        <span
-          className="absolute left-0 top-0 h-full w-[2px] rounded-r 
-          bg-gradient-to-b from-[#FFD56A] to-[#B8860B]
-          shadow-[0_0_6px_2px_rgba(255,213,106,0.35)]"
-        />
+        <span className="absolute top-0 left-0 h-full w-0.5 rounded-r bg-linear-to-b from-[#FFD56A] to-[#B8860B] shadow-[0_0_6px_2px_rgba(255,213,106,0.35)]" />
       )}
 
       <div className="flex h-6 w-6 items-center justify-center">
@@ -47,7 +43,7 @@ export function DashboardSidebar() {
   return (
     <aside className="flex h-screen w-16 flex-col border-r border-white/10 bg-black/40 lg:w-64">
       <Link
-        to="/dashboard"
+        to="/"
         className="flex h-14 items-center justify-center border-b border-white/10 px-3 lg:justify-start"
       >
         <div className="flex items-center gap-2">
@@ -71,19 +67,7 @@ export function DashboardSidebar() {
       </nav>
 
       <div className="border-t border-white/10 p-3 lg:p-4">
-        <div className="flex items-center justify-center gap-3 rounded-lg bg-white/5 px-2 py-2 lg:justify-start lg:px-3">
-          <div className="bg-gradient-kleff flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold text-black">
-            N
-          </div>
-          <div className="hidden min-w-0 flex-1 lg:block">
-            <div className="truncate text-xs font-medium text-neutral-200">
-              Nathan
-            </div>
-            <div className="truncate text-[10px] text-neutral-500">
-              nathan@kleff.io
-            </div>
-          </div>
-        </div>
+        <UserMenu variant="full" align="left" dropdownPosition="top" />
       </div>
     </aside>
   );

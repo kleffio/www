@@ -1,4 +1,8 @@
 package com.kleff.userservice.presentation.models;
 
-public class UserResponseModel {
-}
+public record UserResponseModel(
+        String authentikUid,
+        String theme,
+        String timezone,
+        boolean marketingEmails
+) {}

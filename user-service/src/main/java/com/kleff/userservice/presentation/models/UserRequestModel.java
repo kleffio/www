@@ -1,4 +1,7 @@
 package com.kleff.userservice.presentation.models;
 
-public class UserRequestModel {
-}
+public record UserRequestModel(
+        String theme,
+        String timezone,
+        Boolean marketingEmails
+) {}

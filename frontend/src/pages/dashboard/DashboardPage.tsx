@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { CreateProjectModal } from "@widgets/CreateProjectModal";
+import { CreateProjectModal } from "@features/projects/components/CreateProjectModal";
 import { SoftPanel } from "@shared/ui/SoftPanel";
-import { Badge } from "@shared/ui/Badge";
+import { Badge, type BadgeVariant } from "@shared/ui/Badge";
 import { StatBadge } from "@shared/ui/StatBadge";
 import { MiniCard } from "@shared/ui/MiniCard";
 import { FeatureRow } from "@shared/ui/FeatureRow";
@@ -196,9 +196,7 @@ export function DashboardPage() {
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-semibold text-neutral-50">{stat.value}</span>
               {stat.change && (
-                <StatBadge color={stat.trend === "up" ? "green" : "white"}>
-                  {stat.change}
-                </StatBadge>
+                <StatBadge color={stat.trend === "up" ? "green" : "white"}>{stat.change}</StatBadge>
               )}
               {stat.subtitle && (
                 <StatBadge color={stat.trend === "up" ? "green" : "white"}>
@@ -215,10 +213,7 @@ export function DashboardPage() {
           <section>
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-neutral-50">Traffic & Performance</h2>
-              <Button
-                variant="ghost"
-                className="text-xs text-neutral-400 hover:text-neutral-200"
-              >
+              <Button variant="ghost" className="text-xs text-neutral-400 hover:text-neutral-200">
                 View Analytics <ArrowUpRight className="ml-1 h-3 w-3" />
               </Button>
             </div>
@@ -306,10 +301,7 @@ export function DashboardPage() {
           <section>
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-neutral-50">Recent Deployments</h2>
-              <Button
-                variant="ghost"
-                className="text-xs text-neutral-400 hover:text-neutral-200"
-              >
+              <Button variant="ghost" className="text-xs text-neutral-400 hover:text-neutral-200">
                 View All <ArrowUpRight className="ml-1 h-3 w-3" />
               </Button>
             </div>
@@ -337,7 +329,7 @@ export function DashboardPage() {
                         </div>
                       </div>
                     </div>
-                    <Badge variant={deployment.statusVariant as any}>
+                    <Badge variant={deployment.statusVariant as BadgeVariant}>
                       {deployment.status.charAt(0).toUpperCase() + deployment.status.slice(1)}
                     </Badge>
                   </div>
@@ -366,7 +358,7 @@ export function DashboardPage() {
                       </div>
                     </div>
                   </div>
-                  <Badge variant={dashboardData.security.ssl.variant as any}>
+                  <Badge variant={dashboardData.security.ssl.variant as BadgeVariant}>
                     {dashboardData.security.ssl.badge}
                   </Badge>
                 </div>
@@ -385,7 +377,7 @@ export function DashboardPage() {
                       </div>
                     </div>
                   </div>
-                  <Badge variant={dashboardData.security.ddos.variant as any}>
+                  <Badge variant={dashboardData.security.ddos.variant as BadgeVariant}>
                     {dashboardData.security.ddos.badge}
                   </Badge>
                 </div>
