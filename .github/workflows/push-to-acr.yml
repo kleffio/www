@@ -19,27 +19,27 @@ jobs:
     - name: Login to ACR
       uses: azure/docker-login@v1
       with:
-        login-server: ${{ vars.ACR_LOGIN_SERVER }}
-        username: ${{ vars.ACR_USERNAME }}
-        password: ${{ vars.ACR_PASSWORD }}
+        login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+        username: ${{ secrets.ACR_USERNAME }}
+        password: ${{ secrets.ACR_PASSWORD }}
 
     - name: Build and push frontend image
       uses: docker/build-push-action@v5
       with:
         context: ./www/frontend
         push: true
-        tags: ${{ vars.ACR_LOGIN_SERVER }}/frontend:latest
+        tags: ${{ secrets.ACR_LOGIN_SERVER }}/frontend:latest
 
     - name: Build and push project-management-service image
       uses: docker/build-push-action@v5
       with:
         context: ./www/project-management-service
         push: true
-        tags: ${{ vars.ACR_LOGIN_SERVER }}/project-management-service:latest
+        tags: ${{ secrets.ACR_LOGIN_SERVER }}/project-management-service:latest
 
     - name: Build and push user-service image
       uses: docker/build-push-action@v5
       with:
         context: ./www/user-service
         push: true
-        tags: ${{ vars.ACR_LOGIN_SERVER }}/user-service:latest
+        tags: ${{ secrets.ACR_LOGIN_SERVER }}/user-service:latest
