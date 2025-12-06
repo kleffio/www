@@ -1,70 +1,11 @@
-# server:
-#   port: 8080
-
-# spring:
-#   datasource:
-#     url: jdbc:postgresql://localhost:5432/user_service
-#     username: user_service
-#     password: change-me
-#   jpa:
-#     hibernate:
-#       ddl-auto: update
-#     properties:
-#       hibernate:
-#         dialect: org.hibernate.dialect.PostgreSQLDialect
-
-#   security:
-#     oauth2:
-#       resourceserver:
-#         jwt:
-#           issuer-uri: https://auth.kleff.io/application/o/kleff/
-#           jwk-set-uri: https://auth.kleff.io/application/o/kleff/jwks/
-
-# management:
-#   endpoints:
-#     web:
-#       exposure:
-#         include: health,info
-
-# # Add logging to debug
-# logging:
-#   level:
-#     org.springframework.security: DEBUG
-#     org.springframework.security.oauth2: DEBUG
-#     org.springframework.web.cors: DEBUG
-
-# ---
-# # Docker profile
-
-# spring:
-#   config:
-#     activate:
-#       on-profile: docker
-
-#   datasource:
-#     url: jdbc:postgresql://user-db:5432/user_service
-#     username: user_service
-#     password: change-me
-
-#   jpa:
-#     hibernate:
-#       ddl-auto: update
-#     properties:
-#       hibernate:
-#         dialect: org.hibernate.dialect.PostgreSQLDialect
-
-#   sql:
-#     init:
-#       platform: postgres
-#       mode: never
-
-
+---
 server:
   port: ${SERVER_PORT:8080}
 
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:user_service}
+    url: "jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/\
+      ${DB_NAME:user_service}"
     username: ${DB_USERNAME:user_service}
     password: ${DB_PASSWORD:change-me}
 
@@ -84,8 +25,10 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: ${OAUTH2_ISSUER_URI:https://auth.kleff.io/application/o/kleff/}
-          jwk-set-uri: ${OAUTH2_JWK_SET_URI:https://auth.kleff.io/application/o/kleff/jwks/}
+          issuer-uri: "${OAUTH2_ISSUER_URI:\
+            https://auth.kleff.io/application/o/kleff/}"
+          jwk-set-uri: "${OAUTH2_JWK_SET_URI:\
+            https://auth.kleff.io/application/o/kleff/jwks/}"
 
 management:
   endpoints:
