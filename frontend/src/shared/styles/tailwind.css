@@ -218,4 +218,15 @@
   .will-change-opacity {
     will-change: opacity;
   }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(-6px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
 }

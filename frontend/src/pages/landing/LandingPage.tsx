@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@shared/ui/Button";
 import { Badge } from "@shared/ui/Badge";
 import { Section, SectionHeader } from "@shared/ui/Section";
@@ -11,15 +11,14 @@ import { MiniCard } from "@shared/ui/MiniCard";
 import { KleffDot } from "@shared/ui/KleffDot";
 
 export function LandingPage() {
-  return (
-    <div className="bg-kleff-bg relative isolate overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 -z-20">
-        <div className="bg-modern-noise bg-kleff-spotlight h-full w-full opacity-60" />
-        <div className="bg-kleff-grid absolute inset-0 opacity-[0.25]" />
-      </div>
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-40 bg-linear-to-b from-white/10 via-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-40 bg-linear-to-t from-black via-transparent" />
+  const navigate = useNavigate();
 
+  const handleStart = () => {
+    navigate("/auth/signin");
+  };
+
+  return (
+    <div className="relative isolate overflow-hidden">
       <Section className="flex flex-col items-center gap-12 pt-20 pb-16 text-center lg:flex-row lg:items-start lg:py-24 lg:text-left">
         <div className="max-w-xl flex-1 space-y-7">
           <div className="inline-flex rounded-full bg-white/5 px-3 py-1 text-[10px] text-neutral-300 sm:hidden">
@@ -70,14 +69,14 @@ export function LandingPage() {
           </div>
 
           <div className="flex flex-col items-center gap-3 pt-2 sm:flex-row sm:items-center">
-            <Link to="/dashboard" className="w-full sm:w-auto">
-              <Button
-                size="lg"
-                className="bg-gradient-kleff w-full rounded-full px-8 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
-              >
-                Get started for free
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              // redirect to sign in
+              onClick={handleStart}
+              className="bg-gradient-kleff w-full rounded-full px-8 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
+            >
+              Get started for free
+            </Button>
             <Link to="/docs" className="w-full sm:w-auto">
               <Button
                 variant="outline"

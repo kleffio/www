@@ -9,7 +9,6 @@ import {
   YAxis
 } from "recharts";
 import type { ResourceUtilization } from "../types/metrics";
-import "./ResourceChart.css";
 
 interface Props {
   title: string;
@@ -28,8 +27,8 @@ export const ResourceChart: React.FC<Props> = ({
 }) => {
   if (loading) {
     return (
-      <div className="resource-chart loading">
-        <div className="chart-skeleton"></div>
+      <div className="flex min-h-[320px] items-center justify-center rounded-xl border border-neutral-700 bg-neutral-900 p-6 transition-all duration-200">
+        <div className="h-[250px] w-full animate-pulse rounded-lg bg-gradient-to-r from-neutral-800 via-neutral-700 to-neutral-800 bg-[length:200%_100%]"></div>
       </div>
     );
   }
@@ -92,22 +91,32 @@ export const ResourceChart: React.FC<Props> = ({
   const formattedStart = points > 0 ? fullTimeFormatter(chartData[0].timestamp) : "-";
   const formattedEnd = points > 0 ? fullTimeFormatter(chartData[points - 1].timestamp) : "-";
 
+  const trendClasses = {
+    up: "bg-emerald-500/10 text-emerald-500",
+    down: "bg-red-500/10 text-red-500",
+    stable: "bg-amber-500/10 text-amber-500"
+  };
+
   return (
-    <div className="resource-chart">
-      <div className="chart-header">
-        <h3 className="chart-title">{title}</h3>
-        <div className="chart-stats">
-          <div className="stat-value">{data.currentValue?.toFixed(1) ?? "0.0"}%</div>
-          <div className={`stat-change ${data.trend || "stable"}`}>
+    <div className="rounded-xl border border-neutral-700 bg-neutral-900 p-6 transition-all duration-200 hover:border-neutral-600">
+      <div className="mb-5 flex items-center justify-between">
+        <h3 className="text-base font-semibold text-white">{title}</h3>
+        <div className="flex items-center gap-3">
+          <div className="text-2xl font-bold text-white">
+            {data.currentValue?.toFixed(1) ?? "0.0"}%
+          </div>
+          <div
+            className={`rounded-md px-2 py-1 text-sm font-semibold ${trendClasses[data.trend as keyof typeof trendClasses] || trendClasses.stable}`}
+          >
             {(data.changePercent ?? 0) > 0 ? "+" : ""}
             {data.changePercent?.toFixed(1) ?? "0.0"}%
           </div>
           {showDebug && (
             <>
-              <div className="chart-range" title="Data span and points">
+              <div className="text-xs text-neutral-400" title="Data span and points">
                 {points} pts · {formatSpan(spanSec)}
               </div>
-              <div className="chart-range" style={{ fontWeight: 400, color: "#7f7f7f" }}>
+              <div className="text-xs font-normal text-neutral-500">
                 {formattedStart} — {formattedEnd}
               </div>
             </>
@@ -115,7 +124,7 @@ export const ResourceChart: React.FC<Props> = ({
         </div>
       </div>
 
-      <div className="chart-container">
+      <div>
         <ResponsiveContainer width="100%" height={250}>
           <AreaChart data={chartData}>
             <defs>

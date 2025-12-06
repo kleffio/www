@@ -13,7 +13,6 @@ import type {
   NodeMetric,
   ResourceUtilization
 } from "../../types/metrics";
-import "./MetricsDashboard.css";
 
 // Helper function to format bytes
 const formatBytes = (bytes: number): string => {
@@ -134,7 +133,7 @@ export const MetricsDashboard: React.FC = () => {
           </div>
 
           {error && (
-            <div className="error-banner mb-4">
+            <div className="mb-6 flex items-center gap-3 rounded-lg border border-red-500 bg-red-500/10 px-5 py-4 text-red-500">
               <AlertCircle size={20} />
               <span>{error}</span>
             </div>
@@ -246,14 +245,14 @@ export const MetricsDashboard: React.FC = () => {
             <div className="grid gap-6 lg:grid-cols-2">
               <div>
                 <h2 className="mb-4 text-lg font-semibold text-neutral-50">Infrastructure</h2>
-                <div className="h-96 overflow-y-auto rounded-2xl border border-white/[0.04] bg-white/[0.02] backdrop-blur-xl">
+                <div className="h-96 overflow-y-auto rounded-lg border border-white/10 bg-black/20">
                   <NamespacesTable namespaces={namespaces} loading={loading} />
                 </div>
               </div>
 
               <div>
                 <h2 className="mb-4 text-lg font-semibold text-neutral-50">Node Metrics</h2>
-                <div className="h-96 overflow-y-auto rounded-2xl border border-white/[0.04] bg-white/[0.02] backdrop-blur-xl">
+                <div className="h-96 overflow-y-auto rounded-lg border border-white/10 bg-black/20">
                   <NodesList nodes={nodes} loading={loading} />
                 </div>
               </div>
@@ -264,7 +263,7 @@ export const MetricsDashboard: React.FC = () => {
               <h2 className="mb-4 text-lg font-semibold text-neutral-50">Actions</h2>
               <div className="space-y-2">
                 <button
-                  className="w-full justify-start rounded-xl border border-white/[0.04] bg-white/[0.02] backdrop-blur-xl px-3 py-2 text-sm text-neutral-200 transition-all hover:border-white/[0.06] hover:bg-white/[0.025]"
+                  className="w-full justify-start rounded-md border border-white/20 bg-white/5 px-3 py-2 text-sm text-neutral-200 hover:border-white/40 hover:bg-white/10"
                   onClick={() => fetchData()}
                 >
                   <RefreshCw className="mr-2 inline-block h-4 w-4" /> Refresh Metrics

@@ -1,9 +1,8 @@
-import { Badge } from "@shared/ui/Badge";
-import { Button } from "@shared/ui/Button";
+import { CreateProjectModal } from "@features/projects/components/CreateProjectModal";
+import { Badge, type BadgeVariant } from "@shared/ui/Badge";
 import { FeatureRow } from "@shared/ui/FeatureRow";
 import { GradientIcon } from "@shared/ui/GradientIcon";
 import { MiniCard } from "@shared/ui/MiniCard";
-import { Sidebar } from "@shared/ui/Sidebar";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { StatBadge } from "@shared/ui/StatBadge";
 import {
@@ -20,7 +19,7 @@ import {
   TrendingUp,
   Zap
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
 
 const dashboardData = {
   quickStats: [
@@ -168,286 +167,272 @@ const dashboardData = {
 };
 
 export function DashboardPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
-    <div className="bg-kleff-bg relative isolate flex h-screen overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 -z-20">
-        <div className="bg-modern-noise bg-kleff-spotlight h-full w-full opacity-60" />
-        <div className="bg-kleff-grid absolute inset-0 opacity-[0.25]" />
-      </div>
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-40 bg-linear-to-b from-white/10 via-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-40 bg-linear-to-t from-black via-transparent" />
+    <div className="app-container py-8">
+      <section className="mb-8">
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-semibold text-neutral-50">Overview</h1>
+            <p className="mt-1 text-sm text-neutral-400">
+              Monitor your deployments, traffic, and infrastructure health
+            </p>
+          </div>
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            size="lg"
+            className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
+          >
+            Deploy New Project
+          </Button>
+        </div>
+      </section>
 
-      <Sidebar />
-
-      <div className="flex-1 overflow-auto">
-        <div className="app-container py-8">
-          <div className="mb-8">
-            <div className="flex items-start justify-between">
-              <div>
-                <h1 className="text-3xl font-semibold text-neutral-50">Overview</h1>
-                <p className="mt-1 text-sm text-neutral-400">
-                  Monitor your deployments, traffic, and infrastructure health
-                </p>
-              </div>
-              <Link to="/deploy-new-project">
-                <Button
-                  size="lg"
-                  className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
-                >
-                  Deploy New Project
-                </Button>
-              </Link>
+      <section className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {dashboardData.quickStats.map((stat, i) => (
+          <MiniCard key={i} title={stat.title}>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-semibold text-neutral-50">{stat.value}</span>
+              {stat.change && (
+                <StatBadge color={stat.trend === "up" ? "green" : "white"}>{stat.change}</StatBadge>
+              )}
+              {stat.subtitle && (
+                <StatBadge color={stat.trend === "up" ? "green" : "white"}>
+                  {stat.subtitle}
+                </StatBadge>
+              )}
             </div>
-          </div>
+          </MiniCard>
+        ))}
+      </section>
 
-          <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {dashboardData.quickStats.map((stat, i) => (
-              <MiniCard key={i} title={stat.title}>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-semibold text-neutral-50">{stat.value}</span>
-                  {stat.change && (
-                    <StatBadge color={stat.trend === "up" ? "green" : "white"}>
-                      {stat.change}
-                    </StatBadge>
-                  )}
-                  {stat.subtitle && (
-                    <StatBadge color={stat.trend === "up" ? "green" : "white"}>
-                      {stat.subtitle}
-                    </StatBadge>
-                  )}
-                </div>
-              </MiniCard>
-            ))}
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-3">
-            <div className="space-y-6 lg:col-span-2">
-              <div>
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-neutral-50">Traffic & Performance</h2>
-                  <Button
-                    variant="ghost"
-                    className="text-xs text-neutral-400 hover:text-neutral-200"
-                  >
-                    View Analytics <ArrowUpRight className="ml-1 h-3 w-3" />
-                  </Button>
-                </div>
-                <SoftPanel>
-                  <div className="grid gap-4 sm:grid-cols-3">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2 text-xs text-neutral-400">
-                        <Globe className="h-4 w-4" />
-                        <span>Total Requests</span>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-semibold text-neutral-50">
-                          {dashboardData.trafficMetrics.totalRequests.value}
-                        </div>
-                        <div className="mt-1 flex items-center gap-1 text-xs text-emerald-400">
-                          <TrendingUp className="h-3 w-3" />
-                          <span>{dashboardData.trafficMetrics.totalRequests.change}</span>
-                        </div>
-                      </div>
+      <section className="grid gap-6 lg:grid-cols-3">
+        <section className="space-y-6 lg:col-span-2">
+          <section>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-neutral-50">Traffic & Performance</h2>
+              <Button variant="ghost" className="text-xs text-neutral-400 hover:text-neutral-200">
+                View Analytics <ArrowUpRight className="ml-1 h-3 w-3" />
+              </Button>
+            </div>
+            <SoftPanel>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-xs text-neutral-400">
+                    <Globe className="h-4 w-4" />
+                    <span>Total Requests</span>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-semibold text-neutral-50">
+                      {dashboardData.trafficMetrics.totalRequests.value}
                     </div>
-
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2 text-xs text-neutral-400">
-                        <Zap className="h-4 w-4" />
-                        <span>Avg Response Time</span>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-semibold text-neutral-50">
-                          {dashboardData.trafficMetrics.avgResponseTime.value}
-                        </div>
-                        <div className="mt-1 flex items-center gap-1 text-xs text-emerald-400">
-                          <TrendingUp className="h-3 w-3" />
-                          <span>{dashboardData.trafficMetrics.avgResponseTime.change}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2 text-xs text-neutral-400">
-                        <HardDrive className="h-4 w-4" />
-                        <span>Cache Hit Rate</span>
-                      </div>
-                      <div>
-                        <div className="text-2xl font-semibold text-neutral-50">
-                          {dashboardData.trafficMetrics.cacheHitRate.value}
-                        </div>
-                        <div className="mt-1 flex items-center gap-1 text-xs text-neutral-400">
-                          <span>{dashboardData.trafficMetrics.cacheHitRate.subtitle}</span>
-                        </div>
-                      </div>
+                    <div className="mt-1 flex items-center gap-1 text-xs text-emerald-400">
+                      <TrendingUp className="h-3 w-3" />
+                      <span>{dashboardData.trafficMetrics.totalRequests.change}</span>
                     </div>
                   </div>
+                </div>
 
-                  <div className="mt-4 h-32 rounded-lg bg-black/40 p-4">
-                    <div className="flex h-full items-end gap-1">
-                      {dashboardData.trafficChart.map((bar, i) => (
-                        <div key={i} className="group relative flex h-full flex-1 items-end">
-                          <div
-                            className="w-full rounded-t transition-all duration-200 group-hover:brightness-125"
-                            style={{
-                              height: `${bar.height}%`,
-                              background: "linear-gradient(to top, #facc15, #fb923c, #f97316)"
-                            }}
-                          />
-                          <div className="pointer-events-none absolute -top-16 left-1/2 z-10 -translate-x-1/2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                            <div className="rounded-lg border border-white/20 bg-black/95 px-3 py-2 shadow-lg backdrop-blur-sm">
-                              <div className="text-xs font-semibold whitespace-nowrap text-neutral-50">
-                                {bar.value}
-                              </div>
-                              <div className="text-[10px] whitespace-nowrap text-neutral-400">
-                                {bar.time}
-                              </div>
-                            </div>
-                            <div className="absolute top-full left-1/2 -translate-x-1/2">
-                              <div className="h-0 w-0 border-x-4 border-t-4 border-x-transparent border-t-black/95" />
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-xs text-neutral-400">
+                    <Zap className="h-4 w-4" />
+                    <span>Avg Response Time</span>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-semibold text-neutral-50">
+                      {dashboardData.trafficMetrics.avgResponseTime.value}
+                    </div>
+                    <div className="mt-1 flex items-center gap-1 text-xs text-emerald-400">
+                      <TrendingUp className="h-3 w-3" />
+                      <span>{dashboardData.trafficMetrics.avgResponseTime.change}</span>
                     </div>
                   </div>
-                </SoftPanel>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-xs text-neutral-400">
+                    <HardDrive className="h-4 w-4" />
+                    <span>Cache Hit Rate</span>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-semibold text-neutral-50">
+                      {dashboardData.trafficMetrics.cacheHitRate.value}
+                    </div>
+                    <div className="mt-1 flex items-center gap-1 text-xs text-neutral-400">
+                      <span>{dashboardData.trafficMetrics.cacheHitRate.subtitle}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-lg font-semibold text-neutral-50">Recent Deployments</h2>
-                  <Button
-                    variant="ghost"
-                    className="text-xs text-neutral-400 hover:text-neutral-200"
-                  >
-                    View All <ArrowUpRight className="ml-1 h-3 w-3" />
-                  </Button>
-                </div>
-                <SoftPanel>
-                  <div className="space-y-3">
-                    {dashboardData.recentDeployments.map((deployment, i) => (
+              <div className="mt-4 h-32 rounded-lg bg-black/40 p-4">
+                <div className="flex h-full items-end gap-1">
+                  {dashboardData.trafficChart.map((bar, i) => (
+                    <div key={i} className="group relative flex h-full flex-1 items-end">
                       <div
-                        key={i}
-                        className="flex items-center justify-between rounded-lg bg-black/40 px-4 py-3"
-                      >
-                        <div className="flex items-center gap-3">
-                          <GradientIcon icon={GitBranch} />
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-neutral-200">
-                                {deployment.branch}
-                              </span>
-                              <span className="font-mono text-xs text-neutral-500">•</span>
-                              <span className="font-mono text-xs text-neutral-400">
-                                {deployment.commit}
-                              </span>
-                            </div>
-                            <div className="text-xs text-neutral-400">
-                              {deployment.message} • {deployment.time}
-                            </div>
-                          </div>
-                        </div>
-                        <Badge variant={deployment.statusVariant as any}>
-                          {deployment.status.charAt(0).toUpperCase() + deployment.status.slice(1)}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                </SoftPanel>
-              </div>
-            </div>
-
-            <div className="space-y-6">
-              <div>
-                <h2 className="mb-4 text-lg font-semibold text-neutral-50">Security</h2>
-                <SoftPanel>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15">
-                          <Shield className="h-4 w-4 text-emerald-400" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-neutral-200">
-                            {dashboardData.security.ssl.title}
-                          </div>
-                          <div className="text-xs text-neutral-400">
-                            {dashboardData.security.ssl.status}
-                          </div>
-                        </div>
-                      </div>
-                      <Badge variant={dashboardData.security.ssl.variant as any}>
-                        {dashboardData.security.ssl.badge}
-                      </Badge>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15">
-                          <Lock className="h-4 w-4 text-emerald-400" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-medium text-neutral-200">
-                            {dashboardData.security.ddos.title}
-                          </div>
-                          <div className="text-xs text-neutral-400">
-                            {dashboardData.security.ddos.status}
-                          </div>
-                        </div>
-                      </div>
-                      <Badge variant={dashboardData.security.ddos.variant as any}>
-                        {dashboardData.security.ddos.badge}
-                      </Badge>
-                    </div>
-
-                    <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3">
-                      <div className="text-xs text-emerald-200">
-                        <div className="font-medium">24h Security Summary</div>
-                        <div className="mt-1 text-emerald-300/80">
-                          {dashboardData.security.summary.threats} threats blocked •{" "}
-                          {dashboardData.security.summary.incidents} incidents
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </SoftPanel>
-              </div>
-
-              <div>
-                <h2 className="mb-4 text-lg font-semibold text-neutral-50">Infrastructure</h2>
-                <SoftPanel>
-                  <div className="space-y-3">
-                    {dashboardData.infrastructure.map((item, i) => (
-                      <FeatureRow
-                        key={i}
-                        icon={item.icon}
-                        title={item.title}
-                        description={item.description}
+                        className="w-full rounded-t transition-all duration-200 group-hover:brightness-125"
+                        style={{
+                          height: `${bar.height}%`,
+                          background: "linear-gradient(to top, #facc15, #fb923c, #f97316)"
+                        }}
                       />
-                    ))}
-                  </div>
-                </SoftPanel>
-              </div>
-
-              <div>
-                <h2 className="mb-4 text-lg font-semibold text-neutral-50">Quick Actions</h2>
-                <div className="space-y-2">
-                  {dashboardData.quickActions.map((action, i) => (
-                    <Button
-                      key={i}
-                      variant="outline"
-                      className="w-full justify-start border-white/20 bg-white/5 text-sm text-neutral-200 hover:border-white/40 hover:bg-white/10"
-                    >
-                      <action.icon className="h-4 w-4" />
-                      {action.label}
-                    </Button>
+                      <div className="pointer-events-none absolute -top-16 left-1/2 z-10 -translate-x-1/2 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                        <div className="rounded-lg border border-white/20 bg-black/95 px-3 py-2 shadow-lg backdrop-blur-sm">
+                          <div className="text-xs font-semibold whitespace-nowrap text-neutral-50">
+                            {bar.value}
+                          </div>
+                          <div className="text-[10px] whitespace-nowrap text-neutral-400">
+                            {bar.time}
+                          </div>
+                        </div>
+                        <div className="absolute top-full left-1/2 -translate-x-1/2">
+                          <div className="h-0 w-0 border-x-4 border-t-4 border-x-transparent border-t-black/95" />
+                        </div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
+            </SoftPanel>
+          </section>
+
+          <section>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-neutral-50">Recent Deployments</h2>
+              <Button variant="ghost" className="text-xs text-neutral-400 hover:text-neutral-200">
+                View All <ArrowUpRight className="ml-1 h-3 w-3" />
+              </Button>
+            </div>
+            <SoftPanel>
+              <div className="space-y-3">
+                {dashboardData.recentDeployments.map((deployment, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between rounded-lg bg-black/40 px-4 py-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <GradientIcon icon={GitBranch} />
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-neutral-200">
+                            {deployment.branch}
+                          </span>
+                          <span className="font-mono text-xs text-neutral-500">•</span>
+                          <span className="font-mono text-xs text-neutral-400">
+                            {deployment.commit}
+                          </span>
+                        </div>
+                        <div className="text-xs text-neutral-400">
+                          {deployment.message} • {deployment.time}
+                        </div>
+                      </div>
+                    </div>
+                    <Badge variant={deployment.statusVariant as BadgeVariant}>
+                      {deployment.status.charAt(0).toUpperCase() + deployment.status.slice(1)}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </SoftPanel>
+          </section>
+        </section>
+
+        <section className="space-y-6">
+          <div>
+            <h2 className="mb-4 text-lg font-semibold text-neutral-50">Security</h2>
+            <SoftPanel>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15">
+                      <Shield className="h-4 w-4 text-emerald-400" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-neutral-200">
+                        {dashboardData.security.ssl.title}
+                      </div>
+                      <div className="text-xs text-neutral-400">
+                        {dashboardData.security.ssl.status}
+                      </div>
+                    </div>
+                  </div>
+                  <Badge variant={dashboardData.security.ssl.variant as BadgeVariant}>
+                    {dashboardData.security.ssl.badge}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/15">
+                      <Lock className="h-4 w-4 text-emerald-400" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-neutral-200">
+                        {dashboardData.security.ddos.title}
+                      </div>
+                      <div className="text-xs text-neutral-400">
+                        {dashboardData.security.ddos.status}
+                      </div>
+                    </div>
+                  </div>
+                  <Badge variant={dashboardData.security.ddos.variant as BadgeVariant}>
+                    {dashboardData.security.ddos.badge}
+                  </Badge>
+                </div>
+
+                <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3">
+                  <div className="text-xs text-emerald-200">
+                    <div className="font-medium">24h Security Summary</div>
+                    <div className="mt-1 text-emerald-300/80">
+                      {dashboardData.security.summary.threats} threats blocked •{" "}
+                      {dashboardData.security.summary.incidents} incidents
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </SoftPanel>
+          </div>
+
+          <div>
+            <h2 className="mb-4 text-lg font-semibold text-neutral-50">Infrastructure</h2>
+            <SoftPanel>
+              <div className="space-y-3">
+                {dashboardData.infrastructure.map((item, i) => (
+                  <FeatureRow
+                    key={i}
+                    icon={item.icon}
+                    title={item.title}
+                    description={item.description}
+                  />
+                ))}
+              </div>
+            </SoftPanel>
+          </div>
+
+          <div>
+            <h2 className="mb-4 text-lg font-semibold text-neutral-50">Quick Actions</h2>
+            <div className="space-y-2">
+              {dashboardData.quickActions.map((action, i) => (
+                <Button
+                  key={i}
+                  variant="outline"
+                  className="w-full justify-start border-white/20 bg-white/5 text-sm text-neutral-200 hover:border-white/40 hover:bg-white/10"
+                >
+                  <action.icon className="h-4 w-4" />
+                  {action.label}
+                </Button>
+              ))}
             </div>
           </div>
-        </div>
-      </div>
+        </section>
+      </section>
+
+      <CreateProjectModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }
