@@ -11,8 +11,11 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
                 .allowedOrigins("http://localhost:5173")
+                .allowedOrigins("https://api.kleff.io")
                 .allowedOrigins("http://localhost:3000")
+                .allowedOrigins("https://kleff.io")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }
