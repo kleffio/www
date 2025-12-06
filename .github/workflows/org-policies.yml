@@ -59,10 +59,10 @@ jobs:
     with:
       unified_path: configs/labels.json
 
-  auto-request-reviewers:
-    name: Auto Request Reviewers
-    if: github.event_name == 'pull_request' && github.event.action == 'opened'
-    uses: kleffio/.github/.github/workflows/_auto-request-reviewers.yml@main
+  # auto-request-reviewers:
+  #   name: Auto Request Reviewers
+  #   if: github.event_name == 'pull_request' && github.event.action == 'opened'
+  #   uses: kleffio/.github/.github/workflows/_auto-request-reviewers.yml@main
 
   # --- Compliance ---
   # reuse:
