@@ -5,6 +5,9 @@ name: Push to Azure Container Registry
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build-and-push:
@@ -35,7 +38,7 @@ jobs:
         with:
           context: ./project-management-service
           push: true
-          tags: ${{ secrets.ACR_LOGIN_SERVER }}/ \
+          tags: ${{ secrets.ACR_LOGIN_SERVER }}/\
             project-management-service:latest
 
       - name: Build and push user-service image
