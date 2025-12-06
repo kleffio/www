@@ -26,20 +26,20 @@ jobs:
     - name: Build and push frontend image
       uses: docker/build-push-action@v5
       with:
-        context: ./www/frontend
+        context: ./frontend
         push: true
         tags: ${{ secrets.ACR_LOGIN_SERVER }}/frontend:latest
 
     - name: Build and push project-management-service image
       uses: docker/build-push-action@v5
       with:
-        context: ./www/project-management-service
+        context: ./project-management-service
         push: true
         tags: ${{ secrets.ACR_LOGIN_SERVER }}/project-management-service:latest
 
     - name: Build and push user-service image
       uses: docker/build-push-action@v5
       with:
-        context: ./www/user-service
+        context: ./user-service
         push: true
         tags: ${{ secrets.ACR_LOGIN_SERVER }}/user-service:latest
