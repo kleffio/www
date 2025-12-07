@@ -1,5 +1,6 @@
 import { CreateProjectModal } from "@features/projects/components/CreateProjectModal";
 import { Badge, type BadgeVariant } from "@shared/ui/Badge";
+import { Button } from "@shared/ui/Button";
 import { FeatureRow } from "@shared/ui/FeatureRow";
 import { GradientIcon } from "@shared/ui/GradientIcon";
 import { MiniCard } from "@shared/ui/MiniCard";

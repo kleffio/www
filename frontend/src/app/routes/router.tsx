@@ -5,6 +5,7 @@ import { ProtectedRoute } from "@app/routing/ProtectedRoute";
 import { ProjectsProvider } from "@features/projects/context/ProjectsContext";
 import { CallbackPage } from "@pages/auth/CallbackPage";
 import { DashboardPage } from "@pages/dashboard/DashboardPage";
+import { MetricsDashboard } from "@pages/dashboard/MetricsDashboard";
 import { LandingPage } from "@pages/landing/LandingPage";
 import { ProjectsPage } from "@pages/projects/ProjectsPage";
 import { createBrowserRouter } from "react-router-dom";
@@ -55,6 +56,10 @@ export const router = createBrowserRouter([
             <ProjectsPage />
           </ProjectsProvider>
         )
+      },
+      {
+        path: "systems",
+        element: <MetricsDashboard />
       }
     ]
   }
