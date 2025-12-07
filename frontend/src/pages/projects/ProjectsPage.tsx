@@ -73,34 +73,23 @@ export function ProjectsPage() {
                       <TableRow className="border-b border-white/10 bg-white/5 hover:bg-white/5">
                         <TableHead>NAME</TableHead>
                         <TableHead>DESCRIPTION</TableHead>
-                        <TableHead>REPOSITORY</TableHead>
-                        <TableHead>BRANCH</TableHead>
-                        <TableHead>DOCKER COMPOSE</TableHead>
+                        <TableHead>OWNER</TableHead>
+                        <TableHead>STACK</TableHead>
+                        <TableHead>STATUS</TableHead>
+                        <TableHead>CREATED DATE</TableHead>
+                        <TableHead>UPDATED DATE</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {projects.map((p) => (
-                        <TableRow key={p.projectId ?? p.name}>
+                        <TableRow key={p.projectId}>
                           <TableCell className="font-semibold text-neutral-50">{p.name}</TableCell>
                           <TableCell className="text-neutral-300">{p.description || "—"}</TableCell>
-                          <TableCell className="text-neutral-300">
-                            {p.repositoryUrl ? (
-                              <a
-                                href={p.repositoryUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-kleff-gold text-xs hover:underline"
-                              >
-                                {p.repositoryUrl}
-                              </a>
-                            ) : (
-                              "—"
-                            )}
-                          </TableCell>
-                          <TableCell className="text-neutral-300">{p.branch || "—"}</TableCell>
-                          <TableCell className="text-neutral-300">
-                            {p.dockerComposePath || "—"}
-                          </TableCell>
+                          <TableCell className="text-neutral-300">{p.ownerId || "—"}</TableCell>
+                          <TableCell className="text-neutral-300">{p.stackId || "—"}</TableCell>
+                          <TableCell className="text-neutral-300">{p.projectStatus || "—"}</TableCell>
+                          <TableCell className="text-neutral-300">{p.createdDate || "—"}</TableCell>
+                          <TableCell className="text-neutral-300">{p.updatedDate || "—"}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -112,7 +101,7 @@ export function ProjectsPage() {
             <div className="space-y-3 md:hidden">
               {projects.map((p) => (
                 <div
-                  key={p.projectId ?? p.name}
+                  key={p.projectId}
                   className="rounded-2xl border border-white/12 bg-black/50 px-4 py-3"
                 >
                   <div className="mb-1 flex items-center justify-between gap-2">
@@ -125,22 +114,24 @@ export function ProjectsPage() {
 
                   <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-[11px]">
                     <div>
-                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Repo</dt>
-                      <dd className="truncate text-neutral-200">
-                        {p.repositoryUrl ? "Connected" : "—"}
-                      </dd>
+                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Owner</dt>
+                      <dd className="truncate text-neutral-200">{p.ownerId || "—"}</dd>
                     </div>
                     <div>
-                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">
-                        Branch
-                      </dt>
-                      <dd className="truncate text-neutral-200">{p.branch || "—"}</dd>
+                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Stack</dt>
+                      <dd className="truncate text-neutral-200">{p.stackId || "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Status</dt>
+                      <dd className="truncate text-neutral-200">{p.projectStatus || "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Created</dt>
+                      <dd className="truncate text-neutral-200">{p.createdDate || "—"}</dd>
                     </div>
                     <div className="col-span-2">
-                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">
-                        Docker compose
-                      </dt>
-                      <dd className="truncate text-neutral-200">{p.dockerComposePath || "—"}</dd>
+                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Updated</dt>
+                      <dd className="truncate text-neutral-200">{p.updatedDate || "—"}</dd>
                     </div>
                   </dl>
                 </div>

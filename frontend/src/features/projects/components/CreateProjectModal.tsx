@@ -14,9 +14,6 @@ interface CreateProjectModalProps {
 export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProjectModalProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [repositoryUrl, setRepositoryUrl] = useState("");
-  const [branch, setBranch] = useState("");
-  const [dockerComposePath, setDockerComposePath] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,9 +22,6 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
   const resetForm = () => {
     setName("");
     setDescription("");
-    setRepositoryUrl("");
-    setBranch("");
-    setDockerComposePath("");
     setError(null);
   };
 
@@ -44,10 +38,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
     try {
       await createProject({
         name: name.trim(),
-        description: description.trim() || undefined,
-        repositoryUrl: repositoryUrl.trim() || undefined,
-        branch: branch.trim() || undefined,
-        dockerComposePath: dockerComposePath.trim() || undefined
+        description: description.trim() || undefined
       });
 
       resetForm();
@@ -130,61 +121,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
               />
             </div>
 
-            <div className="space-y-1.5">
-              <label
-                htmlFor="project-repo"
-                className="block text-xs font-medium tracking-wide text-neutral-300 uppercase"
-              >
-                Repository URL
-              </label>
-              <input
-                id="project-repo"
-                name="repositoryUrl"
-                type="url"
-                value={repositoryUrl}
-                onChange={(e) => setRepositoryUrl(e.target.value)}
-                className={inputBase}
-                placeholder="https://github.com/kleffio/your-project"
-              />
-            </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="project-branch"
-                  className="block text-xs font-medium tracking-wide text-neutral-300 uppercase"
-                >
-                  Branch
-                </label>
-                <input
-                  id="project-branch"
-                  name="branch"
-                  type="text"
-                  value={branch}
-                  onChange={(e) => setBranch(e.target.value)}
-                  className={inputBase}
-                  placeholder="main"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label
-                  htmlFor="project-compose"
-                  className="block text-xs font-medium tracking-wide text-neutral-300 uppercase"
-                >
-                  Docker Compose path
-                </label>
-                <input
-                  id="project-compose"
-                  name="dockerComposePath"
-                  type="text"
-                  value={dockerComposePath}
-                  onChange={(e) => setDockerComposePath(e.target.value)}
-                  className={inputBase}
-                  placeholder="deploy/docker-compose.yml"
-                />
-              </div>
-            </div>
 
             <div className="mt-6 flex items-center justify-end gap-3">
               <Button
