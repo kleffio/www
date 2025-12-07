@@ -2,13 +2,13 @@ import { Link } from "react-router-dom";
 import { KleffDot } from "@shared/ui/KleffDot";
 import { ROUTES } from "@app/routes/routes";
 
-interface NavLogoProps {
+interface BrandProps {
   size?: number;
   fontSize?: string;
   onClick?: () => void;
 }
 
-export function NavLogo({ size = 22, fontSize = "text-[13px]", onClick }: NavLogoProps) {
+export function Brand({ size = 22, fontSize = "text-[13px]", onClick }: BrandProps) {
   return (
     <Link to={ROUTES.HOME} onClick={onClick} className="flex items-center gap-2">
       <KleffDot variant="full" size={size} />
