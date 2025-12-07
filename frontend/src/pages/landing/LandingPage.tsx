@@ -20,7 +20,7 @@ import { ROUTES } from "@app/routes/routes";
 
 export function LandingPage() {
   const navigate = useNavigate();
-
+  const [locale, setLocaleState] = useState(getLocale());
   const handleStart = () => {
     navigate(ROUTES.AUTH_SIGNIN);
   };
@@ -30,9 +30,6 @@ const translations = {
   fr: frTranslations
 };
 
-export function LandingPage() {
-  const [locale, setLocaleState] = useState(getLocale());
-  
   // Listen for locale changes by checking periodically
   useEffect(() => {
     const interval = setInterval(() => {
@@ -372,5 +369,4 @@ export function LandingPage() {
       </Section>
     </div>
   );
-}
 }

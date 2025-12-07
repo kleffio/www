@@ -192,5 +192,93 @@
       "view_templates": "Voir les modèles",
       "browse_examples": "Parcourir les exemples sur GitHub"
     }
+  },
+  "header": {
+    "common": {
+      "mega_menu_footer": "Infrastructure open-source conçue pour les équipes modernes."
+    },
+    "product": {
+      "label": "Produit",
+      "tagline": "Tout ce dont vous avez besoin pour livrer des services modernes.",
+      "overview": {
+        "label": "Aperçu",
+        "description": "Déployez, scalez et observez vos applications sur Kleff."
+      },
+      "deployments": {
+        "label": "Déploiements",
+        "description": "Déploiements basés sur Git avec rollback."
+      },
+      "runtime": {
+        "label": "Runtime",
+        "description": "Runtimes gérés optimisés pour les stacks modernes."
+      },
+      "observability": {
+        "label": "Observabilité",
+        "description": "Métriques, logs et alertes prêts à l'emploi."
+      },
+      "customer_stories": {
+        "header": "Témoignages clients",
+        "title": "Conçu pour les équipes rapides",
+        "description": "Les équipes utilisent Kleff pour déployer des flottes de services, garder l'infrastructure observable et rester en contrôle total, qu'elle soit auto-hébergée ou gérée."
+      },
+      "compare": {
+        "header": "Comparer Kleff",
+        "vs_vercel": "Kleff vs Vercel",
+        "vs_amplify": "Kleff vs AWS Amplify",
+        "vs_kubernetes": "Kleff vs Kubernetes DIY"
+      }
+    },
+    "developers": {
+      "label": "Développeurs",
+      "tagline": "Des outils conçus par des devs, pour des devs.",
+      "docs": {
+        "label": "Docs",
+        "description": "Tout ce dont vous avez besoin pour commencer."
+      },
+      "api": {
+        "label": "Référence API",
+        "description": "Endpoints REST et CLI pour l'automatisation."
+      },
+      "sdks": {
+        "label": "SDKs",
+        "description": "Intégrations pour langages et frameworks."
+      },
+      "changelog": {
+        "label": "Changelog",
+        "description": "Suivez les mises à jour de la plateforme semaine après semaine."
+      },
+      "footer_note": "Infrastructure open-source conçue pour les équipes modernes."
+    },
+    "solutions": {
+      "label": "Solutions",
+      "tagline": "Kleff pour les équipes de toutes tailles.",
+      "startups": {
+        "label": "Startups",
+        "description": "Livrez plus vite avec des réglages et tarifs raisonnables."
+      },
+      "agencies": {
+        "label": "Agences",
+        "description": "Projets multi-clients pour vos clients."
+      },
+      "indie": {
+        "label": "Indépendants",
+        "description": "Payez seulement pour ce que vous utilisez réellement."
+      },
+      "enterprise": {
+        "label": "Entreprise",
+        "description": "Contrôles et conformité pour les grandes organisations."
+      }
+    },
+    "links": {
+      "pricing": "Tarifs",
+      "docs": "Docs",
+      "blog": "Blog"
+    },
+    "mobile": {
+      "nav_title": "Navigation Kleff",
+      "nav_description": "Menu de navigation principal pour la plateforme Kleff, incluant les liens produit, développeur et solution.",
+      "signin": "Se connecter",
+      "signup": "Commencez votre projet"
+    }
   }
 }

@@ -1,12 +1,7 @@
-<<<<<<< HEAD
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Sidebar } from "@app/layout/DashboardHeader";
-import { CreateProjectModal } from "@shared/ui/CreateProjectModal";
-=======
-import { useState } from "react";
 import { CreateProjectModal } from "@features/projects/components/CreateProjectModal";
->>>>>>> 531d0f0e6e7bb597e620c620384e026d09649e4c
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Badge, type BadgeVariant } from "@shared/ui/Badge";
 import { StatBadge } from "@shared/ui/StatBadge";
