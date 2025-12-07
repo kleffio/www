@@ -4,12 +4,35 @@ import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@shared/ui/Table";
 import { CreateProjectModal } from "@features/projects/components/CreateProjectModal";
 import { useProjects } from "@features/projects/hooks/useProjects";
+import enTranslations from "../../locales/en.json";
+import frTranslations from "../../locales/fr.json";
+import { getLocale } from "../../locales/locale";
+
+
+const translations = {
+  en: enTranslations,
+  fr: frTranslations
+};
 
 export function ProjectsPage() {
+  const [locale, setLocaleState] = useState(getLocale());
   const { projects, isLoading, error, reload } = useProjects();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleCreateSuccess = () => {
+  
+  useEffect(() => {
+      const interval = setInterval(() => {
+        const currentLocale = getLocale();
+        if (currentLocale !== locale) {
+          setLocaleState(currentLocale);
+        }
+      }, 100);
+      return () => clearInterval(interval);
+    }, [locale]);
+  
+    const t = translations[locale].projects;
+    const tModal = translations[locale].modal;
+    const tCommon = translations[locale].common;
+    const handleCreateSuccess = () => {
     void reload();
     setIsModalOpen(false);
   };
@@ -19,9 +42,9 @@ export function ProjectsPage() {
       <div className="app-container space-y-6 py-8">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-neutral-50 md:text-3xl">Projects</h1>
+            <h1 className="text-2xl font-semibold text-neutral-50 md:text-3xl">{t.title}</h1>
             <p className="mt-1 text-sm text-neutral-400">
-              Create and manage your projects and deployments.
+              {t.subtitle}
             </p>
           </div>
 
@@ -30,14 +53,14 @@ export function ProjectsPage() {
             onClick={() => setIsModalOpen(true)}
             className="bg-gradient-kleff rounded-full px-5 py-2 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
           >
-            Create project
+            {tModal.title}
           </Button>
         </header>
 
         {isLoading && (
           <SoftPanel>
             <div className="flex justify-center py-10">
-              <p className="text-sm text-neutral-400">Loading projects…</p>
+              <p className="text-sm text-neutral-400">{tCommon.loading}</p>
             </div>
           </SoftPanel>
         )}
@@ -51,13 +74,13 @@ export function ProjectsPage() {
         {!isLoading && !error && projects.length === 0 && (
           <SoftPanel>
             <div className="py-10 text-center">
-              <p className="text-sm text-neutral-400">You don&apos;t have any projects yet.</p>
+              <p className="text-sm text-neutral-400">{t.no_projects}</p>
               <Button
                 size="sm"
                 onClick={() => setIsModalOpen(true)}
                 className="bg-gradient-kleff mt-4 rounded-full px-4 py-1.5 text-xs font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
               >
-                Create your first project
+               {t.create_first}
               </Button>
             </div>
           </SoftPanel>
@@ -71,13 +94,13 @@ export function ProjectsPage() {
                   <Table>
                     <TableHeader>
                       <TableRow className="border-b border-white/10 bg-white/5 hover:bg-white/5">
-                        <TableHead>NAME</TableHead>
-                        <TableHead>DESCRIPTION</TableHead>
-                        <TableHead>OWNER</TableHead>
-                        <TableHead>STACK</TableHead>
-                        <TableHead>STATUS</TableHead>
-                        <TableHead>CREATED DATE</TableHead>
-                        <TableHead>UPDATED DATE</TableHead>
+                        <TableHead>{t.table.name}</TableHead>
+                        <TableHead>{t.table.description}</TableHead>
+                        <TableHead>{t.table.owner}</TableHead>
+                        <TableHead>{t.table.stack}</TableHead>
+                        <TableHead>{t.table.status}</TableHead>
+                        <TableHead>{t.table.created_date}</TableHead>
+                        <TableHead>{t.table.updated_date}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>

@@ -34,9 +34,16 @@
   "projects": {
     "title": "Projects",
     "subtitle": "Manage your projects and deployments",
+    "no_projects": "You haven't created any projects yet.",
+    "create_first": "Create your first project",
     "table": {
       "name": "Name",
       "description": "Description",
+      "owner": "Owner",
+      "stack": "Stack",
+      "status": "Status",
+      "created_date": "Created Date",
+      "updated_date": "Updated Date",
       "repository": "Repository",
       "branch": "Branch",
       "docker_compose": "Docker Compose",
