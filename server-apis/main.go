@@ -22,15 +22,13 @@ import (
 	"k8s.io/client-go/util/homedir"
 )
 
-// Request struct
 type BuildRequest struct {
 	RepoURL   string `json:"repo_url"`
-	Branch    string `json:"branch"` // New field
+	Branch    string `json:"branch"` 
 	ImageName string `json:"image_name"`
 	AppPort   int32  `json:"app_port"`
 }
 
-// Response struct
 type BuildResponse struct {
 	JobID   string `json:"job_id"`
 	Message string `json:"message"`
@@ -38,7 +36,6 @@ type BuildResponse struct {
 
 var clientset *kubernetes.Clientset
 
-// Global config constants
 const (
 	Namespace  = "kleff-deployment"
 	Registry   = "kleff.azurecr.io"
@@ -46,7 +43,6 @@ const (
 )
 
 func main() {
-	// --- K8s Client Setup ---
 	var config *rest.Config
 	var err error
 	config, err = rest.InClusterConfig()
@@ -96,8 +92,6 @@ func handleBuildTrigger(w http.ResponseWriter, r *http.Request) {
 		req.Branch = "main"
 	}
 
-	// 1. Create the Build Job
-	// FIX: Passed req.Branch to the function
 	jobName, err := createKanikoJob(req.RepoURL, req.Branch, req.ImageName)
 	if err != nil {
 		http.Error(w, "Failed to create build job: "+err.Error(), http.StatusInternalServerError)
@@ -231,6 +225,7 @@ func createDeployment(rawImageName string, appPort int32) error {
 }
 
 func createService(rawImageName string, appPort int32) error {
+
 	// FIX: Use the same sanitizeName function so the Selector matches the Deployment
 	serviceName := sanitizeName(rawImageName)
 
@@ -264,25 +259,29 @@ func createService(rawImageName string, appPort int32) error {
 }
 
 func createKanikoJob(rawUrl, branch, imageName string) (string, error) {
-	// Ensure branch has a default
 	if branch == "" {
 		branch = "main"
 	}
 
-	gitContext := rawUrl
-	// Basic cleanup for git url
-	if !strings.HasSuffix(gitContext, ".git") {
-		gitContext = gitContext + ".git"
+	// 1. Strip any existing scheme (http/https) to avoid duplication or confusion
+	rawUrl = strings.TrimPrefix(rawUrl, "https://")
+	rawUrl = strings.TrimPrefix(rawUrl, "http://")
+	rawUrl = strings.TrimSuffix(rawUrl, "/")
+
+	// 2. Ensure it ends in .git
+	if !strings.HasSuffix(rawUrl, ".git") {
+		rawUrl = rawUrl + ".git"
 	}
 
-	// FIX: Kaniko context format: git://...#refs/heads/BRANCHname
-	gitContext = fmt.Sprintf("%s#refs/heads/%s", gitContext, branch)
+	// 3. Force the 'git://' scheme. 
+	// Kaniko uses this prefix to explicitly trigger its Git cloner 
+	// rather than its file downloader.
+	gitContext := fmt.Sprintf("git://%s#refs/heads/%s", rawUrl, branch)
 
 	destination := fmt.Sprintf("%s/%s:latest", Registry, imageName)
 	ttlSeconds := int32(300)
 	backoffLimit := int32(0)
 
-	// Unique job name
 	jobName := fmt.Sprintf("build-%s-%d", sanitizeName(imageName), time.Now().Unix())
 
 	job := &batchv1.Job{
@@ -319,6 +318,8 @@ func createKanikoJob(rawUrl, branch, imageName string) (string, error) {
 								"--dockerfile=Dockerfile",
 								"--destination=" + destination,
 								"--cache=true",
+								// If you are using a Private Repo, you might need to skip TLS verify or add credentials
+								// "--git.insecure-skip-tls-verify", 
 							},
 							VolumeMounts: []corev1.VolumeMount{
 								{Name: "kaniko-secret", MountPath: "/kaniko/.docker/"},
