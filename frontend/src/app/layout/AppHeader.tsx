@@ -22,6 +22,7 @@ import {
 
 import { Button } from "@shared/ui/Button";
 import { UnderlineLink } from "@shared/ui/UnderlineLink";
+import { LocaleSwitcher } from "@shared/ui/LocaleSwitcher";
 
 import {
   Cpu,
@@ -170,6 +171,8 @@ export function AppHeader() {
         </div>
 
         <div className="hidden items-center gap-2 lg:flex">
+          <LocaleSwitcher className="text-[11px]" />
+          
           <Link to="/auth/sign-in">
             <Button
               variant="outline"
@@ -428,6 +431,7 @@ function MobileNav() {
                 LEFF
               </span>
             </Link>
+            <LocaleSwitcher className="text-[11px]" />
           </div>
 
           <SheetTitle className="sr-only">Kleff navigation</SheetTitle>
