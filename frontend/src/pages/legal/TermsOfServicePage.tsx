@@ -1,276 +1,205 @@
+import { Scale, Zap, CreditCard, Shield, AlertCircle, Check, ArrowRight } from "lucide-react";
+import { Section, SectionHeader } from "@shared/ui/Section";
+import { GradientIcon } from "@shared/ui/GradientIcon";
+import { Badge } from "@shared/ui/Badge";
+import { FeatureRow } from "@shared/ui/FeatureRow";
+import { MiniCard } from "@shared/ui/MiniCard";
+
 export function TermsOfServicePage() {
   return (
-    <div className="relative min-h-screen">
-      <div className="app-container py-16 md:py-24">
-        {/* Header */}
-        <div className="mb-16 text-center">
-          <h1 className="text-gradient-kleff mb-4 text-4xl font-bold tracking-tight md:text-5xl lg:text-6xl">
-            Terms of Service
-          </h1>
-          <p className="text-muted-foreground text-lg">
-            Last updated: December 6, 2024
-          </p>
+    <div className="relative isolate overflow-hidden">
+      <Section className="flex flex-col items-center gap-12 pt-20 pb-16 text-center">
+        <div className="max-w-3xl space-y-6">
+          <Badge
+            variant="gradient"
+            className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-medium"
+          >
+            <Scale className="h-3 w-3" />
+            <span>Terms of Service</span>
+          </Badge>
+
+          <div className="space-y-4">
+            <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
+              Simple rules.
+              <br />
+              <span className="text-gradient-kleff">Fair terms.</span>
+            </h1>
+            <p className="text-sm text-neutral-300 sm:text-base">
+              We keep it straightforward. No hidden clauses, no legal jargon.
+            </p>
+            <p className="text-[11px] text-neutral-400">Last updated December 6, 2024</p>
+          </div>
         </div>
+      </Section>
 
-        {/* Content */}
-        <div className="glass-panel-soft mx-auto max-w-4xl space-y-8 p-8 md:p-12">
-          <section>
-            <h2 className="text-primary mb-4 text-3xl font-bold">Agreement to Terms</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              By accessing or using Kleff's hosting platform ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you may not use the Service. These Terms constitute a legally binding agreement between you and Kleff Inc. ("Kleff," "we," "us," or "our"), a Canadian corporation.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-primary mb-4 text-3xl font-bold">Account Registration</h2>
-            <div className="text-muted-foreground space-y-4">
-              <p className="leading-relaxed">
-                To use Kleff, you must create an account. You agree to:
-              </p>
-              <ul className="space-y-2">
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Provide accurate, current, and complete information during registration</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Maintain and promptly update your account information</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Maintain the security of your account credentials</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Accept responsibility for all activities under your account</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Notify us immediately of any unauthorized access or security breach</span>
-                </li>
-              </ul>
-              <p className="leading-relaxed">
-                You must be at least 18 years old or the age of majority in your jurisdiction to use our Service. By creating an account, you represent that you meet these requirements.
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-primary mb-4 text-3xl font-bold">Acceptable Use</h2>
-            <div className="text-muted-foreground space-y-4">
-              <p className="leading-relaxed">
-                You agree to use Kleff only for lawful purposes. You may not:
-              </p>
-              <ul className="space-y-2">
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Deploy applications that violate any laws or regulations</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Host malicious software, phishing sites, or content used for fraud</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Infringe on intellectual property rights of others</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Attempt to gain unauthorized access to our systems or other users' accounts</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Interfere with or disrupt the Service or servers</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Use the Service to send spam or unsolicited communications</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Deploy cryptocurrency mining applications without prior written consent</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Resell or redistribute the Service without authorization</span>
-                </li>
-              </ul>
-              <p className="leading-relaxed">
-                We reserve the right to suspend or terminate accounts that violate these acceptable use policies.
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-primary mb-4 text-3xl font-bold">Payment and Billing</h2>
-            <div className="text-muted-foreground space-y-4">
-              <p className="leading-relaxed">
-                Kleff offers various pricing plans including free tiers, pay-as-you-go, and subscription-based options. You agree that:
-              </p>
-              <ul className="space-y-2">
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>You will provide valid payment information for paid services</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>You authorize us to charge your payment method for applicable fees</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>All fees are in Canadian dollars (CAD) unless otherwise specified</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Subscription fees are billed in advance on a recurring basis</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Usage-based fees are calculated and billed monthly</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Failure to pay may result in service suspension or termination</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Refunds are provided only as specified in our refund policy</span>
-                </li>
-              </ul>
-              <p className="leading-relaxed">
-                We reserve the right to change our pricing with 30 days' notice to existing customers. Price changes do not apply retroactively.
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-primary mb-4 text-3xl font-bold">Service Availability and Support</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              While we strive for 99.9% uptime, we do not guarantee uninterrupted availability of the Service. We may perform scheduled maintenance with advance notice. We are not liable for service interruptions caused by factors beyond our reasonable control, including third-party service failures, network issues, or force majeure events.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-primary mb-4 text-3xl font-bold">Intellectual Property</h2>
-            <div className="text-muted-foreground space-y-4">
-              <p className="leading-relaxed">
-                You retain all rights to the applications and content you deploy on Kleff. You grant us a limited license to host, store, and deliver your content as necessary to provide the Service.
-              </p>
-              <p className="leading-relaxed">
-                Kleff's platform, including its software, design, branding, and documentation, is protected by intellectual property laws. You may not copy, modify, distribute, or reverse engineer any part of our Service without written permission.
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-primary mb-4 text-3xl font-bold">Data and Privacy</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              Your use of Kleff is also governed by our Privacy Policy. We process your data in accordance with Canadian privacy laws and industry best practices. All data is stored on Canadian servers and subject to Canadian jurisdiction.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-primary mb-4 text-3xl font-bold">Backups and Data Loss</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              While we maintain regular backups of our infrastructure, you are responsible for maintaining your own backups of your applications and data. We are not liable for any data loss, corruption, or unavailability. We strongly recommend implementing your own backup and disaster recovery procedures.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-primary mb-4 text-3xl font-bold">Limitation of Liability</h2>
-            <p className="text-muted-foreground mb-4 leading-relaxed">
-              To the maximum extent permitted by law:
-            </p>
-            <ul className="text-muted-foreground space-y-2">
-              <li className="flex items-start">
-                <span className="text-primary mr-2">•</span>
-                <span>Kleff is provided "as is" without warranties of any kind</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary mr-2">•</span>
-                <span>We are not liable for indirect, incidental, or consequential damages</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary mr-2">•</span>
-                <span>Our total liability shall not exceed the fees paid by you in the 12 months preceding the claim</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-primary mr-2">•</span>
-                <span>We are not responsible for third-party services or content</span>
-              </li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-primary mb-4 text-3xl font-bold">Indemnification</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              You agree to indemnify and hold Kleff harmless from any claims, damages, losses, or expenses (including legal fees) arising from your use of the Service, your violation of these Terms, or your infringement of any rights of others.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-primary mb-4 text-3xl font-bold">Termination</h2>
-            <div className="text-muted-foreground space-y-4">
-              <p className="leading-relaxed">
-                You may terminate your account at any time through your account settings. Upon termination:
-              </p>
-              <ul className="space-y-2">
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Your access to the Service will cease immediately</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Your deployed applications will be taken offline</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>Your data will be deleted according to our data retention policy</span>
-                </li>
-                <li className="flex items-start">
-                  <span className="text-primary mr-2">•</span>
-                  <span>No refunds will be provided for partial billing periods</span>
-                </li>
-              </ul>
-              <p className="leading-relaxed">
-                We may suspend or terminate your account if you violate these Terms, fail to pay fees, or engage in harmful activities. We will provide notice when possible, but reserve the right to terminate immediately for serious violations.
-              </p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-primary mb-4 text-3xl font-bold">Modifications to Service and Terms</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              We reserve the right to modify or discontinue the Service, temporarily or permanently, with or without notice. We may also update these Terms from time to time. Significant changes will be communicated via email or platform notification. Your continued use after changes constitutes acceptance of the modified Terms.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-primary mb-4 text-3xl font-bold">Governing Law and Disputes</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              These Terms are governed by the laws of Canada and the province where Kleff is registered. Any disputes shall be resolved in the courts of that jurisdiction. You agree to submit to the exclusive jurisdiction of these courts.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-primary mb-4 text-3xl font-bold">Severability</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              If any provision of these Terms is found to be invalid or unenforceable, the remaining provisions shall continue in full force and effect.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-primary mb-4 text-3xl font-bold">Contact Information</h2>
-            <p className="text-muted-foreground mb-4 leading-relaxed">
-              For questions about these Terms of Service, please contact us at:
-            </p>
-            <div className="text-muted-foreground space-y-1">
-              <p>Email: <a href="mailto:legal@kleff.ca" className="text-primary hover:underline">legal@kleff.ca</a></p>
-              <p>Kleff Inc., Canada</p>
-            </div>
-          </section>
+      <Section className="pb-16">
+        <SectionHeader
+          label="The Basics"
+          title="Core principles"
+          description="What you can expect when using Kleff."
+        />
+        <div className="glass-panel-soft p-6">
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+            <FeatureRow
+              icon={(props) => <GradientIcon icon={Zap} {...props} />}
+              title="Use it right"
+              description="Deploy awesome apps. No abuse. No illegal content."
+            />
+            <FeatureRow
+              icon={(props) => <GradientIcon icon={CreditCard} {...props} />}
+              title="Pay fair"
+              description="Only pay for what you use. Cancel anytime."
+            />
+            <FeatureRow
+              icon={(props) => <GradientIcon icon={Shield} {...props} />}
+              title="Stay secure"
+              description="We handle security. You handle code."
+            />
+            <FeatureRow
+              icon={(props) => <GradientIcon icon={AlertCircle} {...props} />}
+              title="Own your data"
+              description="Your code is yours. Export anytime."
+            />
+          </div>
         </div>
-      </div>
+      </Section>
+
+      <Section className="pb-16">
+        <SectionHeader
+          label="Acceptable Use"
+          title="What you can't do"
+          description="Keep the platform safe and legal for everyone."
+        />
+
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+          {[
+            "Host malware, phishing sites, or malicious software",
+            "Send spam or unsolicited commercial emails",
+            "Violate intellectual property or copyright laws",
+            "Mine cryptocurrency without explicit permission",
+            "Attempt to hack, attack, or disrupt our systems",
+            "Resell or redistribute our services without authorization",
+            "Harass, threaten, or abuse other users",
+            "Host illegal content or facilitate illegal activities"
+          ].map((item, idx) => (
+            <div key={idx} className="glass-panel p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/5">
+                  <span className="text-[10px] text-neutral-400">×</span>
+                </div>
+                <p className="text-xs text-neutral-300">{item}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section className="pb-16">
+        <div className="mx-auto max-w-4xl">
+          <div className="glass-panel-soft p-8">
+            <h2 className="mb-2 text-xs font-semibold tracking-[0.2em] text-neutral-400 uppercase">
+              Service Level Agreement
+            </h2>
+            <p className="mb-6 text-sm text-neutral-200">
+              What you can expect from Kleff's infrastructure and support.
+            </p>
+            <div className="grid gap-3 text-left text-[11px] text-neutral-300 sm:grid-cols-2">
+              <MiniCard
+                title="99.9% Uptime"
+                description="Production deployments with automated failover and monitoring."
+              />
+              <MiniCard
+                title="24/7 Infrastructure"
+                description="Always-on systems with redundancy across multiple zones."
+              />
+              <MiniCard
+                title="Automated Backups"
+                description="Daily snapshots retained for 30 days on paid plans."
+              />
+              <MiniCard
+                title="DDoS Protection"
+                description="Built-in protection against distributed denial of service attacks."
+              />
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Section className="pb-16">
+        <div className="mx-auto max-w-3xl">
+          <div className="glass-panel-soft p-8">
+            <h2 className="mb-6 text-center text-2xl font-semibold text-white">
+              Our <span className="text-gradient-kleff">promise</span> to you
+            </h2>
+            <div className="space-y-3">
+              {[
+                { title: "Transparent Pricing", desc: "See exactly what you pay. No hidden costs or surprise bills." },
+                { title: "Real Support", desc: "Talk to humans. Email support for all users, priority for paid plans." },
+                { title: "No Lock-in", desc: "Export your data and leave whenever you want. We make it easy." },
+                { title: "Regular Updates", desc: "Continuous improvements based on your feedback and requests." },
+                { title: "Fair Resource Limits", desc: "Generous quotas that scale with your success." },
+                { title: "Data Ownership", desc: "Your code, your data, your deployments. You own everything." }
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-start gap-3">
+                  <div className="bg-gradient-kleff flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full">
+                    <Check className="h-3 w-3 text-black" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-neutral-50">{item.title}</h3>
+                    <p className="text-[11px] text-neutral-400">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Section className="pb-16">
+        <div className="glass-panel p-8">
+          <h2 className="mb-6 text-center text-2xl font-semibold text-white">
+            About <span className="text-gradient-kleff">pricing</span>
+          </h2>
+          <div className="grid gap-4 text-xs text-neutral-300 md:grid-cols-2">
+            <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+              <div className="mb-2 font-semibold text-neutral-100">Free Tier</div>
+              <div className="text-neutral-400">Perfect for hobby projects. No credit card required.</div>
+            </div>
+            <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+              <div className="mb-2 font-semibold text-neutral-100">Pay-as-you-go</div>
+              <div className="text-neutral-400">Only pay for compute, bandwidth, and storage you actually use.</div>
+            </div>
+            <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+              <div className="mb-2 font-semibold text-neutral-100">Team Plans</div>
+              <div className="text-neutral-400">Predictable monthly pricing for growing teams and companies.</div>
+            </div>
+            <div className="rounded-lg border border-white/10 bg-white/5 p-4">
+              <div className="mb-2 font-semibold text-neutral-100">Cancel Anytime</div>
+              <div className="text-neutral-400">No contracts. No penalties. Stop when you want.</div>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Section className="pb-16">
+        <div className="mx-auto max-w-2xl text-center">
+          <div className="glass-panel-soft p-8">
+            <h2 className="mb-3 text-2xl font-semibold text-white">
+              Questions about terms?
+            </h2>
+            <p className="mb-6 text-xs text-neutral-300 sm:text-sm">
+              Our legal team is happy to clarify anything. We respond within 48 hours.
+            </p>
+            <a
+              href="mailto:legal@kleff.ca"
+              className="bg-gradient-kleff inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-black shadow-md shadow-black/40 transition-all hover:brightness-110"
+            >
+              Contact Legal Team
+              <ArrowRight className="h-3.5 w-3.5" />
+            </a>
+          </div>
+        </div>
+      </Section>
     </div>
   );
 }

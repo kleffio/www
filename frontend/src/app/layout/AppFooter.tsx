@@ -1,3 +1,4 @@
+import { ROUTES } from "@app/routes/routes";
 import { UnderlineLink } from "@shared/ui/UnderlineLink";
 
 export function AppFooter() {
@@ -15,33 +16,33 @@ export function AppFooter() {
         </div>
 
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] sm:justify-end">
-          <UnderlineLink to="/docs" className="text-neutral-500 hover:text-neutral-200">
+          <UnderlineLink to={ROUTES.DOCS} className="text-neutral-500 hover:text-neutral-200">
             Docs
           </UnderlineLink>
 
-          <UnderlineLink to="/status" className="text-neutral-500 hover:text-neutral-200">
+          <UnderlineLink to={ROUTES.STATUS} className="text-neutral-500 hover:text-neutral-200">
             Status
           </UnderlineLink>
 
-          <UnderlineLink to="/pricing" className="text-neutral-500 hover:text-neutral-200">
+          <UnderlineLink to={ROUTES.PRICING} className="text-neutral-500 hover:text-neutral-200">
             Pricing
           </UnderlineLink>
 
           <span className="hidden text-neutral-600 sm:inline">•</span>
 
-          <UnderlineLink to="/about" className="text-neutral-500 hover:text-neutral-200">
+          <UnderlineLink to={ROUTES.ABOUT} className="text-neutral-500 hover:text-neutral-200">
             About
           </UnderlineLink>
 
-          <UnderlineLink to="/faq" className="text-neutral-500 hover:text-neutral-200">
+          <UnderlineLink to={ROUTES.FAQ} className="text-neutral-500 hover:text-neutral-200">
             FAQ
           </UnderlineLink>
 
-          <UnderlineLink to="/terms" className="text-neutral-500 hover:text-neutral-200">
+          <UnderlineLink to={ROUTES.TERMS} className="text-neutral-500 hover:text-neutral-200">
             Terms
           </UnderlineLink>
 
-          <UnderlineLink to="/privacy" className="text-neutral-500 hover:text-neutral-200">
+          <UnderlineLink to={ROUTES.PRIVACY} className="text-neutral-500 hover:text-neutral-200">
             Privacy
           </UnderlineLink>
 
@@ -51,3 +52,4 @@ export function AppFooter() {
     </footer>
   );
 }
+

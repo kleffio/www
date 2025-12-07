@@ -8,6 +8,7 @@ import { DashboardPage } from "@pages/dashboard/DashboardPage";
 import { DashboardLayout } from "@app/layout/DashboardLayout";
 import { ProtectedRoute } from "@app/routing/ProtectedRoute";
 import { ProjectsProvider } from "@features/projects/context/ProjectsContext";
+import { ROUTES } from "./routes";
 
 import { AboutUsPage } from "@pages/aboutus/AboutUsPage";
 import { FAQPage } from "@pages/legal/FAQPage";
@@ -16,7 +17,7 @@ import { TermsOfServicePage } from "@pages/legal/TermsOfServicePage";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
+    path: ROUTES.HOME,
     element: <AppLayout />,
     errorElement: <ErrorPage />,
     children: [
@@ -47,9 +48,9 @@ export const router = createBrowserRouter([
     ]
   },
 
-  // ✅ Dashboard
+  //  Dashboard
   {
-    path: "/dashboard",
+    path: ROUTES.DASHBOARD,
     element: (
       <ProtectedRoute>
         <DashboardLayout />
