@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CreateProjectModal } from "@features/projects/components/CreateProjectModal";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Badge, type BadgeVariant } from "@shared/ui/Badge";
@@ -21,6 +21,16 @@ import {
   Server,
   BarChart3
 } from "lucide-react";
+import { getLocale } from "@app/locales/locale";
+
+// Import translations
+import enTranslations from "@app/locales/en.json";
+import frTranslations from "@app/locales/fr.json";
+
+const translations = {
+  en: enTranslations,
+  fr: frTranslations
+};
 
 const dashboardData = {
   quickStats: [
@@ -169,24 +179,41 @@ const dashboardData = {
 
 export function DashboardPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [locale, setLocaleState] = useState(getLocale());
+  
+  // Listen for locale changes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLocale = getLocale();
+      if (currentLocale !== locale) {
+        setLocaleState(currentLocale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [locale]);
+
+  const t = translations[locale].dashboard;
+  const tCommon = translations[locale].common;
 
   return (
     <div className="app-container py-8">
       <section className="mb-8">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-semibold text-neutral-50">Overview</h1>
+            <h1 className="text-3xl font-semibold text-neutral-50">{t.overview_title}</h1>
             <p className="mt-1 text-sm text-neutral-400">
-              Monitor your deployments, traffic, and infrastructure health
+              {t.overview_subtitle}
             </p>
           </div>
-          <Button
-            onClick={() => setIsModalOpen(true)}
-            size="lg"
-            className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
-          >
-            Deploy New Project
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              size="lg"
+              className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
+            >
+              {tCommon.buttons.deploy_new_project}
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -222,7 +249,7 @@ export function DashboardPage() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-xs text-neutral-400">
                     <Globe className="h-4 w-4" />
-                    <span>Total Requests</span>
+                    <span>{t.total_requests}</span>
                   </div>
                   <div>
                     <div className="text-2xl font-semibold text-neutral-50">
@@ -238,7 +265,7 @@ export function DashboardPage() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-xs text-neutral-400">
                     <Zap className="h-4 w-4" />
-                    <span>Avg Response Time</span>
+                    <span>{t.avg_response_time}</span>
                   </div>
                   <div>
                     <div className="text-2xl font-semibold text-neutral-50">
@@ -254,7 +281,7 @@ export function DashboardPage() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-xs text-neutral-400">
                     <HardDrive className="h-4 w-4" />
-                    <span>Cache Hit Rate</span>
+                    <span>{t.cache_hit_rate}</span>
                   </div>
                   <div>
                     <div className="text-2xl font-semibold text-neutral-50">
@@ -341,7 +368,7 @@ export function DashboardPage() {
 
         <section className="space-y-6">
           <div>
-            <h2 className="mb-4 text-lg font-semibold text-neutral-50">Security</h2>
+            <h2 className="mb-4 text-lg font-semibold text-neutral-50">{t.security}</h2>
             <SoftPanel>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -396,7 +423,7 @@ export function DashboardPage() {
           </div>
 
           <div>
-            <h2 className="mb-4 text-lg font-semibold text-neutral-50">Infrastructure</h2>
+            <h2 className="mb-4 text-lg font-semibold text-neutral-50">{t.infrastructure}</h2>
             <SoftPanel>
               <div className="space-y-3">
                 {dashboardData.infrastructure.map((item, i) => (
@@ -412,7 +439,7 @@ export function DashboardPage() {
           </div>
 
           <div>
-            <h2 className="mb-4 text-lg font-semibold text-neutral-50">Quick Actions</h2>
+            <h2 className="mb-4 text-lg font-semibold text-neutral-50">{t.quick_actions}</h2>
             <div className="space-y-2">
               {dashboardData.quickActions.map((action, i) => (
                 <Button

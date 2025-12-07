@@ -12,6 +12,7 @@ import { ROUTES } from "@app/routes/routes";
 import { Brand } from "@shared/ui/Brand";
 import { UserAvatar } from "@shared/ui/UserAvatar";
 import { NavItem } from "@app/navigation/components/NavItem";
+import LocaleSwitcher from "@shared/ui/LocaleSwitcher";
 
 export function DashboardNav() {
   const location = useLocation();
@@ -25,6 +26,7 @@ export function DashboardNav() {
       <aside className="hidden h-screen w-64 flex-col border-r border-white/10 bg-black/40 lg:flex">
         <div className="flex h-14 items-center justify-start border-b border-white/10 px-3">
           <Brand />
+          <LocaleSwitcher />
         </div>
 
         <nav className="flex-1 space-y-1 px-2 py-3">
@@ -38,9 +40,10 @@ export function DashboardNav() {
               variant="sidebar"
             />
           ))}
+          
         </nav>
-
         <div className="border-t border-white/10 p-4">
+        
           <UserMenu variant="full" align="left" dropdownPosition="top" />
         </div>
       </aside>
@@ -94,6 +97,7 @@ function MobileHeader() {
         >
           <SheetHeader className="flex flex-row items-center justify-between border-b border-white/10 px-4 py-3 text-left sm:hidden">
             <Brand />
+            <LocaleSwitcher />
             <SheetTitle className="sr-only">Dashboard Navigation</SheetTitle>
           </SheetHeader>
 
