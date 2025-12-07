@@ -68,7 +68,9 @@ export const MetricsDashboard: React.FC = () => {
       setNamespaces(namespacesRes);
       setLastUpdate(new Date());
     } catch (err) {
-      setError("Failed to fetch metrics. Check if backend is running on port 8080.");
+      setError(
+        "Unable to retrieve cluster metrics. Please verify the observability service is running and accessible."
+      );
       console.error("Error fetching metrics:", err);
     } finally {
       setLoading(false);
