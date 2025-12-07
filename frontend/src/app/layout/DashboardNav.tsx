@@ -1,14 +1,17 @@
-import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect, useCallback } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Menu, Settings, LogOut } from "lucide-react";
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from "@shared/ui/Sheet";
-import { KleffDot } from "@shared/ui/KleffDot";
 import { Button } from "@shared/ui/Button";
 import { UserMenu } from "@shared/ui/UserMenu";
 import { cn } from "@shared/lib/utils";
 import { useIdentity } from "@features/auth/hooks/useIdentity";
 import { logoutEverywhere } from "@features/auth/api/logout";
 import { DASHBOARD_NAV_ITEMS, isNavItemActive } from "@app/navigation/Navigation";
+import { ROUTES } from "@app/routes/routes";
+import { NavLogo } from "@shared/ui/Brand";
+import { UserAvatar } from "@shared/ui/UserAvatar";
+import { NavItem } from "@app/navigation/components/NavItem";
 
 export function DashboardNav() {
   const location = useLocation();
@@ -20,40 +23,21 @@ export function DashboardNav() {
       </header>
 
       <aside className="hidden h-screen w-64 flex-col border-r border-white/10 bg-black/40 lg:flex">
-        <Link to="/" className="flex h-14 items-center justify-start border-b border-white/10 px-3">
-          <div className="flex items-center gap-2">
-            <KleffDot variant="full" size={22} />
-            <span className="text-[13px] font-semibold tracking-[0.32em] text-neutral-100">
-              LEFF
-            </span>
-          </div>
-        </Link>
+        <div className="flex h-14 items-center justify-start border-b border-white/10 px-3">
+          <NavLogo />
+        </div>
 
         <nav className="flex-1 space-y-1 px-2 py-3">
-          {DASHBOARD_NAV_ITEMS.map((item) => {
-            const Icon = item.icon;
-            const isActive = isNavItemActive(location.pathname, item);
-            return (
-              <Link
-                key={item.to}
-                to={item.to}
-                className={cn(
-                  "group relative flex items-center gap-3 rounded-md px-3 py-2 transition-all",
-                  isActive
-                    ? "bg-white/10 text-white"
-                    : "text-neutral-400 hover:bg-white/5 hover:text-white/90"
-                )}
-              >
-                {isActive && (
-                  <span className="absolute top-0 left-0 h-full w-0.5 rounded-r bg-linear-to-b from-[#FFD56A] to-[#B8860B] shadow-[0_0_6px_2px_rgba(255,213,106,0.35)]" />
-                )}
-                <div className="flex h-6 w-6 items-center justify-center">
-                  <Icon className="h-4 w-4 shrink-0" />
-                </div>
-                <span className="text-sm font-medium">{item.label}</span>
-              </Link>
-            );
-          })}
+          {DASHBOARD_NAV_ITEMS.map((item) => (
+            <NavItem
+              key={item.to}
+              to={item.to}
+              label={item.label}
+              icon={item.icon}
+              isActive={isNavItemActive(location.pathname, item)}
+              variant="sidebar"
+            />
+          ))}
         </nav>
 
         <div className="border-t border-white/10 p-4">
@@ -71,28 +55,28 @@ function MobileHeader() {
   const { auth, name, email, initial, isAuthenticated } = useIdentity();
 
   useEffect(() => {
+    if (!open) return;
     const mq = window.matchMedia("(min-width: 1024px)");
     const handle = (e: MediaQueryListEvent) => e.matches && setOpen(false);
     mq.addEventListener("change", handle);
     return () => mq.removeEventListener("change", handle);
-  }, []);
+  }, [open]);
 
-  const handleSettings = () => {
+  const handleSettings = useCallback(() => {
     setOpen(false);
-    navigate("/dashboard/settings");
-  };
+    navigate(ROUTES.DASHBOARD_SETTINGS);
+  }, [navigate]);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     setOpen(false);
     await logoutEverywhere(auth);
-  };
+  }, [auth]);
+
+  const closeSheet = useCallback(() => setOpen(false), []);
 
   return (
     <div className="app-container flex h-12 items-center justify-between gap-4">
-      <Link to="/" className="flex items-center gap-2">
-        <KleffDot variant="full" size={20} />
-        <span className="text-[10px] font-semibold tracking-[0.32em] text-neutral-100">LEFF</span>
-      </Link>
+      <NavLogo size={20} fontSize="text-[10px]" />
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
@@ -109,12 +93,8 @@ function MobileHeader() {
           )}
         >
           <SheetHeader className="flex flex-row items-center justify-between border-b border-white/10 px-4 py-3 text-left sm:hidden">
-            <div className="flex items-center gap-2">
-              <KleffDot variant="full" size={22} />
-              <SheetTitle className="text-xs font-semibold tracking-[0.32em] text-neutral-100">
-                LEFF
-              </SheetTitle>
-            </div>
+            <NavLogo />
+            <SheetTitle className="sr-only">Dashboard Navigation</SheetTitle>
           </SheetHeader>
 
           <nav className="flex-1 px-4 py-5">
@@ -122,47 +102,23 @@ function MobileHeader() {
               Navigation
             </p>
             <div className="space-y-2">
-              {DASHBOARD_NAV_ITEMS.map((item) => {
-                const active = isNavItemActive(location.pathname, item);
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    onClick={() => setOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 rounded-2xl px-3 py-2 text-sm transition-all",
-                      active
-                        ? "bg-linear-to-r from-white/12 to-white/5 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.04)]"
-                        : "text-neutral-300 hover:bg-white/5 hover:text-white"
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-neutral-200",
-                        active && "border-[#FFD56A]/70 bg-[#FFD56A]/10 text-[#FFD56A]"
-                      )}
-                    >
-                      <Icon className="h-4 w-4" />
-                    </span>
-                    <span className="font-medium">{item.label}</span>
-                  </Link>
-                );
-              })}
+              {DASHBOARD_NAV_ITEMS.map((item) => (
+                <NavItem
+                  key={item.to}
+                  to={item.to}
+                  label={item.label}
+                  icon={item.icon}
+                  isActive={isNavItemActive(location.pathname, item)}
+                  onClick={closeSheet}
+                  variant="mobile"
+                />
+              ))}
             </div>
           </nav>
 
           {isAuthenticated && (
             <div className="space-y-3 border-t border-white/10 p-4 pb-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-gradient-kleff flex h-10 w-10 items-center justify-center rounded-full font-semibold text-black">
-                  {initial}
-                </div>
-                <div className="flex min-w-0 flex-col">
-                  <span className="truncate text-sm font-medium">{name}</span>
-                  <span className="truncate text-xs text-neutral-400">{email}</span>
-                </div>
-              </div>
+              <UserAvatar initial={initial} name={name} email={email} />
 
               <div className="mt-2 flex flex-col gap-2">
                 <Button

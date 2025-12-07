@@ -8,10 +8,11 @@ import { DashboardPage } from "@pages/dashboard/DashboardPage";
 import { DashboardLayout } from "@app/layout/DashboardLayout";
 import { ProtectedRoute } from "@app/routing/ProtectedRoute";
 import { ProjectsProvider } from "@features/projects/context/ProjectsContext";
+import { ROUTES } from "./routes";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
+    path: ROUTES.HOME,
     element: <AppLayout />,
     errorElement: <ErrorPage />,
     children: [
@@ -35,7 +36,7 @@ export const router = createBrowserRouter([
     ]
   },
   {
-    path: "/dashboard",
+    path: ROUTES.DASHBOARD,
     element: (
       <ProtectedRoute>
         <DashboardLayout />
