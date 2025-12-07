@@ -38,8 +38,8 @@ jobs:
         with:
           context: ./project-management-service
           push: true
-          tags: ${{ secrets.ACR_LOGIN_SERVER }}/\
-            project-management-service:latest
+          tags: "${{ secrets.ACR_LOGIN_SERVER }}/\
+            project-management-service:latest"
 
       - name: Build and push user-service image
         uses: docker/build-push-action@v5
