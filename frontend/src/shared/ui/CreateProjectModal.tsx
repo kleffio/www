@@ -1,8 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axiosInstance from "@shared/axiosInstance/axiosInstance";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Button } from "@shared/ui/Button";
 import { X } from "lucide-react";
+import { getLocale } from "../../locales/locale";
+
+// Import translations
+import enTranslations from "../../locales/en.json";
+import frTranslations from "../../locales/fr.json";
+
+const translations = {
+  en: enTranslations,
+  fr: frTranslations
+};
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -19,8 +29,21 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
   const [containerInput, setContainerInput] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [locale, setLocaleState] = useState(getLocale());
+
   const projectId = 'Owner123';
   const ownerId = 'Owner123';
+
+  // Listen for locale changes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLocale = getLocale();
+      if (currentLocale !== locale) {
+        setLocaleState(currentLocale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [locale]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -49,11 +72,14 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
       onClose();
     } catch (err) {
       console.error(err);
-      setError("Failed to create project. Please try again.");
+      setError(t.failed_create);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const t = translations[locale].modal;
+  const tCommon = translations[locale].common.buttons;
 
   if (!isOpen) return null;
 
@@ -71,8 +97,8 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
           {/* Header */}
           <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/10">
             <div>
-              <h1 className="text-2xl font-semibold text-neutral-50">Create Project</h1>
-              <p className="mt-1 text-sm text-neutral-400">Set up a new project for deployment</p>
+              <h1 className="text-2xl font-semibold text-neutral-50">{t.title}</h1>
+              <p className="mt-1 text-sm text-neutral-400">{t.subtitle}</p>
             </div>
             <button
               onClick={onClose}
@@ -92,7 +118,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
 
             <section>
               <label htmlFor="name" className="block text-sm font-medium text-neutral-200 mb-2">
-                Project Name *
+                {t.project_name}
               </label>
               <input
                 id="name"
@@ -101,13 +127,13 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full rounded-lg border border-white/10 bg-black/40 px-4 py-2 text-neutral-50 placeholder-neutral-500 transition-colors hover:border-white/20 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400/50"
-                placeholder="My awesome project"
+                placeholder={t.project_name_placeholder}
               />
             </section>
 
             <section>
               <label htmlFor="description" className="block text-sm font-medium text-neutral-200 mb-2">
-                Description
+                {t.description}
               </label>
               <textarea
                 id="description"
@@ -115,14 +141,14 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full rounded-lg border border-white/10 bg-black/40 px-4 py-2 text-neutral-50 placeholder-neutral-500 transition-colors hover:border-white/20 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400/50"
-                placeholder="A brief description of your project"
+                placeholder={t.description_placeholder}
                 rows={4}
               />
             </section>
 
             <section>
               <label htmlFor="collaborators" className="block text-sm font-medium text-neutral-200 mb-2">
-                Add Collaborator
+                {t.add_collaborator}
               </label>
               <div className="flex gap-2 mb-3">
                 <input
@@ -140,7 +166,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                     }
                   }}
                   className="flex-1 rounded-lg border border-white/10 bg-black/40 px-4 py-2 text-neutral-50 placeholder-neutral-500 transition-colors hover:border-white/20 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400/50"
-                  placeholder="collaborator@example.com"
+                  placeholder={t.collaborator_placeholder}
                 />
                 <Button
                   type="button"
@@ -152,7 +178,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                   }}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
                 >
-                  Add
+                  {tCommon.add}
                 </Button>
               </div>
               {collaborators.length > 0 && (
@@ -175,7 +201,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
 
             <section>
               <label htmlFor="containers" className="block text-sm font-medium text-neutral-200 mb-2">
-                Add Container
+                {t.add_container}
               </label>
               <div className="flex gap-2 mb-3">
                 <input
@@ -193,7 +219,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                     }
                   }}
                   className="flex-1 rounded-lg border border-white/10 bg-black/40 px-4 py-2 text-neutral-50 placeholder-neutral-500 transition-colors hover:border-white/20 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400/50"
-                  placeholder="container-name"
+                  placeholder={t.container_placeholder}
                 />
                 <Button
                   type="button"
@@ -205,7 +231,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                   }}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
                 >
-                  Add
+                  {tCommon.add}
                 </Button>
               </div>
               {stackId.length > 0 && (
@@ -233,7 +259,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 disabled={isSubmitting}
                 className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110 disabled:opacity-60 disabled:hover:brightness-100"
               >
-                {isSubmitting ? "Creating..." : "Create Project"}
+                {isSubmitting ? t.creating : t.create_button}
               </Button>
               <Button
                 type="button"
@@ -241,7 +267,7 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
                 onClick={onClose}
                 className="border-white/20 bg-white/5 text-neutral-200 hover:border-white/40 hover:bg-white/10"
               >
-                Cancel
+                {tCommon.cancel}
               </Button>
             </section>
           </form>

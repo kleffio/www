@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sidebar } from "@app/layout/DashboardHeader";
 import { CreateProjectModal } from "@shared/ui/CreateProjectModal";
 import { SoftPanel } from "@shared/ui/SoftPanel";
@@ -24,6 +24,16 @@ import {
   BarChart3
 } from "lucide-react";
 import { LocaleSwitcher } from "@shared/ui/LocaleSwitcher";
+import { getLocale } from "../../locales/locale";
+
+// Import translations
+import enTranslations from "../../locales/en.json";
+import frTranslations from "../../locales/fr.json";
+
+const translations = {
+  en: enTranslations,
+  fr: frTranslations
+};
 
 const dashboardData = {
   quickStats: [
@@ -172,15 +182,30 @@ const dashboardData = {
 
 export function DashboardPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [locale, setLocaleState] = useState(getLocale());
+  
+  // Listen for locale changes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLocale = getLocale();
+      if (currentLocale !== locale) {
+        setLocaleState(currentLocale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [locale]);
+
+  const t = translations[locale].dashboard;
+  const tCommon = translations[locale].common;
 
   return (
     <div className="app-container py-8">
-          <section className="mb-8">
+      <section className="mb-8">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-semibold text-neutral-50">Overview</h1>
+            <h1 className="text-3xl font-semibold text-neutral-50">{t.overview_title}</h1>
             <p className="mt-1 text-sm text-neutral-400">
-              Monitor your deployments, traffic, and infrastructure health
+              {t.overview_subtitle}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -189,7 +214,7 @@ export function DashboardPage() {
               size="lg"
               className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
             >
-              Deploy New Project
+              {tCommon.buttons.deploy_new_project}
             </Button>
             <LocaleSwitcher className="text-sm px-3 py-2" />
           </div>
@@ -220,12 +245,12 @@ export function DashboardPage() {
         <section className="space-y-6 lg:col-span-2">
           <section>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-neutral-50">Traffic & Performance</h2>
+              <h2 className="text-lg font-semibold text-neutral-50">{t.traffic_performance}</h2>
               <Button
                 variant="ghost"
                 className="text-xs text-neutral-400 hover:text-neutral-200"
               >
-                View Analytics <ArrowUpRight className="ml-1 h-3 w-3" />
+                {t.view_analytics} <ArrowUpRight className="ml-1 h-3 w-3" />
               </Button>
             </div>
             <SoftPanel>
@@ -233,7 +258,7 @@ export function DashboardPage() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-xs text-neutral-400">
                     <Globe className="h-4 w-4" />
-                    <span>Total Requests</span>
+                    <span>{t.total_requests}</span>
                   </div>
                   <div>
                     <div className="text-2xl font-semibold text-neutral-50">
@@ -249,7 +274,7 @@ export function DashboardPage() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-xs text-neutral-400">
                     <Zap className="h-4 w-4" />
-                    <span>Avg Response Time</span>
+                    <span>{t.avg_response_time}</span>
                   </div>
                   <div>
                     <div className="text-2xl font-semibold text-neutral-50">
@@ -265,7 +290,7 @@ export function DashboardPage() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-xs text-neutral-400">
                     <HardDrive className="h-4 w-4" />
-                    <span>Cache Hit Rate</span>
+                    <span>{t.cache_hit_rate}</span>
                   </div>
                   <div>
                     <div className="text-2xl font-semibold text-neutral-50">
@@ -311,12 +336,12 @@ export function DashboardPage() {
 
           <section>
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-neutral-50">Recent Deployments</h2>
+              <h2 className="text-lg font-semibold text-neutral-50">{t.recent_deployments}</h2>
               <Button
                 variant="ghost"
                 className="text-xs text-neutral-400 hover:text-neutral-200"
               >
-                View All <ArrowUpRight className="ml-1 h-3 w-3" />
+                {t.view_all} <ArrowUpRight className="ml-1 h-3 w-3" />
               </Button>
             </div>
             <SoftPanel>
@@ -355,7 +380,7 @@ export function DashboardPage() {
 
         <section className="space-y-6">
           <div>
-            <h2 className="mb-4 text-lg font-semibold text-neutral-50">Security</h2>
+            <h2 className="mb-4 text-lg font-semibold text-neutral-50">{t.security}</h2>
             <SoftPanel>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -410,7 +435,7 @@ export function DashboardPage() {
           </div>
 
           <div>
-            <h2 className="mb-4 text-lg font-semibold text-neutral-50">Infrastructure</h2>
+            <h2 className="mb-4 text-lg font-semibold text-neutral-50">{t.infrastructure}</h2>
             <SoftPanel>
               <div className="space-y-3">
                 {dashboardData.infrastructure.map((item, i) => (
@@ -426,7 +451,7 @@ export function DashboardPage() {
           </div>
 
           <div>
-            <h2 className="mb-4 text-lg font-semibold text-neutral-50">Quick Actions</h2>
+            <h2 className="mb-4 text-lg font-semibold text-neutral-50">{t.quick_actions}</h2>
             <div className="space-y-2">
               {dashboardData.quickActions.map((action, i) => (
                 <Button
