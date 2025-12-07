@@ -216,7 +216,6 @@ export function DashboardPage() {
             >
               {tCommon.buttons.deploy_new_project}
             </Button>
-            <LocaleSwitcher className="text-sm px-3 py-2" />
           </div>
         </div>
       </section>

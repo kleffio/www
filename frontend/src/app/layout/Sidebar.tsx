@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { LayoutDashboard, FolderKanban, Boxes } from "lucide-react";
 import { cn } from "@shared/lib/utils";
 import { KleffDot } from "@shared/ui/KleffDot";
+import { LocaleSwitcher } from "@shared/ui/LocaleSwitcher";
 
 interface SidebarItemProps {
   to: string;
@@ -58,6 +59,12 @@ export function Sidebar() {
         />
       </nav>
 
+      {/* Language Switcher Section */}
+      <div className="border-t border-white/10 px-3 py-3">
+        <LocaleSwitcher className="w-full justify-center sm:justify-start text-xs" />
+      </div>
+
+      {/* User Profile Section */}
       <div className="border-t border-white/10 p-3 sm:p-4">
         <div className="flex items-center justify-center sm:justify-start gap-3 rounded-lg bg-white/5 px-2 sm:px-3 py-2">
           <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-kleff text-sm font-semibold text-black">
