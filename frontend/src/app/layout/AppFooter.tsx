@@ -30,6 +30,14 @@ export function AppFooter() {
 
           <span className="hidden text-neutral-600 sm:inline">•</span>
 
+          <UnderlineLink to={ROUTES.ABOUT} className="text-neutral-500 hover:text-neutral-200">
+            About
+          </UnderlineLink>
+
+          <UnderlineLink to={ROUTES.FAQ} className="text-neutral-500 hover:text-neutral-200">
+            FAQ
+          </UnderlineLink>
+
           <UnderlineLink to={ROUTES.TERMS} className="text-neutral-500 hover:text-neutral-200">
             Terms
           </UnderlineLink>
@@ -44,3 +52,4 @@ export function AppFooter() {
     </footer>
   );
 }
+
