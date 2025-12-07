@@ -97,6 +97,7 @@ function MobileHeader() {
         >
           <SheetHeader className="flex flex-row items-center justify-between border-b border-white/10 px-4 py-3 text-left sm:hidden">
             <Brand />
+            <LocaleSwitcher />
             <SheetTitle className="sr-only">Dashboard Navigation</SheetTitle>
           </SheetHeader>
 
