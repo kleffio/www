@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { KleffDot } from "@shared/ui/KleffDot";
 import { Button } from "@shared/ui/Button";
 import { Spinner } from "@shared/ui/Spinner";
+import { ROUTES } from "@app/routes/routes";
 
 export function CallbackPage() {
   const auth = useAuth();
@@ -26,14 +27,14 @@ export function CallbackPage() {
       })
       .catch((err) => {
         console.error("Automatic sign-in redirect failed:", err);
-        navigate("/", { replace: true });
+        navigate(ROUTES.HOME, { replace: true });
       });
   }, [auth.isLoading, auth.isAuthenticated, from, navigate, auth]);
 
   const handleContinue = () => {
     auth.signinRedirect().catch((err) => {
       console.error("Sign-in redirect failed:", err);
-      navigate("/", { replace: true });
+      navigate(ROUTES.HOME, { replace: true });
     });
   };
 

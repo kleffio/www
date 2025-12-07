@@ -6,6 +6,11 @@ WORKDIR /app
 # Copy package files
 COPY package.json yarn.lock ./
 
+ARG VITE_AUTH_CLIENT_ID
+ARG VITE_BACKEND_URL
+ENV VITE_AUTH_CLIENT_ID=$VITE_AUTH_CLIENT_ID
+ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
+
 # Install dependencies
 RUN yarn install --frozen-lockfile
 

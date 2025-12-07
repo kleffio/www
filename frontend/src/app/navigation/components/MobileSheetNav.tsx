@@ -1,7 +1,8 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
-import { MenuIcon, ChevronDown, Settings, LogOut } from "lucide-react";
+import { MenuIcon, ChevronDown, Settings, LogOut, LayoutDashboard } from "lucide-react";
+
 import {
   Sheet,
   SheetContent,
@@ -11,11 +12,13 @@ import {
   SheetDescription
 } from "@shared/ui/Sheet";
 import { Button } from "@shared/ui/Button";
-import { KleffDot } from "@shared/ui/KleffDot";
 import { cn } from "@shared/lib/utils";
 import { logoutEverywhere } from "@features/auth/api/logout";
 import type { MegaMenuSection } from "../Navigation";
 import { MEGA_MENU_SECTIONS, SIMPLE_NAV_LINKS } from "../Navigation";
+import { ROUTES } from "@app/routes/routes";
+import { Brand } from "@shared/ui/Brand";
+import { UserAvatar } from "@shared/ui/UserAvatar";
 
 export function MobileSheetNav() {
   const auth = useAuth();
@@ -23,19 +26,25 @@ export function MobileSheetNav() {
   const [expandedSections, setExpandedSections] = React.useState<Set<string>>(new Set(["product"]));
 
   React.useEffect(() => {
+    if (!open) return;
     const handleResize = () => window.innerWidth >= 1024 && setOpen(false);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [open]);
 
-  const toggleSection = (key: string) => {
+  const toggleSection = React.useCallback((key: string) => {
     setExpandedSections((prev) => {
       const newSet = new Set(prev);
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      newSet.has(key) ? newSet.delete(key) : newSet.add(key);
+      if (newSet.has(key)) {
+        newSet.delete(key);
+      } else {
+        newSet.add(key);
+      }
       return newSet;
     });
-  };
+  }, []);
+
+  const closeSheet = React.useCallback(() => setOpen(false), []);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -54,12 +63,7 @@ export function MobileSheetNav() {
         className="w-full border-l border-white/10 bg-linear-to-b from-[#18181a]/98 via-[#16161a]/98 to-[#18181a]/98 px-0 pt-0 pb-0 sm:w-[85vw] sm:max-w-sm"
       >
         <SheetHeader className="border-b border-white/8 px-6 py-4">
-          <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-2">
-            <KleffDot variant="full" size={22} />
-            <span className="text-foreground text-[13px] font-semibold tracking-[0.32em] uppercase">
-              LEFF
-            </span>
-          </Link>
+          <Brand onClick={closeSheet} />
           <SheetTitle className="sr-only">Kleff navigation</SheetTitle>
           <SheetDescription className="sr-only">
             Main navigation menu for the Kleff platform
@@ -73,8 +77,8 @@ export function MobileSheetNav() {
                 key={section.key}
                 section={section}
                 isExpanded={expandedSections.has(section.key)}
-                onToggle={() => toggleSection(section.key)}
-                onNavigate={() => setOpen(false)}
+                onToggle={toggleSection}
+                onNavigate={closeSheet}
               />
             ))}
 
@@ -83,7 +87,7 @@ export function MobileSheetNav() {
                 <Link
                   key={link.href}
                   to={link.href}
-                  onClick={() => setOpen(false)}
+                  onClick={closeSheet}
                   className="text-foreground block rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-white/5"
                 >
                   {link.label}
@@ -93,9 +97,9 @@ export function MobileSheetNav() {
 
             <div className="border-t border-white/8 pt-4">
               {auth.isAuthenticated ? (
-                <AuthenticatedSection onNavigate={() => setOpen(false)} />
+                <AuthenticatedSection onNavigate={closeSheet} />
               ) : (
-                <UnauthenticatedSection onNavigate={() => setOpen(false)} />
+                <UnauthenticatedSection onNavigate={closeSheet} />
               )}
             </div>
           </div>
@@ -105,101 +109,115 @@ export function MobileSheetNav() {
   );
 }
 
-function MegaMenuSectionItem({
-  section,
-  isExpanded,
-  onToggle,
-  onNavigate
-}: {
-  section: MegaMenuSection;
-  isExpanded: boolean;
-  onToggle: () => void;
-  onNavigate: () => void;
-}) {
-  return (
-    <div className="border-b border-white/8 pb-4 last:border-0">
-      <button
-        onClick={onToggle}
-        className="group flex w-full items-center justify-between rounded-lg px-2 py-2 text-left transition-colors hover:bg-white/5"
-      >
-        <div className="flex-1">
-          <div className="text-foreground mb-0.5 flex items-center gap-2 text-sm font-semibold">
-            {section.label}
-            <ChevronDown
-              className={cn(
-                "text-muted-foreground h-3.5 w-3.5 transition-transform duration-200",
-                isExpanded && "rotate-180"
-              )}
-            />
-          </div>
-          <div className="text-muted-foreground text-xs">{section.tagline}</div>
-        </div>
-      </button>
+const MegaMenuSectionItem = React.memo(
+  ({
+    section,
+    isExpanded,
+    onToggle,
+    onNavigate
+  }: {
+    section: MegaMenuSection;
+    isExpanded: boolean;
+    onToggle: (key: string) => void;
+    onNavigate: () => void;
+  }) => {
+    const handleToggle = React.useCallback(() => onToggle(section.key), [onToggle, section.key]);
 
-      <div
-        className={cn(
-          "grid transition-all duration-200 ease-in-out",
-          isExpanded ? "mt-2 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-        )}
-      >
-        <div className="overflow-hidden">
-          <div className="space-y-1">
-            {section.items.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.label}
-                  to={item.href}
-                  onClick={onNavigate}
-                  className="group flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/5"
-                >
-                  <div className="text-muted-foreground group-hover:text-primary mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/8 bg-white/5">
-                    <Icon className="h-4 w-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-foreground text-sm font-medium">{item.label}</div>
-                    <div className="text-muted-foreground text-xs leading-relaxed">
-                      {item.description}
+    return (
+      <div className="border-b border-white/8 pb-4 last:border-0">
+        <button
+          onClick={handleToggle}
+          className="group flex w-full items-center justify-between rounded-lg px-2 py-2 text-left transition-colors hover:bg-white/5"
+        >
+          <div className="flex-1">
+            <div className="text-foreground mb-0.5 flex items-center gap-2 text-sm font-semibold">
+              {section.label}
+              <ChevronDown
+                className={cn(
+                  "text-muted-foreground h-3.5 w-3.5 transition-transform duration-200",
+                  isExpanded && "rotate-180"
+                )}
+              />
+            </div>
+            <div className="text-muted-foreground text-xs">{section.tagline}</div>
+          </div>
+        </button>
+
+        <div
+          className={cn(
+            "grid transition-all duration-200 ease-in-out",
+            isExpanded ? "mt-2 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          )}
+        >
+          <div className="overflow-hidden">
+            <div className="space-y-1">
+              {section.items.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.label}
+                    to={item.href}
+                    onClick={onNavigate}
+                    className="group flex items-start gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/5"
+                  >
+                    <div className="text-muted-foreground group-hover:text-primary mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/8 bg-white/5">
+                      <Icon className="h-4 w-4" />
                     </div>
-                  </div>
-                </Link>
-              );
-            })}
+                    <div className="min-w-0 flex-1">
+                      <div className="text-foreground text-sm font-medium">{item.label}</div>
+                      <div className="text-muted-foreground text-xs leading-relaxed">
+                        {item.description}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
+);
 
-function AuthenticatedSection({ onNavigate }: { onNavigate: () => void }) {
+MegaMenuSectionItem.displayName = "MegaMenuSectionItem";
+
+const AuthenticatedSection = React.memo(({ onNavigate }: { onNavigate: () => void }) => {
   const auth = useAuth();
+
+  const handleLogout = React.useCallback(async () => {
+    onNavigate();
+    await logoutEverywhere(auth);
+  }, [onNavigate, auth]);
+
+  const initial = React.useMemo(() => {
+    return (
+      auth.user?.profile.preferred_username ||
+      auth.user?.profile.name ||
+      auth.user?.profile.email ||
+      "K"
+    )
+      .charAt(0)
+      .toUpperCase();
+  }, [auth.user]);
+
+  const displayName = React.useMemo(() => {
+    return auth.user?.profile.preferred_username || auth.user?.profile.name || "Account";
+  }, [auth.user]);
 
   return (
     <div className="space-y-3 px-2 pb-2">
-      <div className="flex items-center gap-3">
-        <div className="bg-gradient-kleff flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-black">
-          {(
-            auth.user?.profile.preferred_username ||
-            auth.user?.profile.name ||
-            auth.user?.profile.email ||
-            "K"
-          )
-            .charAt(0)
-            .toUpperCase()}
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-sm font-medium text-neutral-200">
-            {auth.user?.profile.preferred_username || auth.user?.profile.name || "Account"}
-          </span>
-          {auth.user?.profile.email && (
-            <span className="truncate text-xs text-neutral-400">{auth.user.profile.email}</span>
-          )}
-        </div>
-      </div>
+      <UserAvatar initial={initial} name={displayName} email={auth.user?.profile.email} />
 
       <div className="flex flex-col gap-2">
-        <Link to="/dashboard/settings" onClick={onNavigate}>
+        <Link to={ROUTES.DASHBOARD} onClick={onNavigate}>
+          <Button className="bg-gradient-kleff flex w-full items-center justify-center gap-2 py-2 font-semibold text-black shadow-lg hover:brightness-110">
+            <LayoutDashboard className="h-4 w-4" />
+            Dashboard
+          </Button>
+        </Link>
+
+        <Link to={ROUTES.DASHBOARD_SETTINGS} onClick={onNavigate}>
           <Button
             variant="outline"
             className="flex w-full items-center justify-center gap-2 border-white/10 bg-white/5 py-2 font-medium text-neutral-200 hover:border-white/20 hover:bg-white/10"
@@ -210,10 +228,7 @@ function AuthenticatedSection({ onNavigate }: { onNavigate: () => void }) {
         </Link>
 
         <Button
-          onClick={async () => {
-            onNavigate();
-            await logoutEverywhere(auth);
-          }}
+          onClick={handleLogout}
           variant="outline"
           className="flex w-full items-center justify-center gap-2 border-red-500/20 bg-red-500/10 py-2 font-medium text-red-300 hover:border-red-500/30 hover:bg-red-500/20"
         >
@@ -223,12 +238,14 @@ function AuthenticatedSection({ onNavigate }: { onNavigate: () => void }) {
       </div>
     </div>
   );
-}
+});
 
-function UnauthenticatedSection({ onNavigate }: { onNavigate: () => void }) {
+AuthenticatedSection.displayName = "AuthenticatedSection";
+
+const UnauthenticatedSection = React.memo(({ onNavigate }: { onNavigate: () => void }) => {
   return (
     <div className="space-y-2 px-2">
-      <Link to="/auth/sign-in" onClick={onNavigate} className="block">
+      <Link to={ROUTES.AUTH_SIGNIN} onClick={onNavigate} className="block">
         <Button
           variant="outline"
           className="h-11 w-full border-white/20 bg-transparent font-medium hover:border-white/40 hover:bg-white/5"
@@ -236,11 +253,13 @@ function UnauthenticatedSection({ onNavigate }: { onNavigate: () => void }) {
           Sign in
         </Button>
       </Link>
-      <Link to="/auth/signin" onClick={onNavigate} className="block">
+      <Link to={ROUTES.AUTH_SIGNIN} onClick={onNavigate} className="block">
         <Button className="bg-gradient-kleff h-11 w-full font-semibold text-black shadow-lg hover:brightness-110">
           Start your project
         </Button>
       </Link>
     </div>
   );
-}
+});
+
+UnauthenticatedSection.displayName = "UnauthenticatedSection";

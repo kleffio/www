@@ -1,5 +1,6 @@
+---
 name: CI Checks
-on:
+"on":
   push:
     branches: ["**"]
   pull_request:
@@ -31,10 +32,6 @@ jobs:
     name: Shell Check
     uses: kleffio/.github/.github/workflows/_shellcheck.yml@main
 
-  # hadolint:
-  #   name: Dockerfile Lint
-  #   uses: kleffio/.github/.github/workflows/_hadolint.yml@main
-
   # --- PR-specific ---
   auto-label:
     name: Auto Label PR
@@ -59,21 +56,7 @@ jobs:
     with:
       unified_path: configs/labels.json
 
-  auto-request-reviewers:
-    name: Auto Request Reviewers
-    if: github.event_name == 'pull_request' && github.event.action == 'opened'
-    uses: kleffio/.github/.github/workflows/_auto-request-reviewers.yml@main
-
-  # --- Compliance ---
-  # reuse:
-  #   name: REUSE Compliance
-  #   uses: kleffio/.github/.github/workflows/_reuse-compliance.yml@main
-
   # --- Main-only ---
-  openssf:
-    name: OpenSSF Scorecard
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    uses: kleffio/.github/.github/workflows/_openssf-scorecard.yml@main
 
   label-sync:
     name: Label Sync

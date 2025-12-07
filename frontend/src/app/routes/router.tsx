@@ -9,10 +9,11 @@ import { MetricsDashboard } from "@pages/dashboard/MetricsDashboard";
 import { LandingPage } from "@pages/landing/LandingPage";
 import { ProjectsPage } from "@pages/projects/ProjectsPage";
 import { createBrowserRouter } from "react-router-dom";
+import { ROUTES } from "./routes";
 
 export const router = createBrowserRouter([
   {
-    path: "/",
+    path: ROUTES.HOME,
     element: <AppLayout />,
     errorElement: <ErrorPage />,
     children: [
@@ -36,8 +37,7 @@ export const router = createBrowserRouter([
     ]
   },
   {
-    path: "/dashboard",
-
+    path: ROUTES.DASHBOARD,
     element: (
       <ProtectedRoute>
         <DashboardLayout />

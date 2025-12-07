@@ -1,15 +1,47 @@
+<<<<<<< HEAD
 import { CreateProjectModal } from "@features/projects/components/CreateProjectModal";
 import { useProjects } from "@features/projects/hooks/useProjects";
 import { Button } from "@shared/ui/Button";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@shared/ui/Table";
 import { useState } from "react";
+=======
+import { useEffect, useState } from "react";
+import { Button } from "@shared/ui/Button";
+import { SoftPanel } from "@shared/ui/SoftPanel";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@shared/ui/Table";
+import { CreateProjectModal } from "@features/projects/components/CreateProjectModal";
+import { useProjects } from "@features/projects/hooks/useProjects";
+import enTranslations from "@app/locales/en.json";
+import frTranslations from "@app/locales/fr.json";
+import { getLocale } from "@app/locales/locale";
+
+
+const translations = {
+  en: enTranslations,
+  fr: frTranslations
+};
+>>>>>>> f68374716d7d70582c3569f1e5e3a68f0ad5418b
 
 export function ProjectsPage() {
+  const [locale, setLocaleState] = useState(getLocale());
   const { projects, isLoading, error, reload } = useProjects();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleCreateSuccess = () => {
+  
+  useEffect(() => {
+      const interval = setInterval(() => {
+        const currentLocale = getLocale();
+        if (currentLocale !== locale) {
+          setLocaleState(currentLocale);
+        }
+      }, 100);
+      return () => clearInterval(interval);
+    }, [locale]);
+  
+    const t = translations[locale].projects;
+    const tModal = translations[locale].modal;
+    const tCommon = translations[locale].common;
+    const handleCreateSuccess = () => {
     void reload();
     setIsModalOpen(false);
   };
@@ -19,9 +51,9 @@ export function ProjectsPage() {
       <div className="app-container space-y-6 py-8">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-neutral-50 md:text-3xl">Projects</h1>
+            <h1 className="text-2xl font-semibold text-neutral-50 md:text-3xl">{t.title}</h1>
             <p className="mt-1 text-sm text-neutral-400">
-              Create and manage your projects and deployments.
+              {t.subtitle}
             </p>
           </div>
 
@@ -30,14 +62,14 @@ export function ProjectsPage() {
             onClick={() => setIsModalOpen(true)}
             className="bg-gradient-kleff rounded-full px-5 py-2 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
           >
-            Create project
+            {tModal.title}
           </Button>
         </header>
 
         {isLoading && (
           <SoftPanel>
             <div className="flex justify-center py-10">
-              <p className="text-sm text-neutral-400">Loading projects…</p>
+              <p className="text-sm text-neutral-400">{tCommon.loading}</p>
             </div>
           </SoftPanel>
         )}
@@ -51,13 +83,13 @@ export function ProjectsPage() {
         {!isLoading && !error && projects.length === 0 && (
           <SoftPanel>
             <div className="py-10 text-center">
-              <p className="text-sm text-neutral-400">You don&apos;t have any projects yet.</p>
+              <p className="text-sm text-neutral-400">{t.no_projects}</p>
               <Button
                 size="sm"
                 onClick={() => setIsModalOpen(true)}
                 className="bg-gradient-kleff mt-4 rounded-full px-4 py-1.5 text-xs font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
               >
-                Create your first project
+               {t.create_first}
               </Button>
             </div>
           </SoftPanel>
@@ -71,36 +103,25 @@ export function ProjectsPage() {
                   <Table>
                     <TableHeader>
                       <TableRow className="border-b border-white/10 bg-white/5 hover:bg-white/5">
-                        <TableHead>NAME</TableHead>
-                        <TableHead>DESCRIPTION</TableHead>
-                        <TableHead>REPOSITORY</TableHead>
-                        <TableHead>BRANCH</TableHead>
-                        <TableHead>DOCKER COMPOSE</TableHead>
+                        <TableHead>{t.table.name}</TableHead>
+                        <TableHead>{t.table.description}</TableHead>
+                        <TableHead>{t.table.owner}</TableHead>
+                        <TableHead>{t.table.stack}</TableHead>
+                        <TableHead>{t.table.status}</TableHead>
+                        <TableHead>{t.table.created_date}</TableHead>
+                        <TableHead>{t.table.updated_date}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {projects.map((p) => (
-                        <TableRow key={p.projectId ?? p.name}>
+                        <TableRow key={p.projectId}>
                           <TableCell className="font-semibold text-neutral-50">{p.name}</TableCell>
                           <TableCell className="text-neutral-300">{p.description || "—"}</TableCell>
-                          <TableCell className="text-neutral-300">
-                            {p.repositoryUrl ? (
-                              <a
-                                href={p.repositoryUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-kleff-gold text-xs hover:underline"
-                              >
-                                {p.repositoryUrl}
-                              </a>
-                            ) : (
-                              "—"
-                            )}
-                          </TableCell>
-                          <TableCell className="text-neutral-300">{p.branch || "—"}</TableCell>
-                          <TableCell className="text-neutral-300">
-                            {p.dockerComposePath || "—"}
-                          </TableCell>
+                          <TableCell className="text-neutral-300">{p.ownerId || "—"}</TableCell>
+                          <TableCell className="text-neutral-300">{p.stackId || "—"}</TableCell>
+                          <TableCell className="text-neutral-300">{p.projectStatus || "—"}</TableCell>
+                          <TableCell className="text-neutral-300">{p.createdDate || "—"}</TableCell>
+                          <TableCell className="text-neutral-300">{p.updatedDate || "—"}</TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -112,7 +133,7 @@ export function ProjectsPage() {
             <div className="space-y-3 md:hidden">
               {projects.map((p) => (
                 <div
-                  key={p.projectId ?? p.name}
+                  key={p.projectId}
                   className="rounded-2xl border border-white/12 bg-black/50 px-4 py-3"
                 >
                   <div className="mb-1 flex items-center justify-between gap-2">
@@ -125,22 +146,24 @@ export function ProjectsPage() {
 
                   <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-[11px]">
                     <div>
-                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Repo</dt>
-                      <dd className="truncate text-neutral-200">
-                        {p.repositoryUrl ? "Connected" : "—"}
-                      </dd>
+                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Owner</dt>
+                      <dd className="truncate text-neutral-200">{p.ownerId || "—"}</dd>
                     </div>
                     <div>
-                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">
-                        Branch
-                      </dt>
-                      <dd className="truncate text-neutral-200">{p.branch || "—"}</dd>
+                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Stack</dt>
+                      <dd className="truncate text-neutral-200">{p.stackId || "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Status</dt>
+                      <dd className="truncate text-neutral-200">{p.projectStatus || "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Created</dt>
+                      <dd className="truncate text-neutral-200">{p.createdDate || "—"}</dd>
                     </div>
                     <div className="col-span-2">
-                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">
-                        Docker compose
-                      </dt>
-                      <dd className="truncate text-neutral-200">{p.dockerComposePath || "—"}</dd>
+                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Updated</dt>
+                      <dd className="truncate text-neutral-200">{p.updatedDate || "—"}</dd>
                     </div>
                   </dl>
                 </div>
