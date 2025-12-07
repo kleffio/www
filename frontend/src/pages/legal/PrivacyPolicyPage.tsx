@@ -8,7 +8,7 @@ import { MiniCard } from "@shared/ui/MiniCard";
 export function PrivacyPolicyPage() {
   return (
     <div className="relative isolate overflow-hidden">
-      <Section className="flex flex-col items-center gap-12 pt-20 pb-16 text-center">
+      <Section className="flex flex-col items-center gap-12 px-4 pt-16 pb-12 text-center sm:pt-20 sm:pb-16">
         <div className="max-w-3xl space-y-6">
           <Badge
             variant="gradient"
@@ -32,7 +32,7 @@ export function PrivacyPolicyPage() {
         </div>
       </Section>
 
-      <Section className="pb-16">
+      <Section className="px-4 pb-16">
         <SectionHeader
           label="Our Promise"
           title="Privacy-first platform"
@@ -64,7 +64,7 @@ export function PrivacyPolicyPage() {
         </div>
       </Section>
 
-      <Section className="pb-16">
+      <Section className="px-4 pb-16">
         <SectionHeader
           label="Data Collection"
           title="What we collect and why"
@@ -102,7 +102,7 @@ export function PrivacyPolicyPage() {
         </div>
       </Section>
 
-      <Section className="pb-16">
+      <Section className="px-4 pb-16">
         <div className="mx-auto max-w-4xl">
           <div className="glass-panel-soft p-8">
             <h2 className="mb-2 text-xs font-semibold tracking-[0.2em] text-neutral-400 uppercase">
@@ -133,7 +133,7 @@ export function PrivacyPolicyPage() {
         </div>
       </Section>
 
-      <Section className="pb-16">
+      <Section className="px-4 pb-16">
         <div className="mx-auto max-w-3xl">
           <div className="glass-panel-soft p-8">
             <h2 className="mb-6 text-center text-2xl font-semibold text-white">
@@ -163,7 +163,7 @@ export function PrivacyPolicyPage() {
         </div>
       </Section>
 
-      <Section className="pb-16">
+      <Section className="px-4 pb-16">
         <div className="glass-panel p-8">
           <h2 className="mb-6 text-center text-2xl font-semibold text-white">
             Data <span className="text-gradient-kleff">security</span> measures
@@ -189,7 +189,7 @@ export function PrivacyPolicyPage() {
         </div>
       </Section>
 
-      <Section className="pb-16">
+      <Section className="px-4 pb-16">
         <div className="mx-auto max-w-2xl text-center">
           <div className="glass-panel-soft p-8">
             <h2 className="mb-3 text-2xl font-semibold text-white">

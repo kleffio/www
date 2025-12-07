@@ -9,7 +9,7 @@ import { MiniCard } from "@shared/ui/MiniCard";
 export function AboutUsPage() {
   return (
     <div className="relative isolate overflow-hidden">
-      <Section className="flex flex-col items-center gap-12 pt-20 pb-16 text-center">
+      <Section className="flex flex-col items-center gap-12 px-4 pt-16 pb-12 text-center sm:pt-20 sm:pb-16">
         <div className="max-w-3xl space-y-6">
           <Badge
             variant="gradient"
@@ -32,10 +32,10 @@ export function AboutUsPage() {
         </div>
       </Section>
 
-      <Section className="pb-16">
+      <Section className="px-4 pb-16">
         <div className="mx-auto max-w-4xl">
-          <div className="glass-panel p-8 text-center sm:p-12">
-            <p className="text-xl font-medium leading-relaxed text-white sm:text-2xl">
+          <div className="glass-panel p-6 text-center sm:p-8 lg:p-12">
+            <p className="text-lg font-medium leading-relaxed text-white sm:text-xl lg:text-2xl">
               We believe{" "}
               <span className="text-gradient-kleff">powerful cloud hosting</span>{" "}
               shouldn't break the bank or sacrifice developer experience.
@@ -44,7 +44,7 @@ export function AboutUsPage() {
         </div>
       </Section>
 
-      <Section className="pb-16">
+      <Section className="px-4 pb-16">
         <SectionHeader
           label="Why Kleff"
           title="What sets us apart"
@@ -76,78 +76,108 @@ export function AboutUsPage() {
         </div>
       </Section>
 
-      <Section className="pb-16">
-        <div className="glass-panel-soft p-8">
-          <div className="grid gap-12 text-center md:grid-cols-3">
-            <div>
-              <div className="text-gradient-kleff mb-2 text-5xl font-black sm:text-6xl">
-                10K+
-              </div>
-              <div className="text-xs text-neutral-400">Developers shipping daily</div>
-            </div>
-            <div>
-              <div className="text-gradient-kleff mb-2 text-5xl font-black sm:text-6xl">
-                1M+
-              </div>
-              <div className="text-xs text-neutral-400">Successful deployments</div>
-            </div>
-            <div>
-              <div className="text-gradient-kleff mb-2 text-5xl font-black sm:text-6xl">
-                99.9%
-              </div>
-              <div className="text-xs text-neutral-400">Uptime SLA guaranteed</div>
-            </div>
-          </div>
-        </div>
-      </Section>
 
-      <Section className="pb-16">
+
+      <Section className="px-4 pb-16">
         <SectionHeader
-          label="Technology"
-          title="Built on modern infrastructure"
-          description="Cloud-native technologies powering your applications."
+          label="Technology Stack"
+          title="Built with modern, battle-tested technologies"
+          description="Our infrastructure is powered by industry-leading tools and frameworks."
         />
 
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           <div className="glass-panel p-6">
-            <div className="flex items-center gap-3 pb-2">
+            <div className="mb-4">
               <GradientIcon icon={Cpu} />
-              <div>
-                <div className="text-sm font-semibold text-neutral-50">Kubernetes</div>
-              </div>
             </div>
-            <div className="text-[11px] text-neutral-400 leading-relaxed">
-              Industry-standard orchestration with auto-scaling, self-healing, and zero-downtime deployments.
-            </div>
-          </div>
-
-          <div className="glass-panel p-6">
-            <div className="flex items-center gap-3 pb-2">
-              <GradientIcon icon={GitBranch} />
-              <div>
-                <div className="text-sm font-semibold text-neutral-50">Git Integration</div>
-              </div>
-            </div>
-            <div className="text-[11px] text-neutral-400 leading-relaxed">
-              Connect GitHub, GitLab, or Bitbucket. Push to deploy automatically with preview environments.
+            <div className="mb-2 text-sm font-semibold text-neutral-50">Backend Services</div>
+            <p className="text-[11px] text-neutral-400 leading-relaxed mb-3">
+              High-performance, scalable microservices architecture.
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Go</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Java</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Spring Boot</span>
             </div>
           </div>
 
           <div className="glass-panel p-6">
-            <div className="flex items-center gap-3 pb-2">
+            <div className="mb-4">
               <GradientIcon icon={Activity} />
-              <div>
-                <div className="text-sm font-semibold text-neutral-50">Observability</div>
-              </div>
             </div>
-            <div className="text-[11px] text-neutral-400 leading-relaxed">
-              Real-time metrics powered by Prometheus. Logs, traces, and alerts that actually make sense.
+            <div className="mb-2 text-sm font-semibold text-neutral-50">Frontend</div>
+            <p className="text-[11px] text-neutral-400 leading-relaxed mb-3">
+              Modern, responsive user interfaces with type safety.
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">TypeScript</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">React</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Tailwind CSS</span>
+            </div>
+          </div>
+
+          <div className="glass-panel p-6">
+            <div className="mb-4">
+              <GradientIcon icon={Shield} />
+            </div>
+            <div className="mb-2 text-sm font-semibold text-neutral-50">Database</div>
+            <p className="text-[11px] text-neutral-400 leading-relaxed mb-3">
+              Reliable, scalable data storage with strong consistency.
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">PostgreSQL</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Redis</span>
+            </div>
+          </div>
+
+          <div className="glass-panel p-6">
+            <div className="mb-4">
+              <GradientIcon icon={Zap} />
+            </div>
+            <div className="mb-2 text-sm font-semibold text-neutral-50">Orchestration</div>
+            <p className="text-[11px] text-neutral-400 leading-relaxed mb-3">
+              Container orchestration with auto-scaling and self-healing.
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Kubernetes</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Docker</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Helm</span>
+            </div>
+          </div>
+
+          <div className="glass-panel p-6">
+            <div className="mb-4">
+              <GradientIcon icon={Activity} />
+            </div>
+            <div className="mb-2 text-sm font-semibold text-neutral-50">Observability</div>
+            <p className="text-[11px] text-neutral-400 leading-relaxed mb-3">
+              Real-time monitoring, metrics, and distributed tracing.
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Prometheus</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Grafana</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Jaeger</span>
+            </div>
+          </div>
+
+          <div className="glass-panel p-6">
+            <div className="mb-4">
+              <GradientIcon icon={Globe} />
+            </div>
+            <div className="mb-2 text-sm font-semibold text-neutral-50">Security & Auth</div>
+            <p className="text-[11px] text-neutral-400 leading-relaxed mb-3">
+              Enterprise-grade authentication and authorization.
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Authentik</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">OAuth 2.0</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">OIDC</span>
             </div>
           </div>
         </div>
       </Section>
 
-      <Section className="pb-16">
+      <Section className="px-4 pb-16">
         <div className="mx-auto max-w-3xl">
           <div className="glass-panel-soft p-8">
             <h2 className="mb-2 text-xs font-semibold tracking-[0.2em] text-neutral-400 uppercase">
@@ -174,7 +204,7 @@ export function AboutUsPage() {
         </div>
       </Section>
 
-      <Section className="pb-16">
+      <Section className="px-4 pb-16">
         <div className="mx-auto max-w-3xl">
           <div className="glass-panel-soft p-8">
             <h2 className="mb-6 text-center text-2xl font-semibold text-white">
@@ -205,7 +235,7 @@ export function AboutUsPage() {
         </div>
       </Section>
 
-      <Section className="pb-16">
+      <Section className="px-4 pb-16">
         <div className="mx-auto max-w-3xl text-center">
           <div className="glass-panel p-12">
             <h2 className="mb-4 text-3xl font-semibold text-white">
