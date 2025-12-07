@@ -9,7 +9,7 @@ import { useIdentity } from "@features/auth/hooks/useIdentity";
 import { logoutEverywhere } from "@features/auth/api/logout";
 import { DASHBOARD_NAV_ITEMS, isNavItemActive } from "@app/navigation/Navigation";
 import { ROUTES } from "@app/routes/routes";
-import { NavLogo } from "@shared/ui/Brand";
+import { Brand } from "@shared/ui/Brand";
 import { UserAvatar } from "@shared/ui/UserAvatar";
 import { NavItem } from "@app/navigation/components/NavItem";
 
@@ -24,7 +24,7 @@ export function DashboardNav() {
 
       <aside className="hidden h-screen w-64 flex-col border-r border-white/10 bg-black/40 lg:flex">
         <div className="flex h-14 items-center justify-start border-b border-white/10 px-3">
-          <NavLogo />
+          <Brand />
         </div>
 
         <nav className="flex-1 space-y-1 px-2 py-3">
@@ -76,7 +76,7 @@ function MobileHeader() {
 
   return (
     <div className="app-container flex h-12 items-center justify-between gap-4">
-      <NavLogo size={20} fontSize="text-[10px]" />
+      <Brand size={20} fontSize="text-[10px]" />
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
@@ -93,7 +93,7 @@ function MobileHeader() {
           )}
         >
           <SheetHeader className="flex flex-row items-center justify-between border-b border-white/10 px-4 py-3 text-left sm:hidden">
-            <NavLogo />
+            <Brand />
             <SheetTitle className="sr-only">Dashboard Navigation</SheetTitle>
           </SheetHeader>
 

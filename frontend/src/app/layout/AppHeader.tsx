@@ -5,7 +5,7 @@ import { UserMenu } from "@shared/ui/UserMenu";
 import { MobileSheetNav } from "@app/navigation/components/MobileSheetNav";
 import { DesktopMegaMenu } from "@app/navigation/components/DesktopMegaMenu";
 import { ROUTES } from "@app/routes/routes";
-import { NavLogo } from "@shared/ui/Brand";
+import { Brand } from "@shared/ui/Brand";
 import { AuthButtons } from "@features/auth/components/AuthButtons";
 
 export function AppHeader() {
@@ -23,7 +23,7 @@ export function AppHeader() {
 
       <div className="app-container relative z-10 flex h-12 items-center gap-6 md:h-14">
         <div className="flex flex-1 items-center gap-6">
-          <NavLogo fontSize="text-[14px]" />
+          <Brand fontSize="text-[14px]" />
           <div className="hidden lg:block">
             <DesktopMegaMenu />
           </div>

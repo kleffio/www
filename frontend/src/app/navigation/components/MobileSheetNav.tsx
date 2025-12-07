@@ -17,7 +17,7 @@ import { logoutEverywhere } from "@features/auth/api/logout";
 import type { MegaMenuSection } from "../Navigation";
 import { MEGA_MENU_SECTIONS, SIMPLE_NAV_LINKS } from "../Navigation";
 import { ROUTES } from "@app/routes/routes";
-import { NavLogo } from "@shared/ui/Brand";
+import { Brand } from "@shared/ui/Brand";
 import { UserAvatar } from "@shared/ui/UserAvatar";
 
 export function MobileSheetNav() {
@@ -63,7 +63,7 @@ export function MobileSheetNav() {
         className="w-full border-l border-white/10 bg-linear-to-b from-[#18181a]/98 via-[#16161a]/98 to-[#18181a]/98 px-0 pt-0 pb-0 sm:w-[85vw] sm:max-w-sm"
       >
         <SheetHeader className="border-b border-white/8 px-6 py-4">
-          <NavLogo onClick={closeSheet} />
+          <Brand onClick={closeSheet} />
           <SheetTitle className="sr-only">Kleff navigation</SheetTitle>
           <SheetDescription className="sr-only">
             Main navigation menu for the Kleff platform
