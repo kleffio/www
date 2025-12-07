@@ -1,9 +1,5 @@
-<<<<<<< HEAD
-import { useState } from "react";
 import { Link } from "react-router-dom";
-=======
 import { useEffect, useState } from "react";
->>>>>>> main
 import { Button } from "@shared/ui/Button";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@shared/ui/Table";
