@@ -1,0 +1,70 @@
+{
+  "common": {
+    "buttons": {
+      "create_project": "Créer un projet",
+      "deploy_new_project": "Déployer un nouveau projet",
+      "add": "Ajouter",
+      "cancel": "Annuler",
+      "creating": "Création en cours...",
+      "get_started": "Commencer gratuitement",
+      "view_docs": "Voir la documentation",
+      "view_templates": "Voir les modèles",
+      "browse_examples": "Parcourir les exemples sur GitHub"
+    },
+    "loading": "Chargement des projets…",
+    "no_projects": "Aucun projet pour le moment.",
+    "failed_load_projects": "Échec du chargement des projets"
+  },
+  "dashboard": {
+    "overview_title": "Vue d'ensemble",
+    "overview_subtitle": "Surveillez vos déploiements, le trafic et la santé de l'infrastructure",
+    "traffic_performance": "Trafic et performance",
+    "total_requests": "Requêtes totales",
+    "avg_response_time": "Temps de réponse moyen",
+    "cache_hit_rate": "Taux de cache",
+    "recent_deployments": "Déploiements récents",
+    "security": "Sécurité",
+    "infrastructure": "Infrastructure",
+    "quick_actions": "Actions rapides",
+    "create_new_deployment": "Créer un nouveau déploiement",
+    "view_analytics": "Voir les analytics",
+    "view_all": "Voir tout",
+    "deploy_new_project": "Déployer un nouveau projet"
+  },
+  "projects": {
+    "title": "Projets",
+    "subtitle": "Gérez vos projets et déploiements",
+    "table": {
+      "name": "Nom",
+      "description": "Description",
+      "repository": "Dépôt",
+      "branch": "Branche",
+      "docker_compose": "Docker Compose",
+      "repo_link": "Dépôt"
+    }
+  },
+  "modal": {
+    "title": "Créer un projet",
+    "subtitle": "Configurer un nouveau projet pour le déploiement",
+    "project_name": "Nom du projet *",
+    "project_name_placeholder": "Mon super projet",
+    "description": "Description",
+    "description_placeholder": "Une brève description de votre projet",
+    "add_collaborator": "Ajouter un collaborateur",
+    "collaborator_placeholder": "collaborateur@exemple.com",
+    "add_container": "Ajouter un conteneur",
+    "container_placeholder": "nom-du-conteneur",
+    "creating": "Création en cours...",
+    "failed_create": "Échec de la création du projet. Veuillez réessayer.",
+    "create_button": "Créer le projet"
+  },
+  "landing": {
+    "open_source": "Open-source • Auto-hébergé ou entièrement géré",
+    "badge": "Plateforme d'hébergement open-source",
+    "self_hosted": "Auto-hébergé ou entièrement géré",
+    "title": "Déployez en quelques minutes, évoluez sans verrouillage.",
+    "subtitle": "Kleff est une plateforme d'hébergement open-source pour les équipes modernes. D'un service unique à des flottes d'applications, déployez avec l'expérience développeur de niveau Vercel tout en gardant le contrôle total sur votre infrastructure.",
+    "get_started": "Commencer gratuitement",
+    "view_docs": "Voir la documentation"
+  }
+}

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@shared/ui/Button";
 import { Badge } from "@shared/ui/Badge";
 import { Section, SectionHeader } from "@shared/ui/Section";
@@ -9,8 +10,10 @@ import { SoftPanel } from "@shared/ui/SoftPanel";
 import { FeatureRow } from "@shared/ui/FeatureRow";
 import { MiniCard } from "@shared/ui/MiniCard";
 import { KleffDot } from "@shared/ui/KleffDot";
+import { LocaleSwitcher } from "@shared/ui/LocaleSwitcher";
 
 export function LandingPage() {
+  
   return (
     <div className="bg-kleff-bg relative isolate overflow-hidden">
       <div className="pointer-events-none absolute inset-0 -z-20">
@@ -87,6 +90,7 @@ export function LandingPage() {
                 View docs
               </Button>
             </Link>
+            <LocaleSwitcher className="hidden sm:inline-flex text-sm px-3 py-2" />
           </div>
 
           <div className="mt-2 flex justify-center text-[11px] text-neutral-500 sm:hidden">

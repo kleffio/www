@@ -23,6 +23,7 @@ import {
   Server,
   BarChart3
 } from "lucide-react";
+import { LocaleSwitcher } from "@shared/ui/LocaleSwitcher";
 
 const dashboardData = {
   quickStats: [
@@ -182,13 +183,16 @@ export function DashboardPage() {
               Monitor your deployments, traffic, and infrastructure health
             </p>
           </div>
-          <Button
-            onClick={() => setIsModalOpen(true)}
-            size="lg"
-            className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
-          >
-            Deploy New Project
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              size="lg"
+              className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
+            >
+              Deploy New Project
+            </Button>
+            <LocaleSwitcher className="text-sm px-3 py-2" />
+          </div>
         </div>
       </section>
 
