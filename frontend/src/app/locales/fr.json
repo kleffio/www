@@ -1,0 +1,291 @@
+{
+  "common": {
+    "buttons": {
+      "create_project": "Créer un projet",
+      "deploy_new_project": "Déployer un nouveau projet",
+      "add": "Ajouter",
+      "cancel": "Annuler",
+      "creating": "Création en cours...",
+      "get_started": "Commencer gratuitement",
+      "view_docs": "Voir la documentation",
+      "view_templates": "Voir les modèles",
+      "browse_examples": "Parcourir les exemples sur GitHub"
+    },
+    "loading": "Chargement des projets…",
+    "no_projects": "Aucun projet pour le moment.",
+    "failed_load_projects": "Échec du chargement des projets"
+  },
+  "dashboard": {
+    "overview_title": "Vue d'ensemble",
+    "overview_subtitle": "Surveillez vos déploiements, le trafic et la santé de l'infrastructure",
+    "traffic_performance": "Trafic et performance",
+    "total_requests": "Requêtes totales",
+    "avg_response_time": "Temps de réponse moyen",
+    "cache_hit_rate": "Taux de cache",
+    "recent_deployments": "Déploiements récents",
+    "security": "Sécurité",
+    "infrastructure": "Infrastructure",
+    "quick_actions": "Actions rapides",
+    "create_new_deployment": "Créer un nouveau déploiement",
+    "view_analytics": "Voir les analytics",
+    "view_all": "Voir tout",
+    "deploy_new_project": "Déployer un nouveau projet"
+  },
+  "projects": {
+    "title": "Projets",
+    "subtitle": "Gérez vos projets et déploiements",
+    "no_projects": "Vous n'avez pas encore créé de projets.",
+    "create_first": "Créez votre premier projet",
+    "table": {
+      "name": "Nom",
+      "description": "Description",
+      "owner": "Propriétaire",
+      "stack": "Stack",
+      "status": "Statut",
+      "created_date": "Date de création",
+      "updated_date": "Date de mise à jour",
+      "repository": "Dépôt",
+      "branch": "Branche",
+      "docker_compose": "Docker Compose",
+      "repo_link": "Dépôt"
+    }
+  },
+  "modal": {
+    "title": "Créer un projet",
+    "subtitle": "Configurer un nouveau projet pour le déploiement",
+    "project_name": "Nom du projet *",
+    "project_name_placeholder": "Mon super projet",
+    "description": "Description",
+    "description_placeholder": "Une brève description de votre projet",
+    "add_collaborator": "Ajouter un collaborateur",
+    "collaborator_placeholder": "collaborateur@exemple.com",
+    "add_container": "Ajouter un conteneur",
+    "container_placeholder": "nom-du-conteneur",
+    "creating": "Création en cours...",
+    "failed_create": "Échec de la création du projet. Veuillez réessayer.",
+    "create_button": "Créer le projet"
+  },
+  "landing": {
+    "badges": {
+      "open_source": "Open-source • Auto-hébergé ou entièrement géré",
+      "open_source_platform": "Plateforme d'hébergement open-source",
+      "self_hosted": "Auto-hébergé ou entièrement géré"
+    },
+    "hero": {
+      "title_line1": "Déployez en quelques minutes,",
+      "title_line2": "évoluez sans verrouillage.",
+      "subtitle": "Kleff est une plateforme d'hébergement open-source pour les équipes modernes. D'un service unique à des flottes d'applications, déployez avec l'expérience développeur de niveau Vercel tout en gardant le contrôle total sur votre infrastructure.",
+      "get_started": "Commencer gratuitement",
+      "view_docs": "Voir la documentation"
+    },
+    "mini_cards": {
+      "git_push": {
+        "title": "Déploiements Git push",
+        "description": "Connectez GitHub, GitLab ou votre propre registre."
+      },
+      "self_hosted": {
+        "title": "Auto-hébergement en priorité",
+        "description": "Exécutez Kleff sur votre propre matériel ou utilisez notre cloud."
+      },
+      "batteries": {
+        "title": "Tout inclus",
+        "description": "Identité, observabilité, réseau et automatisation."
+      }
+    },
+    "trusted_by": {
+      "prefix": "Approuvé par des équipes utilisant :",
+      "mobile": "Approuvé par des équipes utilisant Next.js, des API Go et des microservices.",
+      "nextjs": "Next.js",
+      "go_apis": "API Go",
+      "microservices": "Microservices"
+    },
+    "preview": {
+      "domain": "deploys.kleff.io",
+      "preview_label": "Aperçu",
+      "recent_deploys": "Déploiements récents",
+      "branch_info": "main • Production",
+      "git_push": "git push origin main",
+      "statuses": {
+        "ready": "Prêt",
+        "building": "En construction",
+        "queued": "En file d'attente"
+      },
+      "branches": {
+        "observability": "feat/observability-dashboard",
+        "runtime": "chore/update-runtime"
+      },
+      "metrics": {
+        "latency": "Latence P95",
+        "error_rate": "Taux d'erreur",
+        "regions": "Régions actives"
+      },
+      "regions_card": {
+        "title": "Régions",
+        "healthy": "Sain",
+        "us_east": "iad1 • US-Est",
+        "eu_central": "fra1 • EU-Centre",
+        "ca_east": "yul1 • CA-Est"
+      },
+      "deploy_preview": {
+        "title": "Aperçu de déploiement créé",
+        "description": "Partagez cette URL avec votre équipe pour examiner les modifications avant de les promouvoir en production."
+      }
+    },
+    "why_kleff": {
+      "label": "Pourquoi les équipes choisissent Kleff",
+      "title": "Tout ce dont vous avez besoin pour passer de",
+      "title_code": "git push",
+      "title_end": "à une production observable.",
+      "description": "Le cœur de Kleff est open source. Exécutez-le sur vos propres machines ou utilisez notre offre gérée — le flux de travail reste le même.",
+      "features": {
+        "fast": {
+          "title": "Rapide dès le premier jour",
+          "description": "Déploiements sans configuration, environnements d'aperçu et retours instantanés — sans se noyer dans du YAML."
+        },
+        "open": {
+          "title": "Ouvert par défaut",
+          "description": "Inspectez le code, contribuez des fonctionnalités et exécutez la même pile localement, sur site ou dans n'importe quel cloud."
+        },
+        "visibility": {
+          "title": "Visibilité d'abord",
+          "description": "Journaux, métriques et alertes qui ont vraiment du sens. Connectez-vous à Prometheus/Grafana ou utilisez les tableaux de bord intégrés."
+        }
+      }
+    },
+    "platform": {
+      "label": "Plateforme Kleff",
+      "title": "Une boîte à outils complète pour les services modernes.",
+      "description": "Mélangez et associez les éléments dont vous avez besoin : déploiements, identité, observabilité, données et automatisation — le tout avec des paramètres par défaut sensés et un contrôle auto-hébergeable.",
+      "deployments": {
+        "title": "Déploiements",
+        "description": "Construisez et déployez des conteneurs avec des pipelines sans configuration.",
+        "preview": {
+          "title": "Environnements d'aperçu",
+          "description": "Un par pull request, automatiquement."
+        },
+        "rollbacks": {
+          "title": "Retours sécurisés",
+          "description": "Revenez instantanément à un déploiement connu et fonctionnel."
+        }
+      },
+      "identity": {
+        "title": "Identité et accès",
+        "description": "Apportez Kleff Auth ou votre propre IDP.",
+        "multi_tenant": {
+          "title": "Multi-locataire",
+          "description": "Limites d'organisation et de projet modélisées correctement."
+        },
+        "audit": {
+          "title": "Conforme aux audits",
+          "description": "Sessions, jetons et modifications de clés suivis."
+        }
+      },
+      "observability": {
+        "title": "Observabilité",
+        "description": "Journaux, métriques et alertes centralisés.",
+        "dashboards": {
+          "title": "Tableaux de bord",
+          "description": "Voyez la santé de tous les services en un coup d'œil."
+        },
+        "integrations": {
+          "title": "Intégrations",
+          "description": "Compatible avec Prometheus / Grafana dès le premier jour."
+        }
+      }
+    },
+    "cta": {
+      "title": "Commencez à construire sur Kleff en quelques minutes.",
+      "description": "Déployez votre prochain projet avec une plateforme ouverte que vous pouvez exécuter n'importe où. Explorez les modèles, les dépôts d'exemples et la pile Kleff complète sur GitHub.",
+      "view_templates": "Voir les modèles",
+      "browse_examples": "Parcourir les exemples sur GitHub"
+    }
+  },
+  "header": {
+    "common": {
+      "mega_menu_footer": "Infrastructure open-source conçue pour les équipes modernes."
+    },
+    "product": {
+      "label": "Produit",
+      "tagline": "Tout ce dont vous avez besoin pour livrer des services modernes.",
+      "overview": {
+        "label": "Aperçu",
+        "description": "Déployez, scalez et observez vos applications sur Kleff."
+      },
+      "deployments": {
+        "label": "Déploiements",
+        "description": "Déploiements basés sur Git avec rollback."
+      },
+      "runtime": {
+        "label": "Runtime",
+        "description": "Runtimes gérés optimisés pour les stacks modernes."
+      },
+      "observability": {
+        "label": "Observabilité",
+        "description": "Métriques, logs et alertes prêts à l'emploi."
+      },
+      "customer_stories": {
+        "header": "Témoignages clients",
+        "title": "Conçu pour les équipes rapides",
+        "description": "Les équipes utilisent Kleff pour déployer des flottes de services, garder l'infrastructure observable et rester en contrôle total, qu'elle soit auto-hébergée ou gérée."
+      },
+      "compare": {
+        "header": "Comparer Kleff",
+        "vs_vercel": "Kleff vs Vercel",
+        "vs_amplify": "Kleff vs AWS Amplify",
+        "vs_kubernetes": "Kleff vs Kubernetes DIY"
+      }
+    },
+    "developers": {
+      "label": "Développeurs",
+      "tagline": "Des outils conçus par des devs, pour des devs.",
+      "docs": {
+        "label": "Docs",
+        "description": "Tout ce dont vous avez besoin pour commencer."
+      },
+      "api": {
+        "label": "Référence API",
+        "description": "Endpoints REST et CLI pour l'automatisation."
+      },
+      "sdks": {
+        "label": "SDKs",
+        "description": "Intégrations pour langages et frameworks."
+      },
+      "changelog": {
+        "label": "Changelog",
+        "description": "Suivez les mises à jour de la plateforme semaine après semaine."
+      },
+      "footer_note": "Infrastructure open-source conçue pour les équipes modernes."
+    },
+    "solutions": {
+      "label": "Solutions",
+      "tagline": "Kleff pour les équipes de toutes tailles.",
+      "startups": {
+        "label": "Startups",
+        "description": "Livrez plus vite avec des réglages et tarifs raisonnables."
+      },
+      "agencies": {
+        "label": "Agences",
+        "description": "Projets multi-clients pour vos clients."
+      },
+      "indie": {
+        "label": "Indépendants",
+        "description": "Payez seulement pour ce que vous utilisez réellement."
+      },
+      "enterprise": {
+        "label": "Entreprise",
+        "description": "Contrôles et conformité pour les grandes organisations."
+      }
+    },
+    "links": {
+      "pricing": "Tarifs",
+      "docs": "Docs",
+      "blog": "Blog"
+    },
+    "mobile": {
+      "nav_title": "Navigation Kleff",
+      "nav_description": "Menu de navigation principal pour la plateforme Kleff, incluant les liens produit, développeur et solution.",
+      "signin": "Se connecter",
+      "signup": "Commencez votre projet"
+    }
+  }
+}
