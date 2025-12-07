@@ -24,7 +24,7 @@ import {
   BarChart3
 } from "lucide-react";
 import { LocaleSwitcher } from "@shared/ui/LocaleSwitcher";
-import { getLocale } from "../../app/locales/locale";
+import { getLocale } from "@app/locales/locale";
 
 // Import translations
 import enTranslations from "@app/locales/en.json";
