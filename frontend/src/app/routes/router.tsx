@@ -9,6 +9,11 @@ import { DashboardLayout } from "@app/layout/DashboardLayout";
 import { ProtectedRoute } from "@app/routing/ProtectedRoute";
 import { ProjectsProvider } from "@features/projects/context/ProjectsContext";
 
+import { AboutUsPage } from "@pages/aboutus/AboutUsPage";
+import { FAQPage } from "@pages/legal/FAQPage";
+import { PrivacyPolicyPage } from "@pages/legal/PrivacyPolicyPage";
+import { TermsOfServicePage } from "@pages/legal/TermsOfServicePage";
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -19,6 +24,13 @@ export const router = createBrowserRouter([
         index: true,
         element: <LandingPage />
       },
+
+      { path: "about", element: <AboutUsPage /> },
+      { path: "faq", element: <FAQPage /> },
+      { path: "terms", element: <TermsOfServicePage /> },
+      { path: "privacy", element: <PrivacyPolicyPage /> },
+
+      // Auth routes
       {
         path: "auth",
         children: [
@@ -34,6 +46,8 @@ export const router = createBrowserRouter([
       }
     ]
   },
+
+  // ✅ Dashboard
   {
     path: "/dashboard",
     element: (

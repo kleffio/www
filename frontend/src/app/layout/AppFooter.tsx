@@ -29,6 +29,14 @@ export function AppFooter() {
 
           <span className="hidden text-neutral-600 sm:inline">•</span>
 
+          <UnderlineLink to="/about" className="text-neutral-500 hover:text-neutral-200">
+            About
+          </UnderlineLink>
+
+          <UnderlineLink to="/faq" className="text-neutral-500 hover:text-neutral-200">
+            FAQ
+          </UnderlineLink>
+
           <UnderlineLink to="/terms" className="text-neutral-500 hover:text-neutral-200">
             Terms
           </UnderlineLink>
