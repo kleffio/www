@@ -1,0 +1,291 @@
+{
+  "common": {
+    "buttons": {
+      "create_project": "Create Project",
+      "deploy_new_project": "Deploy New Project",
+      "add": "Add",
+      "cancel": "Cancel",
+      "creating": "Creating...",
+      "get_started": "Get started for free",
+      "view_docs": "View docs",
+      "view_templates": "View starter templates",
+      "browse_examples": "Browse GitHub examples"
+    },
+    "loading": "Loading projects…",
+    "no_projects": "No projects yet.",
+    "failed_load_projects": "Failed to load projects"
+  },
+  "dashboard": {
+    "overview_title": "Overview",
+    "overview_subtitle": "Monitor your deployments, traffic, and infrastructure health",
+    "traffic_performance": "Traffic & Performance",
+    "total_requests": "Total Requests",
+    "avg_response_time": "Avg Response Time",
+    "cache_hit_rate": "Cache Hit Rate",
+    "recent_deployments": "Recent Deployments",
+    "security": "Security",
+    "infrastructure": "Infrastructure",
+    "quick_actions": "Quick Actions",
+    "create_new_deployment": "Create New Deployment",
+    "view_analytics": "View Analytics",
+    "view_all": "View All",
+    "deploy_new_project": "Deploy New Project"
+  },
+  "projects": {
+    "title": "Projects",
+    "subtitle": "Manage your projects and deployments",
+    "no_projects": "You haven't created any projects yet.",
+    "create_first": "Create your first project",
+    "table": {
+      "name": "Name",
+      "description": "Description",
+      "owner": "Owner",
+      "stack": "Stack",
+      "status": "Status",
+      "created_date": "Created Date",
+      "updated_date": "Updated Date",
+      "repository": "Repository",
+      "branch": "Branch",
+      "docker_compose": "Docker Compose",
+      "repo_link": "Repo"
+    }
+  },
+  "modal": {
+    "title": "Create Project",
+    "subtitle": "Set up a new project for deployment",
+    "project_name": "Project Name *",
+    "project_name_placeholder": "My awesome project",
+    "description": "Description",
+    "description_placeholder": "A brief description of your project",
+    "add_collaborator": "Add Collaborator",
+    "collaborator_placeholder": "collaborator@example.com",
+    "add_container": "Add Container",
+    "container_placeholder": "container-name",
+    "creating": "Creating...",
+    "failed_create": "Failed to create project. Please try again.",
+    "create_button": "Create Project"
+  },
+  "landing": {
+    "badges": {
+      "open_source": "Open-source • Self-hosted or fully managed",
+      "open_source_platform": "Open-source hosting platform",
+      "self_hosted": "Self-hosted or fully managed"
+    },
+    "hero": {
+      "title_line1": "Deploy in minutes,",
+      "title_line2": "scale without lock-in.",
+      "subtitle": "Kleff is an open-source hosting platform for modern teams. From a single service to fleets of applications, ship with Vercel-level DX while keeping full control over your infrastructure.",
+      "get_started": "Get started for free",
+      "view_docs": "View docs"
+    },
+    "mini_cards": {
+      "git_push": {
+        "title": "Git push deploys",
+        "description": "Connect GitHub, GitLab, or your own registry."
+      },
+      "self_hosted": {
+        "title": "Self-hosted first",
+        "description": "Run Kleff on your own hardware or use our cloud."
+      },
+      "batteries": {
+        "title": "Batteries included",
+        "description": "Identity, observability, networking, and automation."
+      }
+    },
+    "trusted_by": {
+      "prefix": "Trusted by teams running:",
+      "mobile": "Trusted by teams running Next.js, Go APIs, and microservices.",
+      "nextjs": "Next.js",
+      "go_apis": "Go APIs",
+      "microservices": "Microservices"
+    },
+    "preview": {
+      "domain": "deploys.kleff.io",
+      "preview_label": "Preview",
+      "recent_deploys": "Recent deploys",
+      "branch_info": "main • Production",
+      "git_push": "git push origin main",
+      "statuses": {
+        "ready": "Ready",
+        "building": "Building",
+        "queued": "Queued"
+      },
+      "branches": {
+        "observability": "feat/observability-dashboard",
+        "runtime": "chore/update-runtime"
+      },
+      "metrics": {
+        "latency": "P95 latency",
+        "error_rate": "Error rate",
+        "regions": "Active regions"
+      },
+      "regions_card": {
+        "title": "Regions",
+        "healthy": "Healthy",
+        "us_east": "iad1 • US-East",
+        "eu_central": "fra1 • EU-Central",
+        "ca_east": "yul1 • CA-East"
+      },
+      "deploy_preview": {
+        "title": "Deploy preview created",
+        "description": "Share this URL with your team to review changes before promoting to production."
+      }
+    },
+    "why_kleff": {
+      "label": "Why teams choose Kleff",
+      "title": "Everything you need to go from",
+      "title_code": "git push",
+      "title_end": "to observable production.",
+      "description": "Kleff's core is open source. Run it on your own machines or use our managed offering — the workflow stays the same.",
+      "features": {
+        "fast": {
+          "title": "Fast from day one",
+          "description": "Zero-config deploys, preview environments, and instant rollbacks — without drowning in YAML."
+        },
+        "open": {
+          "title": "Open by default",
+          "description": "Inspect the code, contribute features, and run the same stack locally, on-prem, or in any cloud."
+        },
+        "visibility": {
+          "title": "Visibility first",
+          "description": "Logs, metrics, and alerts that actually make sense. Plug into Prometheus/Grafana or use built-in dashboards."
+        }
+      }
+    },
+    "platform": {
+      "label": "Kleff platform",
+      "title": "A complete toolkit for modern services.",
+      "description": "Mix and match the pieces you need: deployments, identity, observability, data, and automation — all with sane defaults and self-hostable control.",
+      "deployments": {
+        "title": "Deployments",
+        "description": "Build and ship containers with zero-config pipelines.",
+        "preview": {
+          "title": "Preview environments",
+          "description": "One per pull request, automatically."
+        },
+        "rollbacks": {
+          "title": "Safe rollbacks",
+          "description": "Instantly revert to a known-good deploy."
+        }
+      },
+      "identity": {
+        "title": "Identity & Access",
+        "description": "Bring Kleff Auth or your own IDP.",
+        "multi_tenant": {
+          "title": "Multi-tenant aware",
+          "description": "Org & project boundaries modeled correctly."
+        },
+        "audit": {
+          "title": "Audit-friendly",
+          "description": "Sessions, tokens, and key changes tracked."
+        }
+      },
+      "observability": {
+        "title": "Observability",
+        "description": "Centralized logs, metrics, and alerts.",
+        "dashboards": {
+          "title": "Dashboards",
+          "description": "See health across services at a glance."
+        },
+        "integrations": {
+          "title": "Integrations",
+          "description": "Prometheus / Grafana friendly from day one."
+        }
+      }
+    },
+    "cta": {
+      "title": "Start building on Kleff in minutes.",
+      "description": "Ship your next project with an open platform you can run anywhere. Explore templates, example repos, and the full Kleff stack on GitHub.",
+      "view_templates": "View starter templates",
+      "browse_examples": "Browse GitHub examples"
+    }
+  },
+  "header": {
+    "common": {
+      "mega_menu_footer": "Open-source-first infrastructure built for modern teams."
+    },
+    "product": {
+      "label": "Product",
+      "tagline": "Everything you need to ship modern services.",
+      "overview": {
+        "label": "Overview",
+        "description": "Deploy, scale, and observe your apps on Kleff."
+      },
+      "deployments": {
+        "label": "Deployments",
+        "description": "Git-based deployments with rollbacks."
+      },
+      "runtime": {
+        "label": "Runtime",
+        "description": "Managed runtimes tuned for modern stacks."
+      },
+      "observability": {
+        "label": "Observability",
+        "description": "Metrics, logs, and alerts out of the box."
+      },
+      "customer_stories": {
+        "header": "Customer Stories",
+        "title": "Built for fast-moving teams",
+        "description": "Teams use Kleff to deploy fleets of services, keep infra observable, and stay in full control whether self-hosted or managed."
+      },
+      "compare": {
+        "header": "Compare Kleff",
+        "vs_vercel": "Kleff vs Vercel",
+        "vs_amplify": "Kleff vs AWS Amplify",
+        "vs_kubernetes": "Kleff vs DIY Kubernetes"
+      }
+    },
+    "developers": {
+      "label": "Developers",
+      "tagline": "Tools that feel like they were built by devs, for devs.",
+      "docs": {
+        "label": "Docs",
+        "description": "Everything you need to get started."
+      },
+      "api": {
+        "label": "API Reference",
+        "description": "REST and CLI endpoints for automation."
+      },
+      "sdks": {
+        "label": "SDKs",
+        "description": "Language & framework integrations."
+      },
+      "changelog": {
+        "label": "Changelog",
+        "description": "Follow platform updates week by week."
+      },
+      "footer_note": "Open-source-first infrastructure built for modern teams."
+    },
+    "solutions": {
+      "label": "Solutions",
+      "tagline": "Kleff for teams of every size.",
+      "startups": {
+        "label": "Startups",
+        "description": "Ship faster with sane defaults and pricing."
+      },
+      "agencies": {
+        "label": "Agencies",
+        "description": "Multi-tenant projects for your clients."
+      },
+      "indie": {
+        "label": "Indie hackers",
+        "description": "Pay only for what you actually use."
+      },
+      "enterprise": {
+        "label": "Enterprise",
+        "description": "Controls & compliance for larger orgs."
+      }
+    },
+    "links": {
+      "pricing": "Pricing",
+      "docs": "Docs",
+      "blog": "Blog"
+    },
+    "mobile": {
+      "nav_title": "Kleff navigation",
+      "nav_description": "Main navigation menu for the Kleff platform, including product, developer, and solution links.",
+      "signin": "Sign in",
+      "signup": "Start your project"
+    }
+  }
+}
