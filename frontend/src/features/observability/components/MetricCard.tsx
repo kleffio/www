@@ -47,14 +47,14 @@ export const MetricCard: React.FC<Props> = ({ metric, loading }) => {
 
         <div className="flex items-center justify-between gap-4">
           <div>
-            <div className="mb-2 text-[34px] leading-none font-bold text-white drop-shadow-[0_1px_0_rgba(0,0,0,0.6)]">
+            <div className="mb-2 text-[22px] leading-none font-bold text-white drop-shadow-[0_1px_0_rgba(0,0,0,0.6)]">
               {metric.value}
             </div>
 
             <div
-              className={`inline-flex items-center gap-2 rounded-full bg-white/[0.012] px-2 py-1.5 text-[13px] font-bold ${isPositive ? "text-emerald-400" : "text-red-400"}`}
+              className={`inline-flex items-center gap-2 rounded-full bg-white/[0.012] px-2 py-1.5 text-[11px] font-bold ${isPositive ? "text-emerald-400" : "text-red-400"}`}
             >
-              {isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+              {isPositive ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
               <span>{metric.changePercent}</span>
             </div>
           </div>
