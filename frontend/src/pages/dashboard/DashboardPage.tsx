@@ -1,6 +1,4 @@
-import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Sidebar } from "@app/layout/DashboardHeader";
 import { CreateProjectModal } from "@features/projects/components/CreateProjectModal";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Badge, type BadgeVariant } from "@shared/ui/Badge";
@@ -23,7 +21,6 @@ import {
   Server,
   BarChart3
 } from "lucide-react";
-import { LocaleSwitcher } from "@shared/ui/LocaleSwitcher";
 import { getLocale } from "@app/locales/locale";
 
 // Import translations

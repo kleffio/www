@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button } from "@shared/ui/Button";
 import { Badge } from "@shared/ui/Badge";
 import { Section, SectionHeader } from "@shared/ui/Section";
@@ -9,7 +9,6 @@ import { SoftPanel } from "@shared/ui/SoftPanel";
 import { FeatureRow } from "@shared/ui/FeatureRow";
 import { MiniCard } from "@shared/ui/MiniCard";
 import { KleffDot } from "@shared/ui/KleffDot";
-import { LocaleSwitcher } from "@shared/ui/LocaleSwitcher";
 import { getLocale } from "../../app/locales/locale";
 
 // Import translations
@@ -19,11 +18,11 @@ import frTranslations from "@app/locales/fr.json";
 import { ROUTES } from "@app/routes/routes";
 
 export function LandingPage() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [locale, setLocaleState] = useState(getLocale());
-  const handleStart = () => {
-    navigate(ROUTES.AUTH_SIGNIN);
-  };
+  // const handleStart = () => {
+  //   navigate(ROUTES.AUTH_SIGNIN);
+  // };
 
 const translations = {
   en: enTranslations,
