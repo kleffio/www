@@ -10,11 +10,11 @@ import { FeatureRow } from "@shared/ui/FeatureRow";
 import { MiniCard } from "@shared/ui/MiniCard";
 import { KleffDot } from "@shared/ui/KleffDot";
 import { LocaleSwitcher } from "@shared/ui/LocaleSwitcher";
-import { getLocale } from "../../locales/locale";
+import { getLocale } from "../../app/locales/locale";
 
 // Import translations
-import enTranslations from "../../locales/en.json";
-import frTranslations from "../../locales/fr.json";
+import enTranslations from "@app/locales/en.json";
+import frTranslations from "@app/locales/fr.json";
 
 import { ROUTES } from "@app/routes/routes";
 

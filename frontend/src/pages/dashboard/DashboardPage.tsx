@@ -24,11 +24,11 @@ import {
   BarChart3
 } from "lucide-react";
 import { LocaleSwitcher } from "@shared/ui/LocaleSwitcher";
-import { getLocale } from "../../locales/locale";
+import { getLocale } from "../../app/locales/locale";
 
 // Import translations
-import enTranslations from "../../locales/en.json";
-import frTranslations from "../../locales/fr.json";
+import enTranslations from "@app/locales/en.json";
+import frTranslations from "@app/locales/fr.json";
 
 const translations = {
   en: enTranslations,

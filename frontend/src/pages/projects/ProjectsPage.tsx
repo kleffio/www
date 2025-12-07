@@ -1,12 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@shared/ui/Button";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@shared/ui/Table";
 import { CreateProjectModal } from "@features/projects/components/CreateProjectModal";
 import { useProjects } from "@features/projects/hooks/useProjects";
-import enTranslations from "../../locales/en.json";
-import frTranslations from "../../locales/fr.json";
-import { getLocale } from "../../locales/locale";
+import enTranslations from "@app/locales/en.json";
+import frTranslations from "@app/locales/fr.json";
+import { getLocale } from "@app/locales/locale";
 
 
 const translations = {

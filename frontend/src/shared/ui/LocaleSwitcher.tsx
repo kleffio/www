@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@shared/ui/Button";
-import { getLocale, setLocale, availableLocales, type Locale } from "../../locales/locale";
+import { getLocale, setLocale, availableLocales, type Locale } from "../../app/locales/locale";
 import { Globe, ChevronDown } from "lucide-react";
 
 const localeNames: Record<Locale, string> = {

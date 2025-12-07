@@ -1,9 +1,9 @@
 // NEW: Import translations
-import enTranslations from "../../../locales/en.json";
-import frTranslations from "../../../locales/fr.json";
+import enTranslations from "@app/locales/en.json";
+import frTranslations from "@app/locales/fr.json";
 
 import { useState, useEffect } from "react";
-import { getLocale } from "../../../locales/locale";
+import { getLocale } from "@app/locales/locale";
 
 import { memo } from "react";
 import { Link } from "react-router-dom";
