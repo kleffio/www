@@ -1,16 +1,17 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { MenuIcon, RocketIcon, ShieldIcon, ChevronDown } from "lucide-react";
-
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "react-oidc-context";
+import { useCallback } from "react";
+import { UserMenu } from "@shared/ui/UserMenu";
+import { MobileSheetNav } from "@app/navigation/components/MobileSheetNav";
+import { DesktopMegaMenu } from "@app/navigation/components/DesktopMegaMenu";
+import { ROUTES } from "@app/routes/routes";
+import { Brand } from "@shared/ui/Brand";
+import { AuthButtons } from "@features/auth/components/AuthButtons";
 import { cn } from "@shared/lib/utils";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger
-} from "@widgets/navigation-menu";
+
 import {
   Sheet,
   SheetContent,
@@ -35,6 +36,8 @@ import {
   Users
 } from "lucide-react";
 import { KleffDot } from "@shared/ui/KleffDot";
+import { NavigationMenuList } from "@app/navigation/components/NavigationMenu";
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuTrigger } from "@radix-ui/react-navigation-menu";
 
 type MegaKey = "product" | "developers" | "solutions";
 
@@ -148,72 +151,39 @@ const MEGA_SECTIONS: MegaSection[] = [
   }
 ];
 
+
 export function AppHeader() {
+  const auth = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogin = useCallback(() => {
+    navigate(auth.isAuthenticated ? ROUTES.DASHBOARD : ROUTES.AUTH_SIGNIN);
+  }, [auth.isAuthenticated, navigate]);
+
   return (
     <header className="border-border/60 sticky top-0 z-40 border-b">
-      <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-[#0f0f10]/95 via-[#0f0f10]/90 to-[#0f0f10]/95" />
-      <div className="pointer-events-none absolute inset-0 shadow-[0_1px_0_0_rgba(255,255,255,0.03)]" />
+      <div className="pointer-events-none absolute inset-0 z-0 bg-linear-to-b from-[#0f0f10]/95 via-[#0f0f10]/90 to-[#0f0f10]/95" />
+      <div className="pointer-events-none absolute inset-0 z-0 shadow-[0_1px_0_0_rgba(255,255,255,0.03)]" />
 
-      <div className="app-container relative flex h-12 items-center gap-6 md:h-14">
+      <div className="app-container relative z-10 flex h-12 items-center gap-6 md:h-14">
         <div className="flex flex-1 items-center gap-6">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              <KleffDot variant="full" size={22} />
-              <span className="text-foreground text-[14px] font-semibold tracking-[0.32em] uppercase">
-                LEFF
-              </span>
-            </div>
-          </Link>
-
+          <Brand fontSize="text-[14px]" />
           <div className="hidden lg:block">
-            <DesktopNav />
+            <DesktopMegaMenu />
           </div>
         </div>
 
-        <div className="hidden items-center gap-2 lg:flex">
-          <LocaleSwitcher className="text-[11px]" />
-          
-          <Link to="/auth/sign-in">
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-white/18 bg-transparent text-[11px] font-medium hover:border-white/40 hover:bg-white/5"
-            >
-              Sign in
-            </Button>
-          </Link>
-
-          <Link to="/auth/sign-up">
-            <Button
-              size="sm"
-              className="bg-gradient-kleff text-[11px] font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
-            >
-              Start your project
-            </Button>
-          </Link>
+        <div className="hidden items-center gap-3 lg:flex">
+          {auth.isAuthenticated ? (
+            <UserMenu variant="compact" align="right" />
+          ) : (
+            <AuthButtons onLogin={handleLogin} variant="desktop" />
+          )}
         </div>
 
         <div className="flex items-center gap-2 lg:hidden">
-          <Link to="/auth/sign-in">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted hover:text-foreground hidden text-[11px] font-medium sm:inline-flex"
-            >
-              Sign in
-            </Button>
-          </Link>
-
-          <Link to="/auth/sign-up">
-            <Button
-              size="sm"
-              className="bg-gradient-kleff hidden text-[11px] font-semibold text-black shadow-md shadow-black/40 hover:brightness-110 sm:inline-flex"
-            >
-              Start
-            </Button>
-          </Link>
-
-          <MobileNav />
+          {!auth.isAuthenticated && <AuthButtons onLogin={handleLogin} variant="mobile" />}
+          <MobileSheetNav />
         </div>
       </div>
     </header>

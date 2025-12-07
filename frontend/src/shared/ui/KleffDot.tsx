@@ -1,15 +1,24 @@
+export type KleffDotVariant = "dot" | "full" | "black" | "black-full" | "white" | "white-full";
+
 type KleffDotProps = {
   size?: number;
   className?: string;
-  variant?: "dot" | "full";
+  variant?: KleffDotVariant;
 };
 
 export function KleffDot({ size = 14, className = "", variant = "dot" }: KleffDotProps) {
-  const src = variant === "full" ? "/KleffIconFull.png" : "/KleffIcon.png";
+  const sources: Record<KleffDotVariant, string> = {
+    dot: "/KleffIcon.png",
+    full: "/KleffIconFull.png",
+    black: "/KleffIconBlack.png",
+    "black-full": "/KleffIconBlackFull.png",
+    white: "/KleffIconWhite.png",
+    "white-full": "/KleffIconWhiteFull.png"
+  };
 
   return (
     <img
-      src={src}
+      src={sources[variant]}
       width={size}
       height={size}
       alt="Kleff icon"
