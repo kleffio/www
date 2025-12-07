@@ -3,6 +3,7 @@ import { ChevronDown, Sparkles, Search, X } from "lucide-react";
 import { cn } from "@shared/lib/utils";
 import { Section } from "@shared/ui/Section";
 import { Badge } from "@shared/ui/Badge";
+import { SoftPanel } from "@shared/ui/SoftPanel";
 import { faqData } from "@shared/config/faqData";
 
 export function FAQPage() {
@@ -78,7 +79,7 @@ export function FAQPage() {
                   setSearchQuery(e.target.value);
                   setOpenQuestion(0);
                 }}
-                className="border-border bg-card text-foreground placeholder:text-muted-foreground w-full rounded-full border px-11 py-3 text-sm transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full rounded-full border border-white/10 bg-black/50 px-11 py-3 text-sm text-neutral-100 placeholder:text-neutral-400 transition-all focus:border-white/20 focus:bg-black/60 focus:outline-none"
               />
               {searchQuery && (
                 <button
@@ -165,7 +166,7 @@ export function FAQPage() {
                                 key={globalIdx}
                                 className={cn(
                                   "rounded-lg border border-white/10 transition-all",
-                                  isOpen ? "bg-white/10" : "bg-white/5 hover:bg-white/7"
+                                  isOpen ? "bg-black/60" : "bg-black/40 hover:bg-black/50"
                                 )}
                               >
                                 <button
@@ -217,7 +218,7 @@ export function FAQPage() {
                             key={idx}
                             className={cn(
                               "rounded-lg border border-white/10 transition-all",
-                              isOpen ? "bg-white/10" : "bg-white/5 hover:bg-white/7"
+                              isOpen ? "bg-black/60" : "bg-black/40 hover:bg-black/50"
                             )}
                           >
                             <button
@@ -260,7 +261,7 @@ export function FAQPage() {
 
       <Section className="px-4 pb-16">
         <div className="mx-auto max-w-2xl text-center">
-          <div className="glass-panel-soft p-6 sm:p-8">
+          <SoftPanel className="p-6 sm:p-8">
             <h2 className="mb-3 text-xl font-semibold text-white sm:text-2xl">
               Still have questions?
             </h2>
@@ -274,7 +275,7 @@ export function FAQPage() {
               <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               Contact Support
             </a>
-          </div>
+          </SoftPanel>
         </div>
       </Section>
     </div>
