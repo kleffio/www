@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@shared/ui/Button";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@shared/ui/Table";
@@ -82,15 +83,17 @@ export function ProjectsPage() {
                     </TableHeader>
                     <TableBody>
                       {projects.map((p) => (
-                        <TableRow key={p.projectId}>
-                          <TableCell className="font-semibold text-neutral-50">{p.name}</TableCell>
-                          <TableCell className="text-neutral-300">{p.description || "—"}</TableCell>
-                          <TableCell className="text-neutral-300">{p.ownerId || "—"}</TableCell>
-                          <TableCell className="text-neutral-300">{p.stackId || "—"}</TableCell>
-                          <TableCell className="text-neutral-300">{p.projectStatus || "—"}</TableCell>
-                          <TableCell className="text-neutral-300">{p.createdDate || "—"}</TableCell>
-                          <TableCell className="text-neutral-300">{p.updatedDate || "—"}</TableCell>
-                        </TableRow>
+                        <Link key={p.projectId} to={`/dashboard/projects/${p.projectId}`} className="contents">
+                          <TableRow className="cursor-pointer hover:bg-white/10">
+                            <TableCell className="font-semibold text-neutral-50">{p.name}</TableCell>
+                            <TableCell className="text-neutral-300">{p.description || "—"}</TableCell>
+                            <TableCell className="text-neutral-300">{p.ownerId || "—"}</TableCell>
+                            <TableCell className="text-neutral-300">{p.stackId || "—"}</TableCell>
+                            <TableCell className="text-neutral-300">{p.projectStatus || "—"}</TableCell>
+                            <TableCell className="text-neutral-300">{p.createdDate || "—"}</TableCell>
+                            <TableCell className="text-neutral-300">{p.updatedDate || "—"}</TableCell>
+                          </TableRow>
+                        </Link>
                       ))}
                     </TableBody>
                   </Table>
@@ -100,9 +103,10 @@ export function ProjectsPage() {
 
             <div className="space-y-3 md:hidden">
               {projects.map((p) => (
-                <div
+                <Link
                   key={p.projectId}
-                  className="rounded-2xl border border-white/12 bg-black/50 px-4 py-3"
+                  to={`/dashboard/projects/${p.projectId}`}
+                  className="block rounded-2xl border border-white/12 bg-black/50 px-4 py-3 hover:bg-black/60"
                 >
                   <div className="mb-1 flex items-center justify-between gap-2">
                     <p className="text-sm font-semibold text-neutral-50">{p.name}</p>
@@ -134,7 +138,7 @@ export function ProjectsPage() {
                       <dd className="truncate text-neutral-200">{p.updatedDate || "—"}</dd>
                     </div>
                   </dl>
-                </div>
+                </Link>
               ))}
             </div>
           </>

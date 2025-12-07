@@ -4,6 +4,7 @@ import { LandingPage } from "@pages/landing/LandingPage";
 import { CallbackPage } from "@pages/auth/CallbackPage";
 import { ErrorPage } from "@app/error/ErrorPage";
 import { ProjectsPage } from "@pages/projects/ProjectsPage";
+import { ProjectDetailPage } from "@pages/projects/ProjectDetailPage";
 import { DashboardPage } from "@pages/dashboard/DashboardPage";
 import { DashboardLayout } from "@app/layout/DashboardLayout";
 import { ProtectedRoute } from "@app/routing/ProtectedRoute";
@@ -55,6 +56,10 @@ export const router = createBrowserRouter([
             <ProjectsPage />
           </ProjectsProvider>
         )
+      },
+      {
+        path: "projects/:projectId",
+        element: <ProjectDetailPage />
       }
     ]
   }
