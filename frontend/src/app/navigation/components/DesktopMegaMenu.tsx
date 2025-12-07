@@ -1,4 +1,3 @@
-// NEW: Import translations
 import enTranslations from "@app/locales/en.json";
 import frTranslations from "@app/locales/fr.json";
 
