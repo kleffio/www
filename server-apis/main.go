@@ -98,10 +98,9 @@ func handleBuildTrigger(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 2. TRIGGER ASYNC WATCHER
 	go monitorJobAndDeploy(jobName, req.ImageName, req.AppPort)
 
-	// 3. Return Response
+	// return response
 	resp := BuildResponse{
 		JobID:   jobName,
 		Message: "Build started. Deployment will trigger automatically upon success.",
@@ -132,17 +131,17 @@ func monitorJobAndDeploy(jobName, rawImageName string, appPort int32) {
 				return
 			}
 
-			// Check for Success
+			// if successful
 			if job.Status.Succeeded > 0 {
 				log.Printf("Job %s succeeded! Starting Deployment...", jobName)
 
-				// 1. Create Deployment
+				// create deployment
 				if err := createDeployment(rawImageName, appPort); err != nil {
 					log.Printf("Deployment failed: %v", err)
 					return
 				}
 
-				// 2. Create Service
+				// create service
 				if err := createService(rawImageName, appPort); err != nil {
 					log.Printf("Service creation failed: %v", err)
 					return
@@ -152,7 +151,6 @@ func monitorJobAndDeploy(jobName, rawImageName string, appPort int32) {
 				return
 			}
 
-			// Check for Failure
 			if job.Status.Failed > 0 {
 				log.Printf("Job %s failed. Aborting deployment.", jobName)
 				return
@@ -161,7 +159,6 @@ func monitorJobAndDeploy(jobName, rawImageName string, appPort int32) {
 	}
 }
 
-// --- DEPLOYMENT LOGIC ---
 
 // Helper to ensure Service and Deployment always use the exact same name/label
 func sanitizeName(name string) string {
@@ -169,9 +166,8 @@ func sanitizeName(name string) string {
 }
 
 func createDeployment(rawImageName string, appPort int32) error {
-	// FIX: Use sanitized name for metadata and selector
 	deploymentName := sanitizeName(rawImageName)
-	fullImage := fmt.Sprintf("%s/%s:latest", Registry, rawImageName) // Registry usually keeps original casing, or depends on ACR settings
+	fullImage := fmt.Sprintf("%s/%s:latest", Registry, rawImageName) 
 	replicas := int32(1)
 
 	deployment := &appsv1.Deployment{
@@ -226,7 +222,6 @@ func createDeployment(rawImageName string, appPort int32) error {
 
 func createService(rawImageName string, appPort int32) error {
 
-	// FIX: Use the same sanitizeName function so the Selector matches the Deployment
 	serviceName := sanitizeName(rawImageName)
 
 	service := &corev1.Service{
@@ -236,13 +231,13 @@ func createService(rawImageName string, appPort int32) error {
 		},
 		Spec: corev1.ServiceSpec{
 			Selector: map[string]string{
-				"app": serviceName, // Must match Deployment labels exactly
+				"app": serviceName, 
 			},
 			Ports: []corev1.ServicePort{
 				{
 					Protocol:   corev1.ProtocolTCP,
-					Port:       80,                       // Exposed Service Port
-					TargetPort: intstr.FromInt(int(appPort)), // Container Port
+					Port:       80,                       
+					TargetPort: intstr.FromInt(int(appPort)), 
 				},
 			},
 			Type: corev1.ServiceTypeClusterIP,
@@ -252,7 +247,7 @@ func createService(rawImageName string, appPort int32) error {
 	_, err := clientset.CoreV1().Services(Namespace).Create(context.TODO(), service, metav1.CreateOptions{})
 
 	if err != nil && strings.Contains(err.Error(), "already exists") {
-		// Service exists, usually fine to ignore unless ports changed
+		
 		return nil
 	}
 	return err
@@ -263,19 +258,15 @@ func createKanikoJob(rawUrl, branch, imageName string) (string, error) {
 		branch = "main"
 	}
 
-	// 1. Strip any existing scheme (http/https) to avoid duplication or confusion
+	// remove https http prefixes
 	rawUrl = strings.TrimPrefix(rawUrl, "https://")
 	rawUrl = strings.TrimPrefix(rawUrl, "http://")
 	rawUrl = strings.TrimSuffix(rawUrl, "/")
 
-	// 2. Ensure it ends in .git
 	if !strings.HasSuffix(rawUrl, ".git") {
 		rawUrl = rawUrl + ".git"
 	}
 
-	// 3. Force the 'git://' scheme. 
-	// Kaniko uses this prefix to explicitly trigger its Git cloner 
-	// rather than its file downloader.
 	gitContext := fmt.Sprintf("git://%s#refs/heads/%s", rawUrl, branch)
 
 	destination := fmt.Sprintf("%s/%s:latest", Registry, imageName)
