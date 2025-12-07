@@ -20,7 +20,6 @@ type prometheusClient struct {
 	httpClient *http.Client
 }
 
-// NewPrometheusClient creates a new Prometheus client
 func NewPrometheusClient(baseURL string) ports.MetricsRepository {
 	return &prometheusClient{
 		baseURL: baseURL,
@@ -30,7 +29,6 @@ func NewPrometheusClient(baseURL string) ports.MetricsRepository {
 	}
 }
 
-// PrometheusResponse represents the response from Prometheus API
 type PrometheusResponse struct {
 	Status string `json:"status"`
 	Data   struct {
@@ -43,7 +41,6 @@ type PrometheusResponse struct {
 	} `json:"data"`
 }
 
-// queryPrometheus executes a PromQL query
 func (c *prometheusClient) queryPrometheus(ctx context.Context, query string) (*PrometheusResponse, error) {
 	encodedQuery := url.QueryEscape(query)
 	apiURL := fmt.Sprintf("%s/api/v1/query?query=%s", c.baseURL, encodedQuery)
@@ -72,14 +69,12 @@ func (c *prometheusClient) queryPrometheus(ctx context.Context, query string) (*
 	return &promResp, nil
 }
 
-// queryPrometheusRange executes a PromQL range query
 func (c *prometheusClient) queryPrometheusRange(ctx context.Context, query, duration string) (*PrometheusResponse, error) {
 	now := time.Now()
 
-	// Parse duration (e.g., "1h", "24h")
 	dur, err := time.ParseDuration(duration)
 	if err != nil {
-		dur = 1 * time.Hour // default to 1 hour
+		dur = 1 * time.Hour
 	}
 
 	start := now.Add(-dur).Unix()
@@ -114,7 +109,6 @@ func (c *prometheusClient) queryPrometheusRange(ctx context.Context, query, dura
 	return &promResp, nil
 }
 
-// calculateStep determines the appropriate step size based on duration
 func calculateStep(duration time.Duration) string {
 	if duration <= 1*time.Hour {
 		return "30s"
@@ -126,7 +120,6 @@ func calculateStep(duration time.Duration) string {
 	return "15m"
 }
 
-// extractValue extracts a float64 value from Prometheus response
 func extractValue(value []interface{}) (float64, error) {
 	if len(value) < 2 {
 		return 0, fmt.Errorf("invalid value format")
@@ -142,7 +135,6 @@ func extractValue(value []interface{}) (float64, error) {
 	}
 }
 
-// extractTimeSeries converts Prometheus values to TimeSeriesDataPoint slice
 func extractTimeSeries(values [][]interface{}) []domain.TimeSeriesDataPoint {
 	result := make([]domain.TimeSeriesDataPoint, 0, len(values))
 
@@ -162,7 +154,7 @@ func extractTimeSeries(values [][]interface{}) []domain.TimeSeriesDataPoint {
 		}
 
 		result = append(result, domain.TimeSeriesDataPoint{
-			Timestamp: int64(timestamp * 1000), // Convert to milliseconds
+			Timestamp: int64(timestamp * 1000),
 			Value:     value,
 		})
 	}
@@ -170,7 +162,6 @@ func extractTimeSeries(values [][]interface{}) []domain.TimeSeriesDataPoint {
 	return result
 }
 
-// calculateChangePercent calculates percentage change between two values
 func calculateChangePercent(current, previous float64) float64 {
 	if previous == 0 {
 		return 0
@@ -178,7 +169,6 @@ func calculateChangePercent(current, previous float64) float64 {
 	return ((current - previous) / previous) * 100
 }
 
-// determineStatus determines the status based on value and thresholds
 func determineStatus(value float64, warningThreshold, criticalThreshold float64) string {
 	if value >= criticalThreshold {
 		return "critical"
@@ -190,7 +180,6 @@ func determineStatus(value float64, warningThreshold, criticalThreshold float64)
 	return "excellent"
 }
 
-// formatValue formats a numeric value to a human-readable string
 func formatValue(value float64, unit string) string {
 	if unit == "percent" {
 		return fmt.Sprintf("%.1f%%", value)
@@ -202,7 +191,6 @@ func formatValue(value float64, unit string) string {
 	return fmt.Sprintf("%.2f", value)
 }
 
-// formatBytes formats bytes to human-readable format
 func formatBytes(bytes float64) string {
 	units := []string{"B", "KB", "MB", "GB", "TB"}
 	if bytes == 0 {

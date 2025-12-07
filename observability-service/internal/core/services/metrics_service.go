@@ -11,7 +11,6 @@ type metricsService struct {
 	metricsRepo ports.MetricsRepository
 }
 
-// NewMetricsService creates a new metrics service
 func NewMetricsService(metricsRepo ports.MetricsRepository) ports.MetricsService {
 	return &metricsService{
 		metricsRepo: metricsRepo,

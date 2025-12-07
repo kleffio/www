@@ -6,7 +6,6 @@ import (
 	"prometheus-metrics-api/internal/core/domain"
 )
 
-// MetricsService defines the interface for metrics business logic (inbound port)
 type MetricsService interface {
 	GetClusterOverview(ctx context.Context) (*domain.ClusterOverview, error)
 	GetRequestsMetric(ctx context.Context, duration string) (*domain.MetricCard, error)

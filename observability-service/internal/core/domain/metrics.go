@@ -1,12 +1,10 @@
 package domain
 
-// TimeSeriesDataPoint represents a single data point in a time series
 type TimeSeriesDataPoint struct {
 	Timestamp int64   `json:"timestamp"`
 	Value     float64 `json:"value"`
 }
 
-// ClusterOverview represents the overall cluster metrics
 type ClusterOverview struct {
 	TotalNodes         int     `json:"totalNodes"`
 	RunningNodes       int     `json:"runningNodes"`
@@ -16,26 +14,23 @@ type ClusterOverview struct {
 	MemoryUsagePercent float64 `json:"memoryUsagePercent"`
 }
 
-// MetricCard represents a metric card with value, change, and sparkline
 type MetricCard struct {
 	Title         string                `json:"title"`
 	Value         string                `json:"value"`
 	RawValue      float64               `json:"rawValue"`
 	ChangePercent string                `json:"changePercent"`
 	ChangeLabel   string                `json:"changeLabel"`
-	Status        string                `json:"status"` // excellent, good, warning, critical
+	Status        string                `json:"status"`
 	Sparkline     []TimeSeriesDataPoint `json:"sparkline"`
 }
 
-// ResourceUtilization represents resource utilization metrics
 type ResourceUtilization struct {
 	CurrentValue  float64               `json:"currentValue"`
 	ChangePercent float64               `json:"changePercent"`
-	Trend         string                `json:"trend"` // up, down, stable
+	Trend         string                `json:"trend"`
 	History       []TimeSeriesDataPoint `json:"history"`
 }
 
-// NodeMetric represents metrics for a single node
 type NodeMetric struct {
 	Name               string  `json:"name"`
 	CPUUsagePercent    float64 `json:"cpuUsagePercent"`
@@ -44,7 +39,6 @@ type NodeMetric struct {
 	Status             string  `json:"status"`
 }
 
-// NamespaceMetric represents metrics for a single namespace
 type NamespaceMetric struct {
 	Name        string  `json:"name"`
 	PodCount    int     `json:"podCount"`
@@ -52,7 +46,6 @@ type NamespaceMetric struct {
 	MemoryUsage float64 `json:"memoryUsage"`
 }
 
-// DatabaseMetrics represents database I/O metrics
 type DatabaseMetrics struct {
 	DiskReadBytesPerSec        float64               `json:"diskReadBytesPerSec"`
 	DiskWriteBytesPerSec       float64               `json:"diskWriteBytesPerSec"`
