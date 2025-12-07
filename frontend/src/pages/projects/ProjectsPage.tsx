@@ -1,47 +1,37 @@
-<<<<<<< HEAD
+import enTranslations from "@app/locales/en.json";
+import frTranslations from "@app/locales/fr.json";
+import { getLocale } from "@app/locales/locale";
 import { CreateProjectModal } from "@features/projects/components/CreateProjectModal";
 import { useProjects } from "@features/projects/hooks/useProjects";
 import { Button } from "@shared/ui/Button";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@shared/ui/Table";
-import { useState } from "react";
-=======
 import { useEffect, useState } from "react";
-import { Button } from "@shared/ui/Button";
-import { SoftPanel } from "@shared/ui/SoftPanel";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@shared/ui/Table";
-import { CreateProjectModal } from "@features/projects/components/CreateProjectModal";
-import { useProjects } from "@features/projects/hooks/useProjects";
-import enTranslations from "@app/locales/en.json";
-import frTranslations from "@app/locales/fr.json";
-import { getLocale } from "@app/locales/locale";
-
 
 const translations = {
   en: enTranslations,
   fr: frTranslations
 };
->>>>>>> f68374716d7d70582c3569f1e5e3a68f0ad5418b
 
 export function ProjectsPage() {
   const [locale, setLocaleState] = useState(getLocale());
   const { projects, isLoading, error, reload } = useProjects();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   useEffect(() => {
-      const interval = setInterval(() => {
-        const currentLocale = getLocale();
-        if (currentLocale !== locale) {
-          setLocaleState(currentLocale);
-        }
-      }, 100);
-      return () => clearInterval(interval);
-    }, [locale]);
-  
-    const t = translations[locale].projects;
-    const tModal = translations[locale].modal;
-    const tCommon = translations[locale].common;
-    const handleCreateSuccess = () => {
+    const interval = setInterval(() => {
+      const currentLocale = getLocale();
+      if (currentLocale !== locale) {
+        setLocaleState(currentLocale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [locale]);
+
+  const t = translations[locale].projects;
+  const tModal = translations[locale].modal;
+  const tCommon = translations[locale].common;
+  const handleCreateSuccess = () => {
     void reload();
     setIsModalOpen(false);
   };
@@ -52,9 +42,7 @@ export function ProjectsPage() {
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-neutral-50 md:text-3xl">{t.title}</h1>
-            <p className="mt-1 text-sm text-neutral-400">
-              {t.subtitle}
-            </p>
+            <p className="mt-1 text-sm text-neutral-400">{t.subtitle}</p>
           </div>
 
           <Button
@@ -89,7 +77,7 @@ export function ProjectsPage() {
                 onClick={() => setIsModalOpen(true)}
                 className="bg-gradient-kleff mt-4 rounded-full px-4 py-1.5 text-xs font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
               >
-               {t.create_first}
+                {t.create_first}
               </Button>
             </div>
           </SoftPanel>
@@ -119,7 +107,9 @@ export function ProjectsPage() {
                           <TableCell className="text-neutral-300">{p.description || "—"}</TableCell>
                           <TableCell className="text-neutral-300">{p.ownerId || "—"}</TableCell>
                           <TableCell className="text-neutral-300">{p.stackId || "—"}</TableCell>
-                          <TableCell className="text-neutral-300">{p.projectStatus || "—"}</TableCell>
+                          <TableCell className="text-neutral-300">
+                            {p.projectStatus || "—"}
+                          </TableCell>
                           <TableCell className="text-neutral-300">{p.createdDate || "—"}</TableCell>
                           <TableCell className="text-neutral-300">{p.updatedDate || "—"}</TableCell>
                         </TableRow>
@@ -146,23 +136,33 @@ export function ProjectsPage() {
 
                   <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-[11px]">
                     <div>
-                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Owner</dt>
+                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">
+                        Owner
+                      </dt>
                       <dd className="truncate text-neutral-200">{p.ownerId || "—"}</dd>
                     </div>
                     <div>
-                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Stack</dt>
+                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">
+                        Stack
+                      </dt>
                       <dd className="truncate text-neutral-200">{p.stackId || "—"}</dd>
                     </div>
                     <div>
-                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Status</dt>
+                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">
+                        Status
+                      </dt>
                       <dd className="truncate text-neutral-200">{p.projectStatus || "—"}</dd>
                     </div>
                     <div>
-                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Created</dt>
+                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">
+                        Created
+                      </dt>
                       <dd className="truncate text-neutral-200">{p.createdDate || "—"}</dd>
                     </div>
                     <div className="col-span-2">
-                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Updated</dt>
+                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">
+                        Updated
+                      </dt>
                       <dd className="truncate text-neutral-200">{p.updatedDate || "—"}</dd>
                     </div>
                   </dl>
