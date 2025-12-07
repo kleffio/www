@@ -14,6 +14,7 @@ import {
   RocketIcon,
   ShieldIcon
 } from "lucide-react";
+import { ROUTES } from "@app/routes/routes";
 
 export interface DashboardNavItem {
   to: string;
@@ -23,9 +24,9 @@ export interface DashboardNavItem {
 }
 
 export const DASHBOARD_NAV_ITEMS: DashboardNavItem[] = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: "/dashboard/projects", label: "Projects", icon: FolderKanban },
-  { to: "/dashboard/systems", label: "Systems", icon: Server }
+  { to: ROUTES.DASHBOARD, label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: ROUTES.DASHBOARD_PROJECTS, label: "Projects", icon: FolderKanban },
+  { to: ROUTES.DASHBOARD_SYSTEMS, label: "Systems", icon: Server }
 ];
 
 export function isNavItemActive(pathname: string, item: DashboardNavItem): boolean {
@@ -54,25 +55,25 @@ export const MEGA_MENU_SECTIONS: MegaMenuSection[] = [
     items: [
       {
         label: "Overview",
-        href: "/",
+        href: ROUTES.HOME,
         description: "Deploy, scale, and observe your apps on Kleff.",
         icon: Boxes
       },
       {
         label: "Deployments",
-        href: "/deployments",
+        href: ROUTES.DEPLOYMENTS,
         description: "Git-based deployments with rollbacks.",
         icon: GitBranch
       },
       {
         label: "Runtime",
-        href: "/runtime",
+        href: ROUTES.RUNTIME,
         description: "Managed runtimes tuned for modern stacks.",
         icon: Cpu
       },
       {
         label: "Observability",
-        href: "/observability",
+        href: ROUTES.OBSERVABILITY,
         description: "Metrics, logs, and alerts out of the box.",
         icon: Activity
       }
@@ -85,25 +86,25 @@ export const MEGA_MENU_SECTIONS: MegaMenuSection[] = [
     items: [
       {
         label: "Docs",
-        href: "/docs",
+        href: ROUTES.DOCS,
         description: "Everything you need to get started.",
         icon: BookOpenText
       },
       {
         label: "API Reference",
-        href: "/docs/api",
+        href: ROUTES.DOCS_API,
         description: "REST and CLI endpoints for automation.",
         icon: Code2
       },
       {
         label: "SDKs",
-        href: "/sdks",
+        href: ROUTES.SDKS,
         description: "Language & framework integrations.",
         icon: Boxes
       },
       {
         label: "Changelog",
-        href: "/changelog",
+        href: ROUTES.CHANGELOG,
         description: "Follow platform updates week by week.",
         icon: Workflow
       }
@@ -116,25 +117,25 @@ export const MEGA_MENU_SECTIONS: MegaMenuSection[] = [
     items: [
       {
         label: "Startups",
-        href: "/solutions/startups",
+        href: ROUTES.SOLUTIONS_STARTUPS,
         description: "Ship faster with sane defaults and pricing.",
         icon: RocketIcon
       },
       {
         label: "Agencies",
-        href: "/solutions/agencies",
+        href: ROUTES.SOLUTIONS_AGENCIES,
         description: "Multi-tenant projects for your clients.",
         icon: Users
       },
       {
         label: "Indie hackers",
-        href: "/solutions/indie",
+        href: ROUTES.SOLUTIONS_INDIE,
         description: "Pay only for what you actually use.",
         icon: Activity
       },
       {
         label: "Enterprise",
-        href: "/solutions/enterprise",
+        href: ROUTES.SOLUTIONS_ENTERPRISE,
         description: "Controls & compliance for larger orgs.",
         icon: ShieldIcon
       }
@@ -143,7 +144,7 @@ export const MEGA_MENU_SECTIONS: MegaMenuSection[] = [
 ];
 
 export const SIMPLE_NAV_LINKS = [
-  { href: "/pricing", label: "Pricing" },
-  { href: "/docs", label: "Docs" },
-  { href: "/blog", label: "Blog" }
+  { href: ROUTES.PRICING, label: "Pricing" },
+  { href: ROUTES.DOCS, label: "Docs" },
+  { href: ROUTES.BLOG, label: "Blog" }
 ];

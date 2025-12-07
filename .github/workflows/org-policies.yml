@@ -57,10 +57,6 @@ jobs:
       unified_path: configs/labels.json
 
   # --- Main-only ---
-  openssf:
-    name: OpenSSF Scorecard
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    uses: kleffio/.github/.github/workflows/_openssf-scorecard.yml@main
 
   label-sync:
     name: Label Sync

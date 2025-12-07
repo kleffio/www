@@ -9,12 +9,13 @@ import { SoftPanel } from "@shared/ui/SoftPanel";
 import { FeatureRow } from "@shared/ui/FeatureRow";
 import { MiniCard } from "@shared/ui/MiniCard";
 import { KleffDot } from "@shared/ui/KleffDot";
+import { ROUTES } from "@app/routes/routes";
 
 export function LandingPage() {
   const navigate = useNavigate();
 
   const handleStart = () => {
-    navigate("/auth/signin");
+    navigate(ROUTES.AUTH_SIGNIN);
   };
 
   return (
@@ -71,13 +72,12 @@ export function LandingPage() {
           <div className="flex flex-col items-center gap-3 pt-2 sm:flex-row sm:items-center">
             <Button
               size="lg"
-              // redirect to sign in
               onClick={handleStart}
               className="bg-gradient-kleff w-full rounded-full px-8 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
             >
               Get started for free
             </Button>
-            <Link to="/docs" className="w-full sm:w-auto">
+            <Link to={ROUTES.DOCS} className="w-full sm:w-auto">
               <Button
                 variant="outline"
                 size="lg"
@@ -327,7 +327,7 @@ export function LandingPage() {
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Link to="/templates">
+            <Link to={ROUTES.TEMPLATES}>
               <Button
                 size="lg"
                 className="bg-gradient-kleff w-full rounded-full px-7 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110 sm:w-auto"
@@ -335,7 +335,7 @@ export function LandingPage() {
                 View starter templates
               </Button>
             </Link>
-            <Link to="/examples">
+            <Link to={ROUTES.EXAMPLES}>
               <Button
                 variant="outline"
                 size="lg"
