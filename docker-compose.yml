@@ -57,6 +57,7 @@ services:
       - DB_PASSWORD=change-me
       - SQL_INIT_MODE=never
       - HIBERNATE_DDL_AUTO=update
+      - AUTHENTIK_API_TOKEN=${AUTHENTIK_API_TOKEN}
     ports:
       - "8082:8080"
     dns:
@@ -77,6 +78,19 @@ services:
     volumes:
       - user_db_data:/var/lib/postgresql/data
 
+  observability-service:
+    build:
+      context: ./observability-service
+      dockerfile: Dockerfile
+    container_name: observability-service
+    ports:
+      - "8083:8080"
+    environment:
+      - PORT=8080
+      - PROMETHEUS_URL=http://host.docker.internal:9090
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   nginx:
     image: nginx:alpine
     container_name: nginx-proxy
@@ -87,6 +101,7 @@ services:
     depends_on:
       - project-management-service
       - user-service
+      - observability-service
 
 volumes:
   project_management_data:

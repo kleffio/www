@@ -2,11 +2,14 @@ interface UserAvatarProps {
   initial: string;
   name?: string;
   email?: string;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
 }
 
 export function UserAvatar({ initial, name, email, size = "md" }: UserAvatarProps) {
-  const sizeClasses = size === "sm" ? "h-8 w-8 text-xs" : "h-10 w-10 text-sm";
+  const sizeClasses = 
+    size === "sm" ? "h-8 w-8 text-xs" : 
+    size === "lg" ? "h-16 w-16 text-2xl" : 
+    "h-10 w-10 text-sm";
 
   return (
     <div className="flex items-center gap-3">
@@ -18,7 +21,6 @@ export function UserAvatar({ initial, name, email, size = "md" }: UserAvatarProp
 
       {(name || email) && (
         <div className="flex min-w-0 flex-col text-left">
-          
           {name && <span className="truncate text-sm font-medium text-neutral-200">{name}</span>}
           {email && <span className="truncate text-xs text-neutral-400">{email}</span>}
         </div>

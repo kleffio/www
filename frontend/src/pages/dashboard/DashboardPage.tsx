@@ -1,27 +1,27 @@
-import { useEffect, useState } from "react";
+import { getLocale } from "@app/locales/locale";
 import { CreateProjectModal } from "@features/projects/components/CreateProjectModal";
-import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Badge, type BadgeVariant } from "@shared/ui/Badge";
-import { StatBadge } from "@shared/ui/StatBadge";
-import { MiniCard } from "@shared/ui/MiniCard";
+import { Button } from "@shared/ui/Button";
 import { FeatureRow } from "@shared/ui/FeatureRow";
 import { GradientIcon } from "@shared/ui/GradientIcon";
-import { Button } from "@shared/ui/Button";
+import { MiniCard } from "@shared/ui/MiniCard";
+import { SoftPanel } from "@shared/ui/SoftPanel";
+import { StatBadge } from "@shared/ui/StatBadge";
 import {
   Activity,
-  GitBranch,
-  Cpu,
-  Globe,
-  Shield,
-  Zap,
-  HardDrive,
-  TrendingUp,
   ArrowUpRight,
+  BarChart3,
+  Cpu,
+  GitBranch,
+  Globe,
+  HardDrive,
   Lock,
   Server,
-  BarChart3
+  Shield,
+  TrendingUp,
+  Zap
 } from "lucide-react";
-import { getLocale } from "@app/locales/locale";
+import { useEffect, useState } from "react";
 
 // Import translations
 import enTranslations from "@app/locales/en.json";
@@ -180,7 +180,7 @@ const dashboardData = {
 export function DashboardPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [locale, setLocaleState] = useState(getLocale());
-  
+
   // Listen for locale changes
   useEffect(() => {
     const interval = setInterval(() => {
@@ -201,9 +201,7 @@ export function DashboardPage() {
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-3xl font-semibold text-neutral-50">{t.overview_title}</h1>
-            <p className="mt-1 text-sm text-neutral-400">
-              {t.overview_subtitle}
-            </p>
+            <p className="mt-1 text-sm text-neutral-400">{t.overview_subtitle}</p>
           </div>
           <div className="flex items-center gap-3">
             <Button

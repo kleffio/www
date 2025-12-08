@@ -40,6 +40,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.2.1'
+    implementation 'org.apache.httpcomponents.core5:httpcore5:5.2.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 
     // --- MapStruct ---
     implementation "org.mapstruct:mapstruct:${mapstructVersion}"

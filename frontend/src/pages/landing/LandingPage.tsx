@@ -8,10 +8,9 @@ import { Activity, Boxes, Cpu, GitBranch, Shield, SignalHigh, Timer, Workflow } 
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { FeatureRow } from "@shared/ui/FeatureRow";
 import { MiniCard } from "@shared/ui/MiniCard";
-import { KleffDot } from "@shared/ui/KleffDot";
 import { getLocale } from "../../app/locales/locale";
+import { DeployPreviewCard } from "@shared/widget/DeployPreviewCard";
 
-// Import translations
 import enTranslations from "@app/locales/en.json";
 import frTranslations from "@app/locales/fr.json";
 
@@ -20,12 +19,11 @@ import { ROUTES } from "@app/routes/routes";
 export function LandingPage() {
   const [locale, setLocaleState] = useState(getLocale());
 
-const translations = {
-  en: enTranslations,
-  fr: frTranslations
-};
+  const translations = {
+    en: enTranslations,
+    fr: frTranslations
+  };
 
-  // Listen for locale changes by checking periodically
   useEffect(() => {
     const interval = setInterval(() => {
       const currentLocale = getLocale();
@@ -41,11 +39,11 @@ const translations = {
   return (
     <div className="relative isolate overflow-hidden">
       <Section className="flex flex-col items-center gap-12 pt-20 pb-16 text-center lg:flex-row lg:items-start lg:py-24 lg:text-left">
-        <div className="max-w-xl flex-1 space-y-7">
-          <div className="inline-flex rounded-full bg-white/5 px-3 py-1 text-[10px] text-neutral-300 sm:hidden">
+        <div className="mx-auto max-w-xl flex-1 space-y-7 text-center lg:mx-0 lg:text-left">
+          <div className="mx-auto inline-flex rounded-full bg-white/5 px-3 py-1 text-[10px] text-neutral-300 sm:hidden">
             {t.badges.open_source}
           </div>
-          <div className="hidden flex-wrap items-center gap-2 sm:flex">
+          <div className="hidden flex-wrap items-center justify-center gap-2 sm:flex lg:justify-start">
             <Badge
               variant="gradient"
               className="flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-medium"
@@ -67,9 +65,7 @@ const translations = {
               <br className="hidden sm:block" />
               <span className="text-gradient-kleff">{t.hero.title_line2}</span>
             </h1>
-            <p className="text-sm text-neutral-300 sm:text-base">
-              {t.hero.subtitle}
-            </p>
+            <p className="text-sm text-neutral-300 sm:text-base">{t.hero.subtitle}</p>
           </div>
 
           <div className="grid gap-3 text-left text-[11px] text-neutral-300 sm:grid-cols-3">
@@ -87,7 +83,7 @@ const translations = {
             />
           </div>
 
-          <div className="flex flex-col items-center gap-3 pt-2 sm:flex-row sm:items-center">
+          <div className="mx-auto flex flex-col items-center gap-3 pt-2 sm:flex-row sm:items-center sm:justify-center lg:mx-0 lg:justify-start">
             <Link to="/dashboard" className="w-full sm:w-auto">
               <Button
                 size="lg"
@@ -107,11 +103,11 @@ const translations = {
             </Link>
           </div>
 
-          <div className="mt-2 flex justify-center text-[11px] text-neutral-500 sm:hidden">
+          <div className="mt-2 flex w-full justify-center text-[11px] text-neutral-500 sm:hidden">
             <span>{t.trusted_by.mobile}</span>
           </div>
 
-          <div className="hidden flex-wrap items-center justify-center gap-x-6 gap-y-2 pt-3 text-[11px] text-neutral-500 sm:flex sm:justify-start">
+          <div className="hidden flex-wrap items-center justify-center gap-x-6 gap-y-2 pt-3 text-[11px] text-neutral-500 sm:flex lg:justify-start">
             <span className="font-medium text-neutral-400">{t.trusted_by.prefix}</span>
             <span className="rounded-full border border-white/10 px-3 py-1 text-[10px] tracking-[0.15em] text-neutral-400 uppercase">
               {t.trusted_by.nextjs}
@@ -126,92 +122,7 @@ const translations = {
         </div>
 
         <div className="max-w-lg flex-1">
-          <div className="glass-panel relative mx-auto max-w-lg overflow-hidden">
-            <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-              <div className="flex items-center gap-2 text-xs text-neutral-400">
-                <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-                <span>{t.preview.domain}</span>
-              </div>
-              <div className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-neutral-300">
-                <KleffDot size={16} />
-                <span>{t.preview.preview_label}</span>
-              </div>
-            </div>
-
-            <div className="grid gap-4 p-4 sm:grid-cols-5">
-              <div className="space-y-3 sm:col-span-3">
-                <div className="flex items-center justify-between text-[11px] text-neutral-400">
-                  <span className="font-medium text-neutral-200">{t.preview.recent_deploys}</span>
-                  <span>{t.preview.branch_info}</span>
-                </div>
-
-                <div className="space-y-2 font-mono text-[11px] text-neutral-300">
-                  <div className="flex items-center justify-between rounded-lg bg-black/60 px-3 py-2">
-                    <span>{t.preview.git_push}</span>
-                    <span className="text-emerald-400">● {t.preview.statuses.ready}</span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-lg bg-black/40 px-3 py-2">
-                    <span>{t.preview.branches.observability}</span>
-                    <span className="text-amber-300">● {t.preview.statuses.building}</span>
-                  </div>
-                  <div className="flex items-center justify-between rounded-lg bg-black/40 px-3 py-2">
-                    <span>{t.preview.branches.runtime}</span>
-                    <span className="text-neutral-500">● {t.preview.statuses.queued}</span>
-                  </div>
-                </div>
-
-                <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-[10px] text-neutral-400">
-                  <div>
-                    <span className="font-semibold text-neutral-100">132ms</span>{" "}
-                    <span className="ml-0.5">{t.preview.metrics.latency}</span>
-                  </div>
-                  <div>
-                    <span className="font-semibold text-neutral-100">0.04%</span>{" "}
-                    <span className="ml-0.5">{t.preview.metrics.error_rate}</span>
-                  </div>
-                  <div>
-                    <span className="font-semibold text-neutral-100">3</span>{" "}
-                    <span className="ml-0.5">{t.preview.metrics.regions}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3 sm:col-span-2">
-                <div className="rounded-xl border border-white/10 bg-black/50 p-3 text-[11px]">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-neutral-200">{t.preview.regions_card.title}</span>
-                    <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] text-emerald-300">
-                      {t.preview.regions_card.healthy}
-                    </span>
-                  </div>
-                  <div className="mt-3 space-y-2 text-neutral-300">
-                    <div className="flex items-center justify-between">
-                      <span>{t.preview.regions_card.us_east}</span>
-                      <span className="text-emerald-400">●</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>{t.preview.regions_card.eu_central}</span>
-                      <span className="text-emerald-400">●</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>{t.preview.regions_card.ca_east}</span>
-                      <span className="text-emerald-400">●</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 p-3 text-[11px] text-amber-100">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{t.preview.deploy_preview.title}</span>
-                    <span className="text-[10px] text-amber-200">#241</span>
-                  </div>
-                  <p className="mt-2 text-[10px] text-amber-100/90">
-                    {t.preview.deploy_preview.description}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <DeployPreviewCard key={locale} preview={t.preview} />
         </div>
       </Section>
 
@@ -223,12 +134,11 @@ const translations = {
                 {t.why_kleff.label}
               </h2>
               <p className="mt-2 text-sm text-neutral-200">
-                {t.why_kleff.title} <span className="font-mono">{t.why_kleff.title_code}</span> {t.why_kleff.title_end}
+                {t.why_kleff.title} <span className="font-mono">{t.why_kleff.title_code}</span>{" "}
+                {t.why_kleff.title_end}
               </p>
             </div>
-            <p className="max-w-sm text-xs text-neutral-400">
-              {t.why_kleff.description}
-            </p>
+            <p className="max-w-sm text-xs text-neutral-400">{t.why_kleff.description}</p>
           </div>
 
           <div className="grid gap-3 md:grid-cols-3">
@@ -263,10 +173,10 @@ const translations = {
             <div className="flex items-center gap-3 pb-2">
               <GradientIcon icon={GitBranch} />
               <div>
-                <div className="text-sm font-semibold text-neutral-50">{t.platform.deployments.title}</div>
-                <div className="text-xs text-neutral-400">
-                  {t.platform.deployments.description}
+                <div className="text-sm font-semibold text-neutral-50">
+                  {t.platform.deployments.title}
                 </div>
+                <div className="text-xs text-neutral-400">{t.platform.deployments.description}</div>
               </div>
             </div>
             <div className="space-y-1.5 text-[11px] text-neutral-400">
@@ -287,7 +197,9 @@ const translations = {
             <div className="flex items-center gap-3 pb-2">
               <GradientIcon icon={Shield} />
               <div>
-                <div className="text-sm font-semibold text-neutral-50">{t.platform.identity.title}</div>
+                <div className="text-sm font-semibold text-neutral-50">
+                  {t.platform.identity.title}
+                </div>
                 <div className="text-xs text-neutral-400">{t.platform.identity.description}</div>
               </div>
             </div>
@@ -309,7 +221,9 @@ const translations = {
             <div className="flex items-center gap-3 pb-2">
               <GradientIcon icon={Cpu} />
               <div>
-                <div className="text-sm font-semibold text-neutral-50">{t.platform.observability.title}</div>
+                <div className="text-sm font-semibold text-neutral-50">
+                  {t.platform.observability.title}
+                </div>
                 <div className="text-xs text-neutral-400">
                   {t.platform.observability.description}
                 </div>
@@ -334,12 +248,8 @@ const translations = {
       <Section className="pb-20">
         <div className="glass-panel flex flex-col items-center gap-4 px-6 py-8 text-center sm:flex-row sm:justify-between sm:py-9 sm:text-left">
           <div className="max-w-xl space-y-2">
-            <h2 className="text-xl font-semibold text-neutral-50 sm:text-2xl">
-              {t.cta.title}
-            </h2>
-            <p className="text-sm text-neutral-400">
-              {t.cta.description}
-            </p>
+            <h2 className="text-xl font-semibold text-neutral-50 sm:text-2xl">{t.cta.title}</h2>
+            <p className="text-sm text-neutral-400">{t.cta.description}</p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
             <Link to={ROUTES.TEMPLATES}>

@@ -6,7 +6,7 @@ import { AppBackground } from "./AppBackground";
 export function AppLayout() {
   return (
     <div className="bg-kleff-bg text-foreground relative flex min-h-screen flex-col">
-      <header className="relative z-50">
+      <header className="sticky top-0 z-50">
         <AppHeader />
       </header>
 
