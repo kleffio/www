@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useUserSettings } from "@features/users/hooks/useUserSettings";
 import { updateUserProfile } from "@features/users/api/UpdateUserProfile";
+import { useIdentity } from "@features/auth/hooks/useIdentity";
 import { Button } from "@shared/ui/Button";
 import { Card } from "@shared/ui/Card";
 import { Input } from "@shared/ui/Input";
@@ -18,7 +19,8 @@ interface Notification {
 }
 
 export function SettingsPage() {
-  const { settings, isLoading, error: loadError, reload } = useUserSettings();
+  const { settings, isLoading, error: loadError } = useUserSettings();
+  const { auth } = useIdentity();
   
   const [formData, setFormData] = useState({
     name: settings?.name || "",
@@ -69,6 +71,8 @@ export function SettingsPage() {
     setNotification(null);
 
     try {
+      const nameChanged = formData.name !== settings?.name;
+      
       await updateUserProfile({
         name: formData.name,
         email: formData.email,
@@ -78,16 +82,26 @@ export function SettingsPage() {
         marketingEmails: formData.marketingEmails
       });
       
-      await reload();
-      
       setNotification({
         type: "success",
-        message: "Profile updated successfully!"
+        message: nameChanged 
+          ? "Profile updated! Logging you back in with your new username..." 
+          : "Profile updated successfully!"
       });
       
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      // If username changed, we need to re-login to get a fresh JWT token
+      if (nameChanged) {
+        setTimeout(async () => {
+          // Sign out and redirect to home, which will trigger login
+          await auth.removeUser();
+          await auth.signinRedirect();
+        }, 1500);
+      } else {
+        // Just reload if only other fields changed
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
       
     } catch (error) {
       setNotification({

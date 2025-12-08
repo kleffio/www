@@ -59,7 +59,6 @@ public class UserServiceImpl implements UserService {
         requestMapper.updateEntityFromRequest(request, user);
         repo.save(user);
 
-        // Sync to Authentik if name or email changed
         if (request.name() != null && !request.name().equals(oldName)) {
             System.out.println("Name changed! Syncing to Authentik...");
             authentikApiService.updateUserName(username, request.name());
