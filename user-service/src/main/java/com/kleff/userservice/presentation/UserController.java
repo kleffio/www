@@ -18,7 +18,12 @@ public class UserController {
     }
 
     private String getAuthentikUid(Jwt jwt) {
-        return jwt.getClaimAsString("uid");
+        String sub = jwt.getClaimAsString("sub");
+        return sub != null ? sub : jwt.getClaimAsString("uid");
+    }
+    
+    private String getUsername(Jwt jwt) {
+        return jwt.getClaimAsString("preferred_username");
     }
 
     @GetMapping("/me")
@@ -31,6 +36,6 @@ public class UserController {
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody UserRequestModel request
     ) {
-        return this.userService.updateCurrentUser(getAuthentikUid(jwt), request);
+        return this.userService.updateCurrentUser(getAuthentikUid(jwt), getUsername(jwt), request);
     }
 }

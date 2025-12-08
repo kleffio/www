@@ -32,7 +32,6 @@ export function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [notification, setNotification] = useState<Notification | null>(null);
 
-  // Update form data when settings load
   useEffect(() => {
     if (settings) {
       setFormData({
@@ -49,7 +48,6 @@ export function SettingsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate required fields
     if (!formData.name || !formData.email) {
       setNotification({
         type: "error",
@@ -58,7 +56,6 @@ export function SettingsPage() {
       return;
     }
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setNotification({
@@ -88,13 +85,15 @@ export function SettingsPage() {
         message: "Profile updated successfully!"
       });
       
-      setTimeout(() => setNotification(null), 5000);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+      
     } catch (error) {
       setNotification({
         type: "error",
         message: error instanceof Error ? error.message : "Failed to update profile"
       });
-    } finally {
       setIsSaving(false);
     }
   };
@@ -118,195 +117,168 @@ export function SettingsPage() {
   const initial = (formData.name || formData.email || "K").charAt(0).toUpperCase();
 
   return (
-    <div className="app-container py-8">
-      <div className="mx-auto max-w-3xl space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold text-white">Profile & Settings</h1>
-          <p className="mt-2 text-neutral-400">
-            Manage your account details and preferences
-          </p>
-        </div>
-
-        {notification && (
-          <div
-            className={`flex items-center gap-3 rounded-lg border p-4 ${
-              notification.type === "success"
-                ? "border-green-500/20 bg-green-500/10 text-green-400"
-                : "border-red-500/20 bg-red-500/10 text-red-400"
-            }`}
-          >
-            {notification.type === "success" ? (
-              <CheckCircle2 className="h-5 w-5" />
-            ) : (
-              <AlertCircle className="h-5 w-5" />
-            )}
-            <span>{notification.message}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Profile Information Card */}
-          <Card>
-            <div className="p-6">
-              <h2 className="mb-4 text-xl font-semibold text-white">Profile Information</h2>
-              
-              <div className="mb-6 flex items-center gap-4">
-                <UserAvatar initial={initial} name={formData.name} email={formData.email} size="lg" />
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="name" className="text-neutral-200">
-                    Name <span className="text-red-400">*</span>
-                  </Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="Your full name"
-                    required
-                    className="mt-1"
-                  />
-                  <p className="mt-1 text-xs text-neutral-500">
-                    Your full name as it should appear across the platform
-                  </p>
-                </div>
-
-                <div>
-                  <Label htmlFor="email" className="text-neutral-200">
-                    Email <span className="text-red-400">*</span>
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="your@email.com"
-                    required
-                    className="mt-1"
-                  />
-                  <p className="mt-1 text-xs text-neutral-500">
-                    Primary email for account notifications and communication
-                  </p>
-                </div>
-
-                <div>
-                  <Label htmlFor="phone" className="text-neutral-200">
-                    Phone Number
-                  </Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    placeholder="+1 (555) 123-4567"
-                    className="mt-1"
-                  />
-                  <p className="mt-1 text-xs text-neutral-500">
-                    Optional contact number for account recovery
-                  </p>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Preferences Card */}
-          <Card>
-            <div className="p-6">
-              <h2 className="mb-4 text-xl font-semibold text-white">Preferences</h2>
-              
-              <div className="space-y-6">
-                <div>
-                  <Label htmlFor="theme" className="text-neutral-200">
-                    Theme
-                  </Label>
-                  <Select
-                    value={formData.theme}
-                    onValueChange={(value) => setFormData({ ...formData, theme: value })}
-                  >
-                    <SelectTrigger id="theme" className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="light">Light</SelectItem>
-                      <SelectItem value="dark">Dark</SelectItem>
-                      <SelectItem value="system">System</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="mt-1 text-xs text-neutral-500">
-                    Choose your preferred theme
-                  </p>
-                </div>
-
-                <div>
-                  <Label htmlFor="timezone" className="text-neutral-200">
-                    Timezone
-                  </Label>
-                  <Input
-                    id="timezone"
-                    placeholder="e.g., America/New_York"
-                    value={formData.timezone}
-                    onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
-                    className="mt-1"
-                  />
-                  <p className="mt-1 text-xs text-neutral-500">
-                    Set your timezone for accurate timestamps
-                  </p>
-                </div>
-
-                <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-4">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="marketing-emails" className="text-neutral-200">
-                      Marketing Emails
-                    </Label>
-                    <p className="text-sm text-neutral-500">
-                      Receive updates about new features and promotions
-                    </p>
-                  </div>
-                  <Switch
-                    id="marketing-emails"
-                    checked={formData.marketingEmails}
-                    onCheckedChange={(checked) =>
-                      setFormData({ ...formData, marketingEmails: checked })
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          <div className="flex justify-end gap-3">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => {
-                if (settings) {
-                  setFormData({
-                    name: settings.name || "",
-                    email: settings.email || "",
-                    phone: settings.phone || "",
-                    theme: settings.theme,
-                    timezone: settings.timezone || "",
-                    marketingEmails: settings.marketingEmails
-                  });
-                }
-                setNotification(null);
-              }}
-              disabled={isSaving}
-            >
-              Reset
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSaving}
-              className="flex items-center gap-2"
-            >
-              <Save className="h-4 w-4" />
-              {isSaving ? "Saving..." : "Save Changes"}
-            </Button>
-          </div>
-        </form>
+    <div className="mx-auto max-w-2xl space-y-6 p-6">
+      <div>
+        <h1 className="text-2xl font-bold text-neutral-100">Profile & Settings</h1>
+        <p className="mt-1 text-sm text-neutral-400">
+          Manage your account settings and preferences
+        </p>
       </div>
+
+      {notification && (
+        <div
+          className={`flex items-center gap-3 rounded-lg border p-4 ${
+            notification.type === "success"
+              ? "border-green-500/20 bg-green-500/10 text-green-400"
+              : "border-red-500/20 bg-red-500/10 text-red-400"
+          }`}
+        >
+          {notification.type === "success" ? (
+            <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+          ) : (
+            <AlertCircle className="h-5 w-5 flex-shrink-0" />
+          )}
+          <span className="text-sm">{notification.message}</span>
+        </div>
+      )}
+
+      <form 
+        onSubmit={handleSubmit} 
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
+            e.preventDefault();
+          }
+        }}
+        className="space-y-6"
+      >
+        {/* Profile Information */}
+        <Card className="p-6">
+          <div className="mb-6 flex items-center gap-4">
+            <UserAvatar initial={initial} size="lg" />
+            <div>
+              <h2 className="text-lg font-semibold text-neutral-100">Profile Information</h2>
+              <p className="text-sm text-neutral-400">Update your personal details</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-neutral-200">
+                Name <span className="text-red-400">*</span>
+              </Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="Enter your name"
+                required
+                className="bg-neutral-900 border-neutral-700 text-neutral-100"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-neutral-200">
+                Email <span className="text-red-400">*</span>
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="your.email@example.com"
+                required
+                className="bg-neutral-900 border-neutral-700 text-neutral-100"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-neutral-200">
+                Phone Number
+              </Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="(555) 123-4567"
+                className="bg-neutral-900 border-neutral-700 text-neutral-100"
+              />
+              <p className="text-xs text-neutral-500">Optional - used for account recovery</p>
+            </div>
+          </div>
+        </Card>
+
+        {/* Preferences */}
+        <Card className="p-6">
+          <div className="mb-4">
+            <h2 className="text-lg font-semibold text-neutral-100">Preferences</h2>
+            <p className="text-sm text-neutral-400">Customize your experience</p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="theme" className="text-neutral-200">
+                Theme
+              </Label>
+              <Select value={formData.theme} onValueChange={(value) => setFormData({ ...formData, theme: value })}>
+                <SelectTrigger id="theme" className="bg-neutral-900 border-neutral-700 text-neutral-100">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
+                  <SelectItem value="system">System</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="timezone" className="text-neutral-200">
+                Timezone
+              </Label>
+              <Input
+                id="timezone"
+                value={formData.timezone}
+                onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
+                placeholder="America/New_York"
+                className="bg-neutral-900 border-neutral-700 text-neutral-100"
+              />
+            </div>
+
+            <div className="flex items-center justify-between rounded-lg border border-neutral-700 bg-neutral-900/50 p-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="marketing" className="text-neutral-200">
+                  Marketing Emails
+                </Label>
+                <p className="text-sm text-neutral-400">
+                  Receive emails about new features and updates
+                </p>
+              </div>
+              <Switch
+                id="marketing"
+                checked={formData.marketingEmails}
+                onCheckedChange={(checked) => setFormData({ ...formData, marketingEmails: checked })}
+              />
+            </div>
+          </div>
+        </Card>
+
+        {/* Save Button */}
+        <div className="flex justify-end pt-6">
+          <Button
+            type="submit"
+            disabled={isSaving}
+            style={{ 
+              backgroundColor: isSaving ? 'rgb(220, 163, 20)' : 'rgb(245, 181, 23)',
+              color: '#000000'
+            }}
+            className="font-medium px-6 py-2 hover:opacity-90 transition-opacity"
+          >
+            <Save className="mr-2 h-4 w-4" />
+            {isSaving ? "Saving..." : "Save Changes"}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }
