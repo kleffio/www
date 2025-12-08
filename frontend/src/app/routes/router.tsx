@@ -1,13 +1,14 @@
-import { createBrowserRouter } from "react-router-dom";
-import { AppLayout } from "@app/layout/AppLayout";
-import { LandingPage } from "@pages/landing/LandingPage";
-import { CallbackPage } from "@pages/auth/CallbackPage";
 import { ErrorPage } from "@app/error/ErrorPage";
-import { ProjectsPage } from "@pages/projects/ProjectsPage";
-import { DashboardPage } from "@pages/dashboard/DashboardPage";
+import { AppLayout } from "@app/layout/AppLayout";
 import { DashboardLayout } from "@app/layout/DashboardLayout";
 import { ProtectedRoute } from "@app/routing/ProtectedRoute";
 import { ProjectsProvider } from "@features/projects/context/ProjectsContext";
+import { CallbackPage } from "@pages/auth/CallbackPage";
+import { DashboardPage } from "@pages/dashboard/DashboardPage";
+import { MetricsDashboard } from "@pages/dashboard/MetricsDashboard";
+import { LandingPage } from "@pages/landing/LandingPage";
+import { ProjectsPage } from "@pages/projects/ProjectsPage";
+import { createBrowserRouter } from "react-router-dom";
 import { ROUTES } from "./routes";
 
 import { AboutUsPage } from "@pages/aboutus/AboutUsPage";
@@ -69,6 +70,10 @@ export const router = createBrowserRouter([
             <ProjectsPage />
           </ProjectsProvider>
         )
+      },
+      {
+        path: "systems",
+        element: <MetricsDashboard />
       }
     ]
   }
