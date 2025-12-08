@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+import { Rocket, Zap, Shield, Users, DollarSign, Lock } from "lucide-react";
+=======
+>>>>>>> 14c9cfc8b729cb54954f1427458969ac3197de7f
 import type { LucideIcon } from "lucide-react";
 import { DollarSign, Lock, Rocket, Shield, Users, Zap } from "lucide-react";
 

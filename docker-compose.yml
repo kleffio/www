@@ -57,6 +57,7 @@ services:
       - DB_PASSWORD=change-me
       - SQL_INIT_MODE=never
       - HIBERNATE_DDL_AUTO=update
+      - AUTHENTIK_API_TOKEN=${AUTHENTIK_API_TOKEN}
     ports:
       - "8082:8080"
     dns:

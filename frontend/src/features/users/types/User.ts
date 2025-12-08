@@ -1,5 +1,8 @@
 export interface UserSettings {
   authentikUid: string;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
   theme: "dark" | "light" | "system" | string;
   timezone: string | null;
   marketingEmails: boolean;

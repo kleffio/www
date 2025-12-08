@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+import { ArrowRight, Check, Activity, Shield } from "lucide-react";
+import { Section, SectionHeader } from "@shared/ui/Section";
+import { GradientIcon } from "@shared/ui/GradientIcon";
+=======
+>>>>>>> 14c9cfc8b729cb54954f1427458969ac3197de7f
 import { Badge } from "@shared/ui/Badge";
 import { FeatureRow } from "@shared/ui/FeatureRow";
 import { GradientIcon } from "@shared/ui/GradientIcon";

@@ -10,7 +10,7 @@ import { LandingPage } from "@pages/landing/LandingPage";
 import { ProjectsPage } from "@pages/projects/ProjectsPage";
 import { createBrowserRouter } from "react-router-dom";
 import { ROUTES } from "./routes";
-
+import { SettingsPage } from "@pages/settings/SettingsPage";
 import { AboutUsPage } from "@pages/aboutus/AboutUsPage";
 import { FAQPage } from "@pages/legal/FAQPage";
 import { PrivacyPolicyPage } from "@pages/legal/PrivacyPolicyPage";
@@ -72,8 +72,13 @@ export const router = createBrowserRouter([
         )
       },
       {
+<<<<<<< HEAD
+        path: "settings",
+        element: <SettingsPage />
+=======
         path: "systems",
         element: <MetricsDashboard />
+>>>>>>> 14c9cfc8b729cb54954f1427458969ac3197de7f
       }
     ]
   }

@@ -19,6 +19,15 @@ public class User {
     @Column(name = "authentik_uid", nullable = false, updatable = false, length = 64)
     private String authentikUid;
 
+    @Column(name = "name", length = 255)
+    private String name;
+
+    @Column(name = "email", length = 255)
+    private String email;
+
+    @Column(name = "phone", length = 50)
+    private String phone;
+
     @Column(name = "theme", nullable = false)
     private String theme = "dark";
 
