@@ -9,7 +9,7 @@ import { DashboardLayout } from "@app/layout/DashboardLayout";
 import { ProtectedRoute } from "@app/routing/ProtectedRoute";
 import { ProjectsProvider } from "@features/projects/context/ProjectsContext";
 import { ROUTES } from "./routes";
-
+import { SettingsPage } from "@pages/settings/SettingsPage";
 import { AboutUsPage } from "@pages/aboutus/AboutUsPage";
 import { FAQPage } from "@pages/legal/FAQPage";
 import { PrivacyPolicyPage } from "@pages/legal/PrivacyPolicyPage";
@@ -69,6 +69,10 @@ export const router = createBrowserRouter([
             <ProjectsPage />
           </ProjectsProvider>
         )
+      },
+      {
+        path: "settings",
+        element: <SettingsPage />
       }
     ]
   }

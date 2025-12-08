@@ -1,4 +1,4 @@
-import { ArrowRight, Check, GitBranch, Activity, Shield } from "lucide-react";
+import { ArrowRight, Check, Activity, Shield } from "lucide-react";
 import { Section, SectionHeader } from "@shared/ui/Section";
 import { GradientIcon } from "@shared/ui/GradientIcon";
 import { Badge } from "@shared/ui/Badge";

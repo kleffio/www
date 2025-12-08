@@ -1,4 +1,4 @@
-import { Rocket, Sparkles, Zap, Shield, Users, DollarSign, Lock } from "lucide-react";
+import { Rocket, Zap, Shield, Users, DollarSign, Lock } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export interface FAQQuestion {
