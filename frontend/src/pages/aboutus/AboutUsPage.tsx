@@ -1,10 +1,9 @@
-import { ArrowRight, Check, GitBranch, Activity, Shield } from "lucide-react";
-import { Section, SectionHeader } from "@shared/ui/Section";
-import { GradientIcon } from "@shared/ui/GradientIcon";
 import { Badge } from "@shared/ui/Badge";
 import { FeatureRow } from "@shared/ui/FeatureRow";
-import { DollarSign, Globe, Zap, Cpu } from "lucide-react";
+import { GradientIcon } from "@shared/ui/GradientIcon";
 import { MiniCard } from "@shared/ui/MiniCard";
+import { Section, SectionHeader } from "@shared/ui/Section";
+import { Activity, ArrowRight, Check, Cpu, DollarSign, Globe, Shield, Zap } from "lucide-react";
 
 export function AboutUsPage() {
   return (
@@ -26,7 +25,8 @@ export function AboutUsPage() {
               <span className="text-gradient-kleff">to build without limits.</span>
             </h1>
             <p className="text-sm text-neutral-300 sm:text-base">
-              We're making enterprise-grade cloud hosting accessible to everyone—with transparent pricing, Canadian infrastructure, and developer-first tools.
+              We're making enterprise-grade cloud hosting accessible to everyone—with transparent
+              pricing, Canadian infrastructure, and developer-first tools.
             </p>
           </div>
         </div>
@@ -35,9 +35,8 @@ export function AboutUsPage() {
       <Section className="px-4 pb-16">
         <div className="mx-auto max-w-4xl">
           <div className="glass-panel p-6 text-center sm:p-8 lg:p-12">
-            <p className="text-lg font-medium leading-relaxed text-white sm:text-xl lg:text-2xl">
-              We believe{" "}
-              <span className="text-gradient-kleff">powerful cloud hosting</span>{" "}
+            <p className="text-lg leading-relaxed font-medium text-white sm:text-xl lg:text-2xl">
+              We believe <span className="text-gradient-kleff">powerful cloud hosting</span>{" "}
               shouldn't break the bank or sacrifice developer experience.
             </p>
           </div>
@@ -76,8 +75,6 @@ export function AboutUsPage() {
         </div>
       </Section>
 
-
-
       <Section className="px-4 pb-16">
         <SectionHeader
           label="Technology Stack"
@@ -91,13 +88,19 @@ export function AboutUsPage() {
               <GradientIcon icon={Cpu} />
             </div>
             <div className="mb-2 text-sm font-semibold text-neutral-50">Backend Services</div>
-            <p className="text-[11px] text-neutral-400 leading-relaxed mb-3">
+            <p className="mb-3 text-[11px] leading-relaxed text-neutral-400">
               High-performance, scalable microservices architecture.
             </p>
             <div className="flex flex-wrap gap-1.5">
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Go</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Java</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Spring Boot</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                Go
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                Java
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                Spring Boot
+              </span>
             </div>
           </div>
 
@@ -106,13 +109,19 @@ export function AboutUsPage() {
               <GradientIcon icon={Activity} />
             </div>
             <div className="mb-2 text-sm font-semibold text-neutral-50">Frontend</div>
-            <p className="text-[11px] text-neutral-400 leading-relaxed mb-3">
+            <p className="mb-3 text-[11px] leading-relaxed text-neutral-400">
               Modern, responsive user interfaces with type safety.
             </p>
             <div className="flex flex-wrap gap-1.5">
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">TypeScript</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">React</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Tailwind CSS</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                TypeScript
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                React
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                Tailwind CSS
+              </span>
             </div>
           </div>
 
@@ -121,12 +130,16 @@ export function AboutUsPage() {
               <GradientIcon icon={Shield} />
             </div>
             <div className="mb-2 text-sm font-semibold text-neutral-50">Database</div>
-            <p className="text-[11px] text-neutral-400 leading-relaxed mb-3">
+            <p className="mb-3 text-[11px] leading-relaxed text-neutral-400">
               Reliable, scalable data storage with strong consistency.
             </p>
             <div className="flex flex-wrap gap-1.5">
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">PostgreSQL</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Redis</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                PostgreSQL
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                Redis
+              </span>
             </div>
           </div>
 
@@ -135,13 +148,19 @@ export function AboutUsPage() {
               <GradientIcon icon={Zap} />
             </div>
             <div className="mb-2 text-sm font-semibold text-neutral-50">Orchestration</div>
-            <p className="text-[11px] text-neutral-400 leading-relaxed mb-3">
+            <p className="mb-3 text-[11px] leading-relaxed text-neutral-400">
               Container orchestration with auto-scaling and self-healing.
             </p>
             <div className="flex flex-wrap gap-1.5">
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Kubernetes</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Docker</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Helm</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                Kubernetes
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                Docker
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                Helm
+              </span>
             </div>
           </div>
 
@@ -150,13 +169,19 @@ export function AboutUsPage() {
               <GradientIcon icon={Activity} />
             </div>
             <div className="mb-2 text-sm font-semibold text-neutral-50">Observability</div>
-            <p className="text-[11px] text-neutral-400 leading-relaxed mb-3">
+            <p className="mb-3 text-[11px] leading-relaxed text-neutral-400">
               Real-time monitoring, metrics, and distributed tracing.
             </p>
             <div className="flex flex-wrap gap-1.5">
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Prometheus</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Grafana</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Jaeger</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                Prometheus
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                Grafana
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                Jaeger
+              </span>
             </div>
           </div>
 
@@ -165,13 +190,19 @@ export function AboutUsPage() {
               <GradientIcon icon={Globe} />
             </div>
             <div className="mb-2 text-sm font-semibold text-neutral-50">Security & Auth</div>
-            <p className="text-[11px] text-neutral-400 leading-relaxed mb-3">
+            <p className="mb-3 text-[11px] leading-relaxed text-neutral-400">
               Enterprise-grade authentication and authorization.
             </p>
             <div className="flex flex-wrap gap-1.5">
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">Authentik</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">OAuth 2.0</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">OIDC</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                Authentik
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                OAuth 2.0
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[10px] text-neutral-300">
+                OIDC
+              </span>
             </div>
           </div>
         </div>
@@ -184,7 +215,8 @@ export function AboutUsPage() {
               Why developers choose Kleff
             </h2>
             <p className="mb-6 text-sm text-neutral-200">
-              Everything you need to go from <span className="font-mono">git push</span> to production.
+              Everything you need to go from <span className="font-mono">git push</span> to
+              production.
             </p>
             <div className="grid gap-3 text-left text-[11px] text-neutral-300 sm:grid-cols-3">
               <MiniCard
@@ -213,7 +245,10 @@ export function AboutUsPage() {
             <div className="space-y-3">
               {[
                 { title: "Always improving", desc: "Continuous updates based on your feedback" },
-                { title: "Transparent communication", desc: "No surprises. Full changelog visibility" },
+                {
+                  title: "Transparent communication",
+                  desc: "No surprises. Full changelog visibility"
+                },
                 { title: "Fair pricing", desc: "Success shouldn't bankrupt you" },
                 { title: "Open source first", desc: "Inspect the code. Contribute features" },
                 { title: "Canadian infrastructure", desc: "Supporting local tech ecosystem" }
@@ -223,9 +258,7 @@ export function AboutUsPage() {
                     <Check className="h-3 w-3 text-black" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-neutral-50">
-                      {item.title}
-                    </h3>
+                    <h3 className="text-sm font-semibold text-neutral-50">{item.title}</h3>
                     <p className="text-[11px] text-neutral-400">{item.desc}</p>
                   </div>
                 </div>
@@ -238,9 +271,7 @@ export function AboutUsPage() {
       <Section className="px-4 pb-16">
         <div className="mx-auto max-w-3xl text-center">
           <div className="glass-panel p-12">
-            <h2 className="mb-4 text-3xl font-semibold text-white">
-              Ready to ship?
-            </h2>
+            <h2 className="mb-4 text-3xl font-semibold text-white">Ready to ship?</h2>
             <p className="mb-8 text-sm text-neutral-300">
               Join thousands of developers building the future on Kleff.
             </p>
