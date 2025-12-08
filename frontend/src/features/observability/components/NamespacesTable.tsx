@@ -18,17 +18,17 @@ export const NamespacesTable: React.FC<Props> = ({ namespaces, loading }) => {
         </div>
         <div className="space-y-3">
           <div className="flex gap-4">
-            <Skeleton className="h-5 w-32" />
-            <Skeleton className="h-5 w-20" />
-            <Skeleton className="h-5 w-24" />
-            <Skeleton className="h-5 w-28" />
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-full" />
           </div>
-          {[1, 2, 3].map((i) => (
+          {[1, 2, 3, 4, 5, 6].map((i) => (
             <div key={i} className="flex gap-4">
-              <Skeleton className="h-10 w-32" />
-              <Skeleton className="h-10 w-20" />
-              <Skeleton className="h-10 w-24" />
-              <Skeleton className="h-10 w-28" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
             </div>
           ))}
         </div>
