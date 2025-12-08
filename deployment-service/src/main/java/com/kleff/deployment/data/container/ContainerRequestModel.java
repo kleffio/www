@@ -20,4 +20,6 @@ public class ContainerRequestModel {
     private String name;
     private String image;
     private int port;
+    private String repoUrl; 
+    private String branch;
 }

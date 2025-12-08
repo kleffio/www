@@ -27,4 +27,6 @@ public class Container {
     private int port;
 
     private LocalDateTime createdAt;
+    private String repoUrl; 
+    private String branch;
 }

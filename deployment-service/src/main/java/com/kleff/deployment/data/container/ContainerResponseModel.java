@@ -24,4 +24,6 @@ public class ContainerResponseModel {
     private String image;
     private int port;
     private LocalDateTime createdAt;
+    private String repoUrl; 
+    private String branch;
 }

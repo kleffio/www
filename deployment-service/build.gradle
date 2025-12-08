@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '4.0.0'
+    id 'org.springframework.boot' version '3.4.0'
     id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -26,7 +26,8 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
     // 1. Lombok (Compile Only)
     compileOnly 'org.projectlombok:lombok'
