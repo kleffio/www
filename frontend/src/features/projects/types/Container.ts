@@ -5,4 +5,6 @@ export type Container = {
   image: string;
   ports: string[];
   createdAt: string;
+  repoUrl: string;
+  branch: string;
 };

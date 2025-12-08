@@ -3,4 +3,6 @@ export type ContainerRequest = {
   name: string;
   image: string;
   port: number;
+  repoUrl: string;
+  branch: string;
 };

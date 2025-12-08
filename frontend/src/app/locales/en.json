@@ -200,6 +200,33 @@
       "browse_examples": "Browse GitHub examples"
     }
   },
+  "projectDetail": {
+    "project_not_found": "Project not found",
+    "back_to_projects": "Back to Projects",
+    "back_to_projects_arrow": "← Back to Projects",
+    "no_description": "No description available",
+    "create_container": "Create Container",
+    "project_overview": "Project Overview",
+    "project_id": "Project ID",
+    "owner": "Owner",
+    "stack": "Stack",
+    "status": "Status",
+    "created": "Created",
+    "last_updated": "Last Updated",
+    "running_containers": "Running Containers",
+    "container": "container",
+    "containers": "containers",
+    "no_containers": "No running containers for this project.",
+    "create_first_container": "Create your first container to get started",
+    "table": {
+      "name": "NAME",
+      "status": "STATUS",
+      "image": "IMAGE",
+      "ports": "PORTS",
+      "created_at": "CREATED AT"
+    },
+    "unknown": "Unknown"
+  },
   "header": {
     "common": {
       "mega_menu_footer": "Open-source-first infrastructure built for modern teams."

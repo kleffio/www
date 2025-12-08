@@ -12,6 +12,8 @@ export default async function fetchProjectContainers(projectId: string): Promise
       image: item.image,
       ports: item.ports || (item.port ? [item.port.toString()] : []),
       createdAt: item.createdAt,
+      repoUrl: item.repoUrl || '',
+      branch: item.branch || 'main', // Added missing required property
     }));
     return containers;
   } catch (error: any) {

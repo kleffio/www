@@ -16,6 +16,8 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
   const [port, setPort] = useState("");
+  const [repoUrl, setRepoUrl] = useState("");
+  const [branch, setBranch] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,6 +27,8 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
     setName("");
     setImage("");
     setPort("");
+    setRepoUrl("");
+    setBranch("");
     setError(null);
   };
 
@@ -52,7 +56,9 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
         projectID: projectId,
         name: name.trim(),
         image: image.trim(),
-        port: portNum
+        port: portNum,
+        repoUrl: repoUrl.trim(),
+        branch: branch.trim()
       });
 
       resetForm();
@@ -151,6 +157,42 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
                 onChange={(e) => setPort(e.target.value)}
                 className={inputBase}
                 placeholder="8080"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label
+                htmlFor="container-repo-url"
+                className="block text-xs font-medium tracking-wide text-neutral-300 uppercase"
+              >
+                Repository URL
+              </label>
+              <input
+                id="container-repo-url"
+                name="repoUrl"
+                type="text"
+                value={repoUrl}
+                onChange={(e) => setRepoUrl(e.target.value)}
+                className={inputBase}
+                placeholder="https://github.com/user/repo.git"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label
+                htmlFor="container-branch"
+                className="block text-xs font-medium tracking-wide text-neutral-300 uppercase"
+              >
+                Branch
+              </label>
+              <input
+                id="container-branch"
+                name="branch"
+                type="text"
+                value={branch}
+                onChange={(e) => setBranch(e.target.value)}
+                className={inputBase}
+                placeholder="main"
               />
             </div>
 
