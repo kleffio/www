@@ -107,11 +107,11 @@ export const ResourceChart: React.FC<Props> = ({
       <div className="mb-5 flex items-center justify-between">
         <h3 className="text-base font-semibold text-white">{title}</h3>
         <div className="flex items-center gap-3">
-          <div className="text-2xl font-bold text-white">
+          <div className="text-[22px] font-bold text-white">
             {data.currentValue?.toFixed(1) ?? "0.0"}%
           </div>
           <div
-            className={`rounded-md px-2 py-1 text-sm font-semibold ${trendClasses[data.trend as keyof typeof trendClasses] || trendClasses.stable}`}
+            className={`rounded-md px-2 py-1 text-[11px] font-semibold ${trendClasses[data.trend as keyof typeof trendClasses] || trendClasses.stable}`}
           >
             {(data.changePercent ?? 0) > 0 ? "+" : ""}
             {data.changePercent?.toFixed(1) ?? "0.0"}%
