@@ -78,6 +78,33 @@ services:
     volumes:
       - user_db_data:/var/lib/postgresql/data
 
+  deployment-service:
+    build:
+      context: ./deployment-service
+      dockerfile: Dockerfile
+    container_name: deployment-service
+    ports:
+      - "8084:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://deployment-db:5432/deployment_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - deployment-db
+
+  deployment-db:
+    image: postgres:16
+    container_name: deployment-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: deployment_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - deployment_data:/var/lib/postgresql/data
   observability-service:
     build:
       context: ./observability-service
@@ -101,8 +128,10 @@ services:
     depends_on:
       - project-management-service
       - user-service
+      - deployment-service
       - observability-service
 
 volumes:
   project_management_data:
   user_db_data:
+  deployment_data:

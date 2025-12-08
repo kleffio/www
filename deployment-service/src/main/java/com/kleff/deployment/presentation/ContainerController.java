@@ -1,0 +1,36 @@
+package com.kleff.deployment.presentation;
+
+import com.kleff.deployment.business.ContainerServiceImpl;
+import com.kleff.deployment.data.container.Container;
+import com.kleff.deployment.data.container.ContainerRequestModel;
+import com.kleff.deployment.data.container.ContainerResponseModel;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/containers")
+public class ContainerController {
+
+    private final ContainerServiceImpl containerService;
+
+    public ContainerController(ContainerServiceImpl containerService) {
+        this.containerService = containerService;
+    }
+
+    @GetMapping
+    public List<ContainerResponseModel> getAllContainers() {
+        return containerService.getAllContainers();
+    }
+
+    @GetMapping("{projectID}")
+    public List<Container> getAllContainersByProjectID(@PathVariable String projectID) {
+        return containerService.getContainersByProjectID(projectID);
+    }
+    @PostMapping
+    public ContainerResponseModel createContainer(@RequestBody ContainerRequestModel container) {
+        return containerService.createContainer(container);
+    }
+}

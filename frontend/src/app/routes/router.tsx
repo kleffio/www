@@ -1,4 +1,5 @@
 import { ErrorPage } from "@app/error/ErrorPage";
+import { ProjectDetailPage } from "@pages/projects/ProjectDetailPage";
 import { AppLayout } from "@app/layout/AppLayout";
 import { DashboardLayout } from "@app/layout/DashboardLayout";
 import { ProtectedRoute } from "@app/routing/ProtectedRoute";
@@ -72,13 +73,16 @@ export const router = createBrowserRouter([
         )
       },
       {
-<<<<<<< HEAD
+        path: "projects/:projectId",
+        element: <ProjectDetailPage />
+      },
+      {
         path: "settings",
         element: <SettingsPage />
-=======
+      },
+      {
         path: "systems",
         element: <MetricsDashboard />
->>>>>>> 14c9cfc8b729cb54954f1427458969ac3197de7f
       }
     ]
   }

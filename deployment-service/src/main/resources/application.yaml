@@ -1,0 +1,22 @@
+---
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  datasource:
+    url: "jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/\
+      ${DB_NAME:deployment_service}"
+    username: ${DB_USERNAME:deployment_service}
+    password: ${DB_PASSWORD:change-me}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${HIBERNATE_DDL_AUTO:update}
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  sql:
+    init:
+      platform: postgres
+      mode: ${SQL_INIT_MODE:always}
