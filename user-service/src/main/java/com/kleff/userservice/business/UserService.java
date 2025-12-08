@@ -5,5 +5,5 @@ import com.kleff.userservice.presentation.models.UserResponseModel;
 
 public interface UserService {
     UserResponseModel getCurrentUser(String authentikUid);
-    UserResponseModel updateCurrentUser(String authentikUid, UserRequestModel request);
+    UserResponseModel updateCurrentUser(String authentikUid, String username, UserRequestModel request);
 }

@@ -106,9 +106,12 @@
       "branch_info": "main • Production",
       "git_push": "git push origin main",
       "statuses": {
+        "started": "Démarrage",
         "ready": "Prêt",
         "building": "En construction",
-        "queued": "En file d'attente"
+        "queued": "En file d'attente",
+        "failed": "Échoué",
+        "done": "Terminé"
       },
       "branches": {
         "observability": "feat/observability-dashboard",
