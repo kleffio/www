@@ -1,16 +1,23 @@
 import { useParams, Link } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@shared/ui/Button";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@shared/ui/Table";
 import { Spinner } from "@shared/ui/Spinner";
+import { MiniCard } from "@shared/ui/MiniCard";
+import { Badge } from "@shared/ui/Badge";
+import { GradientIcon } from "@shared/ui/GradientIcon";
+import { Hash, User, Layers, Activity, Calendar, Clock, Box, Play, Square } from "lucide-react";
 import { useProject } from "@features/projects/hooks/useProject";
 import { useProjectContainers } from "@features/projects/hooks/useProjectContainers";
+import { CreateContainerModal } from "@features/projects/components/CreateContainerModal";
 import { ROUTES } from "@app/routes/routes";
 
 export function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const { project, isLoading: projectLoading, error: projectError } = useProject(projectId || "");
-  const { containers, isLoading: containersLoading, error: containersError } = useProjectContainers(projectId || "");
+  const { containers, isLoading: containersLoading, error: containersError, reload } = useProjectContainers(projectId || "");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (projectLoading) {
     return (
@@ -40,8 +47,8 @@ export function ProjectDetailPage() {
           </SoftPanel>
         </div>
       </section>
-    );
-  }
+  );
+}
 
   return (
     <section className="h-full">
@@ -58,40 +65,74 @@ export function ProjectDetailPage() {
               {project.description || "No description available"}
             </p>
           </div>
+
+          <Button
+            size="lg"
+            onClick={() => setIsModalOpen(true)}
+            className="bg-gradient-kleff rounded-full px-5 py-2 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
+          >
+            Create Container
+          </Button>
         </header>
 
         <SoftPanel>
-          <h2 className="mb-4 text-lg font-semibold text-neutral-50">Project Details</h2>
-          <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div>
-              <dt className="text-sm font-medium text-neutral-400">Project ID</dt>
-              <dd className="text-sm text-neutral-200">{project.projectId}</dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-neutral-400">Owner</dt>
-              <dd className="text-sm text-neutral-200">{project.ownerId || "—"}</dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-neutral-400">Stack</dt>
-              <dd className="text-sm text-neutral-200">{project.stackId || "—"}</dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-neutral-400">Status</dt>
-              <dd className="text-sm text-neutral-200">{project.projectStatus || "—"}</dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-neutral-400">Created Date</dt>
-              <dd className="text-sm text-neutral-200">{project.createdDate || "—"}</dd>
-            </div>
-            <div>
-              <dt className="text-sm font-medium text-neutral-400">Updated Date</dt>
-              <dd className="text-sm text-neutral-200">{project.updatedDate || "—"}</dd>
-            </div>
-          </dl>
+          <h2 className="mb-6 text-lg font-semibold text-neutral-50">Project Overview</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <MiniCard title="Project ID">
+              <div className="flex items-center gap-2">
+                <Hash className="h-4 w-4 text-neutral-400" />
+                <span className="text-sm font-mono text-neutral-200">{project.projectId}</span>
+              </div>
+            </MiniCard>
+            <MiniCard title="Owner">
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-neutral-400" />
+                <span className="text-sm text-neutral-200">{project.ownerId || "—"}</span>
+              </div>
+            </MiniCard>
+            <MiniCard title="Stack">
+              <div className="flex items-center gap-2">
+                <Layers className="h-4 w-4 text-neutral-400" />
+                <span className="text-sm text-neutral-200">{project.stackId || "—"}</span>
+              </div>
+            </MiniCard>
+            <MiniCard title="Status">
+              <div className="flex items-center gap-2">
+                <Activity className="h-4 w-4 text-neutral-400" />
+                {project.projectStatus ? (
+                  <Badge variant="success" className="text-xs">
+                    {project.projectStatus}
+                  </Badge>
+                ) : (
+                  <span className="text-sm text-neutral-400">—</span>
+                )}
+              </div>
+            </MiniCard>
+            <MiniCard title="Created">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-neutral-400" />
+                <span className="text-sm text-neutral-200">{project.createdDate || "—"}</span>
+              </div>
+            </MiniCard>
+            <MiniCard title="Last Updated">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-neutral-400" />
+                <span className="text-sm text-neutral-200">{project.updatedDate || "—"}</span>
+              </div>
+            </MiniCard>
+          </div>
         </SoftPanel>
 
         <SoftPanel>
-          <h2 className="mb-4 text-lg font-semibold text-neutral-50">Running Containers</h2>
+          <div className="mb-6 flex items-center gap-3">
+            <GradientIcon icon={Box} />
+            <h2 className="text-lg font-semibold text-neutral-50">Running Containers</h2>
+            {containers && containers.length > 0 && (
+              <Badge variant="info" className="text-xs">
+                {containers.length} container{containers.length !== 1 ? 's' : ''}
+              </Badge>
+            )}
+          </div>
 
           {containersLoading && (
             <div className="flex justify-center py-10">
@@ -105,7 +146,11 @@ export function ProjectDetailPage() {
 
           {!containersLoading && !containersError && containers.length === 0 && (
             <div className="py-10 text-center">
-              <p className="text-sm text-neutral-400">No running containers for this project.</p>
+              <div className="flex flex-col items-center gap-3">
+                <Box className="h-12 w-12 text-neutral-500" />
+                <p className="text-sm text-neutral-400">No running containers for this project.</p>
+                <p className="text-xs text-neutral-500">Create your first container to get started</p>
+              </div>
             </div>
           )}
 
@@ -122,14 +167,34 @@ export function ProjectDetailPage() {
               </TableHeader>
               <TableBody>
                 {containers.map((container) => (
-                  <TableRow key={container.containerId}>
-                    <TableCell className="font-semibold text-neutral-50">{container.name}</TableCell>
-                    <TableCell className="text-neutral-300">{container.status}</TableCell>
-                    <TableCell className="text-neutral-300">{container.image}</TableCell>
-                    <TableCell className="text-neutral-300">
-                      {container.ports.length > 0 ? container.ports.join(", ") : "—"}
+                  <TableRow key={container.containerId} className="hover:bg-white/5">
+                    <TableCell>
+                      <span className="font-semibold text-neutral-50">{container.name}</span>
                     </TableCell>
-                    <TableCell className="text-neutral-300">{container.createdAt}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={container.status?.toLowerCase().includes('running') ? 'success' :
+                                container.status?.toLowerCase().includes('stopped') ? 'secondary' : 'warning'}
+                        className="text-xs"
+                      >
+                        {container.status || 'Unknown'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-neutral-300 font-mono text-xs">{container.image}</TableCell>
+                    <TableCell className="text-neutral-300">
+                      {container.ports.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {container.ports.map((port, index) => (
+                            <Badge key={index} variant="outline" className="text-[10px] px-1.5 py-0.5">
+                              {port}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-neutral-500">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-neutral-300 text-xs">{container.createdAt}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -137,6 +202,13 @@ export function ProjectDetailPage() {
           )}
         </SoftPanel>
       </div>
+
+      <CreateContainerModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        projectId={projectId || ""}
+        onSuccess={() => reload()}
+      />
     </section>
   );
 }

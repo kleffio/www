@@ -97,11 +97,7 @@ export function ProjectsPage() {
                       <TableRow className="border-b border-white/10 bg-white/5 hover:bg-white/5">
                         <TableHead>{t.table.name}</TableHead>
                         <TableHead>{t.table.description}</TableHead>
-                        <TableHead>{t.table.owner}</TableHead>
-                        <TableHead>{t.table.stack}</TableHead>
-                        <TableHead>{t.table.status}</TableHead>
                         <TableHead>{t.table.created_date}</TableHead>
-                        <TableHead>{t.table.updated_date}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -110,11 +106,7 @@ export function ProjectsPage() {
                           <TableRow className="cursor-pointer hover:bg-white/10">
                             <TableCell className="font-semibold text-neutral-50">{p.name}</TableCell>
                             <TableCell className="text-neutral-300">{p.description || "—"}</TableCell>
-                            <TableCell className="text-neutral-300">{p.ownerId || "—"}</TableCell>
-                            <TableCell className="text-neutral-300">{p.stackId || "—"}</TableCell>
-                            <TableCell className="text-neutral-300">{p.projectStatus || "—"}</TableCell>
                             <TableCell className="text-neutral-300">{p.createdDate || "—"}</TableCell>
-                            <TableCell className="text-neutral-300">{p.updatedDate || "—"}</TableCell>
                           </TableRow>
                         </Link>
                       ))}
@@ -139,28 +131,7 @@ export function ProjectsPage() {
                     <p className="mb-3 text-xs text-neutral-300">{p.description}</p>
                   )}
 
-                  <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-[11px]">
-                    <div>
-                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Owner</dt>
-                      <dd className="truncate text-neutral-200">{p.ownerId || "—"}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Stack</dt>
-                      <dd className="truncate text-neutral-200">{p.stackId || "—"}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Status</dt>
-                      <dd className="truncate text-neutral-200">{p.projectStatus || "—"}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Created</dt>
-                      <dd className="truncate text-neutral-200">{p.createdDate || "—"}</dd>
-                    </div>
-                    <div className="col-span-2">
-                      <dt className="text-[10px] tracking-wide text-neutral-500 uppercase">Updated</dt>
-                      <dd className="truncate text-neutral-200">{p.updatedDate || "—"}</dd>
-                    </div>
-                  </dl>
+                  <p className="text-[11px] text-neutral-300">Created: {p.createdDate || "—"}</p>
                 </Link>
               ))}
             </div>
