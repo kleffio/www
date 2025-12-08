@@ -1,4 +1,14 @@
-import { Shield, Lock, Eye, Globe, Check, ArrowRight, FileText, CreditCard, Activity } from "lucide-react";
+import {
+  Shield,
+  Lock,
+  Eye,
+  Globe,
+  Check,
+  ArrowRight,
+  FileText,
+  CreditCard,
+  Activity
+} from "lucide-react";
 import { Section, SectionHeader } from "@shared/ui/Section";
 import { GradientIcon } from "@shared/ui/GradientIcon";
 import { Badge } from "@shared/ui/Badge";
@@ -77,7 +87,7 @@ export function PrivacyPolicyPage() {
               <GradientIcon icon={FileText} />
             </div>
             <div className="mb-2 text-sm font-semibold text-neutral-50">Contact Information</div>
-            <p className="text-[11px] text-neutral-400 leading-relaxed">
+            <p className="text-[11px] leading-relaxed text-neutral-400">
               Email, name, company details needed for account creation and communication.
             </p>
           </div>
@@ -86,7 +96,7 @@ export function PrivacyPolicyPage() {
               <GradientIcon icon={CreditCard} />
             </div>
             <div className="mb-2 text-sm font-semibold text-neutral-50">Billing Data</div>
-            <p className="text-[11px] text-neutral-400 leading-relaxed">
+            <p className="text-[11px] leading-relaxed text-neutral-400">
               Payment information processed securely through Stripe. We never store card numbers.
             </p>
           </div>
@@ -95,7 +105,7 @@ export function PrivacyPolicyPage() {
               <GradientIcon icon={Activity} />
             </div>
             <div className="mb-2 text-sm font-semibold text-neutral-50">Usage Statistics</div>
-            <p className="text-[11px] text-neutral-400 leading-relaxed">
+            <p className="text-[11px] leading-relaxed text-neutral-400">
               Anonymous analytics to improve performance and fix bugs. No personal tracking.
             </p>
           </div>
@@ -192,9 +202,7 @@ export function PrivacyPolicyPage() {
       <Section className="px-4 pb-16">
         <div className="mx-auto max-w-2xl text-center">
           <div className="glass-panel-soft p-8">
-            <h2 className="mb-3 text-2xl font-semibold text-white">
-              Questions about privacy?
-            </h2>
+            <h2 className="mb-3 text-2xl font-semibold text-white">Questions about privacy?</h2>
             <p className="mb-6 text-xs text-neutral-300 sm:text-sm">
               Our privacy team is here to help. We respond within 24 hours.
             </p>
