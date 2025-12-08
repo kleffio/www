@@ -121,8 +121,6 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
               />
             </div>
 
-
-
             <div className="mt-6 flex items-center justify-end gap-3">
               <Button
                 type="button"

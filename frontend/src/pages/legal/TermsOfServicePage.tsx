@@ -133,12 +133,30 @@ export function TermsOfServicePage() {
             </h2>
             <div className="space-y-3">
               {[
-                { title: "Transparent Pricing", desc: "See exactly what you pay. No hidden costs or surprise bills." },
-                { title: "Real Support", desc: "Talk to humans. Email support for all users, priority for paid plans." },
-                { title: "No Lock-in", desc: "Export your data and leave whenever you want. We make it easy." },
-                { title: "Regular Updates", desc: "Continuous improvements based on your feedback and requests." },
-                { title: "Fair Resource Limits", desc: "Generous quotas that scale with your success." },
-                { title: "Data Ownership", desc: "Your code, your data, your deployments. You own everything." }
+                {
+                  title: "Transparent Pricing",
+                  desc: "See exactly what you pay. No hidden costs or surprise bills."
+                },
+                {
+                  title: "Real Support",
+                  desc: "Talk to humans. Email support for all users, priority for paid plans."
+                },
+                {
+                  title: "No Lock-in",
+                  desc: "Export your data and leave whenever you want. We make it easy."
+                },
+                {
+                  title: "Regular Updates",
+                  desc: "Continuous improvements based on your feedback and requests."
+                },
+                {
+                  title: "Fair Resource Limits",
+                  desc: "Generous quotas that scale with your success."
+                },
+                {
+                  title: "Data Ownership",
+                  desc: "Your code, your data, your deployments. You own everything."
+                }
               ].map((item, idx) => (
                 <div key={idx} className="flex items-start gap-3">
                   <div className="bg-gradient-kleff flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full">
@@ -163,19 +181,27 @@ export function TermsOfServicePage() {
           <div className="grid gap-4 text-xs text-neutral-300 md:grid-cols-2">
             <div className="rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="mb-2 font-semibold text-neutral-100">Free Tier</div>
-              <div className="text-neutral-400">Perfect for hobby projects. No credit card required.</div>
+              <div className="text-neutral-400">
+                Perfect for hobby projects. No credit card required.
+              </div>
             </div>
             <div className="rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="mb-2 font-semibold text-neutral-100">Pay-as-you-go</div>
-              <div className="text-neutral-400">Only pay for compute, bandwidth, and storage you actually use.</div>
+              <div className="text-neutral-400">
+                Only pay for compute, bandwidth, and storage you actually use.
+              </div>
             </div>
             <div className="rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="mb-2 font-semibold text-neutral-100">Team Plans</div>
-              <div className="text-neutral-400">Predictable monthly pricing for growing teams and companies.</div>
+              <div className="text-neutral-400">
+                Predictable monthly pricing for growing teams and companies.
+              </div>
             </div>
             <div className="rounded-lg border border-white/10 bg-white/5 p-4">
               <div className="mb-2 font-semibold text-neutral-100">Cancel Anytime</div>
-              <div className="text-neutral-400">No contracts. No penalties. Stop when you want.</div>
+              <div className="text-neutral-400">
+                No contracts. No penalties. Stop when you want.
+              </div>
             </div>
           </div>
         </div>
@@ -184,9 +210,7 @@ export function TermsOfServicePage() {
       <Section className="px-4 pb-16">
         <div className="mx-auto max-w-2xl text-center">
           <div className="glass-panel-soft p-8">
-            <h2 className="mb-3 text-2xl font-semibold text-white">
-              Questions about terms?
-            </h2>
+            <h2 className="mb-3 text-2xl font-semibold text-white">Questions about terms?</h2>
             <p className="mb-6 text-xs text-neutral-300 sm:text-sm">
               Our legal team is happy to clarify anything. We respond within 48 hours.
             </p>
