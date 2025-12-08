@@ -11,6 +11,11 @@ import { ProjectsPage } from "@pages/projects/ProjectsPage";
 import { createBrowserRouter } from "react-router-dom";
 import { ROUTES } from "./routes";
 
+import { AboutUsPage } from "@pages/aboutus/AboutUsPage";
+import { FAQPage } from "@pages/legal/FAQPage";
+import { PrivacyPolicyPage } from "@pages/legal/PrivacyPolicyPage";
+import { TermsOfServicePage } from "@pages/legal/TermsOfServicePage";
+
 export const router = createBrowserRouter([
   {
     path: ROUTES.HOME,
@@ -21,6 +26,13 @@ export const router = createBrowserRouter([
         index: true,
         element: <LandingPage />
       },
+
+      { path: "about", element: <AboutUsPage /> },
+      { path: "faq", element: <FAQPage /> },
+      { path: "terms", element: <TermsOfServicePage /> },
+      { path: "privacy", element: <PrivacyPolicyPage /> },
+
+      // Auth routes
       {
         path: "auth",
         children: [
@@ -36,6 +48,8 @@ export const router = createBrowserRouter([
       }
     ]
   },
+
+  //  Dashboard
   {
     path: ROUTES.DASHBOARD,
     element: (
