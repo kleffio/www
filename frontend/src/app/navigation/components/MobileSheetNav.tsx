@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "react-oidc-context";
-import { MenuIcon, ChevronDown, Settings, LogOut, LayoutDashboard } from "lucide-react";
+import { MenuIcon, ChevronDown, Settings, LogOut, LayoutDashboard, X } from "lucide-react";
 
 import {
   Sheet,
@@ -9,8 +9,10 @@ import {
   SheetTrigger,
   SheetHeader,
   SheetTitle,
-  SheetDescription
+  SheetDescription,
+  SheetClose
 } from "@shared/ui/Sheet";
+
 import { Button } from "@shared/ui/Button";
 import { cn } from "@shared/lib/utils";
 import { logoutEverywhere } from "@features/auth/api/logout";
@@ -19,6 +21,8 @@ import { MEGA_MENU_SECTIONS, SIMPLE_NAV_LINKS } from "../Navigation";
 import { ROUTES } from "@app/routes/routes";
 import { Brand } from "@shared/ui/Brand";
 import { UserAvatar } from "@shared/ui/UserAvatar";
+
+import LocaleSwitcher from "@app/navigation/components/LocaleSwitcher";
 
 export function MobileSheetNav() {
   const auth = useAuth();
@@ -60,10 +64,20 @@ export function MobileSheetNav() {
 
       <SheetContent
         side="right"
+        hideCloseButton
         className="w-full border-l border-white/10 bg-linear-to-b from-[#18181a]/98 via-[#16161a]/98 to-[#18181a]/98 px-0 pt-0 pb-0 sm:w-[85vw] sm:max-w-sm"
       >
-        <SheetHeader className="border-b border-white/8 px-6 py-4">
+        <SheetHeader className="flex flex-row items-center justify-between border-b border-white/8 px-6 py-3">
           <Brand onClick={closeSheet} />
+
+          <div className="flex items-center gap-2">
+            <LocaleSwitcher variant="mobile" />
+            <SheetClose className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-neutral-400 opacity-80 transition-all hover:bg-white/10 hover:text-neutral-200 hover:opacity-100">
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </SheetClose>
+          </div>
+
           <SheetTitle className="sr-only">Kleff navigation</SheetTitle>
           <SheetDescription className="sr-only">
             Main navigation menu for the Kleff platform

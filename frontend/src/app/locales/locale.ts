@@ -1,5 +1,5 @@
 export const availableLocales = ["en", "fr"] as const;
-export type Locale = typeof availableLocales[number];
+export type Locale = (typeof availableLocales)[number];
 
 let currentLocale: Locale = "en";
 

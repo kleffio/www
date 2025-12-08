@@ -21,7 +21,6 @@ export function UserAvatar({ initial, name, email, size = "md" }: UserAvatarProp
 
       {(name || email) && (
         <div className="flex min-w-0 flex-col text-left">
-          
           {name && <span className="truncate text-sm font-medium text-neutral-200">{name}</span>}
           {email && <span className="truncate text-xs text-neutral-400">{email}</span>}
         </div>

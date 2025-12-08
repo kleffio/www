@@ -19,15 +19,13 @@ export function FAQPage() {
 
     const query = searchQuery.toLowerCase();
     return faqData
-      .map(category => ({
+      .map((category) => ({
         ...category,
         questions: category.questions.filter(
-          q => 
-            q.q.toLowerCase().includes(query) || 
-            q.a.toLowerCase().includes(query)
+          (q) => q.q.toLowerCase().includes(query) || q.a.toLowerCase().includes(query)
         )
       }))
-      .filter(category => category.questions.length > 0);
+      .filter((category) => category.questions.length > 0);
   }, [searchQuery]);
 
   // Get current category or first filtered category
@@ -35,7 +33,7 @@ export function FAQPage() {
     if (searchQuery.trim()) {
       return filteredCategories[0];
     }
-    return filteredCategories.find(c => c.id === activeCategory) || filteredCategories[0];
+    return filteredCategories.find((c) => c.id === activeCategory) || filteredCategories[0];
   }, [activeCategory, filteredCategories, searchQuery]);
 
   // Clear search
@@ -63,14 +61,15 @@ export function FAQPage() {
               <span className="text-gradient-kleff">Ask anything.</span>
             </h1>
             <p className="text-xs text-neutral-300 sm:text-sm">
-              Everything you need to know about deploying, scaling, and managing your applications on Kleff.
+              Everything you need to know about deploying, scaling, and managing your applications
+              on Kleff.
             </p>
           </div>
 
           {/* Search Bar */}
           <div className="relative pt-2">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+              <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-neutral-400" />
               <input
                 type="text"
                 placeholder="Search FAQs..."
@@ -79,12 +78,12 @@ export function FAQPage() {
                   setSearchQuery(e.target.value);
                   setOpenQuestion(0);
                 }}
-                className="w-full rounded-full border border-white/10 bg-black/50 px-11 py-3 text-sm text-neutral-100 placeholder:text-neutral-400 transition-all focus:border-white/20 focus:bg-black/60 focus:outline-none"
+                className="w-full rounded-full border border-white/10 bg-black/50 px-11 py-3 text-sm text-neutral-100 transition-all placeholder:text-neutral-400 focus:border-white/20 focus:bg-black/60 focus:outline-none"
               />
               {searchQuery && (
                 <button
                   onClick={clearSearch}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 transition-colors hover:text-neutral-200"
+                  className="absolute top-1/2 right-4 -translate-y-1/2 text-neutral-400 transition-colors hover:text-neutral-200"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -123,7 +122,8 @@ export function FAQPage() {
           {/* Search Results Info */}
           {searchQuery && (
             <div className="text-xs text-neutral-400">
-              Found {filteredCategories.reduce((acc, cat) => acc + cat.questions.length, 0)} result(s) for "{searchQuery}"
+              Found {filteredCategories.reduce((acc, cat) => acc + cat.questions.length, 0)}{" "}
+              result(s) for "{searchQuery}"
             </div>
           )}
         </div>
@@ -133,9 +133,9 @@ export function FAQPage() {
         <div className="mx-auto max-w-3xl">
           {filteredCategories.length === 0 ? (
             <div className="glass-panel p-12 text-center">
-              <div className="text-4xl mb-4">🔍</div>
-              <h3 className="text-lg font-semibold text-white mb-2">No results found</h3>
-              <p className="text-sm text-neutral-400 mb-6">
+              <div className="mb-4 text-4xl">🔍</div>
+              <h3 className="mb-2 text-lg font-semibold text-white">No results found</h3>
+              <p className="mb-6 text-sm text-neutral-400">
                 Try different keywords or browse by category
               </p>
               <button
@@ -153,7 +153,7 @@ export function FAQPage() {
                   {filteredCategories.map((category) => (
                     <div key={category.id}>
                       <div className="mb-3 flex items-center gap-2 px-1">
-                        <category.icon className="h-4 w-4 text-kleff-primary" />
+                        <category.icon className="text-kleff-primary h-4 w-4" />
                         <h2 className="text-sm font-semibold text-neutral-200">{category.title}</h2>
                       </div>
                       <div className="glass-panel p-3">
@@ -186,14 +186,14 @@ export function FAQPage() {
                                   </div>
                                   <ChevronDown
                                     className={cn(
-                                      "h-4 w-4 flex-shrink-0 text-kleff-primary transition-transform",
+                                      "text-kleff-primary h-4 w-4 flex-shrink-0 transition-transform",
                                       isOpen && "rotate-180"
                                     )}
                                   />
                                 </button>
                                 {isOpen && (
-                                  <div className="border-t border-white/10 px-3 pb-3 pt-2 sm:px-4 sm:pb-4 sm:pt-3">
-                                    <p className="text-[11px] text-neutral-300 leading-relaxed sm:text-xs">
+                                  <div className="border-t border-white/10 px-3 pt-2 pb-3 sm:px-4 sm:pt-3 sm:pb-4">
+                                    <p className="text-[11px] leading-relaxed text-neutral-300 sm:text-xs">
                                       {q.a}
                                     </p>
                                   </div>
@@ -235,14 +235,14 @@ export function FAQPage() {
                               </div>
                               <ChevronDown
                                 className={cn(
-                                  "h-4 w-4 flex-shrink-0 text-kleff-primary transition-transform",
+                                  "text-kleff-primary h-4 w-4 flex-shrink-0 transition-transform",
                                   isOpen && "rotate-180"
                                 )}
                               />
                             </button>
                             {isOpen && (
-                              <div className="border-t border-white/10 px-3 pb-3 pt-2 sm:px-4 sm:pb-4 sm:pt-3">
-                                <p className="text-[11px] text-neutral-300 leading-relaxed sm:text-xs">
+                              <div className="border-t border-white/10 px-3 pt-2 pb-3 sm:px-4 sm:pt-3 sm:pb-4">
+                                <p className="text-[11px] leading-relaxed text-neutral-300 sm:text-xs">
                                   {q.a}
                                 </p>
                               </div>
@@ -265,7 +265,7 @@ export function FAQPage() {
             <h2 className="mb-3 text-xl font-semibold text-white sm:text-2xl">
               Still have questions?
             </h2>
-            <p className="text-[11px] text-neutral-300 sm:text-xs mb-4 sm:mb-6">
+            <p className="mb-4 text-[11px] text-neutral-300 sm:mb-6 sm:text-xs">
               Our team is here to help you get the most out of Kleff.
             </p>
             <a

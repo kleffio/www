@@ -78,6 +78,19 @@ services:
     volumes:
       - user_db_data:/var/lib/postgresql/data
 
+  observability-service:
+    build:
+      context: ./observability-service
+      dockerfile: Dockerfile
+    container_name: observability-service
+    ports:
+      - "8083:8080"
+    environment:
+      - PORT=8080
+      - PROMETHEUS_URL=http://host.docker.internal:9090
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   nginx:
     image: nginx:alpine
     container_name: nginx-proxy
@@ -88,6 +101,7 @@ services:
     depends_on:
       - project-management-service
       - user-service
+      - observability-service
 
 volumes:
   project_management_data:

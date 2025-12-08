@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "format": "prettier --write .",
+    "format": "prettier \"src/**/*.{ts,tsx,js,jsx}\" --write",
     "format:check": "prettier --check ."
   },
   "dependencies": {
@@ -27,6 +27,7 @@
     "react-dom": "^19.2.0",
     "react-oidc-context": "^3.3.0",
     "react-router-dom": "^7.9.6",
+    "recharts": "^3.5.1",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {

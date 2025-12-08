@@ -1,7 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Menu, Settings, LogOut } from "lucide-react";
-import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetTitle } from "@shared/ui/Sheet";
+import { Menu, Settings, LogOut, X } from "lucide-react";
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetClose
+} from "@shared/ui/Sheet";
+
 import { Button } from "@shared/ui/Button";
 import { UserMenu } from "@shared/ui/UserMenu";
 import { cn } from "@shared/lib/utils";
@@ -12,7 +20,8 @@ import { ROUTES } from "@app/routes/routes";
 import { Brand } from "@shared/ui/Brand";
 import { UserAvatar } from "@shared/ui/UserAvatar";
 import { NavItem } from "@app/navigation/components/NavItem";
-import LocaleSwitcher from "@shared/ui/LocaleSwitcher";
+
+import LocaleSwitcher from "@app/navigation/components/LocaleSwitcher";
 
 export function DashboardNav() {
   const location = useLocation();
@@ -26,7 +35,6 @@ export function DashboardNav() {
       <aside className="hidden h-screen w-64 flex-col border-r border-white/10 bg-black/40 lg:flex">
         <div className="flex h-14 items-center justify-start border-b border-white/10 px-3">
           <Brand />
-          <LocaleSwitcher />
         </div>
 
         <nav className="flex-1 space-y-1 px-2 py-3">
@@ -40,10 +48,10 @@ export function DashboardNav() {
               variant="sidebar"
             />
           ))}
-          
         </nav>
-        <div className="border-t border-white/10 p-4">
-        
+
+        <div className="space-y-3 border-t border-white/10 p-4">
+          <LocaleSwitcher variant="sidebar" />
           <UserMenu variant="full" align="left" dropdownPosition="top" />
         </div>
       </aside>
@@ -90,14 +98,25 @@ function MobileHeader() {
 
         <SheetContent
           side="right"
+          hideCloseButton
           className={cn(
             "flex h-full flex-col border-l border-white/10 bg-black/95 text-neutral-50",
             "w-full max-w-none sm:w-3/4 sm:max-w-sm"
           )}
         >
-          <SheetHeader className="flex flex-row items-center justify-between border-b border-white/10 px-4 py-3 text-left sm:hidden">
-            <Brand />
-            <LocaleSwitcher />
+          <SheetHeader className="flex flex-row items-center justify-between border-b border-white/10 px-4 py-3 text-left">
+            <div className="flex h-9 items-center">
+              <Brand />
+            </div>
+
+            <div className="flex items-center gap-2">
+              <LocaleSwitcher variant="mobile" />
+              <SheetClose className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-neutral-400 opacity-80 transition-all hover:bg-white/10 hover:text-neutral-200 hover:opacity-100">
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </SheetClose>
+            </div>
+
             <SheetTitle className="sr-only">Dashboard Navigation</SheetTitle>
           </SheetHeader>
 
@@ -131,7 +150,7 @@ function MobileHeader() {
                   className="flex items-center justify-center gap-2 border border-white/10 bg-white/5 py-2 font-medium text-neutral-200 hover:bg-white/10"
                 >
                   <Settings size={16} className="opacity-80" />
-                  Profile & settings
+                  Profile &amp; settings
                 </Button>
                 <Button
                   onClick={handleLogout}
