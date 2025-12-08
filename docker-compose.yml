@@ -84,7 +84,7 @@ services:
       dockerfile: Dockerfile
     container_name: deployment-service
     ports:
-      - "8083:8080"
+      - "8084:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://deployment-db:5432/deployment_db
       SPRING_DATASOURCE_USERNAME: postgres
@@ -128,11 +128,8 @@ services:
     depends_on:
       - project-management-service
       - user-service
-<<<<<<< HEAD
       - deployment-service
-=======
       - observability-service
->>>>>>> main
 
 volumes:
   project_management_data:
