@@ -79,9 +79,9 @@ public class AuthentikApiService {
 
         try {
             restTemplate.exchange(url, HttpMethod.PATCH, entity, String.class);
-            System.out.println("✅ Successfully updated username in Authentik!");
+            System.out.println("Successfully updated username in Authentik!");
         } catch (Exception e) {
-            System.err.println("❌ Failed to update username: " + e.getMessage());
+            System.err.println("Failed to update username: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -104,9 +104,9 @@ public class AuthentikApiService {
 
         try {
             restTemplate.exchange(url, HttpMethod.PATCH, entity, String.class);
-            System.out.println("✅ Successfully updated email in Authentik!");
+            System.out.println("Successfully updated email in Authentik!");
         } catch (Exception e) {
-            System.err.println("❌ Failed to update email: " + e.getMessage());
+            System.err.println("Failed to update email: " + e.getMessage());
         }
     }
 }
