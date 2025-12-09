@@ -1,0 +1,63 @@
+{
+    "projects": {
+    "title": "Projects",
+    "subtitle": "Manage your projects and deployments",
+    "no_projects": "You haven't created any projects yet.",
+    "create_first": "Create your first project",
+    "table": {
+      "name": "Name",
+      "description": "Description",
+      "owner": "Owner",
+      "stack": "Stack",
+      "status": "Status",
+      "created_date": "Created Date",
+      "updated_date": "Updated Date",
+      "repository": "Repository",
+      "branch": "Branch",
+      "docker_compose": "Docker Compose",
+      "repo_link": "Repo"
+    },
+     "projectModal": {
+    "title": "Create Project",
+    "subtitle": "Set up a new project for deployment",
+    "project_name": "Project Name *",
+    "project_name_placeholder": "My awesome project",
+    "description": "Description",
+    "description_placeholder": "A brief description of your project",
+    "add_collaborator": "Add Collaborator",
+    "collaborator_placeholder": "collaborator@example.com",
+    "add_container": "Add Container",
+    "container_placeholder": "container-name",
+    "creating": "Creating...",
+    "failed_create": "Failed to create project. Please try again.",
+    "create_button": "Create Project"
+  },
+   "projectDetail": {
+    "project_not_found": "Project not found",
+    "back_to_projects": "Back to Projects",
+    "back_to_projects_arrow": "← Back to Projects",
+    "no_description": "No description available",
+    "create_container": "Create Container",
+    "project_overview": "Project Overview",
+    "project_id": "Project ID",
+    "owner": "Owner",
+    "stack": "Stack",
+    "status": "Status",
+    "created": "Created",
+    "last_updated": "Last Updated",
+    "running_containers": "Running Containers",
+    "container": "container",
+    "containers": "containers",
+    "no_containers": "No running containers for this project.",
+    "create_first_container": "Create your first container to get started",
+    "table": {
+      "name": "NAME",
+      "status": "STATUS",
+      "image": "IMAGE",
+      "ports": "PORTS",
+      "created_at": "CREATED AT"
+    },
+    "unknown": "Unknown"
+  }
+}
+}
