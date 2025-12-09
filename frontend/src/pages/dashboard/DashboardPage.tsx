@@ -24,8 +24,8 @@ import {
 import { useEffect, useState } from "react";
 
 // Import translations
-import enTranslations from "@app/locales/en.json";
-import frTranslations from "@app/locales/fr.json";
+import enTranslations from "@app/locales/english/dashboard.json";
+import frTranslations from "@app/locales/french/dashboard.json";
 
 const translations = {
   en: enTranslations,
@@ -193,7 +193,6 @@ export function DashboardPage() {
   }, [locale]);
 
   const t = translations[locale].dashboard;
-  const tCommon = translations[locale].common;
 
   return (
     <div className="app-container py-8">
@@ -209,7 +208,7 @@ export function DashboardPage() {
               size="lg"
               className="bg-gradient-kleff rounded-full px-6 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
             >
-              {tCommon.buttons.deploy_new_project}
+              {t.deploy_new_project}
             </Button>
           </div>
         </div>
