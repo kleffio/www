@@ -3,6 +3,7 @@ package com.kleff.projectmanagementservice.presentationlayer;
 import com.kleff.projectmanagementservice.buisnesslayer.ProjectService;
 import com.kleff.projectmanagementservice.buisnesslayer.ProjectServiceImpl;
 import com.kleff.projectmanagementservice.datalayer.project.Project;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,9 +29,11 @@ public class ProjectController {
         return projectService.getAllOwnedProjects();
     }
 
-    //this only gets all projects
+
     @GetMapping("/owner")
-    public ResponseEntity<List<Project>> getAllOwnedProjects(@PathVariable String ownerId) {
+    public ResponseEntity<List<Project>> getAllOwnedProjects(HttpServletRequest request) {
+        String authHeader = request.getHeader("Bearer");
+        String token = authHeader.substring(7);
         List<Project> projects = projectService.getAllOwnedProjects();
         return ResponseEntity.ok(projects);
     }
