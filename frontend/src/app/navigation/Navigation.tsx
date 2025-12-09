@@ -14,8 +14,8 @@ import {
   RocketIcon,
   ShieldIcon
 } from "lucide-react";
-import enTranslations from "@app/locales/english/components.json";
-import frTranslations from "@app/locales/french/components.json";
+import enTranslations from "@app/locales/en/components.json";
+import frTranslations from "@app/locales/fr/components.json";
 import { ROUTES } from "@app/routes/routes";
 
 export interface DashboardNavItem {

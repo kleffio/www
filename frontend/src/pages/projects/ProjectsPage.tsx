@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import enTranslations from "@app/locales/english/projects.json";
-import frTranslations from "@app/locales/french/projects.json";
+import enTranslations from "@app/locales/en/projects.json";
+import frTranslations from "@app/locales/fr/projects.json";
 import { getLocale } from "@app/locales/locale";
 import { CreateProjectModal } from "@features/projects/components/CreateProjectModal";
 import { useProjects } from "@features/projects/hooks/useProjects";

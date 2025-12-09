@@ -11,8 +11,8 @@ import { MiniCard } from "@shared/ui/MiniCard";
 import { getLocale } from "../../app/locales/locale";
 import { DeployPreviewCard } from "@shared/widget/DeployPreviewCard";
 
-import enLanding from "@app/locales/english/landing.json";
-import frLanding from "@app/locales/french/landing.json";
+import enLanding from "@app/locales/en/landing.json";
+import frLanding from "@app/locales/fr/landing.json";
 
 import { ROUTES } from "@app/routes/routes";
 

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { KleffDot } from "@shared/ui/KleffDot";
 import { cn } from "@shared/lib/utils";
 
-import en from "@app/locales/en.json";
+import en from "@app/locales/en/landing.json";
 type PreviewTranslation = typeof en.landing.preview;
 
 interface DeployPreviewCardProps {

@@ -1,5 +1,5 @@
-import enTranslations from "@app/locales/english/components.json";
-import frTranslations from "@app/locales/french/components.json";
+import enTranslations from "@app/locales/en/components.json";
+import frTranslations from "@app/locales/fr/components.json";
 
 import { useState, useEffect } from "react";
 import { getLocale } from "@app/locales/locale";

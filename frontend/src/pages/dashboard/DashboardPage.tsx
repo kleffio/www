@@ -24,8 +24,8 @@ import {
 import { useEffect, useState } from "react";
 
 // Import translations
-import enTranslations from "@app/locales/english/dashboard.json";
-import frTranslations from "@app/locales/french/dashboard.json";
+import enTranslations from "@app/locales/en/dashboard.json";
+import frTranslations from "@app/locales/fr/dashboard.json";
 
 const translations = {
   en: enTranslations,
