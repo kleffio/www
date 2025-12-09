@@ -37,7 +37,7 @@ jobs:
           push: true
           tags: "${{ secrets.ACR_LOGIN_SERVER }}/\
             project-management-service:latest"
- 
+
       - name: Build and push deployment-service image
         uses: docker/build-push-action@v5
         with:
@@ -45,7 +45,7 @@ jobs:
           push: true
           tags: "${{ secrets.ACR_LOGIN_SERVER }}/\
             deployment-service:latest"
- 
+
       - name: Build and push observability-service image
         uses: docker/build-push-action@v5
         with:
