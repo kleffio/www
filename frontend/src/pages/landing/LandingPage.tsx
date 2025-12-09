@@ -11,8 +11,8 @@ import { MiniCard } from "@shared/ui/MiniCard";
 import { getLocale } from "../../app/locales/locale";
 import { DeployPreviewCard } from "@shared/widget/DeployPreviewCard";
 
-import enTranslations from "@app/locales/en.json";
-import frTranslations from "@app/locales/fr.json";
+import enLanding from "@app/locales/english/landing.json";
+import frLanding from "@app/locales/french/landing.json";
 
 import { ROUTES } from "@app/routes/routes";
 
@@ -20,8 +20,8 @@ export function LandingPage() {
   const [locale, setLocaleState] = useState(getLocale());
 
   const translations = {
-    en: enTranslations,
-    fr: frTranslations
+    en: enLanding,
+    fr: frLanding
   };
 
   useEffect(() => {

@@ -4,6 +4,8 @@
     "subtitle": "Manage your projects and deployments",
     "no_projects": "You haven't created any projects yet.",
     "create_first": "Create your first project",
+    "loading": "Loading projects…",
+    "failed_load_projects": "Failed to load projects",
     "table": {
       "name": "Name",
       "description": "Description",
@@ -16,8 +18,9 @@
       "branch": "Branch",
       "docker_compose": "Docker Compose",
       "repo_link": "Repo"
+    }
     },
-     "projectModal": {
+    "projectModal": {
     "title": "Create Project",
     "subtitle": "Set up a new project for deployment",
     "project_name": "Project Name *",
@@ -59,5 +62,4 @@
     },
     "unknown": "Unknown"
   }
-}
 }

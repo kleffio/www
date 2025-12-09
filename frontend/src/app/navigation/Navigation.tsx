@@ -14,6 +14,8 @@ import {
   RocketIcon,
   ShieldIcon
 } from "lucide-react";
+import enTranslations from "@app/locales/english/components.json";
+import frTranslations from "@app/locales/french/components.json";
 import { ROUTES } from "@app/routes/routes";
 
 export interface DashboardNavItem {
@@ -23,10 +25,15 @@ export interface DashboardNavItem {
   exact?: boolean;
 }
 
+const translations = {
+  en: enTranslations,
+  fr: frTranslations
+};
+
 export const DASHBOARD_NAV_ITEMS: DashboardNavItem[] = [
-  { to: ROUTES.DASHBOARD, label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { to: ROUTES.DASHBOARD_PROJECTS, label: "Projects", icon: FolderKanban },
-  { to: ROUTES.DASHBOARD_SYSTEMS, label: "Systems", icon: Server }
+  { to: ROUTES.DASHBOARD, label: translations.en.dashboardNavItems[0].label, icon: LayoutDashboard, exact: true },
+  { to: ROUTES.DASHBOARD_PROJECTS, label: translations.en.dashboardNavItems[1].label, icon: FolderKanban },
+  { to: ROUTES.DASHBOARD_SYSTEMS, label: translations.en.dashboardNavItems[2].label, icon: Server }
 ];
 
 export function isNavItemActive(pathname: string, item: DashboardNavItem): boolean {
@@ -49,94 +56,94 @@ export interface MegaMenuSection {
 
 export const MEGA_MENU_SECTIONS: MegaMenuSection[] = [
   {
-    key: "product",
-    label: "Product",
-    tagline: "Everything you need to ship modern services.",
+    key: translations.en.megaMenuSections[0].key,
+    label: translations.en.megaMenuSections[0].label,
+    tagline: translations.en.megaMenuSections[0].tagline,
     items: [
       {
-        label: "Overview",
+        label: translations.en.megaMenuSections[0].items[0].label,
         href: ROUTES.HOME,
-        description: "Deploy, scale, and observe your apps on Kleff.",
+        description: translations.en.megaMenuSections[0].items[0].description,
         icon: Boxes
       },
       {
-        label: "Deployments",
+        label: translations.en.megaMenuSections[0].items[1].label,
         href: ROUTES.DEPLOYMENTS,
-        description: "Git-based deployments with rollbacks.",
+        description: translations.en.megaMenuSections[0].items[1].description,
         icon: GitBranch
       },
       {
-        label: "Runtime",
+        label: translations.en.megaMenuSections[0].items[2].label,
         href: ROUTES.RUNTIME,
-        description: "Managed runtimes tuned for modern stacks.",
+        description: translations.en.megaMenuSections[0].items[2].description,
         icon: Cpu
       },
       {
-        label: "Observability",
+        label: translations.en.megaMenuSections[0].items[3].label,
         href: ROUTES.OBSERVABILITY,
-        description: "Metrics, logs, and alerts out of the box.",
+        description: translations.en.megaMenuSections[0].items[3].description,
         icon: Activity
       }
     ]
   },
   {
-    key: "developers",
-    label: "Developers",
-    tagline: "Tools that feel like they were built by devs, for devs.",
+    key: translations.en.megaMenuSections[1].key,
+    label: translations.en.megaMenuSections[1].label,
+    tagline: translations.en.megaMenuSections[1].tagline,
     items: [
       {
-        label: "Docs",
+        label: translations.en.megaMenuSections[1].items[0].label,
         href: ROUTES.DOCS,
-        description: "Everything you need to get started.",
+        description: translations.en.megaMenuSections[1].items[0].description,
         icon: BookOpenText
       },
       {
-        label: "API Reference",
+        label: translations.en.megaMenuSections[1].items[1].label,
         href: ROUTES.DOCS_API,
-        description: "REST and CLI endpoints for automation.",
+        description: translations.en.megaMenuSections[1].items[1].description,
         icon: Code2
       },
       {
-        label: "SDKs",
+        label: translations.en.megaMenuSections[1].items[2].label,
         href: ROUTES.SDKS,
-        description: "Language & framework integrations.",
+        description: translations.en.megaMenuSections[1].items[2].description,
         icon: Boxes
       },
       {
-        label: "Changelog",
+        label: translations.en.megaMenuSections[1].items[3].label,
         href: ROUTES.CHANGELOG,
-        description: "Follow platform updates week by week.",
+        description: translations.en.megaMenuSections[1].items[3].description,
         icon: Workflow
       }
     ]
   },
   {
-    key: "solutions",
-    label: "Solutions",
-    tagline: "Kleff for teams of every size.",
+    key: translations.en.megaMenuSections[2].key,
+    label: translations.en.megaMenuSections[2].label,
+    tagline: translations.en.megaMenuSections[2].tagline,
     items: [
       {
-        label: "Startups",
+        label: translations.en.megaMenuSections[2].items[0].label,
         href: ROUTES.SOLUTIONS_STARTUPS,
-        description: "Ship faster with sane defaults and pricing.",
+        description: translations.en.megaMenuSections[2].items[0].description,
         icon: RocketIcon
       },
       {
-        label: "Agencies",
+        label: translations.en.megaMenuSections[2].items[1].label,
         href: ROUTES.SOLUTIONS_AGENCIES,
-        description: "Multi-tenant projects for your clients.",
+        description: translations.en.megaMenuSections[2].items[1].description,
         icon: Users
       },
       {
-        label: "Indie hackers",
+        label: translations.en.megaMenuSections[2].items[2].label,
         href: ROUTES.SOLUTIONS_INDIE,
-        description: "Pay only for what you actually use.",
+        description: translations.en.megaMenuSections[2].items[2].description,
         icon: Activity
       },
       {
-        label: "Enterprise",
+        label: translations.en.megaMenuSections[2].items[3].label,
         href: ROUTES.SOLUTIONS_ENTERPRISE,
-        description: "Controls & compliance for larger orgs.",
+        description: translations.en.megaMenuSections[2].items[3].description,
         icon: ShieldIcon
       }
     ]
@@ -144,7 +151,7 @@ export const MEGA_MENU_SECTIONS: MegaMenuSection[] = [
 ];
 
 export const SIMPLE_NAV_LINKS = [
-  { href: ROUTES.PRICING, label: "Pricing" },
-  { href: ROUTES.DOCS, label: "Docs" },
-  { href: ROUTES.BLOG, label: "Blog" }
+  { href: ROUTES.PRICING, label: translations.en.simpleNavLinks[0].label },
+  { href: ROUTES.DOCS, label: translations.en.simpleNavLinks[1].label },
+  { href: ROUTES.BLOG, label: translations.en.simpleNavLinks[2].label }
 ];

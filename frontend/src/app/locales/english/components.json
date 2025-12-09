@@ -85,5 +85,99 @@
       "signin": "Sign in",
       "signup": "Start your project"
     }
-  }
+  },
+  "dashboardNavItems": [
+    {
+      "label": "Dashboard",
+      "exact": true
+    },
+    {
+      "label": "Projects"
+    },
+    {
+      "label": "Systems"
+    }
+  ],
+  "megaMenuSections": [
+    {
+      "key": "product",
+      "label": "Product",
+      "tagline": "Everything you need to ship modern services.",
+      "items": [
+        {
+          "label": "Overview",
+          "description": "Deploy, scale, and observe your apps on Kleff."
+        },
+        {
+          "label": "Deployments",
+          "description": "Git-based deployments with rollbacks."
+        },
+        {
+          "label": "Runtime",
+          "description": "Managed runtimes tuned for modern stacks."
+        },
+        {
+          "label": "Observability",
+          "description": "Metrics, logs, and alerts out of the box."
+        }
+      ]
+    },
+    {
+      "key": "developers",
+      "label": "Developers",
+      "tagline": "Tools that feel like they were built by devs, for devs.",
+      "items": [
+        {
+          "label": "Docs",
+          "description": "Everything you need to get started."
+        },
+        {
+          "label": "API Reference",
+          "description": "REST and CLI endpoints for automation."
+        },
+        {
+          "label": "SDKs",
+          "description": "Language & framework integrations."
+        },
+        {
+          "label": "Changelog",
+          "description": "Follow platform updates week by week."
+        }
+      ]
+    },
+    {
+      "key": "solutions",
+      "label": "Solutions",
+      "tagline": "Kleff for teams of every size.",
+      "items": [
+        {
+          "label": "Startups",
+          "description": "Ship faster with sane defaults and pricing."
+        },
+        {
+          "label": "Agencies",
+          "description": "Multi-tenant projects for your clients."
+        },
+        {
+          "label": "Indie hackers",
+          "description": "Pay only for what you actually use."
+        },
+        {
+          "label": "Enterprise",
+          "description": "Controls & compliance for larger orgs."
+        }
+      ]
+    }
+  ],
+  "simpleNavLinks": [
+    {
+      "label": "Pricing"
+    },
+    {
+      "label": "Docs"
+    },
+    {
+      "label": "Blog"
+    }
+  ]
 }
