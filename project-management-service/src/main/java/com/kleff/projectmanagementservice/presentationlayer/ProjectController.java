@@ -24,11 +24,6 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
-    @GetMapping("/all")
-    public List<Project> getAllProjects() {
-        return null;
-    }
-
 
     @GetMapping
     public ResponseEntity<List<Project>> getAllOwnedProjects(@AuthenticationPrincipal Jwt jwt) {
@@ -75,7 +70,7 @@ public class ProjectController {
             return ResponseEntity.notFound().build();
         }
             else{
-                return null;
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
     }
 
@@ -93,7 +88,7 @@ public class ProjectController {
             }
         }
         else {
-            return null;
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
 }

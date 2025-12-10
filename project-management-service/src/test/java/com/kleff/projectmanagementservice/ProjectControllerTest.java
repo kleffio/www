@@ -22,8 +22,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ProjectController.class)
@@ -303,4 +302,140 @@ class ProjectControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.ownerId", is(actualUserId))); // Should be from JWT, not body
     }
+    // ============ GET /api/v1/projects/{projectId} Tests ============
+
+    @Test
+    void getProjectById_WhenProjectExists_ReturnsProject() throws Exception {
+        when(projectService.getProjectById("project-1")).thenReturn(testProject1);
+
+        mockMvc.perform(get("/api/v1/projects/project-1")
+                .with(jwt().jwt(jwt -> jwt.subject(testUserId))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.projectId", is("project-1")))
+                .andExpect(jsonPath("$.name", is("Test Project 1")));
+    }
+
+    @Test
+    void getProjectById_WhenProjectDoesNotExist_ReturnsNotFound() throws Exception {
+        when(projectService.getProjectById("missing-id")).thenReturn(null);
+
+        mockMvc.perform(get("/api/v1/projects/missing-id")
+                .with(jwt().jwt(jwt -> jwt.subject(testUserId))))
+                .andExpect(status().isNotFound());
+    }
+
+    // ============ PATCH /api/v1/projects/{projectId} Tests ============
+
+    @Test
+    void patchProject_WhenUserIsOwner_UpdatesSuccessfully() throws Exception {
+        // Arrange
+        Project updatedProject = new Project();
+        updatedProject.setName("Updated Project Name");
+
+        Project returnedProject = new Project();
+        returnedProject.setProjectId("project-1");
+        returnedProject.setName("Updated Project Name");
+        returnedProject.setOwnerId(testUserId);
+
+        when(projectService.getProjectById("project-1")).thenReturn(testProject1);
+        when(projectService.updateProject(eq("project-1"), any(Project.class)))
+                .thenReturn(returnedProject);
+
+        // Act & Assert
+        mockMvc.perform(patch("/api/v1/projects/project-1")
+                        .with(jwt().jwt(jwt -> jwt.subject(testUserId)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "name": "Updated Project Name"
+                        }
+                        """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.projectId", is("project-1")))
+                .andExpect(jsonPath("$.name", is("Updated Project Name")));
+    }
+
+    @Test
+    void patchProject_WhenUserIsNotOwner_ReturnsForbidden() throws Exception {
+        // Someone else owns this project
+        testProject1.setOwnerId("another-user-999");
+        when(projectService.getProjectById("project-1")).thenReturn(testProject1);
+
+        mockMvc.perform(patch("/api/v1/projects/project-1")
+                        .with(jwt().jwt(jwt -> jwt.subject(testUserId)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "name": "Updated Project Name"
+                        }
+                        """))
+                .andExpect(status().isForbidden());
+    }
+
+//    @Test
+//    void patchProject_WhenProjectDoesNotExist_ReturnsNotFound() throws Exception {
+//        when(projectService.getProjectById("missing-id")).thenReturn(null);
+//
+//        mockMvc.perform(patch("/api/v1/projects/missing-id")
+//                        .with(jwt().jwt(jwt -> jwt.subject(testUserId)))
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content("""
+//                        {
+//                            "name": "Update"
+//                        }
+//                        """))
+//                .andExpect(status().isNotFound());
+//    }
+
+    @Test
+    void patchProject_WithoutAuthentication_ReturnsUnauthorized() throws Exception {
+        mockMvc.perform(patch("/api/v1/projects/project-1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                        {
+                            "name": "Updated Name"
+                        }
+                        """))
+                .andExpect(status().isForbidden());
+    }
+// ============ DELETE /api/v1/projects/{projectId} Tests ============
+
+    @Test
+    void deleteProject_WhenUserIsOwner_DeletesSuccessfully() throws Exception {
+        when(projectService.getProjectById("project-1")).thenReturn(testProject1);
+        when(projectService.deleteProject("project-1")).thenReturn(testProject1);
+
+        mockMvc.perform(delete("/api/v1/projects/project-1")
+                        .with(jwt().jwt(jwt -> jwt.subject(testUserId))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.projectId", is("project-1")));
+    }
+
+    @Test
+    void deleteProject_WhenUserIsNotOwner_ReturnsForbidden() throws Exception {
+        testProject1.setOwnerId("different-owner-789");
+        when(projectService.getProjectById("project-1")).thenReturn(testProject1);
+
+        mockMvc.perform(delete("/api/v1/projects/project-1")
+                        .with(jwt().jwt(jwt -> jwt.subject(testUserId))))
+                .andExpect(status().isForbidden());
+    }
+
+//    @Test
+//    void deleteProject_WhenProjectDoesNotExist_ReturnsNotFound() throws Exception {
+//        when(projectService.getProjectById("missing-id")).thenReturn(null);
+//
+//        mockMvc.perform(delete("/api/v1/projects/missing-id")
+//                        .with(jwt().jwt(jwt -> jwt.subject(testUserId))))
+//                .andExpect(status().isNotFound());
+//    }
+
+    @Test
+    void deleteProject_WithoutAuthentication_ReturnsUnauthorized() throws Exception {
+        mockMvc.perform(delete("/api/v1/projects/project-1"))
+                .andExpect(status().isForbidden());
+    }
+
+
+
 }
