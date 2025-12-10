@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
-import enTranslations from "@app/locales/en.json";
-import frTranslations from "@app/locales/fr.json";
+import enTranslations from "@app/locales/en/projects.json";
+import frTranslations from "@app/locales/fr/projects.json";
 import { getLocale } from "@app/locales/locale";
 import { CreateProjectModal } from "@features/projects/components/CreateProjectModal";
 import { useProjects } from "@features/projects/hooks/useProjects";
 import { Button } from "@shared/ui/Button";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@shared/ui/Table";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const translations = {
   en: enTranslations,
@@ -15,23 +15,11 @@ const translations = {
 };
 
 export function ProjectsPage() {
-  const [locale, setLocaleState] = useState(getLocale());
+  const [locale] = useState(getLocale());
   const { projects, isLoading, error, reload } = useProjects();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const currentLocale = getLocale();
-      if (currentLocale !== locale) {
-        setLocaleState(currentLocale);
-      }
-    }, 100);
-    return () => clearInterval(interval);
-  }, [locale]);
-
   const t = translations[locale].projects;
-  const tModal = translations[locale].modal;
-  const tCommon = translations[locale].common;
+  const tModal = translations[locale].projectModal;
   const handleCreateSuccess = () => {
     void reload();
     setIsModalOpen(false);
@@ -58,7 +46,7 @@ export function ProjectsPage() {
         {isLoading && (
           <SoftPanel>
             <div className="flex justify-center py-10">
-              <p className="text-sm text-neutral-400">{tCommon.loading}</p>
+              <p className="text-sm text-neutral-400">{t.loading}</p>
             </div>
           </SoftPanel>
         )}

@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@shared/ui/Button";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@shared/ui/Table";
@@ -12,8 +12,8 @@ import { useProject } from "@features/projects/hooks/useProject";
 import { useProjectContainers } from "@features/projects/hooks/useProjectContainers";
 import { CreateContainerModal } from "@features/projects/components/CreateContainerModal";
 import { ROUTES } from "@app/routes/routes";
-import enTranslations from "@app/locales/en.json";
-import frTranslations from "@app/locales/fr.json";
+import enTranslations from "@app/locales/en/projects.json";
+import frTranslations from "@app/locales/fr/projects.json";
 import { getLocale } from "@app/locales/locale";
 
 const translations = {
@@ -24,25 +24,9 @@ const translations = {
 export function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const { project, isLoading: projectLoading, error: projectError } = useProject(projectId || "");
-  const {
-    containers,
-    isLoading: containersLoading,
-    error: containersError,
-    reload
-  } = useProjectContainers(projectId || "");
+  const { containers, isLoading: containersLoading, error: containersError, reload } = useProjectContainers(projectId || "");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [locale, setLocaleState] = useState(getLocale());
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const currentLocale = getLocale();
-      if (currentLocale !== locale) {
-        setLocaleState(currentLocale);
-      }
-    }, 100);
-    return () => clearInterval(interval);
-  }, [locale]);
-
+  const [locale] = useState(getLocale());
   const t = translations[locale].projectDetail;
 
   if (projectLoading) {
@@ -107,7 +91,7 @@ export function ProjectDetailPage() {
             <MiniCard title={t.project_id}>
               <div className="flex items-center gap-2">
                 <Hash className="h-4 w-4 text-neutral-400" />
-                <span className="text-sm text-neutral-200">{project.projectId || "—"}</span>
+                <span className="text-sm font-mono text-neutral-200">{project.projectId}</span>
               </div>
             </MiniCard>
             <MiniCard title={t.owner}>
@@ -166,7 +150,9 @@ export function ProjectDetailPage() {
             </div>
           )}
 
-          {containersError && <p className="py-6 text-sm text-red-400">{containersError}</p>}
+          {containersError && (
+            <p className="py-6 text-sm text-red-400">{containersError}</p>
+          )}
 
           {!containersLoading && !containersError && containers.length === 0 && (
             <div className="py-10 text-center">
@@ -199,30 +185,19 @@ export function ProjectDetailPage() {
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant={
-                          container.status?.toLowerCase().includes("running")
-                            ? "success"
-                            : container.status?.toLowerCase().includes("stopped")
-                              ? "secondary"
-                              : "warning"
-                        }
+                        variant={container.status?.toLowerCase().includes('running') ? 'success' :
+                                container.status?.toLowerCase().includes('stopped') ? 'secondary' : 'warning'}
                         className="text-xs"
                       >
                         {container.status || t.unknown}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-neutral-300">
-                      {container.image}
-                    </TableCell>
+                    <TableCell className="text-neutral-300 font-mono text-xs">{container.image}</TableCell>
                     <TableCell className="text-neutral-300">
                       {container.ports.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
                           {container.ports.map((port, index) => (
-                            <Badge
-                              key={index}
-                              variant="outline"
-                              className="px-1.5 py-0.5 text-[10px]"
-                            >
+                            <Badge key={index} variant="outline" className="text-[10px] px-1.5 py-0.5">
                               {port}
                             </Badge>
                           ))}
@@ -231,15 +206,13 @@ export function ProjectDetailPage() {
                         <span className="text-neutral-500">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="font-mono text-xs text-neutral-300">
+                    <TableCell className="text-neutral-300 font-mono text-xs">
                       {container.repoUrl || <span className="text-neutral-500">—</span>}
                     </TableCell>
-                    <TableCell className="text-xs text-neutral-300">
+                    <TableCell className="text-neutral-300 text-xs">
                       {container.branch || <span className="text-neutral-500">—</span>}
                     </TableCell>
-                    <TableCell className="text-xs text-neutral-300">
-                      {container.createdAt}
-                    </TableCell>
+                    <TableCell className="text-neutral-300 text-xs">{container.createdAt}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

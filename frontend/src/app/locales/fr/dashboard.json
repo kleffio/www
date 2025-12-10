@@ -1,0 +1,18 @@
+ {
+    "dashboard": {
+    "overview_title": "Vue d'ensemble",
+    "overview_subtitle": "Surveillez vos déploiements, le trafic et la santé de l'infrastructure",
+    "traffic_performance": "Trafic et performance",
+    "total_requests": "Requêtes totales",
+    "avg_response_time": "Temps de réponse moyen",
+    "cache_hit_rate": "Taux de cache",
+    "recent_deployments": "Déploiements récents",
+    "security": "Sécurité",
+    "infrastructure": "Infrastructure",
+    "quick_actions": "Actions rapides",
+    "create_new_deployment": "Créer un nouveau déploiement",
+    "view_analytics": "Voir les analytics",
+    "view_all": "Voir tout",
+    "deploy_new_project": "Déployer un nouveau projet"
+  }
+}
