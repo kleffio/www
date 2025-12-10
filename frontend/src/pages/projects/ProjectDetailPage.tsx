@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@shared/ui/Button";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@shared/ui/Table";
@@ -12,8 +12,8 @@ import { useProject } from "@features/projects/hooks/useProject";
 import { useProjectContainers } from "@features/projects/hooks/useProjectContainers";
 import { CreateContainerModal } from "@features/projects/components/CreateContainerModal";
 import { ROUTES } from "@app/routes/routes";
-import enTranslations from "@app/locales/en.json";
-import frTranslations from "@app/locales/fr.json";
+import enTranslations from "@app/locales/en/projects.json";
+import frTranslations from "@app/locales/fr/projects.json";
 import { getLocale } from "@app/locales/locale";
 
 const translations = {
@@ -26,18 +26,7 @@ export function ProjectDetailPage() {
   const { project, isLoading: projectLoading, error: projectError } = useProject(projectId || "");
   const { containers, isLoading: containersLoading, error: containersError, reload } = useProjectContainers(projectId || "");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [locale, setLocaleState] = useState(getLocale());
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const currentLocale = getLocale();
-      if (currentLocale !== locale) {
-        setLocaleState(currentLocale);
-      }
-    }, 100);
-    return () => clearInterval(interval);
-  }, [locale]);
-
+  const [locale] = useState(getLocale());
   const t = translations[locale].projectDetail;
 
   if (projectLoading) {
