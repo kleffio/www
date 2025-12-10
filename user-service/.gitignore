@@ -1,37 +1,114 @@
-HELP.md
-.gradle
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
 bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
+dist/
+build/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
+# Test binary, built with `go test -c`
+*.test
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+# Output of the go coverage tool
+*.out
+coverage.txt
+coverage.html
 
-### VS Code ###
+# Dependency directories
+vendor/
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Environment variables
+.env
+.env.*
+.envrc
+*.local
+
+# IDE - VSCode
 .vscode/
+*.code-workspace
+
+# IDE - JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# IDE - Vim
+*.swp
+*.swo
+*~
+.*.sw[a-z]
+
+# IDE - Emacs
+*~
+\#*\#
+.\#*
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+tmp/
+temp/
+
+# Docker
+.dockerignore
+
+# Air (Go hot reload)
+tmp/
+.air.toml
+
+# Application specific
+*.pem
+*.key
+*.crt
+*.p12
+
+# CI/CD
+.github/workflows/*.local.yml
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Kubernetes
+*.kubeconfig
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Redis dump
+dump.rdb
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Debug
+debug
+__debug_bin
+
+# Performance profiling
+*.prof
+*.pprof
+cpu.out
+mem.out

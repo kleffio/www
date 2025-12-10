@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
-import { DashboardNav } from "@app/layout/DashboardNav";
+import { DashboardNav } from "@app/layout/components/DashboardNav";
 import { TokenDebugPanel } from "@features/auth/components/TokenDebugPanel";
-import { AppBackground } from "@app/layout/AppBackground";
+import { AppBackground } from "@app/layout/components/AppBackground";
 
 export function DashboardLayout() {
   return (

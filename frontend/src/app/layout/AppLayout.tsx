@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
-import { AppHeader } from "@app/layout/AppHeader";
-import { AppFooter } from "@app/layout/AppFooter";
-import { AppBackground } from "./AppBackground";
+import { AppHeader } from "@app/layout/components/AppHeader";
+import { AppFooter } from "@app/layout/components/AppFooter";
+import { AppBackground } from "./components/AppBackground";
 
 export function AppLayout() {
   return (
