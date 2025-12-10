@@ -60,7 +60,7 @@ public class ProjectController {
             @AuthenticationPrincipal Jwt jwt) {
             String userId = jwt.getSubject();
             Project projectAllowed = projectService.getProjectById(projectId);
-            if (userId == projectAllowed.getOwnerId())
+            if (userId.equals(projectAllowed.getOwnerId()))
         try {
             Date date = new Date();
             updatedProject.setUpdatedDate(date);
@@ -79,7 +79,7 @@ public class ProjectController {
     public ResponseEntity<Project> deleteProject(@PathVariable String projectId, @AuthenticationPrincipal Jwt jwt) {
         String userId = jwt.getSubject();
         Project projectAllowed = projectService.getProjectById(projectId);
-        if (userId == projectAllowed.getOwnerId()) {
+        if (userId.equals(projectAllowed.getOwnerId())) {
             try {
                 Project deletedProject = projectService.deleteProject(projectId);
                 return ResponseEntity.ok(deletedProject);
