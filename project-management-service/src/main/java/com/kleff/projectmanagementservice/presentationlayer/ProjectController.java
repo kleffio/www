@@ -8,8 +8,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import javax.print.attribute.standard.DateTimeAtCreation;
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -19,22 +24,16 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
-    @Autowired
-    public ProjectController(ProjectServiceImpl projectService) {
-        this.projectService = projectService;
+    @GetMapping("/all")
+    public List<Project> getAllProjects() {
+        return null;
     }
+
 
     @GetMapping
-    public List<Project> getAllProjects() {
-        return projectService.getAllOwnedProjects();
-    }
-
-
-    @GetMapping("/owner")
-    public ResponseEntity<List<Project>> getAllOwnedProjects(HttpServletRequest request) {
-        String authHeader = request.getHeader("Bearer");
-        String token = authHeader.substring(7);
-        List<Project> projects = projectService.getAllOwnedProjects();
+    public ResponseEntity<List<Project>> getAllOwnedProjects(@AuthenticationPrincipal Jwt jwt) {
+        String userId = jwt.getSubject();
+        List<Project> projects = projectService.getAllOwnedProjects(userId);
         return ResponseEntity.ok(projects);
     }
 
@@ -48,7 +47,12 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<Project> createProject(@RequestBody Project project) {
+    public ResponseEntity<Project> createProject(@RequestBody Project project,@AuthenticationPrincipal Jwt jwt) {
+        String userId = jwt.getSubject();
+        project.setOwnerId(userId);
+        Date date = new Date();
+        project.setCreatedDate(date);
+        project.setUpdatedDate(date);
         Project createdProject = projectService.createProject(project);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdProject);
     }
@@ -59,6 +63,8 @@ public class ProjectController {
             @PathVariable String projectId,
             @RequestBody Project updatedProject) {
         try {
+            Date date = new Date();
+            updatedProject.setUpdatedDate(date);
             Project project = projectService.updateProject(projectId, updatedProject);
             return ResponseEntity.ok(project);
         } catch (RuntimeException e) {

@@ -102,7 +102,7 @@ export function ProjectDetailPage() {
             <MiniCard title={t.project_id}>
               <div className="flex items-center gap-2">
                 <Hash className="h-4 w-4 text-neutral-400" />
-                <span className="text-sm font-mono text-neutral-200">{project.projectId}</span>
+                <span className="text-sm text-neutral-200">{project.projectId || "—"}</span>
               </div>
             </MiniCard>
             <MiniCard title={t.owner}>
