@@ -21,7 +21,7 @@ interface Notification {
 export function SettingsPage() {
   const { settings, isLoading, error: loadError } = useUserSettings();
   const { auth } = useIdentity();
-  
+
   const [formData, setFormData] = useState({
     name: settings?.name || "",
     email: settings?.email || "",
@@ -30,7 +30,7 @@ export function SettingsPage() {
     timezone: settings?.timezone || "",
     marketingEmails: settings?.marketingEmails || false
   });
-  
+
   const [isSaving, setIsSaving] = useState(false);
   const [notification, setNotification] = useState<Notification | null>(null);
 
@@ -49,7 +49,7 @@ export function SettingsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.email) {
       setNotification({
         type: "error",
@@ -72,7 +72,7 @@ export function SettingsPage() {
 
     try {
       const nameChanged = formData.name !== settings?.name;
-      
+
       await updateUserProfile({
         name: formData.name,
         email: formData.email,
@@ -81,14 +81,14 @@ export function SettingsPage() {
         timezone: formData.timezone || null,
         marketingEmails: formData.marketingEmails
       });
-      
+
       setNotification({
         type: "success",
-        message: nameChanged 
-          ? "Profile updated! Logging you back in with your new username..." 
+        message: nameChanged
+          ? "Profile updated! Logging you back in with your new username..."
           : "Profile updated successfully!"
       });
-      
+
       // If username changed, we need to re-login to get a fresh JWT token
       if (nameChanged) {
         setTimeout(async () => {
@@ -102,7 +102,6 @@ export function SettingsPage() {
           window.location.reload();
         }, 1000);
       }
-      
     } catch (error) {
       setNotification({
         type: "error",
@@ -156,10 +155,10 @@ export function SettingsPage() {
         </div>
       )}
 
-      <form 
-        onSubmit={handleSubmit} 
+      <form
+        onSubmit={handleSubmit}
         onKeyDown={(e) => {
-          if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
+          if (e.key === "Enter" && e.target instanceof HTMLInputElement) {
             e.preventDefault();
           }
         }}
@@ -186,7 +185,7 @@ export function SettingsPage() {
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Enter your name"
                 required
-                className="bg-neutral-900 border-neutral-700 text-neutral-100"
+                className="border-neutral-700 bg-neutral-900 text-neutral-100"
               />
             </div>
 
@@ -201,7 +200,7 @@ export function SettingsPage() {
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="your.email@example.com"
                 required
-                className="bg-neutral-900 border-neutral-700 text-neutral-100"
+                className="border-neutral-700 bg-neutral-900 text-neutral-100"
               />
             </div>
 
@@ -215,7 +214,7 @@ export function SettingsPage() {
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="(555) 123-4567"
-                className="bg-neutral-900 border-neutral-700 text-neutral-100"
+                className="border-neutral-700 bg-neutral-900 text-neutral-100"
               />
               <p className="text-xs text-neutral-500">Optional - used for account recovery</p>
             </div>
@@ -234,8 +233,14 @@ export function SettingsPage() {
               <Label htmlFor="theme" className="text-neutral-200">
                 Theme
               </Label>
-              <Select value={formData.theme} onValueChange={(value) => setFormData({ ...formData, theme: value })}>
-                <SelectTrigger id="theme" className="bg-neutral-900 border-neutral-700 text-neutral-100">
+              <Select
+                value={formData.theme}
+                onValueChange={(value) => setFormData({ ...formData, theme: value })}
+              >
+                <SelectTrigger
+                  id="theme"
+                  className="border-neutral-700 bg-neutral-900 text-neutral-100"
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -255,7 +260,7 @@ export function SettingsPage() {
                 value={formData.timezone}
                 onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
                 placeholder="America/New_York"
-                className="bg-neutral-900 border-neutral-700 text-neutral-100"
+                className="border-neutral-700 bg-neutral-900 text-neutral-100"
               />
             </div>
 
@@ -271,7 +276,9 @@ export function SettingsPage() {
               <Switch
                 id="marketing"
                 checked={formData.marketingEmails}
-                onCheckedChange={(checked) => setFormData({ ...formData, marketingEmails: checked })}
+                onCheckedChange={(checked) =>
+                  setFormData({ ...formData, marketingEmails: checked })
+                }
               />
             </div>
           </div>
@@ -282,11 +289,11 @@ export function SettingsPage() {
           <Button
             type="submit"
             disabled={isSaving}
-            style={{ 
-              backgroundColor: isSaving ? 'rgb(220, 163, 20)' : 'rgb(245, 181, 23)',
-              color: '#000000'
+            style={{
+              backgroundColor: isSaving ? "rgb(220, 163, 20)" : "rgb(245, 181, 23)",
+              color: "#000000"
             }}
-            className="font-medium px-6 py-2 hover:opacity-90 transition-opacity"
+            className="px-6 py-2 font-medium transition-opacity hover:opacity-90"
           >
             <Save className="mr-2 h-4 w-4" />
             {isSaving ? "Saving..." : "Save Changes"}

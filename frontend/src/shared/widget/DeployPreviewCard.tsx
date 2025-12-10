@@ -167,9 +167,7 @@ export function DeployPreviewCard({ preview: t, className }: DeployPreviewCardPr
   const statuses = t.statuses;
   const allDone = state.stage === "completed";
 
-  const rowsToRender = isCompact
-    ? state.rows
-    : state.rows.filter((row) => row.phase !== "hidden");
+  const rowsToRender = isCompact ? state.rows : state.rows.filter((row) => row.phase !== "hidden");
 
   const { metrics } = state;
   const latencyLabel = `${metrics.latencyMs.toFixed(0)}ms`;

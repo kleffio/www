@@ -12,7 +12,12 @@ interface CreateContainerModalProps {
   onSuccess?: () => void;
 }
 
-export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: CreateContainerModalProps) {
+export function CreateContainerModal({
+  isOpen,
+  onClose,
+  projectId,
+  onSuccess
+}: CreateContainerModalProps) {
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
   const [port, setPort] = useState("");

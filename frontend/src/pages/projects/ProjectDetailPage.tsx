@@ -24,7 +24,12 @@ const translations = {
 export function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const { project, isLoading: projectLoading, error: projectError } = useProject(projectId || "");
-  const { containers, isLoading: containersLoading, error: containersError, reload } = useProjectContainers(projectId || "");
+  const {
+    containers,
+    isLoading: containersLoading,
+    error: containersError,
+    reload
+  } = useProjectContainers(projectId || "");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [locale, setLocaleState] = useState(getLocale());
 
@@ -161,9 +166,7 @@ export function ProjectDetailPage() {
             </div>
           )}
 
-          {containersError && (
-            <p className="py-6 text-sm text-red-400">{containersError}</p>
-          )}
+          {containersError && <p className="py-6 text-sm text-red-400">{containersError}</p>}
 
           {!containersLoading && !containersError && containers.length === 0 && (
             <div className="py-10 text-center">
@@ -196,19 +199,30 @@ export function ProjectDetailPage() {
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant={container.status?.toLowerCase().includes('running') ? 'success' :
-                                container.status?.toLowerCase().includes('stopped') ? 'secondary' : 'warning'}
+                        variant={
+                          container.status?.toLowerCase().includes("running")
+                            ? "success"
+                            : container.status?.toLowerCase().includes("stopped")
+                              ? "secondary"
+                              : "warning"
+                        }
                         className="text-xs"
                       >
                         {container.status || t.unknown}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-neutral-300 font-mono text-xs">{container.image}</TableCell>
+                    <TableCell className="font-mono text-xs text-neutral-300">
+                      {container.image}
+                    </TableCell>
                     <TableCell className="text-neutral-300">
                       {container.ports.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
                           {container.ports.map((port, index) => (
-                            <Badge key={index} variant="outline" className="text-[10px] px-1.5 py-0.5">
+                            <Badge
+                              key={index}
+                              variant="outline"
+                              className="px-1.5 py-0.5 text-[10px]"
+                            >
                               {port}
                             </Badge>
                           ))}
@@ -217,13 +231,15 @@ export function ProjectDetailPage() {
                         <span className="text-neutral-500">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-neutral-300 font-mono text-xs">
+                    <TableCell className="font-mono text-xs text-neutral-300">
                       {container.repoUrl || <span className="text-neutral-500">—</span>}
                     </TableCell>
-                    <TableCell className="text-neutral-300 text-xs">
+                    <TableCell className="text-xs text-neutral-300">
                       {container.branch || <span className="text-neutral-500">—</span>}
                     </TableCell>
-                    <TableCell className="text-neutral-300 text-xs">{container.createdAt}</TableCell>
+                    <TableCell className="text-xs text-neutral-300">
+                      {container.createdAt}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
