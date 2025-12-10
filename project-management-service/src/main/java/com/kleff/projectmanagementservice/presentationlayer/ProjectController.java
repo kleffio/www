@@ -61,7 +61,11 @@ public class ProjectController {
     @PatchMapping("/{projectId}")
     public ResponseEntity<Project> patchProject(
             @PathVariable String projectId,
-            @RequestBody Project updatedProject) {
+            @RequestBody Project updatedProject,
+            @AuthenticationPrincipal Jwt jwt) {
+            String userId = jwt.getSubject();
+            Project projectAllowed = projectService.getProjectById(projectId);
+            if (userId == projectAllowed.getOwnerId())
         try {
             Date date = new Date();
             updatedProject.setUpdatedDate(date);
@@ -70,15 +74,26 @@ public class ProjectController {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
+            else{
+                return null;
+            }
     }
 
+
     @DeleteMapping("/{projectId}")
-    public ResponseEntity<Project> deleteProject(@PathVariable String projectId) {
-        try {
-            Project deletedProject = projectService.deleteProject(projectId);
-            return ResponseEntity.ok(deletedProject);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<Project> deleteProject(@PathVariable String projectId, @AuthenticationPrincipal Jwt jwt) {
+        String userId = jwt.getSubject();
+        Project projectAllowed = projectService.getProjectById(projectId);
+        if (userId == projectAllowed.getOwnerId()) {
+            try {
+                Project deletedProject = projectService.deleteProject(projectId);
+                return ResponseEntity.ok(deletedProject);
+            } catch (Exception e) {
+                return ResponseEntity.notFound().build();
+            }
+        }
+        else {
+            return null;
         }
     }
 }
