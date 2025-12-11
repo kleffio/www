@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.7'
-    id 'jacoco'
 }
 
 group = 'com.kleff'
@@ -20,12 +19,6 @@ repositories {
 }
 
 dependencies {
-    //Security dependencies
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
 
     // ---- Runtime / application dependencies ----
 
@@ -55,42 +48,8 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.36'
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.mockito:mockito-junit-jupiter'
-    testImplementation 'org.assertj:assertj-core'
-}
-jacoco {
-    toolVersion = "0.8.12"
 }
 
-test {
+tasks.named('test') {
     useJUnitPlatform()
-    finalizedBy(jacocoTestReport)
-}
-
-
-tasks.jacocoTestReport {
-    dependsOn(tasks.test)
-
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
-
-    executionData.setFrom(fileTree(buildDir).include(
-            "jacoco/test.exec",
-            "jacoco/test.exec.gz",
-            "jacoco/test.exec.*"
-    ))
-
-    sourceDirectories.setFrom(files("src/main/java"))
-    classDirectories.setFrom(
-            fileTree(
-            dir: "build/classes/java/main",
-            excludes: [
-            "com/kleff/projectmanagementservice/utils/**",
-            "com/kleff/projectmanagementservice/exception/**",
-    ]
-    )
-    )
 }

@@ -7,7 +7,7 @@ import java.util.List;
 
 @Service
 public interface ProjectService {
-    List<Project> getAllOwnedProjects(String ownerId);
+    List<Project> getAllOwnedProjects();
     Project getProjectById(String projectId);
     Project createProject(Project project);
     Project updateProject(String projectId, Project updatedProject);

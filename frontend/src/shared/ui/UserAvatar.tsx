@@ -6,8 +6,10 @@ interface UserAvatarProps {
 }
 
 export function UserAvatar({ initial, name, email, size = "md" }: UserAvatarProps) {
-  const sizeClasses =
-    size === "sm" ? "h-8 w-8 text-xs" : size === "lg" ? "h-16 w-16 text-2xl" : "h-10 w-10 text-sm";
+  const sizeClasses = 
+    size === "sm" ? "h-8 w-8 text-xs" : 
+    size === "lg" ? "h-16 w-16 text-2xl" : 
+    "h-10 w-10 text-sm";
 
   return (
     <div className="flex items-center gap-3">
