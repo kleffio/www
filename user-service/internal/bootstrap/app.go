@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -17,6 +18,7 @@ type App struct {
 	Config      *config.Config
 	Router      http.Handler
 	RedisClient *redis.Client
+	AuditRepo   interface{ Close() error }
 }
 
 func NewApp() (*App, error) {
@@ -25,17 +27,22 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	// choose repo + optional redis client
-	repo, redisClient, err := buildRepository(cfg)
+	userRepo, redisClient, err := buildUserRepository(cfg)
 	if err != nil {
 		return nil, err
 	}
 
+	auditRepo, auditCloser, err := buildAuditRepository(cfg)
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to build audit repository: %w", err)
+	}
+
 	idp := authentik.NewClient(cfg.AuthentikBaseURL, cfg.AuthentikToken)
-	svc := usersvc.NewService(repo, idp, cfg.CacheTTL)
+
+	svc := usersvc.NewService(userRepo, auditRepo, idp, cfg.CacheTTL)
 
 	handler := httphandler.NewHandler(svc)
-
 	root := chi.NewRouter()
 	root.Mount("/", httphandler.NewRouter(handler))
 
@@ -43,12 +50,24 @@ func NewApp() (*App, error) {
 		Config:      cfg,
 		Router:      root,
 		RedisClient: redisClient,
+		AuditRepo:   auditCloser,
 	}, nil
 }
 
 func (a *App) Shutdown(ctx context.Context) error {
+	var firstErr error
+
 	if a.RedisClient != nil {
-		return a.RedisClient.Close()
+		if err := a.RedisClient.Close(); err != nil && firstErr == nil {
+			firstErr = err
+		}
 	}
-	return nil
+
+	if a.AuditRepo != nil {
+		if err := a.AuditRepo.Close(); err != nil && firstErr == nil {
+			firstErr = err
+		}
+	}
+
+	return firstErr
 }

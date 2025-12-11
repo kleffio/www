@@ -1,7 +1,7 @@
 //go:build integration
 // +build integration
 
-package repository_test
+package redisrepo_test
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	miniredis "github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
 
-	"github.com/kleffio/www/user-service/internal/adapters/out/repository"
+	redisrepo "github.com/kleffio/www/user-service/internal/adapters/out/repository/redis"
 	domain "github.com/kleffio/www/user-service/internal/core/domain/users"
 )
 
@@ -23,7 +23,7 @@ func TestRedisRepository_GetSave(t *testing.T) {
 	defer mr.Close()
 
 	client := redis.NewClient(&redis.Options{Addr: mr.Addr()})
-	repo := repository.NewRedisRepository(client, 5*time.Minute)
+	repo := redisrepo.NewRedisRepository(client, 5*time.Minute)
 
 	ctx := context.Background()
 	id := domain.ID("u1")

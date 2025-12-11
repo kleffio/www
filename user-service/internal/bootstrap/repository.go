@@ -8,17 +8,16 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
+	postgresrepo "github.com/kleffio/www/user-service/internal/adapters/out/repository/postgres"
+	redisrepo "github.com/kleffio/www/user-service/internal/adapters/out/repository/redis"
+
 	"github.com/kleffio/www/user-service/internal/adapters/out/repository"
 	"github.com/kleffio/www/user-service/internal/config"
 )
 
-// buildRepository decides between Redis and in-memory cache,
-// returning the chosen repo and an optional Redis client.
-func buildRepository(cfg *config.Config) (repository.Repository, *redis.Client, error) {
-	// No Redis configured → use in-memory cache.
+func buildUserRepository(cfg *config.Config) (repository.Repository, *redis.Client, error) {
 	if cfg.RedisAddr == "" {
-		log.Printf("user-service cache backend: memory")
-		return repository.NewMemoryRepository(), nil, nil
+		return nil, nil, fmt.Errorf("RedisAddr is required for user-service cache backend")
 	}
 
 	client := redis.NewClient(&redis.Options{
@@ -34,15 +33,40 @@ func buildRepository(cfg *config.Config) (repository.Repository, *redis.Client, 
 	defer cancel()
 
 	if err := client.Ping(ctx).Err(); err != nil {
-		// strict fail-fast (current behavior)
 		return nil, nil, fmt.Errorf("redis connection failed: %w", err)
-
-		// or, if you prefer graceful fallback:
-		// log.Printf("redis unavailable (%v), falling back to memory cache", err)
-		// return repository.NewMemoryRepository(), nil, nil
 	}
 
 	log.Printf("user-service cache backend: redis (%s)", cfg.RedisAddr)
-	repo := repository.NewRedisRepository(client, cfg.CacheTTL)
+	repo := redisrepo.NewRedisRepository(client, cfg.CacheTTL)
 	return repo, client, nil
 }
+
+func buildAuditRepository(cfg *config.Config) (
+	repository.AuditRepository,
+	interface{ Close() error },
+	error,
+) {
+	if cfg.PostgresAuditDSN == "" {
+		return nil, noopCloser{}, fmt.Errorf("PostgresAuditDSN is required for audit logging")
+	}
+
+	log.Printf("audit backend: postgresql")
+	repo, err := postgresrepo.NewPostgresAuditRepository(cfg.PostgresAuditDSN)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to create postgres audit repo: %w", err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := repo.CreateTable(ctx); err != nil {
+		_ = repo.Close()
+		return nil, nil, fmt.Errorf("failed to create audit table: %w", err)
+	}
+
+	return repo, repo, nil
+}
+
+type noopCloser struct{}
+
+func (noopCloser) Close() error { return nil }

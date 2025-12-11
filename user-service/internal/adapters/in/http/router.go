@@ -16,25 +16,25 @@ func NewRouter(h *Handler) http.Handler {
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-
 	r.Use(middleware.Timeout(30 * time.Second))
 
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"*"},
+		AllowedOrigins:   []string{"https://kleff.io", "https://api.kleff.io", "http://localhost:5173", "http://localhost:8080", "http://localhost:3000"},
 		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
 		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: false,
+		AllowCredentials: true,
 		MaxAge:           300,
 	}))
 
 	r.Get("/healthz", h.Health)
 	r.Get("/health", h.Health)
 
-	r.Route("/users", func(r chi.Router) {
+	r.Route("/api/v1/users", func(r chi.Router) {
+		r.Get("/me", h.GetMe)
 		r.Get("/{id}", h.GetUser)
-		r.Post("/{id}/refresh", h.Refresh)
 		r.Post("/resolve", h.ResolveMany)
+		r.Get("/{id}/audit", h.GetAuditLogs)
 	})
 
 	return r

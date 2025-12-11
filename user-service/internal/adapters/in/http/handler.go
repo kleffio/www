@@ -1,23 +1,18 @@
 package http
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 
 	domain "github.com/kleffio/www/user-service/internal/core/domain/users"
 	coresvc "github.com/kleffio/www/user-service/internal/core/service/users"
 )
-
-type UserService interface {
-	Get(ctx context.Context, id domain.ID) (*domain.User, error)
-	Refresh(ctx context.Context, id domain.ID) (*domain.User, error)
-	ResolveMany(ctx context.Context, ids []domain.ID) (map[domain.ID]*domain.User, error)
-}
 
 type Handler struct {
 	svc UserService
@@ -35,7 +30,7 @@ type errorResponse struct {
 
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("ok"))
+	_, _ = w.Write([]byte("ok"))
 }
 
 func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
@@ -64,20 +59,36 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, http.StatusOK, user)
 }
 
-func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
-	if id == "" {
-		jsonError(w, http.StatusBadRequest, "missing user id")
+func (h *Handler) GetMe(w http.ResponseWriter, r *http.Request) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		jsonError(w, http.StatusUnauthorized, "missing authorization header")
 		return
 	}
 
-	user, err := h.svc.Refresh(r.Context(), domain.ID(id))
+	parts := strings.SplitN(authHeader, " ", 2)
+	if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
+		jsonError(w, http.StatusUnauthorized, "invalid authorization header format")
+		return
+	}
+
+	token := parts[1]
+	if token == "" {
+		jsonError(w, http.StatusUnauthorized, "missing bearer token")
+		return
+	}
+
+	user, err := h.svc.GetMe(r.Context(), token)
 	if err != nil {
+		if errors.Is(err, coresvc.ErrInvalidToken) {
+			jsonError(w, http.StatusUnauthorized, "invalid or expired token")
+			return
+		}
 		if errors.Is(err, coresvc.ErrUserNotFound) {
 			jsonError(w, http.StatusNotFound, "user not found")
 			return
 		}
-		log.Printf("error refreshing user %s: %v", id, err)
+		log.Printf("error getting current user: %v", err)
 		jsonError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}
@@ -129,6 +140,34 @@ func (h *Handler) ResolveMany(w http.ResponseWriter, r *http.Request) {
 	}
 
 	jsonResponse(w, http.StatusOK, out)
+}
+
+func (h *Handler) GetAuditLogs(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	if id == "" {
+		jsonError(w, http.StatusBadRequest, "missing user id")
+		return
+	}
+
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
+
+	if limit <= 0 || limit > 100 {
+		limit = 20
+	}
+
+	logs, err := h.svc.GetAuditLogs(r.Context(), domain.ID(id), limit, offset)
+	if err != nil {
+		log.Printf("error getting audit logs for user %s: %v", id, err)
+		jsonError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	if logs == nil {
+		logs = []*domain.AuditLog{}
+	}
+
+	jsonResponse(w, http.StatusOK, logs)
 }
 
 // ------- Helpers ------- \\

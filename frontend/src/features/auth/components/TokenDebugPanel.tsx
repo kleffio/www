@@ -2,6 +2,7 @@ import { Button } from "@shared/ui/Button";
 import { Code, X } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "react-oidc-context";
+import { Me } from "@features/auth/api/me";
 
 export function TokenDebugPanel() {
   const auth = useAuth();
@@ -21,11 +22,7 @@ export function TokenDebugPanel() {
 
     try {
       console.log("🧪 Testing API with token...");
-      const response = await fetch("http://localhost:8080/api/v1/users/me", {
-        headers: {
-          Authorization: `Bearer ${auth.user.access_token}`
-        }
-      });
+      const response = await Me(auth.user.access_token);
 
       console.log("📊 Response status:", response.status);
       const data = await response.json();

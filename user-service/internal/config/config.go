@@ -12,9 +12,12 @@ type Config struct {
 	AuthentikBaseURL string
 	AuthentikToken   string
 	CacheTTL         time.Duration
-	RedisAddr        string
-	RedisPassword    string
-	RedisDB          int
+
+	RedisAddr     string
+	RedisPassword string
+	RedisDB       int
+
+	PostgresAuditDSN string
 }
 
 func FromEnv() (*Config, error) {
@@ -24,6 +27,7 @@ func FromEnv() (*Config, error) {
 		AuthentikToken:   os.Getenv("AUTHENTIK_TOKEN"),
 		RedisAddr:        os.Getenv("REDIS_ADDR"),
 		RedisPassword:    os.Getenv("REDIS_PASSWORD"),
+		PostgresAuditDSN: os.Getenv("POSTGRES_AUDIT_DSN"),
 	}
 
 	if cfg.AuthentikToken == "" {

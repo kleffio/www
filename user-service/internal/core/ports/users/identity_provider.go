@@ -7,5 +7,6 @@ import (
 )
 
 type IdentityProvider interface {
+	FetchByToken(ctx context.Context, bearerToken string) (*domain.User, error)
 	FetchByID(ctx context.Context, id domain.ID) (*domain.User, error)
 }
