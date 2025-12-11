@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.0'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'com.kleff'
@@ -26,37 +27,58 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    // 1. Lombok (Compile Only)
     compileOnly 'org.projectlombok:lombok'
 
-    // 2. MapStruct Core
     implementation 'org.mapstruct:mapstruct:1.6.2'
 
-    // 3. DATABASE
     runtimeOnly 'org.postgresql:postgresql'
 
-    // --- ANNOTATION PROCESSORS (Order Matters!) ---
-
-    // Lombok Processor
     annotationProcessor 'org.projectlombok:lombok'
-
-    // BRIDGE: Add this line! This allows MapStruct to see Lombok methods
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
-
-    // MapStruct Processor
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.2'
 
-    // Testing
-    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
-    testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    testRuntimeOnly 'com.h2database:h2'
+
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.named('test') {
+test {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport // Generate report after tests run
+}
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+jacocoTestReport {
+    dependsOn test // Tests are required to run before generating the report
+
+    reports {
+        xml.required = true
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('reports/jacoco')
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                '**/dto/**',
+                '**/config/**',
+                '**/exception/**',
+                '**/model/**',
+                '**/*Application.class',
+                '**/*MapperImpl.class',
+                '**/mapper/*.class'
+            ])
+        }))
+    }
 }
 
 jar {
