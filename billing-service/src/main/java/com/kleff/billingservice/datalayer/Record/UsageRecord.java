@@ -1,7 +1,6 @@
 package com.kleff.billingservice.datalayer.Record;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +14,8 @@ import java.sql.Date;
 @Entity
 @Table(name = "UsageRecords")
 public class UsageRecord {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     String usageId;
     String projectId;
     String containerId;

@@ -1,7 +1,6 @@
 package com.kleff.billingservice.datalayer.Record;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,8 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "InvoiceItems")
+@Table(name = "invoice_items")
 public class InvoiceItem {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     String itemId;
     String invoiceId;
     String projectId;

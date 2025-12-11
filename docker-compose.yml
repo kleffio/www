@@ -42,6 +42,35 @@ services:
     volumes:
       - project_management_data:/var/lib/postgresql/data
 
+  billing-service:
+    build:
+      context: ./billing-service
+      dockerfile: Dockerfile
+    container_name: billing-service
+    ports:
+      - "8085:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://billing-db:5432/mydb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - billing-db
+
+  billing-db:
+    image: postgres:16
+    container_name: billing-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydb
+    ports:
+      - "5436:5432"
+    volumes:
+      - billing_data:/var/lib/postgresql/data
+
+
   user-service:
     build:
       context: ./user-service
@@ -135,3 +164,4 @@ volumes:
   project_management_data:
   user_db_data:
   deployment_data:
+  billing_data:

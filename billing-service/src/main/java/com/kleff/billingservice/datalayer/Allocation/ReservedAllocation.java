@@ -1,7 +1,6 @@
 package com.kleff.billingservice.datalayer.Allocation;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,11 +12,13 @@ import java.sql.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "ReservedAllocations")
+@Table(name = "reserved_allocations")
 public class ReservedAllocation {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     String allocationId;
     String userId;
-    String WorkspaceIdentifier;
+    String workspaceId;
     String projectId;
     Double cpuCores;
     Double memoryGb;
