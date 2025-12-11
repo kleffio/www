@@ -9,14 +9,11 @@ services:
     environment:
       - HTTP_ADDR=:8080
       - AUTHENTIK_BASE_URL=${AUTHENTIK_BASE_URL:-http://authentik:9000}
-      - AUTHENTIK_TOKEN=${AUTHENTIK_TOKEN}
-      - CACHE_TTL=${CACHE_TTL:-5m}
-      - REDIS_ADDR=redis:6379
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
-      - REDIS_DB=${REDIS_DB:-0}
-      - POSTGRES_AUDIT_DSN=postgres://user:pass@postgres/userservice?sslmode=disable
+
+      - POSTGRES_USER_DSN=postgres://user:pass@postgres:5432/userservice?sslmode=disable
+      - POSTGRES_AUDIT_DSN=postgres://user:pass@postgres:5432/userservice?sslmode=disable
     depends_on:
-      redis:
+      postgres:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
@@ -28,46 +25,36 @@ services:
     networks:
       - user-service-net
 
-  redis:
-    image: redis:7-alpine
-    container_name: user-service-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 3
-      start_period: 5s
-    networks:
-      - user-service-net
-
   postgres:
     image: postgres:15-alpine
+    container_name: user-service-postgres
+    ports:
+      - "5432:5432"
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=pass
       - POSTGRES_DB=userservice
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./internal/bootstrap/migrations:/docker-entrypoint-initdb.d
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d userservice"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     networks:
       - user-service-net
 
-
 volumes:
-  redis-data:
-    driver: local
   postgres_data:
+    driver: local
 
 networks:
   user-service-net:
     driver: bridge
-  # If Authentik is running in another compose stack:
+  # If Authentik is running in another compose stack, uncomment:
   # authentik-net:
   #   external: true
   #   name: authentik_default

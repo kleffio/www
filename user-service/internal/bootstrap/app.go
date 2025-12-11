@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/redis/go-redis/v9"
 
 	httphandler "github.com/kleffio/www/user-service/internal/adapters/in/http"
 	"github.com/kleffio/www/user-service/internal/adapters/out/authentik"
@@ -15,10 +14,10 @@ import (
 )
 
 type App struct {
-	Config      *config.Config
-	Router      http.Handler
-	RedisClient *redis.Client
-	AuditRepo   interface{ Close() error }
+	Config    *config.Config
+	Router    http.Handler
+	UserRepo  interface{ Close() error }
+	AuditRepo interface{ Close() error }
 }
 
 func NewApp() (*App, error) {
@@ -27,38 +26,37 @@ func NewApp() (*App, error) {
 		return nil, err
 	}
 
-	userRepo, redisClient, err := buildUserRepository(cfg)
+	userRepo, userRepoCloser, err := buildUserRepository(cfg)
 	if err != nil {
 		return nil, err
 	}
 
 	auditRepo, auditCloser, err := buildAuditRepository(cfg)
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to build audit repository: %w", err)
 	}
 
-	idp := authentik.NewClient(cfg.AuthentikBaseURL, cfg.AuthentikToken)
+	tokenValidator := authentik.NewTokenValidator(cfg.AuthentikBaseURL)
 
-	svc := usersvc.NewService(userRepo, auditRepo, idp, cfg.CacheTTL)
+	svc := usersvc.NewService(userRepo, auditRepo, tokenValidator)
 
 	handler := httphandler.NewHandler(svc)
 	root := chi.NewRouter()
 	root.Mount("/", httphandler.NewRouter(handler))
 
 	return &App{
-		Config:      cfg,
-		Router:      root,
-		RedisClient: redisClient,
-		AuditRepo:   auditCloser,
+		Config:    cfg,
+		Router:    root,
+		UserRepo:  userRepoCloser,
+		AuditRepo: auditCloser,
 	}, nil
 }
 
 func (a *App) Shutdown(ctx context.Context) error {
 	var firstErr error
 
-	if a.RedisClient != nil {
-		if err := a.RedisClient.Close(); err != nil && firstErr == nil {
+	if a.UserRepo != nil {
+		if err := a.UserRepo.Close(); err != nil && firstErr == nil {
 			firstErr = err
 		}
 	}

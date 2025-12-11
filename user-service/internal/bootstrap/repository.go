@@ -6,39 +6,38 @@ import (
 	"log"
 	"time"
 
-	"github.com/redis/go-redis/v9"
-
-	postgresrepo "github.com/kleffio/www/user-service/internal/adapters/out/repository/postgres"
-	redisrepo "github.com/kleffio/www/user-service/internal/adapters/out/repository/redis"
-
 	"github.com/kleffio/www/user-service/internal/adapters/out/repository"
+	"github.com/kleffio/www/user-service/internal/adapters/out/repository/postgres"
+
 	"github.com/kleffio/www/user-service/internal/config"
 )
 
-func buildUserRepository(cfg *config.Config) (repository.Repository, *redis.Client, error) {
-	if cfg.RedisAddr == "" {
-		return nil, nil, fmt.Errorf("RedisAddr is required for user-service cache backend")
+func buildUserRepository(cfg *config.Config) (
+	repository.UserRepository,
+	interface{ Close() error },
+	error,
+) {
+	if cfg.PostgresUserDSN == "" {
+		return nil, noopCloser{}, fmt.Errorf("PostgresUserDSN is required for user repository")
 	}
 
-	client := redis.NewClient(&redis.Options{
-		Addr:         cfg.RedisAddr,
-		Password:     cfg.RedisPassword,
-		DB:           cfg.RedisDB,
-		DialTimeout:  5 * time.Second,
-		ReadTimeout:  3 * time.Second,
-		WriteTimeout: 3 * time.Second,
-	})
+	log.Printf("user repository backend: postgresql")
+	repo, err := postgres.NewPostgresUserRepository(cfg.PostgresUserDSN)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to create postgres user repo: %w", err)
+	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	if err := client.Ping(ctx).Err(); err != nil {
-		return nil, nil, fmt.Errorf("redis connection failed: %w", err)
+	if err := repo.CreateTable(ctx); err != nil {
+		_ = repo.Close()
+		return nil, nil, fmt.Errorf("failed to create users table: %w", err)
 	}
 
-	log.Printf("user-service cache backend: redis (%s)", cfg.RedisAddr)
-	repo := redisrepo.NewRedisRepository(client, cfg.CacheTTL)
-	return repo, client, nil
+	log.Printf("users table initialized")
+
+	return repo, repo, nil
 }
 
 func buildAuditRepository(cfg *config.Config) (
@@ -51,7 +50,7 @@ func buildAuditRepository(cfg *config.Config) (
 	}
 
 	log.Printf("audit backend: postgresql")
-	repo, err := postgresrepo.NewPostgresAuditRepository(cfg.PostgresAuditDSN)
+	repo, err := postgres.NewPostgresAuditRepository(cfg.PostgresAuditDSN)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to create postgres audit repo: %w", err)
 	}
@@ -63,6 +62,8 @@ func buildAuditRepository(cfg *config.Config) (
 		_ = repo.Close()
 		return nil, nil, fmt.Errorf("failed to create audit table: %w", err)
 	}
+
+	log.Printf("audit_logs table initialized")
 
 	return repo, repo, nil
 }

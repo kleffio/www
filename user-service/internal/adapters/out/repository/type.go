@@ -4,5 +4,9 @@ import (
 	port "github.com/kleffio/www/user-service/internal/core/ports/users"
 )
 
-type Repository = port.Repository
+type UserRepository = port.UserRepository
 type AuditRepository = port.AuditRepository
+type TokenValidator = port.TokenValidator
+type TokenClaims = port.TokenClaims
+
+type Repository = port.UserRepository
