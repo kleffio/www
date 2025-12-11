@@ -19,9 +19,8 @@ public class ProjectServiceImpl implements ProjectService {
 
     //this currently only gets all projects
     @Override
-    public List<Project> getAllOwnedProjects(String userId) {
-
-        return projectRepository.findByOwnerIdEquals(userId);
+    public List<Project> getAllOwnedProjects() {
+        return projectRepository.findAll();
     }
 
     @Override

@@ -18,7 +18,7 @@ const SelectTrigger = forwardRef<
     className={cn(
       "flex h-10 w-full items-center justify-between rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white",
       "placeholder:text-neutral-500",
-      "focus:border-transparent focus:ring-2 focus:ring-blue-500/50 focus:outline-none",
+      "focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent",
       "disabled:cursor-not-allowed disabled:opacity-50",
       "transition-colors",
       className
@@ -70,7 +70,7 @@ const SelectLabel = forwardRef<
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
-    className={cn("py-1.5 pr-2 pl-8 text-sm font-semibold text-neutral-400", className)}
+    className={cn("py-1.5 pl-8 pr-2 text-sm font-semibold text-neutral-400", className)}
     {...props}
   />
 ));
@@ -83,7 +83,7 @@ const SelectItem = forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none select-none",
+      "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none",
       "focus:bg-white/10 focus:text-white",
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className

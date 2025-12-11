@@ -87,21 +87,11 @@ export function ProjectsPage() {
                     </TableHeader>
                     <TableBody>
                       {projects.map((p) => (
-                        <Link
-                          key={p.projectId}
-                          to={`/dashboard/projects/${p.projectId}`}
-                          className="contents"
-                        >
+                        <Link key={p.projectId} to={`/dashboard/projects/${p.projectId}`} className="contents">
                           <TableRow className="cursor-pointer hover:bg-white/10">
-                            <TableCell className="font-semibold text-neutral-50">
-                              {p.name}
-                            </TableCell>
-                            <TableCell className="text-neutral-300">
-                              {p.description || "—"}
-                            </TableCell>
-                            <TableCell className="text-neutral-300">
-                              {p.createdDate || "—"}
-                            </TableCell>
+                            <TableCell className="font-semibold text-neutral-50">{p.name}</TableCell>
+                            <TableCell className="text-neutral-300">{p.description || "—"}</TableCell>
+                            <TableCell className="text-neutral-300">{p.createdDate || "—"}</TableCell>
                           </TableRow>
                         </Link>
                       ))}
