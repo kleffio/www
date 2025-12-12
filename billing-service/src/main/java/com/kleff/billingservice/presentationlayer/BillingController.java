@@ -82,4 +82,10 @@ public class BillingController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Reserved allocation created successfully");
     }
+
+    @GetMapping("invoice/{projectId}")
+    public ResponseEntity<List<Invoice>> getInvoicesForProject(@PathVariable String projectId) {
+        List<Invoice> items = billingService.getInvoicesForAProject(projectId);
+        return ResponseEntity.ok(items);
+    }
 }

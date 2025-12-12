@@ -83,6 +83,11 @@ public class BillingServiceImpl implements BillingService {
     reservedAllocationRepository.save(reservedAllocation);
     }
 
+    @Override
+    public List<Invoice> getInvoicesForAProject(String projectId) {
+        return invoiceRepository.findByProjectId(projectId);
+    }
+
     public Invoice aggregateInvoiceItems(List<InvoiceItem> invoiceItems) {
         Invoice invoice = new Invoice();
         Double total = 0.0;

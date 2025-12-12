@@ -19,6 +19,7 @@ public interface BillingService {
     public List<UsageRecord> getUsageRecordsForProject(String projectId);
     public void payInvoice(String invoiceId);
     public void createReservedAllocation(ReservedAllocation reservedAllocation);
+    public List<Invoice> getInvoicesForAProject(String projectId);
 
 
 }
