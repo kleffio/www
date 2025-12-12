@@ -5,10 +5,7 @@ import com.kleff.billingservice.datalayer.Allocation.ReservedAllocationRepositor
 import com.kleff.billingservice.datalayer.Invoice.Invoice;
 import com.kleff.billingservice.datalayer.Invoice.InvoiceRepository;
 import com.kleff.billingservice.datalayer.Invoice.InvoiceStatus;
-import com.kleff.billingservice.datalayer.Record.InvoiceItem;
-import com.kleff.billingservice.datalayer.Record.InvoiceItemRepository;
-import com.kleff.billingservice.datalayer.Record.UsageRecord;
-import com.kleff.billingservice.datalayer.Record.UsageRecordRepository;
+import com.kleff.billingservice.datalayer.Record.*;
 import org.springframework.data.crossstore.ChangeSetPersister;
 
 import java.util.List;
@@ -25,13 +22,21 @@ public class BillingServiceImpl implements BillingService {
     private Double storage_hour_rate = 2.0;
 
     @Override
-    public void createInvoiceItem(List<UsageRecord> records) {
-
+    public void createInvoiceItem(UsageRecord records) {
+    InvoiceItem invoiceItem = new InvoiceItem();
+    invoiceItem.setMetric(records.getMetric());
+    invoiceItem.setQuantity(records.getQuantity());
+    switch (records.getMetric()) {
+        case CPU_HOURS -> invoiceItem.setUnitPrice(cpu_hour_rate);
+        case MEMORY_GB_HOURS -> invoiceItem.setUnitPrice(ram_hour_rate);
+        case STORAGE_GB -> invoiceItem.setUnitPrice(storage_hour_rate);
+    }
+    invoiceItem.setAmount((records.getQuantity() * invoiceItem.getUnitPrice()));
     }
 
     @Override
     public List<InvoiceItem> getInvoiceItemsForProject(String projectId) {
-        return List.of();
+        return invoiceItemRepository.findByProjectId(projectId);
     }
 
     @Override
@@ -90,10 +95,5 @@ public class BillingServiceImpl implements BillingService {
         invoice.setTotal(total+taxAmmount);
         return invoice;
     }
-     public InvoiceItem mapUsageRecordToInvoiceItem(List<UsageRecord> usageRecord) {
-        InvoiceItem invoiceItem = new InvoiceItem();
-         invoiceItem.setMetric(usageRecord.get(0).getMetric());
 
-        return invoiceItem;
-     }
 }

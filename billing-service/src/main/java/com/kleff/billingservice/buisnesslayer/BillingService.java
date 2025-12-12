@@ -10,7 +10,7 @@ import java.util.List;
 
 @Service
 public interface BillingService {
-    public void createInvoiceItem(List<UsageRecord> records);
+    public void createInvoiceItem(UsageRecord records);
     public List<InvoiceItem> getInvoiceItemsForProject(String projectId);
     public Invoice createInvoice(List<InvoiceItem> items);
     public InvoiceItem getInvoiceItem(String invoiceId);
@@ -19,7 +19,6 @@ public interface BillingService {
     public List<UsageRecord> getUsageRecordsForProject(String projectId);
     public void payInvoice(String invoiceId);
     public void createReservedAllocation(ReservedAllocation reservedAllocation);
-    public List<UsageRecord> getUsageRecordsForAProjectForOneMetric(String projectId, String metricId);
 
 
 }
