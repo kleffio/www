@@ -7,9 +7,11 @@ import com.kleff.billingservice.datalayer.Invoice.InvoiceRepository;
 import com.kleff.billingservice.datalayer.Invoice.InvoiceStatus;
 import com.kleff.billingservice.datalayer.Record.*;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class BillingServiceImpl implements BillingService {
 
     private ReservedAllocationRepository reservedAllocationRepository;

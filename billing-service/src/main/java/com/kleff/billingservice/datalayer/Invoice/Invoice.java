@@ -18,7 +18,7 @@ public class Invoice {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String invoiceId;
-    String workspaceId;
+    String projectId;
     Date startDate;
     Date endDate;
     InvoiceStatus status;
