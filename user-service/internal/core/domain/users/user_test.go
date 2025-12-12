@@ -1,0 +1,63 @@
+package users
+
+import (
+	"testing"
+	"time"
+)
+
+func TestUserPublicProfile_NilAvatarAndBio_DefaultToEmptyStrings(t *testing.T) {
+	now := time.Now().UTC()
+
+	u := &User{
+		ID:          "user123",
+		Username:    "testuser",
+		DisplayName: "Test User",
+		AvatarURL:   nil,
+		Bio:         nil,
+		CreatedAt:   now,
+	}
+
+	p := u.PublicProfile()
+	if p == nil {
+		t.Fatalf("expected profile, got nil")
+	}
+
+	if p.Username != "testuser" {
+		t.Fatalf("username: expected %q got %q", "testuser", p.Username)
+	}
+	if p.DisplayName != "Test User" {
+		t.Fatalf("displayName: expected %q got %q", "Test User", p.DisplayName)
+	}
+	if p.AvatarURL != "" {
+		t.Fatalf("avatarUrl: expected empty string got %q", p.AvatarURL)
+	}
+	if p.Bio != "" {
+		t.Fatalf("bio: expected empty string got %q", p.Bio)
+	}
+	if !p.CreatedAt.Equal(now) {
+		t.Fatalf("createdAt: expected %v got %v", now, p.CreatedAt)
+	}
+}
+
+func TestUserPublicProfile_WithAvatarAndBio_CopiesValues(t *testing.T) {
+	now := time.Now().UTC()
+	avatar := "https://cdn.example.com/a.png"
+	bio := "hello"
+
+	u := &User{
+		Username:    "testuser",
+		DisplayName: "Test User",
+		AvatarURL:   &avatar,
+		Bio:         &bio,
+		CreatedAt:   now,
+	}
+
+	p := u.PublicProfile()
+
+	if p.AvatarURL != avatar {
+		t.Fatalf("avatarUrl: expected %q got %q", avatar, p.AvatarURL)
+	}
+	if p.Bio != bio {
+		t.Fatalf("bio: expected %q got %q", bio, p.Bio)
+	}
+}
