@@ -126,6 +126,15 @@ func (r *PostgresAuditRepository) GetUserAuditLogs(ctx context.Context, userID d
 	return logs, rows.Err()
 }
 
+func (r *PostgresAuditRepository) CountByUser(ctx context.Context, userID string) (int64, error) {
+	const query = `SELECT COUNT(*) FROM audit_logs WHERE user_id = $1`
+	var total int64
+	if err := r.db.QueryRowContext(ctx, query, userID).Scan(&total); err != nil {
+		return 0, fmt.Errorf("count audit logs failed: %w", err)
+	}
+	return total, nil
+}
+
 func (r *PostgresAuditRepository) Close() error {
 	return r.db.Close()
 }

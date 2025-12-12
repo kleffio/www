@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import { TokenDebugPanel } from "@features/auth/components/TokenDebugPanel";
+import { TokenDebugPanel } from "@features/users/components/TokenDebugPanel";
 import { AppBackground } from "@app/layout/components/AppBackground";
 import { AppShellNav } from "@app/navigation/AppShellNav";
 

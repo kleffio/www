@@ -9,4 +9,5 @@ import (
 type AuditRepository interface {
 	Record(ctx context.Context, log *domain.AuditLog) error
 	GetUserAuditLogs(ctx context.Context, userID domain.ID, limit, offset int) ([]*domain.AuditLog, error)
+	CountByUser(ctx context.Context, userID string) (int64, error)
 }

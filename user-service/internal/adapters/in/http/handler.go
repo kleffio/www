@@ -26,6 +26,11 @@ type errorResponse struct {
 	Error string `json:"error"`
 }
 
+type auditLogsResponse struct {
+	Items []*domain.AuditLog `json:"items"`
+	Total int64              `json:"total"`
+}
+
 // ------- Handlers ------- \\
 
 func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
@@ -90,18 +95,34 @@ func (h *Handler) PatchMeProfile(w http.ResponseWriter, r *http.Request) {
 	// Update profile
 	updated, err := h.svc.UpdateProfile(r.Context(), user.ID, &update)
 	if err != nil {
-		if errors.Is(err, coresvc.ErrInvalidHandle) {
-			jsonError(w, http.StatusBadRequest, "invalid handle format (use lowercase letters, numbers, hyphens, underscores only)")
+		if errors.Is(err, coresvc.ErrInvalidUsername) {
+			jsonError(w, http.StatusBadRequest,
+				"invalid username format (use lowercase letters, numbers, hyphens, underscores only)")
 			return
 		}
-		if errors.Is(err, coresvc.ErrHandleTaken) {
-			jsonError(w, http.StatusConflict, "handle already taken")
+		if errors.Is(err, coresvc.ErrUsernameTaken) {
+			jsonError(w, http.StatusConflict, "username already taken")
 			return
 		}
 		if errors.Is(err, coresvc.ErrInvalidUpdate) {
 			jsonError(w, http.StatusBadRequest, "invalid profile data")
 			return
 		}
+
+		if strings.Contains(err.Error(), "failed to sync username to Authentik") {
+			log.Printf("Authentik sync error for user %s: %v", user.ID, err)
+			jsonError(w, http.StatusServiceUnavailable,
+				"failed to sync username with authentication provider - please try again later")
+			return
+		}
+
+		if strings.Contains(err.Error(), "authentik manager not configured") {
+			log.Printf("CRITICAL: Authentik manager not configured for user %s", user.ID)
+			jsonError(w, http.StatusInternalServerError,
+				"username updates are temporarily unavailable")
+			return
+		}
+
 		log.Printf("error updating profile: %v", err)
 		jsonError(w, http.StatusInternalServerError, "internal server error")
 		return
@@ -253,7 +274,7 @@ func (h *Handler) GetMyAuditLogs(w http.ResponseWriter, r *http.Request) {
 		limit = 20
 	}
 
-	logs, err := h.svc.GetAuditLogs(r.Context(), user.ID, limit, offset)
+	logs, total, err := h.svc.GetMyAuditLogs(r.Context(), user.ID, limit, offset)
 	if err != nil {
 		log.Printf("error getting audit logs for user %s: %v", user.ID, err)
 		jsonError(w, http.StatusInternalServerError, "internal server error")
@@ -264,7 +285,12 @@ func (h *Handler) GetMyAuditLogs(w http.ResponseWriter, r *http.Request) {
 		logs = []*domain.AuditLog{}
 	}
 
-	jsonResponse(w, http.StatusOK, logs)
+	resp := auditLogsResponse{
+		Items: logs,
+		Total: total,
+	}
+
+	jsonResponse(w, http.StatusOK, resp)
 }
 
 // ------- Helpers ------- \\

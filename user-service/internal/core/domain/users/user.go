@@ -12,7 +12,7 @@ type User struct {
 
 	LoginUsername string `json:"-"`
 
-	Handle      string  `json:"handle"`
+	Username    string  `json:"username"`
 	DisplayName string  `json:"displayName"`
 	AvatarURL   *string `json:"avatarUrl"`
 	Bio         *string `json:"bio"`
@@ -26,14 +26,13 @@ func (u *User) PublicProfile() *PublicProfile {
 	if u.AvatarURL != nil {
 		avatarURL = *u.AvatarURL
 	}
-
 	bio := ""
 	if u.Bio != nil {
 		bio = *u.Bio
 	}
 
 	return &PublicProfile{
-		Handle:      u.Handle,
+		Username:    u.Username,
 		DisplayName: u.DisplayName,
 		AvatarURL:   avatarURL,
 		Bio:         bio,
@@ -42,7 +41,7 @@ func (u *User) PublicProfile() *PublicProfile {
 }
 
 type PublicProfile struct {
-	Handle      string    `json:"handle"`
+	Username    string    `json:"username"`
 	DisplayName string    `json:"displayName"`
 	AvatarURL   string    `json:"avatarUrl"`
 	Bio         string    `json:"bio"`
@@ -50,7 +49,7 @@ type PublicProfile struct {
 }
 
 type ProfileUpdate struct {
-	Handle      *string `json:"handle,omitempty"`
+	Username    *string `json:"username,omitempty"`
 	DisplayName *string `json:"displayName,omitempty"`
 	AvatarURL   *string `json:"avatarUrl,omitempty"`
 	Bio         *string `json:"bio,omitempty"`

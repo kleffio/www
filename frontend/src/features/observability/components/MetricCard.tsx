@@ -19,7 +19,7 @@ const statusAccents = {
 export const MetricCard: React.FC<Props> = ({ metric, loading }) => {
   if (loading) {
     return (
-      <div className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.03] p-5">
+      <div className="relative overflow-hidden rounded-xl border border-white/6 bg-white/3 p-5">
         <div className="space-y-4">
           <Skeleton className="h-4 w-[120px]" />
           <Skeleton className="h-12 w-[180px]" />
@@ -36,7 +36,7 @@ export const MetricCard: React.FC<Props> = ({ metric, loading }) => {
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.03] p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/[0.08] hover:shadow-[0_6px_18px_rgba(0,0,0,0.45)] ${statusClass} before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-1.5 before:rounded-tl-xl before:rounded-bl-xl after:pointer-events-none after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/[0.02] after:to-transparent after:mix-blend-overlay`}
+      className={`group relative overflow-hidden rounded-xl border border-white/6 bg-white/3 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-white/8 hover:shadow-[0_6px_18px_rgba(0,0,0,0.45)] ${statusClass} before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:w-1.5 before:rounded-tl-xl before:rounded-bl-xl after:pointer-events-none after:absolute after:inset-0 after:bg-linear-to-b after:from-white/2 after:to-transparent after:mix-blend-overlay`}
     >
       <div className="relative z-10">
         <div className="mb-3">
@@ -60,14 +60,14 @@ export const MetricCard: React.FC<Props> = ({ metric, loading }) => {
           </div>
 
           {metric.sparkline && metric.sparkline.length > 0 && (
-            <div className="h-14 w-[140px] flex-shrink-0">
+            <div className="h-14 w-[140px] shrink-0">
               <Sparkline data={metric.sparkline} />
             </div>
           )}
         </div>
 
         {metric.changeLabel && (
-          <div className="mt-3 border-t border-white/[0.04] pt-3">
+          <div className="mt-3 border-t border-white/4 pt-3">
             <span className="text-xs text-neutral-500">{metric.changeLabel}</span>
           </div>
         )}

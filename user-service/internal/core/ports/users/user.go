@@ -8,10 +8,10 @@ import (
 
 type UserRepository interface {
 	GetByID(ctx context.Context, id domain.ID) (*domain.User, error)
-	GetByHandle(ctx context.Context, handle string) (*domain.User, error)
+	GetByUsername(ctx context.Context, username string) (*domain.User, error)
 	Save(ctx context.Context, user *domain.User) error
 	UpdateProfile(ctx context.Context, id domain.ID, update *domain.ProfileUpdate) error
-	HandleExists(ctx context.Context, handle string, excludeID domain.ID) (bool, error)
+	UsernameExists(ctx context.Context, username string, excludeID domain.ID) (bool, error)
 }
 
 type TokenClaims struct {
@@ -23,4 +23,9 @@ type TokenClaims struct {
 
 type TokenValidator interface {
 	ValidateToken(ctx context.Context, bearerToken string) (*TokenClaims, error)
+}
+
+type AuthentikUserManager interface {
+	UpdateUsername(ctx context.Context, userID string, username string) error
+	ResolveUserID(ctx context.Context, uuid string) (string, error)
 }

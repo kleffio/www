@@ -3,7 +3,7 @@ export interface UserSettings {
   email: string;
   emailVerified: boolean;
 
-  handle: string;
+  username: string;
   displayName: string;
   avatarUrl: string | null;
   bio: string | null;

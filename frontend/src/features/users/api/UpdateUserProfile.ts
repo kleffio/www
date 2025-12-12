@@ -2,7 +2,7 @@ import type { UserSettings } from "@features/users/types/User";
 import { client } from "@shared/lib/client";
 
 export interface UpdateUserProfileRequest {
-  handle?: string;
+  username?: string;
   displayName?: string;
   avatarUrl?: string | null;
   bio?: string | null;

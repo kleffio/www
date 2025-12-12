@@ -37,8 +37,9 @@ func NewApp() (*App, error) {
 	}
 
 	tokenValidator := authentik.NewTokenValidator(cfg.AuthentikBaseURL)
+	authentikManager := authentik.NewAuthentikManager(cfg.AuthentikBaseURL)
 
-	svc := usersvc.NewService(userRepo, auditRepo, tokenValidator)
+	svc := usersvc.NewService(userRepo, auditRepo, tokenValidator, authentikManager)
 
 	handler := httphandler.NewHandler(svc)
 	root := chi.NewRouter()

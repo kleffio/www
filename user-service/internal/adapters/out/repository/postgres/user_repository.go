@@ -42,18 +42,18 @@ func (r *PostgresUserRepository) CreateTable(ctx context.Context) error {
 		email VARCHAR(255) NOT NULL,
 		email_verified BOOLEAN NOT NULL DEFAULT false,
 		login_username VARCHAR(255),
-		handle VARCHAR(63) NOT NULL,
+		username VARCHAR(63) NOT NULL,
 		display_name VARCHAR(255) NOT NULL,
 		avatar_url TEXT,
 		bio TEXT,
 		created_at TIMESTAMP NOT NULL DEFAULT NOW(),
 		updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-		CONSTRAINT users_handle_format CHECK (handle ~ '^[a-z0-9_-]+$'),
-		CONSTRAINT users_handle_length CHECK (LENGTH(handle) >= 2 AND LENGTH(handle) <= 63)
+		CONSTRAINT users_username_format CHECK (username ~ '^[a-z0-9_-]+$'),
+		CONSTRAINT users_username_length CHECK (LENGTH(username) >= 2 AND LENGTH(username) <= 63)
 	);
 
 	CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email);
-	CREATE UNIQUE INDEX IF NOT EXISTS idx_users_handle ON users(handle);
+	CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username);
 	CREATE UNIQUE INDEX IF NOT EXISTS idx_users_authentik_id ON users(authentik_id) WHERE authentik_id IS NOT NULL;
 	CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at DESC);
 
@@ -79,7 +79,7 @@ func (r *PostgresUserRepository) CreateTable(ctx context.Context) error {
 func (r *PostgresUserRepository) GetByID(ctx context.Context, id domain.ID) (*domain.User, error) {
 	query := `
 		SELECT id, authentik_id, email, email_verified, login_username,
-		       handle, display_name, avatar_url, bio, created_at, updated_at
+		       username, display_name, avatar_url, bio, created_at, updated_at
 		FROM users
 		WHERE id = $1
 	`
@@ -90,7 +90,7 @@ func (r *PostgresUserRepository) GetByID(ctx context.Context, id domain.ID) (*do
 
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&u.ID, &authentikID, &u.Email, &u.EmailVerified, &loginUsername,
-		&u.Handle, &u.DisplayName, &avatarURL, &bio, &u.CreatedAt, &u.UpdatedAt,
+		&u.Username, &u.DisplayName, &avatarURL, &bio, &u.CreatedAt, &u.UpdatedAt,
 	)
 
 	if err == sql.ErrNoRows {
@@ -116,21 +116,21 @@ func (r *PostgresUserRepository) GetByID(ctx context.Context, id domain.ID) (*do
 	return &u, nil
 }
 
-func (r *PostgresUserRepository) GetByHandle(ctx context.Context, handle string) (*domain.User, error) {
+func (r *PostgresUserRepository) GetByUsername(ctx context.Context, username string) (*domain.User, error) {
 	query := `
 		SELECT id, authentik_id, email, email_verified, login_username,
-		       handle, display_name, avatar_url, bio, created_at, updated_at
+		       username, display_name, avatar_url, bio, created_at, updated_at
 		FROM users
-		WHERE handle = $1
+		WHERE username = $1
 	`
 
 	var u domain.User
 	var avatarURL, bio sql.NullString
 	var authentikID, loginUsername sql.NullString
 
-	err := r.db.QueryRowContext(ctx, query, handle).Scan(
+	err := r.db.QueryRowContext(ctx, query, username).Scan(
 		&u.ID, &authentikID, &u.Email, &u.EmailVerified, &loginUsername,
-		&u.Handle, &u.DisplayName, &avatarURL, &bio, &u.CreatedAt, &u.UpdatedAt,
+		&u.Username, &u.DisplayName, &avatarURL, &bio, &u.CreatedAt, &u.UpdatedAt,
 	)
 
 	if err == sql.ErrNoRows {
@@ -156,20 +156,28 @@ func (r *PostgresUserRepository) GetByHandle(ctx context.Context, handle string)
 	return &u, nil
 }
 
+func (r *PostgresUserRepository) UsernameExists(ctx context.Context, username string, excludeID domain.ID) (bool, error) {
+	query := `SELECT EXISTS(SELECT 1 FROM users WHERE username = $1 AND id != $2)`
+	var exists bool
+	err := r.db.QueryRowContext(ctx, query, username, excludeID).Scan(&exists)
+	return exists, err
+}
+
 func (r *PostgresUserRepository) Save(ctx context.Context, user *domain.User) error {
 	query := `
 		INSERT INTO users (id, authentik_id, email, email_verified, login_username,
-		                   handle, display_name, avatar_url, bio, created_at, updated_at)
+		                   username, display_name, avatar_url, bio, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		ON CONFLICT (id) DO UPDATE SET
-			email = EXCLUDED.email,
+			authentik_id   = EXCLUDED.authentik_id,
+			email          = EXCLUDED.email,
 			email_verified = EXCLUDED.email_verified,
 			login_username = EXCLUDED.login_username,
-			handle = EXCLUDED.handle,
-			display_name = EXCLUDED.display_name,
-			avatar_url = EXCLUDED.avatar_url,
-			bio = EXCLUDED.bio,
-			updated_at = EXCLUDED.updated_at
+			username       = EXCLUDED.username,
+			display_name   = EXCLUDED.display_name,
+			avatar_url     = EXCLUDED.avatar_url,
+			bio            = EXCLUDED.bio,
+			updated_at     = EXCLUDED.updated_at
 	`
 
 	_, err := r.db.ExecContext(ctx, query,
@@ -178,7 +186,7 @@ func (r *PostgresUserRepository) Save(ctx context.Context, user *domain.User) er
 		user.Email,
 		user.EmailVerified,
 		nullString(user.LoginUsername),
-		user.Handle,
+		user.Username,
 		user.DisplayName,
 		nullStringPtr(user.AvatarURL),
 		nullStringPtr(user.Bio),
@@ -199,9 +207,9 @@ func (r *PostgresUserRepository) UpdateProfile(ctx context.Context, id domain.ID
 	args := []interface{}{id}
 	argNum := 2
 
-	if update.Handle != nil {
-		setClauses = append(setClauses, fmt.Sprintf("handle = $%d", argNum))
-		args = append(args, *update.Handle)
+	if update.Username != nil {
+		setClauses = append(setClauses, fmt.Sprintf("username = $%d", argNum))
+		args = append(args, *update.Username)
 		argNum++
 	}
 
@@ -246,14 +254,6 @@ func (r *PostgresUserRepository) UpdateProfile(ctx context.Context, id domain.ID
 	}
 
 	return nil
-}
-
-func (r *PostgresUserRepository) HandleExists(ctx context.Context, handle string, excludeID domain.ID) (bool, error) {
-	query := `SELECT EXISTS(SELECT 1 FROM users WHERE handle = $1 AND id != $2)`
-
-	var exists bool
-	err := r.db.QueryRowContext(ctx, query, handle, excludeID).Scan(&exists)
-	return exists, err
 }
 
 func (r *PostgresUserRepository) Close() error {

@@ -1,19 +1,10 @@
 import { client } from "@shared/lib/client";
+import type { AuditLogPage } from "@features/users/types/Audit";
 
-export interface AuditLog {
-  id: string;
-  userId: string;
-  action: string;
-  ipAddress?: string | null;
-  userAgent?: string | null;
-  timestamp: string;
-  changes?: Record<string, { old: string; new: string }>;
-}
-
-export async function getMyAuditLogs(limit: number, offset: number): Promise<AuditLog[]> {
-  const response = await client.get<AuditLog[]>("/api/v1/users/me/audit", {
+export async function getMyAuditLogs(limit: number, offset: number): Promise<AuditLogPage> {
+  const response = await client.get<AuditLogPage>("/api/v1/users/me/audit", {
     params: { limit, offset }
   });
 
-  return response.data ?? [];
+  return response.data;
 }

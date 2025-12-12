@@ -15,30 +15,33 @@ import (
 )
 
 var (
-	ErrUserNotFound  = errors.New("user not found")
-	ErrInvalidToken  = errors.New("invalid or expired token")
-	ErrInvalidHandle = errors.New("invalid handle format")
-	ErrHandleTaken   = errors.New("handle already taken")
-	ErrInvalidUpdate = errors.New("invalid profile update")
+	ErrUserNotFound    = errors.New("user not found")
+	ErrInvalidToken    = errors.New("invalid or expired token")
+	ErrInvalidUsername = errors.New("invalid username format")
+	ErrUsernameTaken   = errors.New("username already taken")
+	ErrInvalidUpdate   = errors.New("invalid profile update")
 )
 
-var handleRegex = regexp.MustCompile(`^[a-z0-9_-]{2,63}$`)
+var usernameRegex = regexp.MustCompile(`^[a-z0-9_-]{2,63}$`)
 
 type Service struct {
-	repo           port.UserRepository
-	auditRepo      port.AuditRepository
-	tokenValidator port.TokenValidator
+	repo             port.UserRepository
+	auditRepo        port.AuditRepository
+	tokenValidator   port.TokenValidator
+	authentikManager port.AuthentikUserManager
 }
 
 func NewService(
 	repo port.UserRepository,
 	auditRepo port.AuditRepository,
 	tokenValidator port.TokenValidator,
+	authentikManager port.AuthentikUserManager,
 ) *Service {
 	return &Service{
-		repo:           repo,
-		auditRepo:      auditRepo,
-		tokenValidator: tokenValidator,
+		repo:             repo,
+		auditRepo:        auditRepo,
+		tokenValidator:   tokenValidator,
+		authentikManager: authentikManager,
 	}
 }
 
@@ -73,16 +76,27 @@ func (s *Service) EnsureUserFromToken(ctx context.Context, claims *port.TokenCla
 	now := time.Now().UTC()
 
 	if user == nil {
-		// New user - create with defaults
-		handle := s.generateUniqueHandle(ctx, claims)
+		username := s.generateUniqueUsername(ctx, claims)
 		displayName := s.generateDisplayName(claims)
+
+		var authentikID string
+		if s.authentikManager != nil && claims.Email != "" {
+			if uuid, err := s.authentikManager.ResolveUserID(ctx, claims.Email); err != nil {
+				log.Printf("failed to resolve authentik uuid for %s: %v", claims.Email, err)
+			} else {
+				authentikID = uuid
+			}
+		}
+
+		log.Printf(authentikID)
 
 		user = &domain.User{
 			ID:            domain.ID(claims.Sub),
+			AuthentikID:   authentikID,
 			Email:         claims.Email,
 			EmailVerified: claims.EmailVerified,
 			LoginUsername: claims.PreferredUsername,
-			Handle:        handle,
+			Username:      username,
 			DisplayName:   displayName,
 			CreatedAt:     now,
 			UpdatedAt:     now,
@@ -92,8 +106,20 @@ func (s *Service) EnsureUserFromToken(ctx context.Context, claims *port.TokenCla
 			return nil, fmt.Errorf("failed to create user: %w", err)
 		}
 
-		log.Printf("created new user: id=%s handle=%s", user.ID, user.Handle)
+		log.Printf("created new user: id=%s username=%s", user.ID, user.Username)
 		return user, nil
+	}
+
+	if user.AuthentikID == "" && s.authentikManager != nil && claims.Email != "" {
+		if uuid, err := s.authentikManager.ResolveUserID(ctx, claims.Email); err != nil {
+			log.Printf("failed to backfill authentik uuid for %s: %v", claims.Email, err)
+		} else {
+			user.AuthentikID = uuid
+			user.UpdatedAt = now
+			if err := s.repo.Save(ctx, user); err != nil {
+				log.Printf("failed to save authentik uuid for user %s: %v", user.ID, err)
+			}
+		}
 	}
 
 	// Existing user - update identity fields if changed
@@ -138,15 +164,16 @@ func (s *Service) Get(ctx context.Context, id domain.ID) (*domain.User, error) {
 	return user, nil
 }
 
-// GetByHandle fetches a user by their public handle
+// GetByHandle fetches a user by their public username (handle)
 func (s *Service) GetByHandle(ctx context.Context, handle string) (*domain.User, error) {
-	user, err := s.repo.GetByHandle(ctx, handle)
+	user, err := s.repo.GetByUsername(ctx, handle)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get user by handle: %w", err)
+		return nil, fmt.Errorf("failed to get user by username: %w", err)
 	}
 	if user == nil {
 		return nil, ErrUserNotFound
 	}
+	log.Printf(user.AuthentikID)
 	return user, nil
 }
 
@@ -161,45 +188,61 @@ func (s *Service) UpdateProfile(ctx context.Context, id domain.ID, update *domai
 		return nil, ErrUserNotFound
 	}
 
-	// Validate handle if provided
-	if update.Handle != nil {
-		normalized := strings.ToLower(strings.TrimSpace(*update.Handle))
-		if !handleRegex.MatchString(normalized) {
-			return nil, ErrInvalidHandle
+	usernameChanged := false
+	newUsername := ""
+
+	if update.Username != nil {
+		normalized := strings.ToLower(strings.TrimSpace(*update.Username))
+		if !usernameRegex.MatchString(normalized) {
+			return nil, ErrInvalidUsername
 		}
 
-		// Check uniqueness
-		if normalized != oldUser.Handle {
-			exists, err := s.repo.HandleExists(ctx, normalized, id)
+		if normalized != oldUser.Username {
+			exists, err := s.repo.UsernameExists(ctx, normalized, id)
 			if err != nil {
-				return nil, fmt.Errorf("failed to check handle: %w", err)
+				return nil, fmt.Errorf("failed to check username: %w", err)
 			}
 			if exists {
-				return nil, ErrHandleTaken
+				return nil, ErrUsernameTaken
 			}
+
+			usernameChanged = true
+			newUsername = normalized
 		}
 
-		update.Handle = &normalized
+		update.Username = &normalized
 	}
 
-	// Validate displayName
 	if update.DisplayName != nil {
 		trimmed := strings.TrimSpace(*update.DisplayName)
-		if trimmed == "" {
-			return nil, ErrInvalidUpdate
-		}
-		if len(trimmed) > 255 {
+		if trimmed == "" || len(trimmed) > 255 {
 			return nil, ErrInvalidUpdate
 		}
 		update.DisplayName = &trimmed
 	}
 
-	// Apply update
+	if usernameChanged {
+		if s.authentikManager == nil {
+			return nil, fmt.Errorf("authentik manager not configured, cannot update username")
+		}
+
+		if oldUser.AuthentikID == "" {
+			return nil, fmt.Errorf("missing authentik id for user %s", id)
+		}
+
+		if err := s.authentikManager.UpdateUsername(ctx, oldUser.AuthentikID, newUsername); err != nil {
+			return nil, fmt.Errorf("failed to sync username to Authentik: %w", err)
+		}
+
+		log.Printf("successfully synced username to Authentik: user=%s authentik_id=%s username=%s",
+			id, oldUser.AuthentikID, newUsername)
+	}
+
 	if err := s.repo.UpdateProfile(ctx, id, update); err != nil {
+		log.Printf("CRITICAL: Authentik updated but local DB failed for user %s: %v", id, err)
 		return nil, fmt.Errorf("failed to update profile: %w", err)
 	}
 
-	// Fetch updated user
 	newUser, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch updated user: %w", err)
@@ -234,13 +277,31 @@ func (s *Service) GetAuditLogs(ctx context.Context, userID domain.ID, limit, off
 	return s.auditRepo.GetUserAuditLogs(ctx, userID, limit, offset)
 }
 
+func (s *Service) GetMyAuditLogs(
+	ctx context.Context,
+	userID domain.ID,
+	limit, offset int,
+) ([]*domain.AuditLog, int64, error) {
+	logs, err := s.auditRepo.GetUserAuditLogs(ctx, userID, limit, offset)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	total, err := s.auditRepo.CountByUser(ctx, string(userID))
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return logs, total, nil
+}
+
 // --- Helpers ---
 
-func (s *Service) generateUniqueHandle(ctx context.Context, claims *port.TokenClaims) string {
+func (s *Service) generateUniqueUsername(ctx context.Context, claims *port.TokenClaims) string {
 	// Try preferred_username first
 	if claims.PreferredUsername != "" {
-		candidate := normalizeHandle(claims.PreferredUsername)
-		if candidate != "" && !s.handleExists(ctx, candidate) {
+		candidate := normalizeUsername(claims.PreferredUsername)
+		if candidate != "" && !s.usernameExists(ctx, candidate) {
 			return candidate
 		}
 	}
@@ -249,22 +310,20 @@ func (s *Service) generateUniqueHandle(ctx context.Context, claims *port.TokenCl
 	if claims.Email != "" {
 		parts := strings.Split(claims.Email, "@")
 		if len(parts) > 0 {
-			candidate := normalizeHandle(parts[0])
-			if candidate != "" && !s.handleExists(ctx, candidate) {
+			candidate := normalizeUsername(parts[0])
+			if candidate != "" && !s.usernameExists(ctx, candidate) {
 				return candidate
 			}
 		}
 	}
 
-	// Generate random handle
+	// Generate random username
 	for i := 0; i < 10; i++ {
 		candidate := fmt.Sprintf("user_%s", uuid.New().String()[:8])
-		if !s.handleExists(ctx, candidate) {
+		if !s.usernameExists(ctx, candidate) {
 			return candidate
 		}
 	}
-
-	// Fallback
 	return fmt.Sprintf("user_%s", uuid.New().String()[:12])
 }
 
@@ -281,7 +340,7 @@ func (s *Service) generateDisplayName(claims *port.TokenClaims) string {
 	return "User"
 }
 
-func normalizeHandle(input string) string {
+func normalizeUsername(input string) string {
 	lower := strings.ToLower(input)
 	normalized := regexp.MustCompile(`[^a-z0-9_-]`).ReplaceAllString(lower, "")
 	if len(normalized) < 2 || len(normalized) > 63 {
@@ -290,11 +349,11 @@ func normalizeHandle(input string) string {
 	return normalized
 }
 
-func (s *Service) handleExists(ctx context.Context, handle string) bool {
-	exists, err := s.repo.HandleExists(ctx, handle, "")
+func (s *Service) usernameExists(ctx context.Context, username string) bool {
+	exists, err := s.repo.UsernameExists(ctx, username, "")
 	if err != nil {
-		log.Printf("failed to check handle existence: %v", err)
-		return true // Assume exists on error to be safe
+		log.Printf("failed to check username existence: %v", err)
+		return true
 	}
 	return exists
 }
@@ -306,12 +365,13 @@ func (s *Service) detectAndLogChanges(ctx context.Context, oldUser, newUser *dom
 
 	changes := make(map[string]domain.ChangeDetail)
 
-	if oldUser.Handle != newUser.Handle {
-		changes["handle"] = domain.ChangeDetail{
-			Old: oldUser.Handle,
-			New: newUser.Handle,
+	if oldUser.Username != newUser.Username {
+		changes["username"] = domain.ChangeDetail{
+			Old: oldUser.Username,
+			New: newUser.Username,
 		}
 	}
+
 	if oldUser.DisplayName != newUser.DisplayName {
 		changes["displayName"] = domain.ChangeDetail{
 			Old: oldUser.DisplayName,

@@ -13,4 +13,5 @@ type UserService interface {
 	UpdateProfile(ctx context.Context, id domain.ID, update *domain.ProfileUpdate) (*domain.User, error)
 	ResolveMany(ctx context.Context, ids []domain.ID) (map[domain.ID]*domain.User, error)
 	GetAuditLogs(ctx context.Context, userID domain.ID, limit, offset int) ([]*domain.AuditLog, error)
+	GetMyAuditLogs(ctx context.Context, userID domain.ID, limit, offset int) ([]*domain.AuditLog, int64, error)
 }

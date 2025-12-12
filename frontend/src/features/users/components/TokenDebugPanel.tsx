@@ -2,7 +2,7 @@ import { Button } from "@shared/ui/Button";
 import { Code, X } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "react-oidc-context";
-import { Me } from "@features/auth/api/me";
+import { Me } from "@features/users/api/me";
 
 export function TokenDebugPanel() {
   const auth = useAuth();
@@ -24,15 +24,9 @@ export function TokenDebugPanel() {
       console.log("🧪 Testing API with token...");
       const response = await Me(auth.user.access_token);
 
-      console.log("📊 Response status:", response.status);
-      const data = await response.json();
-      console.log("📦 Response data:", data);
+      console.log("📊 API Response:", response);
 
-      if (response.ok) {
-        alert("✅ API call successful! Check console for details.");
-      } else {
-        alert(`❌ API call failed with status ${response.status}. Check console for details.`);
-      }
+      alert("✅ API call successful! Check console for details.");
     } catch (error) {
       console.error("❌ API Error:", error);
       alert("❌ API call failed. Check console for details.");

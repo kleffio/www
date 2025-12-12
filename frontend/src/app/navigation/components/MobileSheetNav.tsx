@@ -14,7 +14,7 @@ import {
 
 import { Button } from "@shared/ui/Button";
 import { cn } from "@shared/lib/utils";
-import { logoutEverywhere } from "@features/auth/api/logout";
+import { logoutEverywhere } from "@features/users/api/logout";
 import type { MegaMenuSection } from "../Navigation";
 import { MEGA_MENU_SECTIONS, SIMPLE_NAV_LINKS } from "../Navigation";
 import { ROUTES } from "@app/routes/routes";
@@ -22,11 +22,10 @@ import { Brand } from "@shared/ui/Brand";
 import { UserAvatar } from "@shared/ui/UserAvatar";
 
 import LocaleSwitcher from "@app/navigation/components/LocaleSwitcher";
-import { useUserSettings } from "@features/users/hooks/useUserSettings";
-import { useIdentity } from "@features/auth/hooks/useIdentity";
+import { useUser } from "@features/users/hooks/useUser";
 
 export function MobileSheetNav() {
-  const { isAuthenticated } = useIdentity();
+  const { isAuthenticated } = useUser();
   const [open, setOpen] = React.useState(false);
   const [expandedSections, setExpandedSections] = React.useState<Set<string>>(new Set(["product"]));
 
@@ -198,17 +197,7 @@ const MegaMenuSectionItem = React.memo(
 MegaMenuSectionItem.displayName = "MegaMenuSectionItem";
 
 const AuthenticatedSection = React.memo(({ onNavigate }: { onNavigate: () => void }) => {
-  const { auth, name, email, initial } = useIdentity();
-  const { settings } = useUserSettings();
-
-  const profileName =
-    settings?.displayName?.trim() || settings?.handle?.trim() || name || "Account";
-
-  const profileEmail = settings?.email || email || undefined;
-
-  const avatarInitial = (profileName || profileEmail || initial || "K").charAt(0).toUpperCase();
-
-  const avatarSrc = settings?.avatarUrl || undefined;
+  const { auth, displayName, email, initial, avatarUrl } = useUser();
 
   const handleLogout = React.useCallback(async () => {
     onNavigate();
@@ -217,7 +206,7 @@ const AuthenticatedSection = React.memo(({ onNavigate }: { onNavigate: () => voi
 
   return (
     <div className="space-y-3 px-2 pb-2">
-      <UserAvatar initial={avatarInitial} name={profileName} email={profileEmail} src={avatarSrc} />
+      <UserAvatar initial={initial} name={displayName} email={email} src={avatarUrl || undefined} />
 
       <div className="flex flex-col gap-2">
         <Link to={ROUTES.DASHBOARD} onClick={onNavigate}>

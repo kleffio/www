@@ -4,18 +4,18 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(255) NOT NULL,
     email_verified BOOLEAN NOT NULL DEFAULT false,
     login_username VARCHAR(255),
-    handle VARCHAR(63) NOT NULL,
+    username VARCHAR(63) NOT NULL,
     display_name VARCHAR(255) NOT NULL,
     avatar_url TEXT,
     bio TEXT,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    CONSTRAINT users_handle_format CHECK (handle ~ '^[a-z0-9_-]+$'),
-    CONSTRAINT users_handle_length CHECK (LENGTH(handle) >= 2 AND LENGTH(handle) <= 63)
+    CONSTRAINT users_username_format CHECK (username ~ '^[a-z0-9_-]+$'),
+    CONSTRAINT users_username_length CHECK (LENGTH(username) >= 2 AND LENGTH(username) <= 63)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_users_handle ON users(handle);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_username ON users(username);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_users_authentik_id ON users(authentik_id) WHERE authentik_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at DESC);
 

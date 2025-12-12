@@ -2,7 +2,7 @@ import { createContext, useCallback, useEffect, useMemo, useState, type ReactNod
 import { useAuth } from "react-oidc-context";
 import type { UserSettings, UserSettingsState } from "@features/users/types/User";
 import { setAccessToken } from "@shared/lib/client";
-import { Me } from "@features/auth/api/me";
+import { Me } from "@features/users/api/me";
 
 const UserSettingsContext = createContext<UserSettingsState | undefined>(undefined);
 

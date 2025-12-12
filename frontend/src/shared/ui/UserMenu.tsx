@@ -4,10 +4,10 @@ import { useAuth } from "react-oidc-context";
 import { LogOut, Settings, LayoutDashboard } from "lucide-react";
 import { cn } from "@shared/lib/utils";
 import { Button } from "@shared/ui/Button";
-import { logoutEverywhere } from "@features/auth/api/logout";
+import { logoutEverywhere } from "@features/users/api/logout";
 import { UserAvatar } from "./UserAvatar";
 import { ROUTES } from "@app/routes/routes";
-import { useUserSettings } from "@features/users/hooks/useUserSettings";
+import { useUser } from "@features/users/hooks/useUser";
 
 interface UserMenuProps {
   variant?: "compact" | "full";
@@ -24,7 +24,7 @@ export function UserMenu({
 }: UserMenuProps) {
   const navigate = useNavigate();
   const auth = useAuth();
-  const { settings } = useUserSettings();
+  const { displayName, email, avatarUrl, initial } = useUser();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -43,24 +43,6 @@ export function UserMenu({
   }, [menuOpen]);
 
   if (!auth.isAuthenticated) return null;
-
-  // Prefer user-service profile, then Authentik profile
-  const profileName =
-    settings?.displayName?.trim() ||
-    settings?.handle?.trim() ||
-    auth.user?.profile.preferred_username ||
-    auth.user?.profile.name ||
-    "Account";
-
-  const profileEmail = settings?.email || auth.user?.profile.email || undefined;
-
-  // Safely read OIDC picture without `any`
-  const profile = auth.user?.profile as Record<string, unknown> | undefined;
-  const rawPicture = profile?.["picture"];
-  const oidcPicture = typeof rawPicture === "string" ? rawPicture : undefined;
-
-  const avatarSrc = settings?.avatarUrl || oidcPicture;
-  const initial = (profileName || profileEmail || "K").charAt(0).toUpperCase();
 
   const handleSignOut = async () => {
     setMenuOpen(false);
@@ -85,20 +67,22 @@ export function UserMenu({
         size={variant === "compact" ? "icon" : "lg"}
         onClick={() => setMenuOpen((open) => !open)}
         className={cn(
-          "flex items-center gap-2 rounded-full bg-transparent px-0 py-0 hover:bg-transparent",
+          "flex items-center justify-center rounded-full bg-transparent px-0 py-0 hover:bg-transparent",
           "focus-visible:ring-kleff-gold/70 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-black",
-          variant === "full" && "py-1.5 pr-3 pl-1"
+          variant === "full" && "px-1.5 py-1.5"
         )}
       >
-        <UserAvatar initial={initial} size={variant === "compact" ? "sm" : "md"} src={avatarSrc} />
-
-        {variant === "full" && (
-          <div className="hidden min-w-0 flex-1 lg:block">
-            <div className="truncate text-xs font-medium text-neutral-200">{profileName}</div>
-            {profileEmail && (
-              <div className="truncate text-[10px] text-neutral-500">{profileEmail}</div>
-            )}
-          </div>
+        {variant === "compact" ? (
+          <UserAvatar initial={initial} size="sm" src={avatarUrl || undefined} variant="inline" />
+        ) : (
+          <UserAvatar
+            initial={initial}
+            name={displayName}
+            email={email}
+            size="md"
+            src={avatarUrl || undefined}
+            variant="inline"
+          />
         )}
       </Button>
 

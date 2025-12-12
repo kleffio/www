@@ -13,14 +13,13 @@ import {
 import { Button } from "@shared/ui/Button";
 import { UserMenu } from "@shared/ui/UserMenu";
 import { cn } from "@shared/lib/utils";
-import { useIdentity } from "@features/auth/hooks/useIdentity";
-import { logoutEverywhere } from "@features/auth/api/logout";
+import { useUser } from "@features/users/hooks/useUser";
+import { logoutEverywhere } from "@features/users/api/logout";
 import { DASHBOARD_NAV_ITEMS, isNavItemActive } from "@app/navigation/Navigation";
 import { ROUTES } from "@app/routes/routes";
 import { Brand } from "@shared/ui/Brand";
 import { UserAvatar } from "@shared/ui/UserAvatar";
 import { NavItem } from "@app/navigation/components/NavItem";
-import { useUserSettings } from "@features/users/hooks/useUserSettings";
 
 import LocaleSwitcher from "@app/navigation/components/LocaleSwitcher";
 
@@ -64,17 +63,7 @@ function MobileHeader() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { auth, name, email, initial, isAuthenticated } = useIdentity();
-  const { settings } = useUserSettings();
-
-  const profileName =
-    settings?.displayName?.trim() || settings?.handle?.trim() || name || "Account";
-
-  const profileEmail = settings?.email || email || undefined;
-
-  const avatarInitial = (profileName || profileEmail || initial || "K").charAt(0).toUpperCase();
-
-  const avatarSrc = settings?.avatarUrl || undefined;
+  const { auth, displayName, email, initial, avatarUrl, isAuthenticated } = useUser();
 
   useEffect(() => {
     if (!open) return;
@@ -153,10 +142,10 @@ function MobileHeader() {
           {isAuthenticated && (
             <div className="space-y-3 border-t border-white/10 p-4 pb-6">
               <UserAvatar
-                initial={avatarInitial}
-                name={profileName}
-                email={profileEmail}
-                src={avatarSrc}
+                initial={initial}
+                name={displayName}
+                email={email}
+                src={avatarUrl || undefined}
               />
 
               <div className="mt-2 flex flex-col gap-2">
