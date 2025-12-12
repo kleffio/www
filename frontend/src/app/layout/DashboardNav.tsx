@@ -20,6 +20,7 @@ import { ROUTES } from "@app/routes/routes";
 import { Brand } from "@shared/ui/Brand";
 import { UserAvatar } from "@shared/ui/UserAvatar";
 import { NavItem } from "@app/navigation/components/NavItem";
+import { useUserSettings } from "@features/users/hooks/useUserSettings";
 
 import LocaleSwitcher from "@app/navigation/components/LocaleSwitcher";
 
@@ -64,6 +65,16 @@ function MobileHeader() {
   const location = useLocation();
   const navigate = useNavigate();
   const { auth, name, email, initial, isAuthenticated } = useIdentity();
+  const { settings } = useUserSettings();
+
+  const profileName =
+    settings?.displayName?.trim() || settings?.handle?.trim() || name || "Account";
+
+  const profileEmail = settings?.email || email || undefined;
+
+  const avatarInitial = (profileName || profileEmail || initial || "K").charAt(0).toUpperCase();
+
+  const avatarSrc = settings?.avatarUrl || undefined;
 
   useEffect(() => {
     if (!open) return;
@@ -141,7 +152,12 @@ function MobileHeader() {
 
           {isAuthenticated && (
             <div className="space-y-3 border-t border-white/10 p-4 pb-6">
-              <UserAvatar initial={initial} name={name} email={email} />
+              <UserAvatar
+                initial={avatarInitial}
+                name={profileName}
+                email={profileEmail}
+                src={avatarSrc}
+              />
 
               <div className="mt-2 flex flex-col gap-2">
                 <Button

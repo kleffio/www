@@ -33,12 +33,12 @@ func NewRouter(h *Handler) http.Handler {
 	r.Route("/api/v1/users", func(r chi.Router) {
 		r.Get("/me", h.GetMe)
 		r.Patch("/me/profile", h.PatchMeProfile)
+		r.Get("/me/audit", h.GetMyAuditLogs)
 
-		r.Get("/profiles/@{handle}", h.GetPublicProfile)
+		r.Get("/profile/@{handle}", h.GetPublicProfile)
 
 		r.Get("/{id}", h.GetUser)
 		r.Post("/resolve", h.ResolveMany)
-		r.Get("/{id}/audit", h.GetAuditLogs)
 	})
 
 	return r

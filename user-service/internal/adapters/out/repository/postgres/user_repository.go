@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"strings"
 
 	domain "github.com/kleffio/www/user-service/internal/core/domain/users"
 	port "github.com/kleffio/www/user-service/internal/core/ports/users"
@@ -226,15 +227,13 @@ func (r *PostgresUserRepository) UpdateProfile(ctx context.Context, id domain.ID
 		return nil
 	}
 
-	query := fmt.Sprintf(`
-		UPDATE users
-		SET %s
-		WHERE id = $1
-	`, setClauses[0])
+	setClause := strings.Join(setClauses, ", ")
 
-	for i := 1; i < len(setClauses); i++ {
-		query = fmt.Sprintf("%s, %s", query[:len(query)-len("WHERE id = $1")], setClauses[i]) + "\nWHERE id = $1"
-	}
+	query := fmt.Sprintf(`
+        UPDATE users
+        SET %s
+        WHERE id = $1
+    `, setClause)
 
 	result, err := r.db.ExecContext(ctx, query, args...)
 	if err != nil {

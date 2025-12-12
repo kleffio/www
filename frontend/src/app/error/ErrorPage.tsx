@@ -3,7 +3,7 @@ import { Button } from "@shared/ui/Button";
 import { Badge } from "@shared/ui/Badge";
 import { AlertTriangle, Home, RefreshCcw, ArrowLeft } from "lucide-react";
 
-import { AppHeader } from "@app/layout/components/AppHeader";
+import { AppHeader } from "@app/layout/AppHeader";
 import { AppFooter } from "@app/layout/components/AppFooter";
 
 interface ErrorDetails {

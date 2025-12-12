@@ -42,6 +42,7 @@ func NewService(
 	}
 }
 
+// GetMe fetches the current user from their bearer token
 func (s *Service) GetMe(ctx context.Context, bearerToken string) (*domain.User, error) {
 	if bearerToken == "" {
 		return nil, ErrInvalidToken
@@ -53,6 +54,7 @@ func (s *Service) GetMe(ctx context.Context, bearerToken string) (*domain.User, 
 		return nil, ErrInvalidToken
 	}
 
+	// Ensure user exists from token claims
 	user, err := s.EnsureUserFromToken(ctx, claims)
 	if err != nil {
 		return nil, err
@@ -61,6 +63,7 @@ func (s *Service) GetMe(ctx context.Context, bearerToken string) (*domain.User, 
 	return user, nil
 }
 
+// EnsureUserFromToken creates or updates a user from OIDC token claims
 func (s *Service) EnsureUserFromToken(ctx context.Context, claims *port.TokenClaims) (*domain.User, error) {
 	user, err := s.repo.GetByID(ctx, domain.ID(claims.Sub))
 	if err != nil {
@@ -70,6 +73,7 @@ func (s *Service) EnsureUserFromToken(ctx context.Context, claims *port.TokenCla
 	now := time.Now().UTC()
 
 	if user == nil {
+		// New user - create with defaults
 		handle := s.generateUniqueHandle(ctx, claims)
 		displayName := s.generateDisplayName(claims)
 
@@ -92,6 +96,7 @@ func (s *Service) EnsureUserFromToken(ctx context.Context, claims *port.TokenCla
 		return user, nil
 	}
 
+	// Existing user - update identity fields if changed
 	updated := false
 	oldUser := *user
 
@@ -121,6 +126,7 @@ func (s *Service) EnsureUserFromToken(ctx context.Context, claims *port.TokenCla
 	return user, nil
 }
 
+// Get fetches a user by ID
 func (s *Service) Get(ctx context.Context, id domain.ID) (*domain.User, error) {
 	user, err := s.repo.GetByID(ctx, id)
 	if err != nil {
@@ -132,6 +138,7 @@ func (s *Service) Get(ctx context.Context, id domain.ID) (*domain.User, error) {
 	return user, nil
 }
 
+// GetByHandle fetches a user by their public handle
 func (s *Service) GetByHandle(ctx context.Context, handle string) (*domain.User, error) {
 	user, err := s.repo.GetByHandle(ctx, handle)
 	if err != nil {
@@ -143,6 +150,7 @@ func (s *Service) GetByHandle(ctx context.Context, handle string) (*domain.User,
 	return user, nil
 }
 
+// UpdateProfile updates user profile fields
 func (s *Service) UpdateProfile(ctx context.Context, id domain.ID, update *domain.ProfileUpdate) (*domain.User, error) {
 	// Get existing user
 	oldUser, err := s.repo.GetByID(ctx, id)
@@ -153,12 +161,14 @@ func (s *Service) UpdateProfile(ctx context.Context, id domain.ID, update *domai
 		return nil, ErrUserNotFound
 	}
 
+	// Validate handle if provided
 	if update.Handle != nil {
 		normalized := strings.ToLower(strings.TrimSpace(*update.Handle))
 		if !handleRegex.MatchString(normalized) {
 			return nil, ErrInvalidHandle
 		}
 
+		// Check uniqueness
 		if normalized != oldUser.Handle {
 			exists, err := s.repo.HandleExists(ctx, normalized, id)
 			if err != nil {
@@ -172,6 +182,7 @@ func (s *Service) UpdateProfile(ctx context.Context, id domain.ID, update *domai
 		update.Handle = &normalized
 	}
 
+	// Validate displayName
 	if update.DisplayName != nil {
 		trimmed := strings.TrimSpace(*update.DisplayName)
 		if trimmed == "" {
@@ -183,10 +194,12 @@ func (s *Service) UpdateProfile(ctx context.Context, id domain.ID, update *domai
 		update.DisplayName = &trimmed
 	}
 
+	// Apply update
 	if err := s.repo.UpdateProfile(ctx, id, update); err != nil {
 		return nil, fmt.Errorf("failed to update profile: %w", err)
 	}
 
+	// Fetch updated user
 	newUser, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch updated user: %w", err)
@@ -197,6 +210,7 @@ func (s *Service) UpdateProfile(ctx context.Context, id domain.ID, update *domai
 	return newUser, nil
 }
 
+// ResolveMany fetches multiple users by ID (kept for compatibility)
 func (s *Service) ResolveMany(ctx context.Context, ids []domain.ID) (map[domain.ID]*domain.User, error) {
 	result := make(map[domain.ID]*domain.User)
 	for _, id := range ids {
@@ -212,6 +226,7 @@ func (s *Service) ResolveMany(ctx context.Context, ids []domain.ID) (map[domain.
 	return result, nil
 }
 
+// GetAuditLogs retrieves audit logs for a user
 func (s *Service) GetAuditLogs(ctx context.Context, userID domain.ID, limit, offset int) ([]*domain.AuditLog, error) {
 	if s.auditRepo == nil {
 		return nil, nil
@@ -222,6 +237,7 @@ func (s *Service) GetAuditLogs(ctx context.Context, userID domain.ID, limit, off
 // --- Helpers ---
 
 func (s *Service) generateUniqueHandle(ctx context.Context, claims *port.TokenClaims) string {
+	// Try preferred_username first
 	if claims.PreferredUsername != "" {
 		candidate := normalizeHandle(claims.PreferredUsername)
 		if candidate != "" && !s.handleExists(ctx, candidate) {
@@ -229,6 +245,7 @@ func (s *Service) generateUniqueHandle(ctx context.Context, claims *port.TokenCl
 		}
 	}
 
+	// Try email local part
 	if claims.Email != "" {
 		parts := strings.Split(claims.Email, "@")
 		if len(parts) > 0 {
@@ -239,6 +256,7 @@ func (s *Service) generateUniqueHandle(ctx context.Context, claims *port.TokenCl
 		}
 	}
 
+	// Generate random handle
 	for i := 0; i < 10; i++ {
 		candidate := fmt.Sprintf("user_%s", uuid.New().String()[:8])
 		if !s.handleExists(ctx, candidate) {
@@ -246,6 +264,7 @@ func (s *Service) generateUniqueHandle(ctx context.Context, claims *port.TokenCl
 		}
 	}
 
+	// Fallback
 	return fmt.Sprintf("user_%s", uuid.New().String()[:12])
 }
 
@@ -275,7 +294,7 @@ func (s *Service) handleExists(ctx context.Context, handle string) bool {
 	exists, err := s.repo.HandleExists(ctx, handle, "")
 	if err != nil {
 		log.Printf("failed to check handle existence: %v", err)
-		return true
+		return true // Assume exists on error to be safe
 	}
 	return exists
 }
@@ -340,4 +359,22 @@ func ptrStr(s *string) string {
 		return ""
 	}
 	return *s
+}
+
+func (s *Service) logAction(ctx context.Context, userID domain.ID, action string, changes map[string]domain.ChangeDetail) {
+	if s.auditRepo == nil {
+		return
+	}
+
+	auditLog := &domain.AuditLog{
+		ID:        uuid.New().String(),
+		UserID:    userID,
+		Action:    action,
+		Changes:   changes,
+		Timestamp: time.Now().UTC(),
+	}
+
+	if err := s.auditRepo.Record(ctx, auditLog); err != nil {
+		log.Printf("failed to record audit log: %v", err)
+	}
 }

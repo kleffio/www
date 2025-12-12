@@ -14,19 +14,29 @@ type User struct {
 
 	Handle      string  `json:"handle"`
 	DisplayName string  `json:"displayName"`
-	AvatarURL   *string `json:"avatarUrl,omitempty"`
-	Bio         *string `json:"bio,omitempty"`
+	AvatarURL   *string `json:"avatarUrl"`
+	Bio         *string `json:"bio"`
 
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (u *User) PublicProfile() *PublicProfile {
+	avatarURL := ""
+	if u.AvatarURL != nil {
+		avatarURL = *u.AvatarURL
+	}
+
+	bio := ""
+	if u.Bio != nil {
+		bio = *u.Bio
+	}
+
 	return &PublicProfile{
 		Handle:      u.Handle,
 		DisplayName: u.DisplayName,
-		AvatarURL:   u.AvatarURL,
-		Bio:         u.Bio,
+		AvatarURL:   avatarURL,
+		Bio:         bio,
 		CreatedAt:   u.CreatedAt,
 	}
 }
@@ -34,8 +44,8 @@ func (u *User) PublicProfile() *PublicProfile {
 type PublicProfile struct {
 	Handle      string    `json:"handle"`
 	DisplayName string    `json:"displayName"`
-	AvatarURL   *string   `json:"avatarUrl,omitempty"`
-	Bio         *string   `json:"bio,omitempty"`
+	AvatarURL   string    `json:"avatarUrl"`
+	Bio         string    `json:"bio"`
 	CreatedAt   time.Time `json:"createdAt"`
 }
 

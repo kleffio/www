@@ -33,6 +33,7 @@ func (h *Handler) Health(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte("ok"))
 }
 
+// GetMe returns the authenticated user's full profile
 func (h *Handler) GetMe(w http.ResponseWriter, r *http.Request) {
 	token := extractBearerToken(r)
 	if token == "" {
@@ -55,9 +56,11 @@ func (h *Handler) GetMe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Return full profile (includes email, but not backend fields)
 	jsonResponse(w, http.StatusOK, user)
 }
 
+// PatchMeProfile updates the authenticated user's profile
 func (h *Handler) PatchMeProfile(w http.ResponseWriter, r *http.Request) {
 	token := extractBearerToken(r)
 	if token == "" {
@@ -65,6 +68,7 @@ func (h *Handler) PatchMeProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get user ID from token
 	user, err := h.svc.GetMe(r.Context(), token)
 	if err != nil {
 		if errors.Is(err, coresvc.ErrInvalidToken) {
@@ -76,12 +80,14 @@ func (h *Handler) PatchMeProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Parse update request
 	var update domain.ProfileUpdate
 	if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
 		jsonError(w, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
+	// Update profile
 	updated, err := h.svc.UpdateProfile(r.Context(), user.ID, &update)
 	if err != nil {
 		if errors.Is(err, coresvc.ErrInvalidHandle) {
@@ -104,6 +110,7 @@ func (h *Handler) PatchMeProfile(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, http.StatusOK, updated)
 }
 
+// GetPublicProfile returns a public profile by handle
 func (h *Handler) GetPublicProfile(w http.ResponseWriter, r *http.Request) {
 	handle := chi.URLParam(r, "handle")
 	if handle == "" {
@@ -111,6 +118,7 @@ func (h *Handler) GetPublicProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Strip @ prefix if present
 	handle = strings.TrimPrefix(handle, "@")
 
 	user, err := h.svc.GetByHandle(r.Context(), handle)
@@ -124,9 +132,11 @@ func (h *Handler) GetPublicProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Return only public fields
 	jsonResponse(w, http.StatusOK, user.PublicProfile())
 }
 
+// GetUser fetches a user by ID (kept for backward compatibility)
 func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	if id == "" {
@@ -206,6 +216,46 @@ func (h *Handler) GetAuditLogs(w http.ResponseWriter, r *http.Request) {
 	logs, err := h.svc.GetAuditLogs(r.Context(), domain.ID(id), limit, offset)
 	if err != nil {
 		log.Printf("error getting audit logs for user %s: %v", id, err)
+		jsonError(w, http.StatusInternalServerError, "internal server error")
+		return
+	}
+
+	if logs == nil {
+		logs = []*domain.AuditLog{}
+	}
+
+	jsonResponse(w, http.StatusOK, logs)
+}
+
+func (h *Handler) GetMyAuditLogs(w http.ResponseWriter, r *http.Request) {
+	token := extractBearerToken(r)
+	if token == "" {
+		jsonError(w, http.StatusUnauthorized, "missing or invalid authorization header")
+		return
+	}
+
+	// Get current user from token
+	user, err := h.svc.GetMe(r.Context(), token)
+	if err != nil {
+		if errors.Is(err, coresvc.ErrInvalidToken) {
+			jsonError(w, http.StatusUnauthorized, "invalid or expired token")
+			return
+		}
+		log.Printf("error validating token: %v", err)
+		jsonError(w, http.StatusUnauthorized, "invalid token")
+		return
+	}
+
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
+
+	if limit <= 0 || limit > 100 {
+		limit = 20
+	}
+
+	logs, err := h.svc.GetAuditLogs(r.Context(), user.ID, limit, offset)
+	if err != nil {
+		log.Printf("error getting audit logs for user %s: %v", user.ID, err)
 		jsonError(w, http.StatusInternalServerError, "internal server error")
 		return
 	}

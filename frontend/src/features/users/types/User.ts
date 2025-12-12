@@ -1,11 +1,15 @@
 export interface UserSettings {
-  authentikUid: string;
-  name: string | null;
-  email: string | null;
-  phone: string | null;
-  theme: "dark" | "light" | "system" | string;
-  timezone: string | null;
-  marketingEmails: boolean;
+  id: string;
+  email: string;
+  emailVerified: boolean;
+
+  handle: string;
+  displayName: string;
+  avatarUrl: string | null;
+  bio: string | null;
+
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type UserSettingsState = {

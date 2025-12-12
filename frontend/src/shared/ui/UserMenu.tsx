@@ -7,6 +7,7 @@ import { Button } from "@shared/ui/Button";
 import { logoutEverywhere } from "@features/auth/api/logout";
 import { UserAvatar } from "./UserAvatar";
 import { ROUTES } from "@app/routes/routes";
+import { useUserSettings } from "@features/users/hooks/useUserSettings";
 
 interface UserMenuProps {
   variant?: "compact" | "full";
@@ -23,6 +24,7 @@ export function UserMenu({
 }: UserMenuProps) {
   const navigate = useNavigate();
   const auth = useAuth();
+  const { settings } = useUserSettings();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -42,9 +44,23 @@ export function UserMenu({
 
   if (!auth.isAuthenticated) return null;
 
-  const userName = auth.user?.profile.preferred_username || auth.user?.profile.name || "Account";
-  const userEmail = auth.user?.profile.email;
-  const initial = (userName || userEmail || "K").charAt(0).toUpperCase();
+  // Prefer user-service profile, then Authentik profile
+  const profileName =
+    settings?.displayName?.trim() ||
+    settings?.handle?.trim() ||
+    auth.user?.profile.preferred_username ||
+    auth.user?.profile.name ||
+    "Account";
+
+  const profileEmail = settings?.email || auth.user?.profile.email || undefined;
+
+  // Safely read OIDC picture without `any`
+  const profile = auth.user?.profile as Record<string, unknown> | undefined;
+  const rawPicture = profile?.["picture"];
+  const oidcPicture = typeof rawPicture === "string" ? rawPicture : undefined;
+
+  const avatarSrc = settings?.avatarUrl || oidcPicture;
+  const initial = (profileName || profileEmail || "K").charAt(0).toUpperCase();
 
   const handleSignOut = async () => {
     setMenuOpen(false);
@@ -74,12 +90,14 @@ export function UserMenu({
           variant === "full" && "py-1.5 pr-3 pl-1"
         )}
       >
-        <UserAvatar initial={initial} size={variant === "compact" ? "sm" : "md"} />
+        <UserAvatar initial={initial} size={variant === "compact" ? "sm" : "md"} src={avatarSrc} />
 
         {variant === "full" && (
           <div className="hidden min-w-0 flex-1 lg:block">
-            <div className="truncate text-xs font-medium text-neutral-200">{userName}</div>
-            {userEmail && <div className="truncate text-[10px] text-neutral-500">{userEmail}</div>}
+            <div className="truncate text-xs font-medium text-neutral-200">{profileName}</div>
+            {profileEmail && (
+              <div className="truncate text-[10px] text-neutral-500">{profileEmail}</div>
+            )}
           </div>
         )}
       </Button>
