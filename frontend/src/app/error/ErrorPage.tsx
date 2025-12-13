@@ -4,7 +4,7 @@ import { Badge } from "@shared/ui/Badge";
 import { AlertTriangle, Home, RefreshCcw, ArrowLeft } from "lucide-react";
 
 import { AppHeader } from "@app/layout/AppHeader";
-import { AppFooter } from "@app/layout/AppFooter";
+import { AppFooter } from "@app/layout/components/AppFooter";
 
 interface ErrorDetails {
   status: number;

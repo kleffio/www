@@ -1,26 +1,36 @@
-# ---- Build stage ----
-FROM eclipse-temurin:17-jdk-alpine AS build
+FROM golang:1.23-alpine AS builder
+
+RUN apk add --no-cache git ca-certificates tzdata
+
+WORKDIR /build
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
+    -ldflags="-w -s" \
+    -o user-service \
+    ./cmd/user-service
+
+FROM alpine:latest
+
+RUN apk --no-cache add ca-certificates tzdata
+
 WORKDIR /app
 
-# Copy Gradle wrapper and config
-COPY gradlew gradlew.bat ./
-COPY gradle ./gradle
-COPY build.gradle settings.gradle ./
+COPY --from=builder /build/user-service .
 
-# Copy source
-COPY src ./src
+RUN addgroup -g 1000 appuser && \
+    adduser -D -u 1000 -G appuser appuser && \
+    chown -R appuser:appuser /app
 
-# Build JAR using the wrapper
-RUN chmod +x ./gradlew && ./gradlew bootJar --no-daemon
+USER appuser
 
-# ---- Runtime stage ----
-FROM eclipse-temurin:17-jre-alpine
-WORKDIR /app
-
-# Copy built JAR from build stage
-COPY --from=build /app/build/libs/*.jar app.jar
-
-ENV JAVA_OPTS=""
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/healthz || exit 1
+
+ENTRYPOINT ["/app/user-service"]

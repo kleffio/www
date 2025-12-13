@@ -1,8 +1,8 @@
 import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useAuth } from "react-oidc-context";
-import getCurrentUser from "@features/users/api/getCurrentUser";
 import type { UserSettings, UserSettingsState } from "@features/users/types/User";
 import { setAccessToken } from "@shared/lib/client";
+import { Me } from "@features/users/api/me";
 
 const UserSettingsContext = createContext<UserSettingsState | undefined>(undefined);
 
@@ -41,7 +41,7 @@ function UserSettingsProvider({ children }: { children: ReactNode }) {
       setIsLoading(true);
       setError(null);
 
-      const data = await getCurrentUser();
+      const data = await Me(token);
       setSettings(data);
     } catch (e) {
       console.error("Failed to load user settings", e);

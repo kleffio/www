@@ -6,7 +6,7 @@ import { MobileSheetNav } from "@app/navigation/components/MobileSheetNav";
 import { DesktopMegaMenu } from "@app/navigation/components/DesktopMegaMenu";
 import { ROUTES } from "@app/routes/routes";
 import { Brand } from "@shared/ui/Brand";
-import { AuthButtons } from "@features/auth/components/AuthButtons";
+import { AuthButtons } from "@features/users/components/AuthButtons";
 
 import LocaleSwitcher from "@app/navigation/components/LocaleSwitcher";
 
