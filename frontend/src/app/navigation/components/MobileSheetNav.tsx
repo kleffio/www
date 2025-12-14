@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "react-oidc-context";
 import { MenuIcon, ChevronDown, Settings, LogOut, LayoutDashboard, X } from "lucide-react";
 
 import {
@@ -15,7 +14,7 @@ import {
 
 import { Button } from "@shared/ui/Button";
 import { cn } from "@shared/lib/utils";
-import { logoutEverywhere } from "@features/auth/api/logout";
+import { logoutEverywhere } from "@features/users/api/logout";
 import type { MegaMenuSection } from "../Navigation";
 import { MEGA_MENU_SECTIONS, SIMPLE_NAV_LINKS } from "../Navigation";
 import { ROUTES } from "@app/routes/routes";
@@ -23,9 +22,10 @@ import { Brand } from "@shared/ui/Brand";
 import { UserAvatar } from "@shared/ui/UserAvatar";
 
 import LocaleSwitcher from "@app/navigation/components/LocaleSwitcher";
+import { useUser } from "@features/users/hooks/useUser";
 
 export function MobileSheetNav() {
-  const auth = useAuth();
+  const { isAuthenticated } = useUser();
   const [open, setOpen] = React.useState(false);
   const [expandedSections, setExpandedSections] = React.useState<Set<string>>(new Set(["product"]));
 
@@ -110,7 +110,7 @@ export function MobileSheetNav() {
             </div>
 
             <div className="border-t border-white/8 pt-4">
-              {auth.isAuthenticated ? (
+              {isAuthenticated ? (
                 <AuthenticatedSection onNavigate={closeSheet} />
               ) : (
                 <UnauthenticatedSection onNavigate={closeSheet} />
@@ -197,31 +197,16 @@ const MegaMenuSectionItem = React.memo(
 MegaMenuSectionItem.displayName = "MegaMenuSectionItem";
 
 const AuthenticatedSection = React.memo(({ onNavigate }: { onNavigate: () => void }) => {
-  const auth = useAuth();
+  const { auth, displayName, email, initial, avatarUrl } = useUser();
 
   const handleLogout = React.useCallback(async () => {
     onNavigate();
     await logoutEverywhere(auth);
   }, [onNavigate, auth]);
 
-  const initial = React.useMemo(() => {
-    return (
-      auth.user?.profile.preferred_username ||
-      auth.user?.profile.name ||
-      auth.user?.profile.email ||
-      "K"
-    )
-      .charAt(0)
-      .toUpperCase();
-  }, [auth.user]);
-
-  const displayName = React.useMemo(() => {
-    return auth.user?.profile.preferred_username || auth.user?.profile.name || "Account";
-  }, [auth.user]);
-
   return (
     <div className="space-y-3 px-2 pb-2">
-      <UserAvatar initial={initial} name={displayName} email={auth.user?.profile.email} />
+      <UserAvatar initial={initial} name={displayName} email={email} src={avatarUrl || undefined} />
 
       <div className="flex flex-col gap-2">
         <Link to={ROUTES.DASHBOARD} onClick={onNavigate}>

@@ -1,6 +1,43 @@
-/build
-/.gradle
-/out
+# Git
 .git
+.gitignore
+.github
+
+# Documentation
+*.md
+README.md
+docs/
+
+# Environment files
+.env
+.env.*
+*.local
+
+# Build artifacts
+bin/
+dist/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test files
+*_test.go
+testdata/
+
+# IDE
+.vscode
 .idea
-*.iml
+*.swp
+*.swo
+*~
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Misc
+.DS_Store
+tmp/
+temp/
