@@ -26,7 +26,7 @@ export function ProjectsPage() {
   };
 
   return (
-    <section className="h-full">
+    <section className="h-full" data-testid="projects-page">
       <div className="app-container space-y-6 py-8">
         <header className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -52,13 +52,13 @@ export function ProjectsPage() {
         )}
 
         {!isLoading && error && (
-          <SoftPanel>
+          <SoftPanel data-testid="projects-error">
             <p className="py-6 text-sm text-red-400">{error}</p>
           </SoftPanel>
         )}
 
         {!isLoading && !error && projects.length === 0 && (
-          <SoftPanel>
+          <SoftPanel data-testid="projects-empty">
             <div className="py-10 text-center">
               <p className="text-sm text-neutral-400">{t.no_projects}</p>
               <Button
@@ -74,7 +74,7 @@ export function ProjectsPage() {
 
         {!isLoading && !error && projects.length > 0 && (
           <>
-            <div className="hidden md:block">
+            <div className="hidden md:block" data-testid="projects-list">
               <div className="mx-auto max-w-5xl">
                 <SoftPanel className="overflow-hidden px-0 py-0">
                   <Table>
@@ -87,11 +87,21 @@ export function ProjectsPage() {
                     </TableHeader>
                     <TableBody>
                       {projects.map((p) => (
-                        <Link key={p.projectId} to={`/dashboard/projects/${p.projectId}`} className="contents">
+                        <Link
+                          key={p.projectId}
+                          to={`/dashboard/projects/${p.projectId}`}
+                          className="contents"
+                        >
                           <TableRow className="cursor-pointer hover:bg-white/10">
-                            <TableCell className="font-semibold text-neutral-50">{p.name}</TableCell>
-                            <TableCell className="text-neutral-300">{p.description || "—"}</TableCell>
-                            <TableCell className="text-neutral-300">{p.createdDate || "—"}</TableCell>
+                            <TableCell className="font-semibold text-neutral-50">
+                              {p.name}
+                            </TableCell>
+                            <TableCell className="text-neutral-300">
+                              {p.description || "—"}
+                            </TableCell>
+                            <TableCell className="text-neutral-300">
+                              {p.createdDate || "—"}
+                            </TableCell>
                           </TableRow>
                         </Link>
                       ))}
