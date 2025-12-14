@@ -42,5 +42,5 @@ CREATE TABLE if NOT EXISTS invoice_items(
     pricing_model VARCHAR(20),
     metric VARCHAR(20),
     quantity Double,
-    recorded_at DATE
+    recorded_at DATETIME
 );

@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { DollarSign } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@shared/ui/Button";
 import { SoftPanel } from "@shared/ui/SoftPanel";
@@ -15,6 +16,7 @@ import { ROUTES } from "@app/routes/routes";
 import enTranslations from "@app/locales/en/projects.json";
 import frTranslations from "@app/locales/fr/projects.json";
 import { getLocale } from "@app/locales/locale";
+import { BillingModal } from "@features/billing/components/viewBillsModal";
 
 const translations = {
   en: enTranslations,
@@ -26,6 +28,7 @@ export function ProjectDetailPage() {
   const { project, isLoading: projectLoading, error: projectError } = useProject(projectId || "");
   const { containers, isLoading: containersLoading, error: containersError, reload } = useProjectContainers(projectId || "");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
   const [locale] = useState(getLocale());
   const t = translations[locale].projectDetail;
 
@@ -220,6 +223,63 @@ export function ProjectDetailPage() {
           )}
         </SoftPanel>
       </div>
+
+          <SoftPanel>
+          <div className="mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <GradientIcon icon={DollarSign} />
+              <h2 className="text-lg font-semibold text-neutral-50">Billing & Usage</h2>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => setIsBillingModalOpen(true)}
+              className="rounded-full px-4 py-1.5 text-xs font-semibold bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
+            >
+              View Details
+            </Button>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <MiniCard title="Current Month">
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-emerald-400" />
+                <span className="text-lg font-semibold text-neutral-50">$156.80</span>
+              </div>
+              <p className="text-xs text-neutral-500 mt-1">Estimated charges</p>
+            </MiniCard>
+            
+            <MiniCard title="Last Invoice">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-neutral-400" />
+                <span className="text-sm text-neutral-200">Nov 2024</span>
+              </div>
+              <p className="text-xs text-neutral-500 mt-1">$142.50 paid</p>
+            </MiniCard>
+            
+            <MiniCard title="Usage This Month">
+              <div className="flex items-center gap-2">
+                <Activity className="h-4 w-4 text-neutral-400" />
+                <span className="text-sm text-neutral-200">72.5 hrs</span>
+              </div>
+              <p className="text-xs text-neutral-500 mt-1">CPU + RAM usage</p>
+            </MiniCard>
+            
+            <MiniCard title="Status">
+              <div className="flex items-center gap-2">
+                <Badge variant="success" className="text-xs">
+                  Active
+                </Badge>
+              </div>
+              <p className="text-xs text-neutral-500 mt-1">No overdue invoices</p>
+            </MiniCard>
+          </div>
+        </SoftPanel>
+
+      <BillingModal
+        isOpen={isBillingModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        projectId={projectId || ""}
+      />
 
       <CreateContainerModal
         isOpen={isModalOpen}

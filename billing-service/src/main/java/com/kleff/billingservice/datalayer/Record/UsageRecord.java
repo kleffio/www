@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Date;
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -22,6 +24,6 @@ public class UsageRecord {
     PricingModel pricingModel;
     UsageMetric metric;
     Double quantity;
-    Date recordedAt;
+    LocalDateTime recordedAt;
 
 }

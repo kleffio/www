@@ -22,7 +22,17 @@ public class BillingServiceImpl implements BillingService {
     private Double cpu_hour_rate = 2.0;
     private Double ram_hour_rate = 2.0;
     private Double storage_hour_rate = 2.0;
-
+    public BillingServiceImpl(
+            ReservedAllocationRepository reservedAllocationRepository,
+            InvoiceItemRepository invoiceItemRepository,
+            InvoiceRepository invoiceRepository,
+            UsageRecordRepository usageRecordRepository
+    ) {
+        this.reservedAllocationRepository = reservedAllocationRepository;
+        this.invoiceItemRepository = invoiceItemRepository;
+        this.invoiceRepository = invoiceRepository;
+        this.usageRecordRepository = usageRecordRepository;
+    }
     @Override
     public void createInvoiceItem(UsageRecord records) {
     InvoiceItem invoiceItem = new InvoiceItem();
