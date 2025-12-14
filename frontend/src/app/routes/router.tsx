@@ -16,6 +16,7 @@ import { AboutUsPage } from "@pages/aboutus/AboutUsPage";
 import { FAQPage } from "@pages/legal/FAQPage";
 import { PrivacyPolicyPage } from "@pages/legal/PrivacyPolicyPage";
 import { TermsOfServicePage } from "@pages/legal/TermsOfServicePage";
+import { SignInPage } from "@pages/auth/SignInPage";
 
 export const router = createBrowserRouter([
   {
@@ -27,29 +28,30 @@ export const router = createBrowserRouter([
         index: true,
         element: <LandingPage />
       },
-
       { path: "about", element: <AboutUsPage /> },
       { path: "faq", element: <FAQPage /> },
       { path: "terms", element: <TermsOfServicePage /> },
       { path: "privacy", element: <PrivacyPolicyPage /> },
-
       // Auth routes
       {
         path: "auth",
         children: [
           {
             path: "signin",
-            element: <CallbackPage />
+            element: <SignInPage />
           },
           {
             path: "callback",
             element: <CallbackPage />
+          },
+          {
+            path: "silent-callback",
+            element: null // Literally here as placeholder btw
           }
         ]
       }
     ]
   },
-
   //  Dashboard
   {
     path: ROUTES.DASHBOARD,

@@ -1,18 +1,17 @@
 import { useEffect, useRef } from "react";
 import { useAuth } from "react-oidc-context";
 import { useLocation, useNavigate } from "react-router-dom";
+import { ROUTES } from "@app/routes/routes";
 import { KleffDot } from "@shared/ui/KleffDot";
 import { Button } from "@shared/ui/Button";
 import { Spinner } from "@shared/ui/Spinner";
-import { ROUTES } from "@app/routes/routes";
 
-export function CallbackPage() {
+export function SignInPage() {
   const auth = useAuth();
-
   const navigate = useNavigate();
   const location = useLocation() as { state?: { from?: string } };
 
-  const from = location.state?.from ?? ROUTES.DASHBOARD;
+  const from = location.state?.from ?? "/dashboard";
   const attemptedRef = useRef(false);
 
   useEffect(() => {
@@ -26,10 +25,13 @@ export function CallbackPage() {
       return;
     }
 
-    navigate(ROUTES.AUTH_SIGNIN, { replace: true, state: { from } });
-  }, [auth.isLoading, auth.isAuthenticated, from, navigate]);
+    auth.signinRedirect({ state: { from } }).catch((err) => {
+      console.error("Sign-in redirect failed:", err);
+      navigate(ROUTES.HOME, { replace: true });
+    });
+  }, [auth.isLoading, auth.isAuthenticated, auth, from, navigate]);
 
-  const handleContinue = () => {
+  const handleTryAgain = () => {
     auth.signinRedirect({ state: { from } }).catch((err) => {
       console.error("Sign-in redirect failed:", err);
       navigate(ROUTES.HOME, { replace: true });
@@ -43,25 +45,24 @@ export function CallbackPage() {
           <div className="bg-kleff-gold/10 flex h-12 w-12 items-center justify-center rounded-2xl">
             <KleffDot size={28} variant="full" />
           </div>
-          <h1 className="text-lg font-semibold text-white">Redirecting to Kleff Auth…</h1>
+          <h1 className="text-lg font-semibold text-white">Signing you in…</h1>
           <p className="text-center text-xs text-neutral-400">
-            We&apos;re securely sending you to the Kleff sign-in page. This usually only takes a
-            moment.
+            Redirecting you to Kleff Auth to complete sign-in.
           </p>
         </div>
 
         <div className="flex justify-center py-6">
-          <Spinner size={56} label="Redirecting to Kleff Auth…" />
+          <Spinner size={56} label="Signing you in…" />
         </div>
 
         <div className="mt-5 flex flex-col gap-2 text-center">
           <p className="text-[11px] text-neutral-500">
-            If nothing happens after a few seconds, you can restart the sign-in manually.
+            If nothing happens after a few seconds, restart the sign-in.
           </p>
           <Button
             variant="outline"
             className="hover:border-kleff-gold/60 border-white/15 bg-transparent text-xs text-neutral-200 hover:text-white"
-            onClick={handleContinue}
+            onClick={handleTryAgain}
           >
             Try again
           </Button>

@@ -8,17 +8,19 @@ const UserSettingsContext = createContext<UserSettingsState | undefined>(undefin
 
 function UserSettingsProvider({ children }: { children: ReactNode }) {
   const auth = useAuth();
+  const { isLoading: authLoading, isAuthenticated, user } = auth;
+
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const load = useCallback(async () => {
-    if (auth.isLoading) {
+    if (authLoading) {
       setIsLoading(true);
       return;
     }
 
-    if (!auth.isAuthenticated) {
+    if (!isAuthenticated) {
       setAccessToken(null);
       setSettings(null);
       setError(null);
@@ -26,7 +28,7 @@ function UserSettingsProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const token = auth.user?.access_token;
+    const token = user?.access_token;
     if (!token) {
       console.warn("No access token found on auth.user");
       setAccessToken(null);
@@ -50,7 +52,33 @@ function UserSettingsProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [auth.isLoading, auth.isAuthenticated, auth.user]);
+  }, [authLoading, isAuthenticated, user?.access_token]);
+
+  useEffect(() => {
+    const handleTokenExpiring = () => {
+      if (import.meta.env.DEV) console.log("🔄 Token expiring, attempting silent refresh...");
+    };
+
+    const handleTokenExpired = () => {
+      if (import.meta.env.DEV) console.log("⚠️ Token expired");
+    };
+
+    const handleSilentRenewError = (error: Error) => {
+      console.error("❌ Silent renew error:", error);
+    };
+
+    const events = auth.events;
+    events.addAccessTokenExpiring(handleTokenExpiring);
+    events.addAccessTokenExpired(handleTokenExpired);
+    events.addSilentRenewError(handleSilentRenewError);
+
+    return () => {
+      events.removeAccessTokenExpiring(handleTokenExpiring);
+      events.removeAccessTokenExpired(handleTokenExpired);
+      events.removeSilentRenewError(handleSilentRenewError);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     void load();
@@ -69,4 +97,4 @@ function UserSettingsProvider({ children }: { children: ReactNode }) {
   return <UserSettingsContext.Provider value={value}>{children}</UserSettingsContext.Provider>;
 }
 
-export { UserSettingsContext, UserSettingsProvider, type UserSettingsState };
+export { UserSettingsContext, UserSettingsProvider };

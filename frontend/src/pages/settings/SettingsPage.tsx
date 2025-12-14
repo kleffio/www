@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Save, AlertCircle, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 
 import { updateUserProfile } from "@features/users/api/UpdateUserProfile";
@@ -130,25 +130,28 @@ export function SettingsPage() {
 
   const totalPages = Math.max(1, Math.ceil(auditTotal / PAGE_SIZE));
 
-  const loadAuditPage = async (page: number) => {
-    if (!user) return;
+  const loadAuditPage = useCallback(
+    async (page: number) => {
+      if (!user) return;
 
-    setAuditLoading(true);
-    setAuditError(null);
+      setAuditLoading(true);
+      setAuditError(null);
 
-    try {
-      const offset = (page - 1) * PAGE_SIZE;
-      const { items, total }: AuditLogPage = await getMyAuditLogs(PAGE_SIZE, offset);
+      try {
+        const offset = (page - 1) * PAGE_SIZE;
+        const { items, total }: AuditLogPage = await getMyAuditLogs(PAGE_SIZE, offset);
 
-      setAuditLogs(items ?? []);
-      setAuditTotal(total ?? 0);
-      setAuditPage(page);
-    } catch (err) {
-      setAuditError(err instanceof Error ? err.message : "Failed to load audit logs");
-    } finally {
-      setAuditLoading(false);
-    }
-  };
+        setAuditLogs(items ?? []);
+        setAuditTotal(total ?? 0);
+        setAuditPage(page);
+      } catch (err) {
+        setAuditError(err instanceof Error ? err.message : "Failed to load audit logs");
+      } finally {
+        setAuditLoading(false);
+      }
+    },
+    [user]
+  );
 
   useEffect(() => {
     if (!user) return;
@@ -166,7 +169,7 @@ export function SettingsPage() {
     setAuditPage(1);
 
     void loadAuditPage(1);
-  }, [user]);
+  }, [user, loadAuditPage]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
