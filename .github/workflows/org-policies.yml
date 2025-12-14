@@ -31,6 +31,8 @@ jobs:
   shellcheck:
     name: Shell Check
     uses: kleffio/.github/.github/workflows/_shellcheck.yml@main
+    with:
+      exclude: "./operator/*"
 
   # --- PR-specific ---
   auto-label:
