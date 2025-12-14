@@ -4,7 +4,6 @@ import { AppLayout } from "@app/layout/AppLayout";
 import { DashboardLayout } from "@app/layout/DashboardLayout";
 import { ProtectedRoute } from "@app/routing/ProtectedRoute";
 import { ProjectsProvider } from "@features/projects/context/ProjectsContext";
-import { CallbackPage } from "@pages/auth/CallbackPage";
 import { DashboardPage } from "@pages/dashboard/DashboardPage";
 import { MetricsDashboard } from "@pages/dashboard/MetricsDashboard";
 import { LandingPage } from "@pages/landing/LandingPage";
@@ -16,7 +15,7 @@ import { AboutUsPage } from "@pages/aboutus/AboutUsPage";
 import { FAQPage } from "@pages/legal/FAQPage";
 import { PrivacyPolicyPage } from "@pages/legal/PrivacyPolicyPage";
 import { TermsOfServicePage } from "@pages/legal/TermsOfServicePage";
-import { SignInPage } from "@pages/auth/SignInPage";
+import { AuthPage } from "@pages/auth/AuthPage";
 
 export const router = createBrowserRouter([
   {
@@ -38,11 +37,11 @@ export const router = createBrowserRouter([
         children: [
           {
             path: "signin",
-            element: <SignInPage />
+            element: <AuthPage />
           },
           {
             path: "callback",
-            element: <CallbackPage />
+            element: <AuthPage />
           },
           {
             path: "silent-callback",
