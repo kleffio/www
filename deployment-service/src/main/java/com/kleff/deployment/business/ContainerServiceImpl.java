@@ -57,13 +57,14 @@ public class ContainerServiceImpl {
     }
 
     private void triggerBuildDeployment(ContainerRequestModel request) {
-        String deploymentServiceUrl = "https://api.kleff.io/api/v1/deployment/build"; 
+        String deploymentServiceUrl = "https://api.kleff.io/api/v1/deployment/build";
 
         GoBuildRequest buildRequest = new GoBuildRequest(
                 request.getRepoUrl(),
                 request.getBranch(),
                 request.getImage(),
-                request.getPort()
+                request.getPort(),
+                request.getProjectID()
         );
 
         try {
@@ -87,16 +88,23 @@ public class ContainerServiceImpl {
         @JsonProperty("app_port")
         private int appPort;
 
-        public GoBuildRequest(String repoUrl, String branch, String imageName, int appPort) {
+        @JsonProperty("project_id")
+        private String projectID;
+
+        public GoBuildRequest(String repoUrl, String branch, String imageName, int appPort, String projectID) {
             this.repoUrl = repoUrl;
             this.branch = (branch == null || branch.isEmpty()) ? "main" : branch;
             this.imageName = imageName;
             this.appPort = appPort;
+            this.projectID = projectID;
         }
         
         public String getRepoUrl() { return repoUrl; }
         public String getBranch() { return branch; }
         public String getImageName() { return imageName; }
         public int getAppPort() { return appPort; }
+        public String getProjectID() {
+            return projectID;
+        }
     }
 }
