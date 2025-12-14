@@ -21,28 +21,28 @@ public class BillingController {
     }
 
     // Usage Record Endpoints
-    @PostMapping("/usage-records")
+    @PostMapping("/usage-records/")
     public ResponseEntity<String> createUsageRecord(@RequestBody UsageRecord usageRecord) {
         billingService.createUsageRecord(usageRecord);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Usage record created successfully");
     }
 
-    @GetMapping("/usage-records/project/{projectId}")
+    @GetMapping("{projectId}/usage-records/")
     public ResponseEntity<List<UsageRecord>> getUsageRecordsForProject(@PathVariable String projectId) {
         List<UsageRecord> records = billingService.getUsageRecordsForProject(projectId);
         return ResponseEntity.ok(records);
     }
 
     // Invoice Item Endpoints
-    @PostMapping("/invoice-items")
+    @PostMapping("/invoice-items/")
     public ResponseEntity<String> createInvoiceItem(@RequestBody UsageRecord usageRecord) {
         billingService.createInvoiceItem(usageRecord);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Invoice item created successfully");
     }
 
-    @GetMapping("/invoice-items/{invoiceId}")
+    @GetMapping("/invoice-items/{invoiceId}/")
     public ResponseEntity<InvoiceItem> getInvoiceItem(@PathVariable String invoiceId) {
         InvoiceItem item = billingService.getInvoiceItem(invoiceId);
         if (item == null) {
@@ -51,20 +51,20 @@ public class BillingController {
         return ResponseEntity.ok(item);
     }
 
-    @GetMapping("/invoice-items/project/{projectId}")
+    @GetMapping("/{projectId}/invoice-items/")
     public ResponseEntity<List<InvoiceItem>> getInvoiceItemsForProject(@PathVariable String projectId) {
         List<InvoiceItem> items = billingService.getInvoiceItemsForProject(projectId);
         return ResponseEntity.ok(items);
     }
 
     // Invoice Endpoints
-    @PostMapping("/invoices")
+    @PostMapping("/invoices/")
     public ResponseEntity<Invoice> createInvoice(@RequestBody List<InvoiceItem> invoiceItems) {
         Invoice invoice = billingService.createInvoice(invoiceItems);
         return ResponseEntity.status(HttpStatus.CREATED).body(invoice);
     }
 
-    @PostMapping("/invoices/{invoiceId}/pay")
+    @PostMapping("/invoices/{invoiceId}/pay/")
     public ResponseEntity<String> payInvoice(@PathVariable String invoiceId) {
         try {
             billingService.payInvoice(invoiceId);
@@ -76,14 +76,14 @@ public class BillingController {
     }
 
     // Reserved Allocation Endpoints
-    @PostMapping("/reserved-allocations")
+    @PostMapping("/reserved-allocations/")
     public ResponseEntity<String> createReservedAllocation(@RequestBody ReservedAllocation reservedAllocation) {
         billingService.createReservedAllocation(reservedAllocation);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Reserved allocation created successfully");
     }
 
-    @GetMapping("invoice/{projectId}")
+    @GetMapping("{projectId}/invoices/")
     public ResponseEntity<List<Invoice>> getInvoicesForProject(@PathVariable String projectId) {
         List<Invoice> items = billingService.getInvoicesForAProject(projectId);
         return ResponseEntity.ok(items);

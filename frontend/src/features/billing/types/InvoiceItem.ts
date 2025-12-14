@@ -1,12 +1,11 @@
-export type Invoice = {
+export type InvoiceItem = {
+  itemId: string;
   invoiceId: string;
   projectId: string;
-  startDate : Date;
-  endDate : Date;
-  amount: number;
-  status: string;
-  subtotal : number;
-  taxes: number;
-  total: number;
-
+  description: string;
+  pricingModel: string;
+  metric: string;
+  quantity : number;
+  unitPrice : number;
+  amount : number;
 }
