@@ -25,6 +25,7 @@ import (
 	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
+	istionetworking "istio.io/client-go/pkg/apis/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -46,10 +47,14 @@ var (
 )
 
 func init() {
-	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
+    utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(kleffv1.AddToScheme(scheme))
-	// +kubebuilder:scaffold:scheme
+    utilruntime.Must(kleffv1.AddToScheme(scheme))
+    
+    // ADD THIS HERE: Register Istio types before the manager starts
+    utilruntime.Must(istionetworking.AddToScheme(scheme))
+    
+    // +kubebuilder:scaffold:scheme
 }
 
 // nolint:gocyclo
@@ -201,4 +206,5 @@ func main() {
 		setupLog.Error(err, "problem running manager")
 		os.Exit(1)
 	}
+
 }
