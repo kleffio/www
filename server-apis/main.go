@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -19,7 +19,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/dynamic" // Import Dynamic Client
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -29,15 +29,15 @@ import (
 // Server holds dependencies to avoid global state
 type Server struct {
 	KubeClient    kubernetes.Interface
-	DynamicClient dynamic.Interface // Add Dynamic Client here
+	DynamicClient dynamic.Interface
 	Logger        *slog.Logger
+	RegistryBase  string // Will default to "kleff.azurecr.io"
 }
 
 type BuildRequest struct {
 	ContainerID string `json:"containerID"`
 	ProjectID   string `json:"projectID"`
 	Name        string `json:"name"`    // App name
-	Image       string `json:"image"`   // Destination Image
 	RepoURL     string `json:"repoUrl"` // Source Git URL
 	Branch      string `json:"branch"`  // Git Branch
 	Port        int    `json:"port"`    // Optional: App Port
@@ -47,6 +47,7 @@ type Response struct {
 	Namespace string `json:"namespace"`
 	JobName   string `json:"job_name,omitempty"`
 	AppName   string `json:"app_name,omitempty"`
+	Image     string `json:"image,omitempty"`
 	Message   string `json:"message"`
 	Existed   bool   `json:"existed"`
 }
@@ -70,7 +71,22 @@ func main() {
 	} else {
 		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	}
+
+	// 1. Set the default registry to kleff.azurecr.io
+	// It checks ENV first, then falls back to your hardcoded value.
+	defaultRegistry := os.Getenv("CONTAINER_REGISTRY")
+	if defaultRegistry == "" {
+		defaultRegistry = "kleff.azurecr.io"
+	}
+
+	registry := flag.String("registry", defaultRegistry, "The container registry base URL")
 	flag.Parse()
+
+	// Validate Registry
+	if *registry == "" {
+		logger.Error("Registry configuration missing.")
+		os.Exit(1)
+	}
 
 	config, err := rest.InClusterConfig()
 	if err != nil {
@@ -81,24 +97,28 @@ func main() {
 		}
 	}
 
-	// 1. Standard Client
+	// 2. Standard Client
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		logger.Error("Error creating clientset", "error", err)
 		os.Exit(1)
 	}
 
-	// 2. Dynamic Client (For CRDs)
+	// 3. Dynamic Client (For CRDs)
 	dynClient, err := dynamic.NewForConfig(config)
 	if err != nil {
 		logger.Error("Error creating dynamic client", "error", err)
 		os.Exit(1)
 	}
 
+	// Clean up registry string (remove trailing slash)
+	cleanRegistry := strings.TrimRight(*registry, "/")
+
 	server := &Server{
 		KubeClient:    clientset,
 		DynamicClient: dynClient,
 		Logger:        logger,
+		RegistryBase:  cleanRegistry,
 	}
 
 	mux := http.NewServeMux()
@@ -112,7 +132,7 @@ func main() {
 		IdleTimeout:  120 * time.Second,
 	}
 
-	logger.Info("Build Manager started on port 8080...")
+	logger.Info("Build Manager started on port 8080...", "registry", cleanRegistry)
 	if err := srv.ListenAndServe(); err != nil {
 		logger.Error("Server failed", "error", err)
 	}
@@ -133,8 +153,8 @@ func (s *Server) handleCreateBuild(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Basic Validation
-	if req.ProjectID == "" || req.RepoURL == "" || req.Image == "" {
-		http.Error(w, "projectID, repoUrl, and image are required", http.StatusBadRequest)
+	if req.ProjectID == "" || req.RepoURL == "" {
+		http.Error(w, "projectID and repoUrl are required", http.StatusBadRequest)
 		return
 	}
 
@@ -156,6 +176,12 @@ func (s *Server) handleCreateBuild(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// --- GENERATE IMAGE DESTINATION ---
+	// Format: kleff.azurecr.io/appname:timestamp
+	// Using timestamp ensures K8s sees a new image tag and pulls it.
+	tag := fmt.Sprintf("%d", time.Now().Unix())
+	generatedImage := fmt.Sprintf("%s/%s:%s", s.RegistryBase, appName, tag)
+
 	// 1. Create Target Namespace
 	existed, err := s.createNamespace(r.Context(), namespaceName)
 	if err != nil {
@@ -165,17 +191,16 @@ func (s *Server) handleCreateBuild(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 2. Create Kaniko Build Job (in default namespace)
-	jobName := fmt.Sprintf("build-%s-%d", namespaceName, time.Now().Unix())
-	if err := s.createKanikoJob(r.Context(), "default", jobName, req.RepoURL, req.Branch, req.Image); err != nil {
+	// We append the timestamp to the job name to allow multiple builds history
+	jobName := fmt.Sprintf("build-%s-%s", appName, tag)
+	if err := s.createKanikoJob(r.Context(), "default", jobName, req.RepoURL, req.Branch, generatedImage); err != nil {
 		s.Logger.Error("Failed to create build job", "error", err)
 		http.Error(w, "Failed to create build job", http.StatusInternalServerError)
 		return
 	}
 
-	// 3. Create WebApp CRD (in the Target Namespace)
-	// We do this immediately. K8s will try to start the pod, get 'ImagePullBackOff'
-	// until Kaniko finishes pushing, then it will auto-recover and start running.
-	if err := s.createWebApp(r.Context(), namespaceName, appName, req); err != nil {
+	// 3. Create or Update WebApp CRD (in the Target Namespace)
+	if err := s.createWebApp(r.Context(), namespaceName, appName, generatedImage, req); err != nil {
 		s.Logger.Error("Failed to create WebApp CR", "error", err)
 		http.Error(w, fmt.Sprintf("Build started, but failed to create WebApp: %v", err), http.StatusInternalServerError)
 		return
@@ -187,12 +212,13 @@ func (s *Server) handleCreateBuild(w http.ResponseWriter, r *http.Request) {
 		msg = "Namespace existed, new build started and WebApp updated/created"
 	}
 
-	s.Logger.Info("Build job submitted and WebApp created", "job", jobName, "app", appName)
+	s.Logger.Info("Build job submitted", "job", jobName, "app", appName, "image", generatedImage)
 
 	resp := Response{
 		Namespace: namespaceName,
 		JobName:   jobName,
 		AppName:   appName,
+		Image:     generatedImage,
 		Message:   msg,
 		Existed:   existed,
 	}
@@ -201,8 +227,8 @@ func (s *Server) handleCreateBuild(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
-// createWebApp uses the Dynamic Client to create the Custom Resource
-func (s *Server) createWebApp(ctx context.Context, namespace, name string, req BuildRequest) error {
+// createWebApp uses the Dynamic Client to create or update the Custom Resource
+func (s *Server) createWebApp(ctx context.Context, namespace, name, image string, req BuildRequest) error {
 	// Set default port if not provided
 	port := req.Port
 	if port == 0 {
@@ -210,7 +236,6 @@ func (s *Server) createWebApp(ctx context.Context, namespace, name string, req B
 	}
 
 	// Construct the Unstructured object
-	// This maps exactly to the YAML structure of your CRD
 	webApp := &unstructured.Unstructured{
 		Object: map[string]interface{}{
 			"apiVersion": "kleff.kleff.io/v1",
@@ -221,7 +246,7 @@ func (s *Server) createWebApp(ctx context.Context, namespace, name string, req B
 			},
 			"spec": map[string]interface{}{
 				"displayName": req.Name,
-				"image":       req.Image,   // The image Kaniko is pushing to
+				"image":       image,       // Use the auto-generated image string
 				"port":        int64(port), // Ensure int64 for json serialization numbers
 				"repoURL":     req.RepoURL,
 				"branch":      req.Branch,
@@ -230,13 +255,11 @@ func (s *Server) createWebApp(ctx context.Context, namespace, name string, req B
 	}
 
 	// Create or Update logic
-	// We try to create first
 	_, err := s.DynamicClient.Resource(webAppGVR).Namespace(namespace).Create(ctx, webApp, metav1.CreateOptions{})
 	if err != nil {
 		if k8serrors.IsAlreadyExists(err) {
-			// If it exists, we might want to update the image field
-			s.Logger.Info("WebApp already exists, updating image...", "name", name)
-			
+			s.Logger.Info("WebApp already exists, updating image...", "name", name, "image", image)
+
 			// Get existing
 			existing, getErr := s.DynamicClient.Resource(webAppGVR).Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
 			if getErr != nil {
@@ -244,9 +267,15 @@ func (s *Server) createWebApp(ctx context.Context, namespace, name string, req B
 			}
 
 			// Update fields
-			existing.Object["spec"].(map[string]interface{})["image"] = req.Image
-			existing.Object["spec"].(map[string]interface{})["branch"] = req.Branch
-			
+			// Note: We use type assertion to safely access the map
+			spec, ok := existing.Object["spec"].(map[string]interface{})
+			if !ok {
+				spec = make(map[string]interface{})
+			}
+			spec["image"] = image
+			spec["branch"] = req.Branch
+			existing.Object["spec"] = spec
+
 			// Submit Update
 			_, updateErr := s.DynamicClient.Resource(webAppGVR).Namespace(namespace).Update(ctx, existing, metav1.UpdateOptions{})
 			return updateErr
@@ -257,11 +286,8 @@ func (s *Server) createWebApp(ctx context.Context, namespace, name string, req B
 	return nil
 }
 
-// ... [Keep createNamespace, createKanikoJob, validateAndSanitize, enableCors as they were] ...
-
 func (s *Server) createNamespace(ctx context.Context, name string) (bool, error) {
-	// ... [Same as your original code] ...
-    nsSpec := &corev1.Namespace{
+	nsSpec := &corev1.Namespace{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: name,
 			Labels: map[string]string{
@@ -283,12 +309,10 @@ func (s *Server) createNamespace(ctx context.Context, name string) (bool, error)
 }
 
 func (s *Server) createKanikoJob(ctx context.Context, namespace, jobName, gitRepo, branch, destinationImage string) error {
-	// ... [Same as your original code] ...
-    // Ensure you use the git:// fix and branch logic provided in the previous turn
-    
-    // 1. Fix Git Context
-    gitContext := gitRepo
+	// Fix Git Context for Kaniko (Needs git:// for private/public without auth, or https:// with tokens)
+	gitContext := gitRepo
 	if strings.HasPrefix(gitContext, "https://") {
+		// Convert https to git protocol to avoid interactive auth prompts for public repos
 		gitContext = "git://" + strings.TrimPrefix(gitContext, "https://")
 	} else if !strings.HasPrefix(gitContext, "git://") {
 		gitContext = "git://" + gitContext
@@ -297,7 +321,7 @@ func (s *Server) createKanikoJob(ctx context.Context, namespace, jobName, gitRep
 		gitContext = fmt.Sprintf("%s#refs/heads/%s", gitContext, branch)
 	}
 
-    job := &batchv1.Job{
+	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      jobName,
 			Namespace: namespace,
@@ -315,6 +339,7 @@ func (s *Server) createKanikoJob(ctx context.Context, namespace, jobName, gitRep
 								"--dockerfile=Dockerfile",
 								"--context=" + gitContext,
 								"--destination=" + destinationImage,
+								"--cache=true",
 							},
 							VolumeMounts: []corev1.VolumeMount{
 								{

@@ -57,14 +57,14 @@ public class ContainerServiceImpl {
     }
 
     private void triggerBuildDeployment(ContainerRequestModel request) {
-        String deploymentServiceUrl = "https://api.kleff.io/api/v1/deployment/build";
+        String deploymentServiceUrl = "https://api.kleff.io/api/v1/build/create"; 
 
         GoBuildRequest buildRequest = new GoBuildRequest(
+                request.getProjectID(),
                 request.getRepoUrl(),
                 request.getBranch(),
-                request.getImage(),
                 request.getPort(),
-                request.getProjectID()
+                request.getName()
         );
 
         try {
@@ -76,35 +76,32 @@ public class ContainerServiceImpl {
     }
 
     private static class GoBuildRequest {
-        @JsonProperty("repo_url")
+        @JsonProperty("projectID")
+        private String projectID;
+
+        @JsonProperty("repoUrl")
         private String repoUrl;
 
         @JsonProperty("branch")
         private String branch;
 
-        @JsonProperty("image_name")
-        private String imageName;
-
-        @JsonProperty("app_port")
+        @JsonProperty("port")
         private int appPort;
 
-        @JsonProperty("project_id")
-        private String projectID;
+        @JsonProperty("name")
+        private String name;
 
-        public GoBuildRequest(String repoUrl, String branch, String imageName, int appPort, String projectID) {
+        public GoBuildRequest(String projectID, String repoUrl, String branch, int appPort, String name) {
+            this.projectID = projectID;
+            this.name = name;
             this.repoUrl = repoUrl;
             this.branch = (branch == null || branch.isEmpty()) ? "main" : branch;
-            this.imageName = imageName;
             this.appPort = appPort;
-            this.projectID = projectID;
         }
         
         public String getRepoUrl() { return repoUrl; }
         public String getBranch() { return branch; }
-        public String getImageName() { return imageName; }
         public int getAppPort() { return appPort; }
-        public String getProjectID() {
-            return projectID;
-        }
+        public String getProjectID() { return projectID; }
     }
 }
