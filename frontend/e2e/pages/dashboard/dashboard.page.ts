@@ -1,6 +1,6 @@
 import { BasePage } from "../base.page";
 import { expectPath } from "../../utils/wait";
-import { ProjectModal } from "./project-modal";
+import { ProjectModal } from "../../components/project-modal";
 
 export class DashboardPage extends BasePage {
   async open() {
@@ -16,7 +16,6 @@ export class DashboardPage extends BasePage {
     const createModal = new ProjectModal(this.page);
     await createModal.open();
     await createModal.expectLoaded();
-
     await createModal.createProject(name, description);
   }
 }
