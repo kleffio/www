@@ -28,7 +28,7 @@ public class BillingController {
                 .body("Usage record created successfully");
     }
 
-    @GetMapping("{projectId}/usage-records/")
+    @GetMapping("/{projectId}/usage-records/")
     public ResponseEntity<List<UsageRecord>> getUsageRecordsForProject(@PathVariable String projectId) {
         List<UsageRecord> records = billingService.getUsageRecordsForProject(projectId);
         return ResponseEntity.ok(records);

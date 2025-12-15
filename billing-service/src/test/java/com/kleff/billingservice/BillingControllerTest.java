@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,7 +52,7 @@ class BillingControllerTest {
         usageRecord.setProjectId("proj-123");
         usageRecord.setMetric(UsageMetric.CPU_HOURS);
         usageRecord.setQuantity(10.0);
-        usageRecord.setRecordedAt(Date.valueOf(LocalDate.now()));
+        usageRecord.setRecordedAt(LocalDateTime.now());
 
         invoiceItem = new InvoiceItem();
         invoiceItem.setProjectId("proj-123");
@@ -76,7 +77,7 @@ class BillingControllerTest {
     void createUsageRecord_ShouldReturnCreated() throws Exception {
         doNothing().when(billingService).createUsageRecord(any(UsageRecord.class));
 
-        mockMvc.perform(post("/api/v1/billing/usage-records")
+        mockMvc.perform(post("/api/v1/billing/usage-records/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(usageRecord)))
                 .andExpect(status().isCreated())
@@ -90,7 +91,7 @@ class BillingControllerTest {
         List<UsageRecord> records = Arrays.asList(usageRecord);
         when(billingService.getUsageRecordsForProject(anyString())).thenReturn(records);
 
-        mockMvc.perform(get("/api/v1/billing/usage-records/project/proj-123"))
+        mockMvc.perform(get("/api/v1/billing/proj-123/usage-records/"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].projectId").value("proj-123"))
                 .andExpect(jsonPath("$[0].metric").value("CPU_HOURS"));
@@ -103,7 +104,7 @@ class BillingControllerTest {
     void createInvoiceItem_ShouldReturnCreated() throws Exception {
         doNothing().when(billingService).createInvoiceItem(any(UsageRecord.class));
 
-        mockMvc.perform(post("/api/v1/billing/invoice-items")
+        mockMvc.perform(post("/api/v1/billing/invoice-items/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(usageRecord)))
                 .andExpect(status().isCreated())
@@ -116,7 +117,7 @@ class BillingControllerTest {
     void getInvoiceItem_WhenExists_ShouldReturnItem() throws Exception {
         when(billingService.getInvoiceItem(anyString())).thenReturn(invoiceItem);
 
-        mockMvc.perform(get("/api/v1/billing/invoice-items/item-123"))
+        mockMvc.perform(get("/api/v1/billing/invoice-items/item-123/"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.projectId").value("proj-123"))
                 .andExpect(jsonPath("$.amount").value(20.0));
@@ -128,7 +129,7 @@ class BillingControllerTest {
     void getInvoiceItem_WhenNotFound_ShouldReturn404() throws Exception {
         when(billingService.getInvoiceItem(anyString())).thenReturn(null);
 
-        mockMvc.perform(get("/api/v1/billing/invoice-items/item-999"))
+        mockMvc.perform(get("/api/v1/billing/invoice-items/item-999/"))
                 .andExpect(status().isNotFound());
 
         verify(billingService, times(1)).getInvoiceItem("item-999");
@@ -139,7 +140,7 @@ class BillingControllerTest {
         List<InvoiceItem> items = Arrays.asList(invoiceItem);
         when(billingService.getInvoiceItemsForProject(anyString())).thenReturn(items);
 
-        mockMvc.perform(get("/api/v1/billing/invoice-items/project/proj-123"))
+        mockMvc.perform(get("/api/v1/billing/proj-123/invoice-items/"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].projectId").value("proj-123"))
                 .andExpect(jsonPath("$[0].amount").value(20.0));
@@ -153,7 +154,7 @@ class BillingControllerTest {
         List<InvoiceItem> items = Arrays.asList(invoiceItem);
         when(billingService.createInvoice(anyList())).thenReturn(invoice);
 
-        mockMvc.perform(post("/api/v1/billing/invoices")
+        mockMvc.perform(post("/api/v1/billing/invoices/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(items)))
                 .andExpect(status().isCreated())
@@ -168,7 +169,7 @@ class BillingControllerTest {
     void payInvoice_WhenSuccessful_ShouldReturnOk() throws Exception {
         doNothing().when(billingService).payInvoice(anyString());
 
-        mockMvc.perform(post("/api/v1/billing/invoices/inv-123/pay"))
+        mockMvc.perform(post("/api/v1/billing/invoices/inv-123/pay/"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Invoice paid successfully"));
 
@@ -180,7 +181,7 @@ class BillingControllerTest {
         doThrow(new RuntimeException("Payment registry failed"))
                 .when(billingService).payInvoice(anyString());
 
-        mockMvc.perform(post("/api/v1/billing/invoices/inv-999/pay"))
+        mockMvc.perform(post("/api/v1/billing/invoices/inv-999/pay/"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("Payment failed: Payment registry failed"));
 
@@ -192,7 +193,7 @@ class BillingControllerTest {
     void createReservedAllocation_ShouldReturnCreated() throws Exception {
         doNothing().when(billingService).createReservedAllocation(any(ReservedAllocation.class));
 
-        mockMvc.perform(post("/api/v1/billing/reserved-allocations")
+        mockMvc.perform(post("/api/v1/billing/reserved-allocations/")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(reservedAllocation)))
                 .andExpect(status().isCreated())

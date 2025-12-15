@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static com.fasterxml.jackson.databind.type.LogicalType.DateTime;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -58,21 +59,21 @@ class BillingServiceImplTest {
         cpuUsageRecord.setProjectId("proj-123");
         cpuUsageRecord.setMetric(UsageMetric.CPU_HOURS);
         cpuUsageRecord.setQuantity(10.0);
-        cpuUsageRecord.setRecordedAt(Date.valueOf(LocalDate.now()));
+        cpuUsageRecord.setRecordedAt(LocalDateTime.now());
 
         // Memory Usage Record
         memoryUsageRecord = new UsageRecord();
         memoryUsageRecord.setProjectId("proj-123");
         memoryUsageRecord.setMetric(UsageMetric.MEMORY_GB_HOURS);
         memoryUsageRecord.setQuantity(5.0);
-        memoryUsageRecord.setRecordedAt(Date.valueOf(LocalDate.now()));
+        memoryUsageRecord.setRecordedAt(LocalDateTime.now());
 
         // Storage Usage Record
         storageUsageRecord = new UsageRecord();
         storageUsageRecord.setProjectId("proj-123");
         storageUsageRecord.setMetric(UsageMetric.STORAGE_GB);
         storageUsageRecord.setQuantity(20.0);
-        memoryUsageRecord.setRecordedAt(Date.valueOf(LocalDate.now()));
+        memoryUsageRecord.setRecordedAt(LocalDateTime.now());
 
         // Invoice Item
         invoiceItem = new InvoiceItem();
