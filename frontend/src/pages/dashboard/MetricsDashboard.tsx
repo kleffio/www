@@ -20,6 +20,8 @@ import type {
 import { AlertCircle, RefreshCw } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
+// TODO: Add data-testid="systems-ready" when fully implemented for e2e
+
 export const MetricsDashboard: React.FC = () => {
   const [overview, setOverview] = useState<ClusterOverview | null>(null);
   const [requestsMetric, setRequestsMetric] = useState<MetricCardType | null>(null);
@@ -84,7 +86,10 @@ export const MetricsDashboard: React.FC = () => {
   }, [timeRange]);
 
   return (
-    <div className="bg-kleff-bg relative isolate flex h-screen overflow-hidden">
+    <div
+      className="bg-kleff-bg relative isolate flex h-screen overflow-hidden"
+      data-testid="systems-page"
+    >
       <div className="pointer-events-none absolute inset-0 -z-20">
         <div className="bg-modern-noise bg-kleff-spotlight h-full w-full opacity-60" />
         <div className="bg-kleff-grid absolute inset-0 opacity-[0.25]" />
@@ -139,7 +144,10 @@ export const MetricsDashboard: React.FC = () => {
           </div>
 
           {error && (
-            <div className="mb-4 flex items-center gap-3 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-red-400">
+            <div
+              className="mb-4 flex items-center gap-3 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-red-400"
+              data-testid="systems-error"
+            >
               <AlertCircle size={20} className="flex-shrink-0" />
               <span className="text-sm">{error}</span>
             </div>
