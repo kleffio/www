@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Button } from "@shared/ui/Button";
-import { X } from "lucide-react";
+import { X, Plus, Trash2 } from "lucide-react";
 
 import createContainer from "@features/projects/api/createContainer";
 
@@ -18,6 +18,7 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
   const [port, setPort] = useState("");
   const [repoUrl, setRepoUrl] = useState("");
   const [branch, setBranch] = useState("");
+  const [envVariables, setEnvVariables] = useState<Array<{ key: string; value: string }>>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,6 +30,7 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
     setPort("");
     setRepoUrl("");
     setBranch("");
+    setEnvVariables([]);
     setError(null);
   };
 
@@ -52,13 +54,22 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
     setError(null);
 
     try {
+      // Convert env variables array to object
+      const envVarsObject = envVariables.reduce((acc, { key, value }) => {
+        if (key.trim()) {
+          acc[key.trim()] = value;
+        }
+        return acc;
+      }, {} as Record<string, string>);
+
       await createContainer({
         projectID: projectId,
         name: name.trim(),
         image: image.trim(),
         port: portNum,
         repoUrl: repoUrl.trim(),
-        branch: branch.trim()
+        branch: branch.trim(),
+        envVariables: Object.keys(envVarsObject).length > 0 ? envVarsObject : undefined
       });
 
       resetForm();
@@ -194,6 +205,66 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
                 className={inputBase}
                 placeholder="main"
               />
+            </div>
+
+            {/* Environment Variables Section */}
+            <div className="space-y-2 pt-2">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-medium tracking-wide text-neutral-300 uppercase">
+                  Environment Variables
+                </label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setEnvVariables([...envVariables, { key: "", value: "" }])}
+                  className="border-white/20 bg-white/5 text-xs text-neutral-200 hover:border-white/40 hover:bg-white/10"
+                >
+                  <Plus className="mr-1 h-3 w-3" />
+                  Add Variable
+                </Button>
+              </div>
+              {envVariables.length === 0 && (
+                <p className="text-xs text-neutral-500 italic">No environment variables added yet</p>
+              )}
+              {envVariables.map((envVar, index) => (
+                <div key={index} className="flex gap-2 items-start">
+                  <input
+                    type="text"
+                    value={envVar.key}
+                    onChange={(e) => {
+                      const updated = [...envVariables];
+                      updated[index].key = e.target.value;
+                      setEnvVariables(updated);
+                    }}
+                    className={`${inputBase} flex-1`}
+                    placeholder="KEY"
+                  />
+                  <input
+                    type="text"
+                    value={envVar.value}
+                    onChange={(e) => {
+                      const updated = [...envVariables];
+                      updated[index].value = e.target.value;
+                      setEnvVariables(updated);
+                    }}
+                    className={`${inputBase} flex-1`}
+                    placeholder="value"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      const updated = envVariables.filter((_, i) => i !== index);
+                      setEnvVariables(updated);
+                    }}
+                    className="border-red-500/40 bg-red-500/10 text-red-300 hover:border-red-500/60 hover:bg-red-500/20"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              ))}
             </div>
 
             <div className="mt-6 flex items-center justify-end gap-3">

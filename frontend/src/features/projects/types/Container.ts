@@ -7,4 +7,5 @@ export type Container = {
   createdAt: string;
   repoUrl: string;
   branch: string;
+  envVariables?: Record<string, string>;
 };
