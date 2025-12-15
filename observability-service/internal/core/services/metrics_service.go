@@ -56,3 +56,7 @@ func (s *metricsService) GetNamespaces(ctx context.Context) ([]domain.NamespaceM
 func (s *metricsService) GetDatabaseIOMetrics(ctx context.Context, duration string) (*domain.DatabaseMetrics, error) {
 	return s.metricsRepo.GetDatabaseIOMetrics(ctx, duration)
 }
+
+func (s *metricsService) GetProjectMetrics(ctx context.Context, projectID string, containerNames []string) (*domain.ProjectMetrics, error) {
+	return s.metricsRepo.GetProjectMetrics(ctx, projectID, containerNames)
+}
