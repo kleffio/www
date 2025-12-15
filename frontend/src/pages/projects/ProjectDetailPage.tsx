@@ -15,10 +15,14 @@ import { ROUTES } from "@app/routes/routes";
 import enTranslations from "@app/locales/en/projects.json";
 import frTranslations from "@app/locales/fr/projects.json";
 import { getLocale } from "@app/locales/locale";
+<<<<<<< HEAD
 import { BillingModal } from "@features/billing/components/viewBillsModal";
 import { BillingPanel } from "@features/billing/components/BillingPanel";
 import type { Invoice } from "@features/billing/types/Invoice";
 
+=======
+import { getUsernameById, useUsername } from "@features/users/api/getUsernameById";
+>>>>>>> main
 const translations = {
   en: enTranslations,
   fr: frTranslations
@@ -45,6 +49,9 @@ export function ProjectDetailPage() {
       total: 156.80
     }];
   
+  const id = project?.ownerId || "";
+  const ownerUser = (useUsername(id));
+
   if (projectLoading) {
     return (
       <section className="h-full">
@@ -113,7 +120,7 @@ export function ProjectDetailPage() {
             <MiniCard title={t.owner}>
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-neutral-400" />
-                <span className="text-sm text-neutral-200">{project.ownerId || "—"}</span>
+                <span className="text-sm text-neutral-200">{ownerUser.username || "—"}</span>
               </div>
             </MiniCard>
             <MiniCard title={t.stack}>

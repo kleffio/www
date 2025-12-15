@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
 import { BasePage } from "../base.page";
 import { expectPath } from "../../utils/wait";
-import { UserMenu } from "./user-menu";
+import { UserMenu } from "../../components/user-menu";
 import { SettingsAuditItem } from "../../utils/types";
 
 export class SettingsPage extends BasePage {

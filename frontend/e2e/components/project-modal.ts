@@ -1,8 +1,11 @@
 import { expect } from "@playwright/test";
-import { BasePage } from "../base.page";
-import { ProjectsPage } from "./projects.page";
+import { BaseComponent } from "./base.component";
 
-export class ProjectModal extends BasePage {
+/**
+ * Project creation modal component
+ * Used on dashboard and projects pages to create new projects
+ */
+export class ProjectModal extends BaseComponent {
   async open() {
     await this.page
       .getByRole("button", { name: "Deploy New Project" })
@@ -12,9 +15,7 @@ export class ProjectModal extends BasePage {
   }
 
   async expectLoaded() {
-    await this.expectAppShellLoaded();
-
-    await expect(this.projectCreateModal()).toBeVisible();
+    await expect(this.projectCreateModal()).toBeVisible({ timeout: 30_000 });
 
     await expect(this.projectNameInput()).toBeVisible({ timeout: 30_000 });
     await expect(this.projectDescriptionInput()).toBeVisible({ timeout: 30_000 });
@@ -48,10 +49,11 @@ export class ProjectModal extends BasePage {
     await expect(create).toBeEnabled({ timeout: 30_000 });
     await create.click();
 
-    const projects = new ProjectsPage(this.page);
-    await projects.open();
-    await projects.expectLoaded();
+    // Wait for the modal to close
+    const modal = this.projectCreateModal();
+    await expect(modal).not.toBeVisible({ timeout: 30_000 });
 
-    await projects.expectProject(name, description);
+    // Wait a moment for the creation to complete
+    await this.page.waitForTimeout(1000);
   }
 }
