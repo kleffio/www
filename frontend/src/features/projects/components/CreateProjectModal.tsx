@@ -57,7 +57,10 @@ export function CreateProjectModal({ isOpen, onClose, onSuccess }: CreateProject
     "transition-colors hover:border-white/20 focus:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/30";
 
   return (
-    <section className="fixed inset-0 z-50 flex items-center justify-center">
+    <section
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      data-testid="create-project-modal"
+    >
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       <section className="relative z-10 w-full max-w-lg px-4 sm:px-0">

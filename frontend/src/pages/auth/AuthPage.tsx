@@ -57,7 +57,10 @@ export function AuthPage() {
     : "We’re securely sending you to the Kleff sign-in page. This usually only takes a moment.";
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-4">
+    <div
+      className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center px-4"
+      data-testid="auth-callback"
+    >
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-black/70 p-6 shadow-2xl shadow-black/70">
         <div className="mb-5 flex flex-col items-center gap-3">
           <div className="bg-kleff-gold/10 flex h-12 w-12 items-center justify-center rounded-2xl">

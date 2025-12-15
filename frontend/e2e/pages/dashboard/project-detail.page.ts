@@ -14,4 +14,9 @@ export class ProjectDetailPage extends BasePage {
 
     await expect(this.page.locator("#root")).toBeVisible({ timeout: 30_000 });
   }
+
+  async expectInformation(name: string, description: string) {
+    await expect(this.page.getByRole("heading", { name, exact: true })).toBeVisible();
+    await expect(this.page.getByText(description)).toBeVisible();
+  }
 }

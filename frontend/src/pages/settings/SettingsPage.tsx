@@ -245,7 +245,10 @@ export function SettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6">
+      <div
+        className="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6"
+        data-testid="settings-profile-skeleton"
+      >
         <div className="space-y-3">
           <Skeleton className="h-7 w-40" />
           <Skeleton className="h-4 w-64" />
@@ -494,7 +497,7 @@ export function SettingsPage() {
 
           {/* Skeleton for audits on initial load + page transitions */}
           {showAuditSkeleton && (
-            <div className="mt-2 space-y-2">
+            <div className="mt-2 space-y-2" data-testid="settings-audit-skeleton">
               {Array.from({ length: 10 }).map((_, idx) => (
                 <Skeleton
                   key={idx}
@@ -505,18 +508,23 @@ export function SettingsPage() {
           )}
 
           {!showAuditSkeleton && auditError && (
-            <div className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300">
+            <div
+              className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300"
+              data-testid="settings-audit-error"
+            >
               {auditError}
             </div>
           )}
 
           {!showAuditSkeleton && !auditError && auditLogs.length === 0 && (
-            <div className="py-4 text-sm text-neutral-500">No activity recorded yet.</div>
+            <div className="py-4 text-sm text-neutral-500" data-testid="settings-audit-empty">
+              No activity recorded yet.
+            </div>
           )}
 
           {!showAuditSkeleton && !auditError && auditLogs.length > 0 && (
             <>
-              <div className="mt-2 space-y-2">
+              <div className="mt-2 space-y-2" data-testid="settings-audit-list">
                 {auditLogs.map((log) => (
                   <div
                     key={log.id}
