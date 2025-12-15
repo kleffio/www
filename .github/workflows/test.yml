@@ -8,7 +8,7 @@ on:
   pull_request:
     branches:
       - main
-
+      - develop
 
 jobs:
   test:
@@ -26,15 +26,19 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          cache: 'maven'
+          cache: 'gradle'
+      
+      - name: Make gradlew executable
+        working-directory: ./${{ matrix.service }}
+        run: chmod +x gradlew
       
       - name: Run tests for ${{ matrix.service }}
         working-directory: ./${{ matrix.service }}
-        run: mvn clean test
+        run: ./gradlew test
       
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.service }}
-          path: ${{ matrix.service }}/target/surefire-reports/
+          path: ${{ matrix.service }}/build/test-results/test/
