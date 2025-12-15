@@ -41,4 +41,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.service }}
-          path: ${{ matrix.service }}/build/test-results/test
+          path: ${{ matrix.service }}/build/test-results/test/
