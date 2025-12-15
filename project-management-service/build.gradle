@@ -88,6 +88,7 @@ tasks.jacocoTestReport {
             fileTree(
             dir: "build/classes/java/main",
             excludes: [
+                    "com/kleff/projectmanagementservice/datalayer/collaborator",
             "com/kleff/projectmanagementservice/utils/**",
             "com/kleff/projectmanagementservice/exception/**",
     ]
