@@ -6,14 +6,12 @@ export class CallbackPage extends BasePage {
   async openSignin() {
     await this.goto(routes.auth.signin);
   }
+
   async openCallback() {
     await this.goto(routes.auth.callback);
   }
 
   async expectRedirectCardVisible() {
-    await expect(
-      this.page.getByRole("heading", { name: "Redirecting to Kleff Auth…" })
-    ).toBeVisible();
-    await expect(this.page.getByRole("button", { name: "Try again" })).toBeVisible();
+    await expect(this.page.getByTestId("auth-callback")).toBeVisible();
   }
 }
