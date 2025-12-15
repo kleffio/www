@@ -7,7 +7,7 @@ import { Spinner } from "@shared/ui/Spinner";
 import { MiniCard } from "@shared/ui/MiniCard";
 import { Badge } from "@shared/ui/Badge";
 import { GradientIcon } from "@shared/ui/GradientIcon";
-import { Hash, User, Layers, Activity, Calendar, Clock, Box } from "lucide-react";
+import { Hash, User, Layers, Activity, Calendar, Clock, Box, ExternalLink } from "lucide-react";
 import { useProject } from "@features/projects/hooks/useProject";
 import { useProjectContainers } from "@features/projects/hooks/useProjectContainers";
 import { CreateContainerModal } from "@features/projects/components/CreateContainerModal";
@@ -19,6 +19,16 @@ import { getLocale } from "@app/locales/locale";
 const translations = {
   en: enTranslations,
   fr: frTranslations
+};
+
+// Matches backend sanitization: lowercase, replace spaces/underscores with dashes, trim dashes
+const sanitizeAppName = (name: string) => {
+  if (!name) return "";
+  return name
+    .toLowerCase()
+    .replace(/_/g, '-')      // Replace underscores with dashes
+    .replace(/\s+/g, '-')    // Replace spaces with dashes
+    .replace(/^-+|-+$/g, ''); // Trim leading/trailing dashes
 };
 
 export function ProjectDetailPage() {
@@ -170,6 +180,7 @@ export function ProjectDetailPage() {
                 <TableRow className="border-b border-white/10 bg-white/5 hover:bg-white/5">
                   <TableHead>{t.table.name}</TableHead>
                   <TableHead>{t.table.status}</TableHead>
+                  <TableHead>App URL</TableHead>
                   <TableHead>{t.table.image}</TableHead>
                   <TableHead>{t.table.ports}</TableHead>
                   <TableHead>Repository URL</TableHead>
@@ -178,43 +189,57 @@ export function ProjectDetailPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {containers.map((container) => (
-                  <TableRow key={container.containerId} className="hover:bg-white/5">
-                    <TableCell>
-                      <span className="font-semibold text-neutral-50">{container.name}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={container.status?.toLowerCase().includes('running') ? 'success' :
-                                container.status?.toLowerCase().includes('stopped') ? 'secondary' : 'warning'}
-                        className="text-xs"
-                      >
-                        {container.status || t.unknown}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-neutral-300 font-mono text-xs">{container.image}</TableCell>
-                    <TableCell className="text-neutral-300">
-                      {container.ports.length > 0 ? (
-                        <div className="flex flex-wrap gap-1">
-                          {container.ports.map((port, index) => (
-                            <Badge key={index} variant="outline" className="text-[10px] px-1.5 py-0.5">
-                              {port}
-                            </Badge>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-neutral-500">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-neutral-300 font-mono text-xs">
-                      {container.repoUrl || <span className="text-neutral-500">—</span>}
-                    </TableCell>
-                    <TableCell className="text-neutral-300 text-xs">
-                      {container.branch || <span className="text-neutral-500">—</span>}
-                    </TableCell>
-                    <TableCell className="text-neutral-300 text-xs">{container.createdAt}</TableCell>
-                  </TableRow>
-                ))}
+                {containers.map((container) => {
+                  const appUrl = `https://${sanitizeAppName(container.name)}.kleff.io`;
+                  return (
+                    <TableRow key={container.containerId} className="hover:bg-white/5">
+                      <TableCell>
+                        <span className="font-semibold text-neutral-50">{container.name}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={container.status?.toLowerCase().includes('running') ? 'success' :
+                                  container.status?.toLowerCase().includes('stopped') ? 'secondary' : 'warning'}
+                          className="text-xs"
+                        >
+                          {container.status || t.unknown}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <a 
+                          href={appUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 hover:text-blue-300 hover:underline transition-colors"
+                        >
+                          Visit App
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </TableCell>
+                      <TableCell className="text-neutral-300 font-mono text-xs">{container.image}</TableCell>
+                      <TableCell className="text-neutral-300">
+                        {container.ports.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {container.ports.map((port, index) => (
+                              <Badge key={index} variant="outline" className="text-[10px] px-1.5 py-0.5">
+                                {port}
+                              </Badge>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-neutral-500">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-neutral-300 font-mono text-xs">
+                        {container.repoUrl || <span className="text-neutral-500">—</span>}
+                      </TableCell>
+                      <TableCell className="text-neutral-300 text-xs">
+                        {container.branch || <span className="text-neutral-500">—</span>}
+                      </TableCell>
+                      <TableCell className="text-neutral-300 text-xs">{container.createdAt}</TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}
