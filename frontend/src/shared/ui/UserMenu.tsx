@@ -51,7 +51,7 @@ export function UserMenu({
 
   const handleOpenSettings = () => {
     setMenuOpen(false);
-    navigate(ROUTES.DASHBOARD_SETTINGS);
+    navigate(ROUTES.SETTINGS);
   };
 
   const handleOpenDashboard = () => {
