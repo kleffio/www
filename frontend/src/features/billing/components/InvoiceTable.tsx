@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { DollarSign, Calendar, X, Eye, Loader2 } from 'lucide-react';
 import type { Invoice } from '@features/billing/types/Invoice';
 import fetchInvoice from '../api/viewInvoicesForProject';

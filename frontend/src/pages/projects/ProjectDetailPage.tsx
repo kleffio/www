@@ -19,7 +19,6 @@ import enTranslations from "@app/locales/en/projects.json";
 import frTranslations from "@app/locales/fr/projects.json";
 import { getLocale } from "@app/locales/locale";
 import { BillingModal } from "@features/billing/components/viewBillsModal";
-import type { Invoice } from "@features/billing/types/Invoice";
 import { useUsername } from "@features/users/api/getUsernameById";
 import InvoiceTable from "@features/billing/components/InvoiceTable";
 import ProjectMetricsCard from "@features/observability/components/ProjectMetricsCard";
@@ -44,51 +43,6 @@ export function ProjectDetailPage() {
   const [selectedContainer, setSelectedContainer] = useState<Container | null>(null);
   const [locale] = useState(getLocale());
   const t = translations[locale].projectDetail;
-  const invoices: Invoice[] = [
-    {
-      invoiceId: "INV-001",
-      projectId: "PRJ-123",
-      startDate: new Date("2024-11-01"),
-      endDate: new Date("2024-11-30"),
-      amount: 156.80,
-      status: "paid",
-      subtotal: 140.00,
-      taxes: 16.80,
-      total: 156.80
-    },
-    {
-      invoiceId: "INV-001",
-      projectId: "PRJ-123",
-      startDate: new Date("2024-11-01"),
-      endDate: new Date("2024-11-30"),
-      amount: 156.80,
-      status: "paid",
-      subtotal: 140.00,
-      taxes: 16.80,
-      total: 156.80
-    },
-    {
-      invoiceId: "INV-001",
-      projectId: "PRJ-123",
-      startDate: new Date("2024-11-01"),
-      endDate: new Date("2024-11-30"),
-      amount: 156.80,
-      status: "paid",
-      subtotal: 140.00,
-      taxes: 16.80,
-      total: 156.80
-    },
-    {
-      invoiceId: "INV-001",
-      projectId: "PRJ-123",
-      startDate: new Date("2024-11-01"),
-      endDate: new Date("2024-11-30"),
-      amount: 156.80,
-      status: "paid",
-      subtotal: 140.00,
-      taxes: 16.80,
-      total: 156.80
-    }];
   
   const id = project?.ownerId || "";
   const ownerUser = useUsername(id);
@@ -335,7 +289,7 @@ export function ProjectDetailPage() {
         </SoftPanel>
      
     <div className="space-y-6">
-      <InvoiceTable />
+      <InvoiceTable projectId={""} />
     </div>
  </div>
       <BillingModal
