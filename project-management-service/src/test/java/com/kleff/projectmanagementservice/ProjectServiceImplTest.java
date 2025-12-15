@@ -38,13 +38,10 @@ class ProjectServiceImplTest {
         ownerId = "user-123";
 
         testProject = Project.builder()
-                .projectId(UUID.fromString(projectId))
+                .projectId(projectId)
                 .name("Test Project")
                 .description("Test Description")
                 .ownerId(ownerId)
-                .repositoryUrl("https://github.com/test/repo")
-                .branch("main")
-                .dockerComposePath("/docker-compose.yml")
                 .projectStatus(ProjectStatus.ACTIVE)
                 .createdDate(new Date())
                 .updatedDate(new Date())
@@ -192,9 +189,6 @@ class ProjectServiceImplTest {
                 .name("New Name")
                 .description("New Description")
                 .ownerId("new-owner")
-                .repositoryUrl("https://github.com/new/repo")
-                .branch("develop")
-                .dockerComposePath("/new/path/docker-compose.yml")
                 .projectStatus(ProjectStatus.ARCHIVED)
                 .build();
 
@@ -209,9 +203,6 @@ class ProjectServiceImplTest {
         assertEquals("New Name", result.getName());
         assertEquals("New Description", result.getDescription());
         assertEquals("new-owner", result.getOwnerId());
-        assertEquals("https://github.com/new/repo", result.getRepositoryUrl());
-        assertEquals("develop", result.getBranch());
-        assertEquals("/new/path/docker-compose.yml", result.getDockerComposePath());
         assertEquals(ProjectStatus.ARCHIVED, result.getProjectStatus());
         verify(projectRepository, times(1)).save(any(Project.class));
     }
