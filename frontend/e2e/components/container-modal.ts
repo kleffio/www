@@ -51,6 +51,22 @@ export class ContainerModal extends BaseComponent {
     return this.page.locator('button[type="submit"]').filter({ hasText: /create container/i });
   }
 
+  addEnvVariableButton() {
+    return this.page.getByRole("button", { name: /add variable/i });
+  }
+
+  envKeyInput(index: number) {
+    return this.page.locator('input[placeholder="KEY"]').nth(index);
+  }
+
+  envValueInput(index: number) {
+    return this.page.locator('input[placeholder="value"]').nth(index);
+  }
+
+  removeEnvButton(index: number) {
+    return this.page.locator('button').filter({ has: this.page.locator('svg.lucide-trash-2') }).nth(index);
+  }
+
   async fillBasicInfo(name: string, image: string, port: string) {
     await this.containerNameInput().fill(name);
     await this.imageInput().fill(image);
@@ -69,16 +85,39 @@ export class ContainerModal extends BaseComponent {
     }
   }
 
+  async addEnvVariable(key: string, value: string) {
+    // Click add variable button
+    await this.addEnvVariableButton().click();
+    
+    // Wait a moment for the inputs to appear
+    await this.page.waitForTimeout(300);
+    
+    // Get the count of current env variables
+    const keyInputs = this.page.locator('input[placeholder="KEY"]');
+    const count = await keyInputs.count();
+    
+    // Fill the last added (newest) env variable
+    await this.envKeyInput(count - 1).fill(key);
+    await this.envValueInput(count - 1).fill(value);
+  }
+
   async createContainer(
     name: string,
     image: string,
     port: string,
-    repository?: { url: string; branch?: string }
+    repository?: { url: string; branch?: string },
+    envVariables?: Array<{ key: string; value: string }>
   ) {
     await this.fillBasicInfo(name, image, port);
 
     if (repository) {
       await this.fillRepository(repository.url, repository.branch);
+    }
+
+    if (envVariables && envVariables.length > 0) {
+      for (const env of envVariables) {
+        await this.addEnvVariable(env.key, env.value);
+      }
     }
 
     const create = this.createButton();

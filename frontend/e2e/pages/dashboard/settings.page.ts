@@ -13,7 +13,8 @@ export class SettingsPage extends BasePage {
 
   async expectLoaded() {
     await this.expectAppShellLoaded();
-    await expectPath(this.page, /\/dashboard\/settings$/, 30_000);
+    // UPDATED: Route changed from /dashboard/settings to /settings
+    await expectPath(this.page, /\/settings$/, 30_000);
 
     await expect(this.page.getByRole("heading", { name: /account settings/i })).toBeVisible({
       timeout: 30_000
@@ -35,10 +36,12 @@ export class SettingsPage extends BasePage {
   }
 
   displayNameInput() {
+    // UPDATED: Label text changed from "display name" to "Display Name"
     return this.page.getByLabel(/^display name/i);
   }
 
   avatarURLInput() {
+    // UPDATED: Label text changed to "Avatar URL"
     return this.page.getByLabel(/^avatar url/i);
   }
 
@@ -51,10 +54,12 @@ export class SettingsPage extends BasePage {
   }
 
   saveButton() {
+    // UPDATED: Button text is now just "Save" instead of "Update profile"
     return this.page.getByRole("button", { name: /^save$/i });
   }
 
   successToast() {
+    // UPDATED: Removed exclamation mark from success message
     return this.page.getByText("Profile updated successfully.").first();
   }
 

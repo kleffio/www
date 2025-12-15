@@ -41,6 +41,8 @@ type WebAppSpec struct {
 	// +kubebuilder:validation:Maximum=65535
 	// +kubebuilder:default=8080
 	Port int `json:"port,omitempty"`
+	// +optional
+	EnvVariables map[string]string `json:"envVariables,omitempty"`
 }
 
 // WebAppStatus defines the observed state of WebApp.

@@ -7,19 +7,23 @@ import { Spinner } from "@shared/ui/Spinner";
 import { MiniCard } from "@shared/ui/MiniCard";
 import { Badge } from "@shared/ui/Badge";
 import { GradientIcon } from "@shared/ui/GradientIcon";
-import { Hash, User, Layers, Activity, Calendar, Clock, Box } from "lucide-react";
+import { Hash, User, Layers, Activity, Calendar, Clock, Box, Settings } from "lucide-react";
 import { useProject } from "@features/projects/hooks/useProject";
 import { useProjectContainers } from "@features/projects/hooks/useProjectContainers";
 import { CreateContainerModal } from "@features/projects/components/CreateContainerModal";
+import { EditEnvVariablesModal } from "@features/projects/components/EditEnvVariablesModal";
+import updateContainerEnvVariables from "@features/projects/api/updateContainerEnvVariables";
+import type { Container } from "@features/projects/types/Container";
 import { ROUTES } from "@app/routes/routes";
 import enTranslations from "@app/locales/en/projects.json";
 import frTranslations from "@app/locales/fr/projects.json";
 import { getLocale } from "@app/locales/locale";
 import { BillingModal } from "@features/billing/components/viewBillsModal";
 import type { Invoice } from "@features/billing/types/Invoice";
-
 import { useUsername } from "@features/users/api/getUsernameById";
 import InvoiceTable from "@features/billing/components/InvoiceTable";
+import ProjectMetricsCard from "@features/observability/components/ProjectMetricsCard";
+
 const translations = {
   en: enTranslations,
   fr: frTranslations
@@ -28,9 +32,16 @@ const translations = {
 export function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const { project, isLoading: projectLoading, error: projectError } = useProject(projectId || "");
-  const { containers, isLoading: containersLoading, error: containersError, reload } = useProjectContainers(projectId || "");
+  const {
+    containers,
+    isLoading: containersLoading,
+    error: containersError,
+    reload
+  } = useProjectContainers(projectId || "");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBillingModalOpen] = useState(false);
+  const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
+  const [selectedContainer, setSelectedContainer] = useState<Container | null>(null);
   const [locale] = useState(getLocale());
   const t = translations[locale].projectDetail;
   const invoices: Invoice[] = [
@@ -80,7 +91,18 @@ export function ProjectDetailPage() {
     }];
   
   const id = project?.ownerId || "";
-  const ownerUser = (useUsername(id));
+  const ownerUser = useUsername(id);
+
+  const handleEditEnv = (container: Container) => {
+    setSelectedContainer(container);
+    setIsEnvModalOpen(true);
+  };
+
+  const handleSaveEnvVariables = async (containerId: string, envVariables: Record<string, string>) => {
+    await updateContainerEnvVariables(containerId, envVariables);
+    // After successful save, reload containers
+    await reload();
+  };
 
   if (projectLoading) {
     return (
@@ -113,6 +135,17 @@ export function ProjectDetailPage() {
     );
   }
 
+  const containerNames = !containersLoading && containers?.map(c => c.name).filter(Boolean) || [];
+  
+
+  console.log('Container check:', { 
+    containersLoading,
+    containerNames, 
+    length: containerNames.length, 
+    shouldShow: containerNames.length > 0,
+    containers 
+  });
+
   return (
     <section className="h-full">
       <div className="app-container space-y-6 py-8">
@@ -144,7 +177,7 @@ export function ProjectDetailPage() {
             <MiniCard title={t.project_id}>
               <div className="flex items-center gap-2">
                 <Hash className="h-4 w-4 text-neutral-400" />
-                <span className="text-sm font-mono text-neutral-200">{project.projectId}</span>
+                <span className="font-mono text-sm text-neutral-200">{project.projectId}</span>
               </div>
             </MiniCard>
             <MiniCard title={t.owner}>
@@ -186,6 +219,13 @@ export function ProjectDetailPage() {
           </div>
         </SoftPanel>
 
+        {!containersLoading && containerNames.length > 0 && (
+          <ProjectMetricsCard 
+            projectId={project.projectId}
+            containerNames={containerNames}
+          />
+        )}
+
         <SoftPanel>
           <div className="mb-6 flex items-center gap-3">
             <GradientIcon icon={Box} />
@@ -203,9 +243,7 @@ export function ProjectDetailPage() {
             </div>
           )}
 
-          {containersError && (
-            <p className="py-6 text-sm text-red-400">{containersError}</p>
-          )}
+          {containersError && <p className="py-6 text-sm text-red-400">{containersError}</p>}
 
           {!containersLoading && !containersError && containers.length === 0 && (
             <div className="py-10 text-center">
@@ -228,6 +266,7 @@ export function ProjectDetailPage() {
                   <TableHead>Repository URL</TableHead>
                   <TableHead>Branch</TableHead>
                   <TableHead>{t.table.created_at}</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -238,19 +277,30 @@ export function ProjectDetailPage() {
                     </TableCell>
                     <TableCell>
                       <Badge
-                        variant={container.status?.toLowerCase().includes('running') ? 'success' :
-                                container.status?.toLowerCase().includes('stopped') ? 'secondary' : 'warning'}
+                        variant={
+                          container.status?.toLowerCase().includes("running")
+                            ? "success"
+                            : container.status?.toLowerCase().includes("stopped")
+                              ? "secondary"
+                              : "warning"
+                        }
                         className="text-xs"
                       >
                         {container.status || t.unknown}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-neutral-300 font-mono text-xs">{container.image}</TableCell>
+                    <TableCell className="font-mono text-xs text-neutral-300">
+                      {container.image}
+                    </TableCell>
                     <TableCell className="text-neutral-300">
                       {container.ports.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
                           {container.ports.map((port, index) => (
-                            <Badge key={index} variant="outline" className="text-[10px] px-1.5 py-0.5">
+                            <Badge
+                              key={index}
+                              variant="outline"
+                              className="px-1.5 py-0.5 text-[10px]"
+                            >
                               {port}
                             </Badge>
                           ))}
@@ -259,13 +309,24 @@ export function ProjectDetailPage() {
                         <span className="text-neutral-500">—</span>
                       )}
                     </TableCell>
-                    <TableCell className="text-neutral-300 font-mono text-xs">
+                    <TableCell className="font-mono text-xs text-neutral-300">
                       {container.repoUrl || <span className="text-neutral-500">—</span>}
                     </TableCell>
-                    <TableCell className="text-neutral-300 text-xs">
+                    <TableCell className="text-xs text-neutral-300">
                       {container.branch || <span className="text-neutral-500">—</span>}
                     </TableCell>
                     <TableCell className="text-neutral-300 text-xs">{container.createdAt}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleEditEnv(container)}
+                        className="rounded-full px-3 py-1.5 text-xs"
+                      >
+                        <Settings className="mr-1 h-3 w-3" />
+                        Edit Env
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -288,6 +349,16 @@ export function ProjectDetailPage() {
         onClose={() => setIsModalOpen(false)}
         projectId={projectId || ""}
         onSuccess={() => reload()}
+      />
+
+      <EditEnvVariablesModal
+        isOpen={isEnvModalOpen}
+        onClose={() => {
+          setIsEnvModalOpen(false);
+          setSelectedContainer(null);
+        }}
+        container={selectedContainer}
+        onSave={handleSaveEnvVariables}
       />
     </section>
   );

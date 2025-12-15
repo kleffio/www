@@ -5,6 +5,7 @@ import { BaseComponent } from "./base.component";
  * Project creation modal component
  * Used on dashboard and projects pages to create new projects
  */
+
 export class ProjectModal extends BaseComponent {
   async open() {
     await this.page

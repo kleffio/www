@@ -216,7 +216,7 @@ const AuthenticatedSection = React.memo(({ onNavigate }: { onNavigate: () => voi
           </Button>
         </Link>
 
-        <Link to={ROUTES.DASHBOARD_SETTINGS} onClick={onNavigate}>
+        <Link to={ROUTES.SETTINGS} onClick={onNavigate}>
           <Button
             variant="outline"
             className="flex w-full items-center justify-center gap-2 border-white/10 bg-white/5 py-2 font-medium text-neutral-200 hover:border-white/20 hover:bg-white/10"

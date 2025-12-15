@@ -5,4 +5,5 @@ export type ContainerRequest = {
   port: number;
   repoUrl: string;
   branch: string;
+  envVariables?: Record<string, string>;
 };

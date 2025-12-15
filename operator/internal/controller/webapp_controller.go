@@ -71,10 +71,22 @@ func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 			{Name: "acr-creds"},
 		}
 
+		// Build environment variables from WebApp spec
+		var envVars []corev1.EnvVar
+		if webapp.Spec.EnvVariables != nil {
+			for key, value := range webapp.Spec.EnvVariables {
+				envVars = append(envVars, corev1.EnvVar{
+					Name:  key,
+					Value: value,
+				})
+			}
+		}
+
 		deployment.Spec.Template.Spec.Containers = []corev1.Container{{
 			Name:            "app",
 			Image:           webapp.Spec.Image,
 			ImagePullPolicy: corev1.PullAlways,
+			Env:             envVars,
 			Ports: []corev1.ContainerPort{{
 				Name:          "http",
 				ContainerPort: int32(webapp.Spec.Port),
