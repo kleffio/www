@@ -1,6 +1,6 @@
 import { authTest as test } from "../fixtures/auth.fixture";
 import { DashboardPage } from "../pages/dashboard/dashboard.page";
-import { Sidebar } from "../pages/dashboard/sidebar";
+import { Sidebar } from "../components/sidebar";
 import { ProjectsPage } from "../pages/dashboard/projects.page";
 import { SystemsPage } from "../pages/dashboard/systems.page";
 import { SettingsPage } from "../pages/dashboard/settings.page";

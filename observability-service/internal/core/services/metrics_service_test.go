@@ -1,0 +1,664 @@
+package services
+
+import (
+	"context"
+	"errors"
+	"testing"
+
+	"prometheus-metrics-api/internal/core/domain"
+)
+
+// mockMetricsRepository is a mock implementation of ports.MetricsRepository
+type mockMetricsRepository struct {
+	getClusterOverviewFunc      func(ctx context.Context) (*domain.ClusterOverview, error)
+	getRequestsMetricFunc       func(ctx context.Context, duration string) (*domain.MetricCard, error)
+	getPodsMetricFunc           func(ctx context.Context, duration string) (*domain.MetricCard, error)
+	getNodesMetricFunc          func(ctx context.Context, duration string) (*domain.MetricCard, error)
+	getTenantsMetricFunc        func(ctx context.Context, duration string) (*domain.MetricCard, error)
+	getCPUUtilizationFunc       func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
+	getMemoryUtilizationFunc    func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
+	getNodesFunc                func(ctx context.Context) ([]domain.NodeMetric, error)
+	getNamespacesFunc           func(ctx context.Context) ([]domain.NamespaceMetric, error)
+	getDatabaseIOMetricsFunc    func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
+}
+
+func (m *mockMetricsRepository) GetClusterOverview(ctx context.Context) (*domain.ClusterOverview, error) {
+	if m.getClusterOverviewFunc != nil {
+		return m.getClusterOverviewFunc(ctx)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsRepository) GetRequestsMetric(ctx context.Context, duration string) (*domain.MetricCard, error) {
+	if m.getRequestsMetricFunc != nil {
+		return m.getRequestsMetricFunc(ctx, duration)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsRepository) GetPodsMetric(ctx context.Context, duration string) (*domain.MetricCard, error) {
+	if m.getPodsMetricFunc != nil {
+		return m.getPodsMetricFunc(ctx, duration)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsRepository) GetNodesMetric(ctx context.Context, duration string) (*domain.MetricCard, error) {
+	if m.getNodesMetricFunc != nil {
+		return m.getNodesMetricFunc(ctx, duration)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsRepository) GetTenantsMetric(ctx context.Context, duration string) (*domain.MetricCard, error) {
+	if m.getTenantsMetricFunc != nil {
+		return m.getTenantsMetricFunc(ctx, duration)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsRepository) GetCPUUtilization(ctx context.Context, duration string) (*domain.ResourceUtilization, error) {
+	if m.getCPUUtilizationFunc != nil {
+		return m.getCPUUtilizationFunc(ctx, duration)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsRepository) GetMemoryUtilization(ctx context.Context, duration string) (*domain.ResourceUtilization, error) {
+	if m.getMemoryUtilizationFunc != nil {
+		return m.getMemoryUtilizationFunc(ctx, duration)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsRepository) GetNodes(ctx context.Context) ([]domain.NodeMetric, error) {
+	if m.getNodesFunc != nil {
+		return m.getNodesFunc(ctx)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsRepository) GetNamespaces(ctx context.Context) ([]domain.NamespaceMetric, error) {
+	if m.getNamespacesFunc != nil {
+		return m.getNamespacesFunc(ctx)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsRepository) GetDatabaseIOMetrics(ctx context.Context, duration string) (*domain.DatabaseMetrics, error) {
+	if m.getDatabaseIOMetricsFunc != nil {
+		return m.getDatabaseIOMetricsFunc(ctx, duration)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func TestGetClusterOverview_Success(t *testing.T) {
+	expectedOverview := &domain.ClusterOverview{
+		TotalNodes:         5,
+		RunningNodes:       4,
+		TotalPods:          50,
+		TotalNamespaces:    10,
+		CPUUsagePercent:    65.5,
+		MemoryUsagePercent: 72.3,
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getClusterOverviewFunc: func(ctx context.Context) (*domain.ClusterOverview, error) {
+			return expectedOverview, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetClusterOverview(ctx)
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if result.TotalNodes != expectedOverview.TotalNodes {
+		t.Errorf("Expected TotalNodes %d, got %d", expectedOverview.TotalNodes, result.TotalNodes)
+	}
+
+	if result.CPUUsagePercent != expectedOverview.CPUUsagePercent {
+		t.Errorf("Expected CPUUsagePercent %.2f, got %.2f", expectedOverview.CPUUsagePercent, result.CPUUsagePercent)
+	}
+}
+
+func TestGetClusterOverview_Error(t *testing.T) {
+	expectedError := errors.New("prometheus connection failed")
+
+	mockRepo := &mockMetricsRepository{
+		getClusterOverviewFunc: func(ctx context.Context) (*domain.ClusterOverview, error) {
+			return nil, expectedError
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetClusterOverview(ctx)
+
+	if err == nil {
+		t.Fatal("Expected error, got nil")
+	}
+
+	if err.Error() != expectedError.Error() {
+		t.Errorf("Expected error '%v', got '%v'", expectedError, err)
+	}
+
+	if result != nil {
+		t.Errorf("Expected nil result, got %v", result)
+	}
+}
+
+func TestGetRequestsMetric_Success(t *testing.T) {
+	expectedMetric := &domain.MetricCard{
+		Title:         "Total Requests",
+		Value:         "1.5M",
+		RawValue:      1500000,
+		ChangePercent: "+12.5%",
+		ChangeLabel:   "vs last period",
+		Status:        "healthy",
+		Sparkline: []domain.TimeSeriesDataPoint{
+			{Timestamp: 1000, Value: 100},
+			{Timestamp: 2000, Value: 150},
+		},
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getRequestsMetricFunc: func(ctx context.Context, duration string) (*domain.MetricCard, error) {
+			if duration != "1h" {
+				t.Errorf("Expected duration '1h', got '%s'", duration)
+			}
+			return expectedMetric, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetRequestsMetric(ctx, "1h")
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if result.Title != expectedMetric.Title {
+		t.Errorf("Expected Title '%s', got '%s'", expectedMetric.Title, result.Title)
+	}
+
+	if result.RawValue != expectedMetric.RawValue {
+		t.Errorf("Expected RawValue %.0f, got %.0f", expectedMetric.RawValue, result.RawValue)
+	}
+}
+
+func TestGetCPUUtilization_Success(t *testing.T) {
+	expectedUtilization := &domain.ResourceUtilization{
+		CurrentValue:  75.5,
+		ChangePercent: 5.2,
+		Trend:         "up",
+		History: []domain.TimeSeriesDataPoint{
+			{Timestamp: 1000, Value: 70},
+			{Timestamp: 2000, Value: 75.5},
+		},
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getCPUUtilizationFunc: func(ctx context.Context, duration string) (*domain.ResourceUtilization, error) {
+			return expectedUtilization, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetCPUUtilization(ctx, "24h")
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if result.CurrentValue != expectedUtilization.CurrentValue {
+		t.Errorf("Expected CurrentValue %.2f, got %.2f", expectedUtilization.CurrentValue, result.CurrentValue)
+	}
+
+	if result.Trend != expectedUtilization.Trend {
+		t.Errorf("Expected Trend '%s', got '%s'", expectedUtilization.Trend, result.Trend)
+	}
+}
+
+func TestGetNodes_Success(t *testing.T) {
+	expectedNodes := []domain.NodeMetric{
+		{
+			Name:               "node-1",
+			CPUUsagePercent:    60.5,
+			MemoryUsagePercent: 70.2,
+			PodCount:           15,
+			Status:             "Ready",
+		},
+		{
+			Name:               "node-2",
+			CPUUsagePercent:    55.3,
+			MemoryUsagePercent: 65.8,
+			PodCount:           12,
+			Status:             "Ready",
+		},
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getNodesFunc: func(ctx context.Context) ([]domain.NodeMetric, error) {
+			return expectedNodes, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetNodes(ctx)
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if len(result) != len(expectedNodes) {
+		t.Errorf("Expected %d nodes, got %d", len(expectedNodes), len(result))
+	}
+
+	if len(result) > 0 && result[0].Name != expectedNodes[0].Name {
+		t.Errorf("Expected first node name '%s', got '%s'", expectedNodes[0].Name, result[0].Name)
+	}
+}
+
+func TestGetNamespaces_Success(t *testing.T) {
+	expectedNamespaces := []domain.NamespaceMetric{
+		{
+			Name:        "default",
+			PodCount:    20,
+			CPUUsage:    10.5,
+			MemoryUsage: 2048.0,
+		},
+		{
+			Name:        "kube-system",
+			PodCount:    15,
+			CPUUsage:    5.2,
+			MemoryUsage: 1024.0,
+		},
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getNamespacesFunc: func(ctx context.Context) ([]domain.NamespaceMetric, error) {
+			return expectedNamespaces, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetNamespaces(ctx)
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if len(result) != len(expectedNamespaces) {
+		t.Errorf("Expected %d namespaces, got %d", len(expectedNamespaces), len(result))
+	}
+}
+
+func TestGetDatabaseIOMetrics_Success(t *testing.T) {
+	expectedMetrics := &domain.DatabaseMetrics{
+		DiskReadBytesPerSec:        1024000.0,
+		DiskWriteBytesPerSec:       512000.0,
+		DiskReadOpsPerSec:          100.0,
+		DiskWriteOpsPerSec:         50.0,
+		NetworkReceiveBytesPerSec:  2048000.0,
+		NetworkTransmitBytesPerSec: 1536000.0,
+		NetworkReceiveOpsPerSec:    200.0,
+		NetworkTransmitOpsPerSec:   150.0,
+		Source:                     "prometheus",
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getDatabaseIOMetricsFunc: func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error) {
+			return expectedMetrics, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetDatabaseIOMetrics(ctx, "1h")
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if result.DiskReadBytesPerSec != expectedMetrics.DiskReadBytesPerSec {
+		t.Errorf("Expected DiskReadBytesPerSec %.2f, got %.2f", 
+			expectedMetrics.DiskReadBytesPerSec, result.DiskReadBytesPerSec)
+	}
+}
+
+func TestGetRequestsMetric_Error(t *testing.T) {
+	expectedError := errors.New("repository error")
+
+	mockRepo := &mockMetricsRepository{
+		getRequestsMetricFunc: func(ctx context.Context, duration string) (*domain.MetricCard, error) {
+			return nil, expectedError
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetRequestsMetric(ctx, "1h")
+
+	if err == nil {
+		t.Fatal("Expected error, got nil")
+	}
+
+	if result != nil {
+		t.Errorf("Expected nil result, got %v", result)
+	}
+}
+
+func TestGetPodsMetric_Success(t *testing.T) {
+	expectedMetric := &domain.MetricCard{
+		Title:    "Total Pods",
+		Value:    "150",
+		RawValue: 150,
+		Status:   "healthy",
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getPodsMetricFunc: func(ctx context.Context, duration string) (*domain.MetricCard, error) {
+			return expectedMetric, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetPodsMetric(ctx, "24h")
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if result.Title != expectedMetric.Title {
+		t.Errorf("Expected Title '%s', got '%s'", expectedMetric.Title, result.Title)
+	}
+}
+
+func TestGetPodsMetric_Error(t *testing.T) {
+	expectedError := errors.New("pods metric error")
+
+	mockRepo := &mockMetricsRepository{
+		getPodsMetricFunc: func(ctx context.Context, duration string) (*domain.MetricCard, error) {
+			return nil, expectedError
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetPodsMetric(ctx, "1h")
+
+	if err == nil {
+		t.Fatal("Expected error, got nil")
+	}
+
+	if result != nil {
+		t.Errorf("Expected nil result, got %v", result)
+	}
+}
+
+func TestGetNodesMetric_Success(t *testing.T) {
+	expectedMetric := &domain.MetricCard{
+		Title:    "Total Nodes",
+		Value:    "5",
+		RawValue: 5,
+		Status:   "healthy",
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getNodesMetricFunc: func(ctx context.Context, duration string) (*domain.MetricCard, error) {
+			return expectedMetric, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetNodesMetric(ctx, "12h")
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if result.RawValue != expectedMetric.RawValue {
+		t.Errorf("Expected RawValue %.0f, got %.0f", expectedMetric.RawValue, result.RawValue)
+	}
+}
+
+func TestGetNodesMetric_Error(t *testing.T) {
+	expectedError := errors.New("nodes metric error")
+
+	mockRepo := &mockMetricsRepository{
+		getNodesMetricFunc: func(ctx context.Context, duration string) (*domain.MetricCard, error) {
+			return nil, expectedError
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetNodesMetric(ctx, "1h")
+
+	if err == nil {
+		t.Fatal("Expected error, got nil")
+	}
+
+	if result != nil {
+		t.Errorf("Expected nil result, got %v", result)
+	}
+}
+
+func TestGetTenantsMetric_Success(t *testing.T) {
+	expectedMetric := &domain.MetricCard{
+		Title:    "Total Tenants",
+		Value:    "25",
+		RawValue: 25,
+		Status:   "healthy",
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getTenantsMetricFunc: func(ctx context.Context, duration string) (*domain.MetricCard, error) {
+			return expectedMetric, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetTenantsMetric(ctx, "6h")
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if result.Title != expectedMetric.Title {
+		t.Errorf("Expected Title '%s', got '%s'", expectedMetric.Title, result.Title)
+	}
+}
+
+func TestGetTenantsMetric_Error(t *testing.T) {
+	expectedError := errors.New("tenants metric error")
+
+	mockRepo := &mockMetricsRepository{
+		getTenantsMetricFunc: func(ctx context.Context, duration string) (*domain.MetricCard, error) {
+			return nil, expectedError
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetTenantsMetric(ctx, "1h")
+
+	if err == nil {
+		t.Fatal("Expected error, got nil")
+	}
+
+	if result != nil {
+		t.Errorf("Expected nil result, got %v", result)
+	}
+}
+
+func TestGetCPUUtilization_Error(t *testing.T) {
+	expectedError := errors.New("cpu utilization error")
+
+	mockRepo := &mockMetricsRepository{
+		getCPUUtilizationFunc: func(ctx context.Context, duration string) (*domain.ResourceUtilization, error) {
+			return nil, expectedError
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetCPUUtilization(ctx, "1h")
+
+	if err == nil {
+		t.Fatal("Expected error, got nil")
+	}
+
+	if result != nil {
+		t.Errorf("Expected nil result, got %v", result)
+	}
+}
+
+func TestGetMemoryUtilization_Success(t *testing.T) {
+	expectedUtilization := &domain.ResourceUtilization{
+		CurrentValue:  82.3,
+		ChangePercent: 3.5,
+		Trend:         "stable",
+		History: []domain.TimeSeriesDataPoint{
+			{Timestamp: 1000, Value: 80},
+			{Timestamp: 2000, Value: 82.3},
+		},
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getMemoryUtilizationFunc: func(ctx context.Context, duration string) (*domain.ResourceUtilization, error) {
+			return expectedUtilization, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetMemoryUtilization(ctx, "24h")
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if result.CurrentValue != expectedUtilization.CurrentValue {
+		t.Errorf("Expected CurrentValue %.2f, got %.2f", expectedUtilization.CurrentValue, result.CurrentValue)
+	}
+}
+
+func TestGetMemoryUtilization_Error(t *testing.T) {
+	expectedError := errors.New("memory utilization error")
+
+	mockRepo := &mockMetricsRepository{
+		getMemoryUtilizationFunc: func(ctx context.Context, duration string) (*domain.ResourceUtilization, error) {
+			return nil, expectedError
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetMemoryUtilization(ctx, "1h")
+
+	if err == nil {
+		t.Fatal("Expected error, got nil")
+	}
+
+	if result != nil {
+		t.Errorf("Expected nil result, got %v", result)
+	}
+}
+
+func TestGetNodes_Error(t *testing.T) {
+	expectedError := errors.New("nodes error")
+
+	mockRepo := &mockMetricsRepository{
+		getNodesFunc: func(ctx context.Context) ([]domain.NodeMetric, error) {
+			return nil, expectedError
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetNodes(ctx)
+
+	if err == nil {
+		t.Fatal("Expected error, got nil")
+	}
+
+	if result != nil {
+		t.Errorf("Expected nil result, got %v", result)
+	}
+}
+
+func TestGetNamespaces_Error(t *testing.T) {
+	expectedError := errors.New("namespaces error")
+
+	mockRepo := &mockMetricsRepository{
+		getNamespacesFunc: func(ctx context.Context) ([]domain.NamespaceMetric, error) {
+			return nil, expectedError
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetNamespaces(ctx)
+
+	if err == nil {
+		t.Fatal("Expected error, got nil")
+	}
+
+	if result != nil {
+		t.Errorf("Expected nil result, got %v", result)
+	}
+}
+
+func TestGetDatabaseIOMetrics_Error(t *testing.T) {
+	expectedError := errors.New("database io error")
+
+	mockRepo := &mockMetricsRepository{
+		getDatabaseIOMetricsFunc: func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error) {
+			return nil, expectedError
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetDatabaseIOMetrics(ctx, "1h")
+
+	if err == nil {
+		t.Fatal("Expected error, got nil")
+	}
+
+	if result != nil {
+		t.Errorf("Expected nil result, got %v", result)
+	}
+}
