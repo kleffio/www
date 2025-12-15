@@ -15,6 +15,7 @@ import { ROUTES } from "@app/routes/routes";
 import enTranslations from "@app/locales/en/projects.json";
 import frTranslations from "@app/locales/fr/projects.json";
 import { getLocale } from "@app/locales/locale";
+import ProjectMetricsCard from "@features/observability/components/ProjectMetricsCard";
 
 const translations = {
   en: enTranslations,
@@ -59,6 +60,18 @@ export function ProjectDetailPage() {
       </section>
     );
   }
+
+  // Get container names for metrics (only when containers are loaded)
+  const containerNames = !containersLoading && containers?.map(c => c.name).filter(Boolean) || [];
+  
+  // Debug logging
+  console.log('🔍 Container check:', { 
+    containersLoading,
+    containerNames, 
+    length: containerNames.length, 
+    shouldShow: containerNames.length > 0,
+    containers 
+  });
 
   return (
     <section className="h-full">
@@ -132,6 +145,14 @@ export function ProjectDetailPage() {
             </MiniCard>
           </div>
         </SoftPanel>
+
+        {/* Add Project Metrics Card here */}
+        {!containersLoading && containerNames.length > 0 && (
+          <ProjectMetricsCard 
+            projectId={project.projectId}
+            containerNames={containerNames}
+          />
+        )}
 
         <SoftPanel>
           <div className="mb-6 flex items-center gap-3">

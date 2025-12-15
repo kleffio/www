@@ -1,28 +1,14 @@
 import { useEffect, useState } from 'react';
 import { getProjectMetrics } from '../api/getProjectMetrics';
 import type { ProjectMetrics } from '../types/projectMetrics.types';
+import { SoftPanel } from '@shared/ui/SoftPanel';
+import { MiniCard } from '@shared/ui/MiniCard';
+import { GradientIcon } from '@shared/ui/GradientIcon';
+import { DollarSign, Cpu, HardDrive, Activity } from 'lucide-react';
 
 interface ProjectMetricsCardProps {
   projectId: string;
   containerNames: string[];
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${(bytes / Math.pow(k, i)).toFixed(2)} ${sizes[i]}`;
-}
-
-function formatUptime(seconds: number): string {
-  const days = Math.floor(seconds / 86400);
-  const hours = Math.floor((seconds % 86400) / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  
-  if (days > 0) return `${days}d ${hours}h`;
-  if (hours > 0) return `${hours}h ${minutes}m`;
-  return `${minutes}m`;
 }
 
 export default function ProjectMetricsCard({ projectId, containerNames }: ProjectMetricsCardProps) {
@@ -30,107 +16,95 @@ export default function ProjectMetricsCard({ projectId, containerNames }: Projec
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadMetrics();
-    const interval = setInterval(loadMetrics, 30000);
-    return () => clearInterval(interval);
-  }, [projectId]);
-
-  const loadMetrics = async () => {
+  const fetchMetrics = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await getProjectMetrics(projectId, containerNames);
       setMetrics(data);
-      setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load metrics');
+      setError('Unable to retrieve project metrics. Please verify Prometheus is configured.');
+      console.error('Error fetching project metrics:', err);
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchMetrics();
+    const interval = setInterval(fetchMetrics, 30000);
+    return () => clearInterval(interval);
+  }, [projectId, containerNames]);
+
   if (loading && !metrics) {
-    return <div className="p-4">Loading metrics...</div>;
+    return (
+      <SoftPanel>
+        <div className="flex justify-center py-10">
+          <p className="text-sm text-neutral-400">Loading metrics...</p>
+        </div>
+      </SoftPanel>
+    );
   }
 
   if (error) {
     return (
-      <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-        Error: {error}
-      </div>
+      <SoftPanel>
+        <p className="py-6 text-sm text-red-400">{error}</p>
+      </SoftPanel>
     );
   }
 
   if (!metrics) return null;
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 mb-6">
-      <h2 className="text-xl font-bold mb-4">Project Metrics & Billing</h2>
+    <SoftPanel>
+      <div className="mb-6 flex items-center gap-3">
+        <GradientIcon icon={DollarSign} />
+        <h2 className="text-lg font-semibold text-neutral-50">Project Metrics & Billing</h2>
+      </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <p className="text-sm text-gray-600">Monthly Cost</p>
-          <p className="text-2xl font-bold text-blue-600">
-            ${metrics.estimatedMonthlyCost.toFixed(2)}
-          </p>
-        </div>
-        
-        <div className="bg-green-50 p-4 rounded-lg">
-          <p className="text-sm text-gray-600">CPU Usage</p>
-          <p className="text-2xl font-bold text-green-600">
-            {metrics.totalCpuCores.toFixed(3)} cores
-          </p>
-        </div>
-        
-        <div className="bg-purple-50 p-4 rounded-lg">
-          <p className="text-sm text-gray-600">Memory</p>
-          <p className="text-2xl font-bold text-purple-600">
-            {metrics.totalMemoryGb.toFixed(2)} GB
-          </p>
-        </div>
-        
-        <div className="bg-orange-50 p-4 rounded-lg">
-          <p className="text-sm text-gray-600">Containers</p>
-          <p className="text-2xl font-bold text-orange-600">
-            {metrics.runningContainers}/{metrics.totalContainers}
-          </p>
-        </div>
-      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <MiniCard title="Estimated Monthly Cost">
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-neutral-400" />
+            <span className="text-2xl font-semibold text-neutral-50">
+              ${(metrics.estimatedMonthlyCost || 0).toFixed(2)}
+            </span>
+          </div>
+        </MiniCard>
 
-      <h3 className="text-lg font-semibold mb-3">Container Details</h3>
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b-2 border-gray-200">
-              <th className="text-left py-2 px-4">Container</th>
-              <th className="text-right py-2 px-4">CPU</th>
-              <th className="text-right py-2 px-4">Memory</th>
-              <th className="text-right py-2 px-4">Network</th>
-              <th className="text-right py-2 px-4">Uptime</th>
-            </tr>
-          </thead>
-          <tbody>
-            {metrics.containers.map(container => (
-              <tr key={container.containerName} className="border-b border-gray-100">
-                <td className="py-2 px-4 font-medium">{container.containerName}</td>
-                <td className="py-2 px-4 text-right text-sm">
-                  {container.cpuUsageCores.toFixed(3)} cores
-                </td>
-                <td className="py-2 px-4 text-right text-sm">
-                  {formatBytes(container.memoryUsageBytes)}
-                </td>
-                <td className="py-2 px-4 text-right text-sm">
-                  <div>↓ {formatBytes(container.networkRxBytes)}</div>
-                  <div>↑ {formatBytes(container.networkTxBytes)}</div>
-                </td>
-                <td className="py-2 px-4 text-right text-sm">
-                  {formatUptime(container.uptimeSeconds)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <MiniCard title="Total CPU Usage">
+          <div className="flex items-center gap-2">
+            <Cpu className="h-4 w-4 text-neutral-400" />
+            <span className="text-2xl font-semibold text-neutral-50">
+              {(metrics.totalCpuCores || 0).toFixed(3)}
+            </span>
+            <span className="text-xs text-neutral-400">cores</span>
+          </div>
+        </MiniCard>
+
+        <MiniCard title="Total Memory">
+          <div className="flex items-center gap-2">
+            <HardDrive className="h-4 w-4 text-neutral-400" />
+            <span className="text-2xl font-semibold text-neutral-50">
+              {(metrics.totalMemoryGb || 0).toFixed(2)}
+            </span>
+            <span className="text-xs text-neutral-400">GB</span>
+          </div>
+        </MiniCard>
+
+        <MiniCard title="Container Status">
+          <div className="flex items-center gap-2">
+            <Activity className="h-4 w-4 text-neutral-400" />
+            <span className="text-2xl font-semibold text-neutral-50">
+              {metrics.runningContainers || 0}
+            </span>
+            <span className="text-xs text-neutral-400">
+              / {metrics.totalContainers || 0} running
+            </span>
+          </div>
+        </MiniCard>
       </div>
-    </div>
+    </SoftPanel>
   );
 }
