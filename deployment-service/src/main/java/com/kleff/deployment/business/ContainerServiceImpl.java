@@ -64,7 +64,8 @@ public class ContainerServiceImpl {
                 request.getRepoUrl(),
                 request.getBranch(),
                 request.getPort(),
-                request.getName()
+                request.getName(),
+                request.getEnvVariables()
         );
 
         try {
@@ -90,18 +91,23 @@ public class ContainerServiceImpl {
 
         @JsonProperty("name")
         private String name;
+        
+        @JsonProperty("envVariables")
+        private java.util.Map<String, String> envVariables;
 
-        public GoBuildRequest(String projectID, String repoUrl, String branch, int appPort, String name) {
+        public GoBuildRequest(String projectID, String repoUrl, String branch, int appPort, String name, java.util.Map<String, String> envVariables) {
             this.projectID = projectID;
             this.name = name;
             this.repoUrl = repoUrl;
             this.branch = (branch == null || branch.isEmpty()) ? "main" : branch;
             this.appPort = appPort;
+            this.envVariables = envVariables;
         }
         
         public String getRepoUrl() { return repoUrl; }
         public String getBranch() { return branch; }
         public int getAppPort() { return appPort; }
         public String getProjectID() { return projectID; }
+        public java.util.Map<String, String> getEnvVariables() { return envVariables; }
     }
 }

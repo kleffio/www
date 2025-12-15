@@ -35,12 +35,13 @@ type Server struct {
 }
 
 type BuildRequest struct {
-	ContainerID string `json:"containerID"`
-	ProjectID   string `json:"projectID"`
-	Name        string `json:"name"`    // App name
-	RepoURL     string `json:"repoUrl"` // Source Git URL
-	Branch      string `json:"branch"`  // Git Branch
-	Port        int    `json:"port"`    // Optional: App Port
+	ContainerID  string            `json:"containerID"`
+	ProjectID    string            `json:"projectID"`
+	Name         string            `json:"name"`    // App name
+	RepoURL      string            `json:"repoUrl"` // Source Git URL
+	Branch       string            `json:"branch"`  // Git Branch
+	Port         int               `json:"port"`    // Optional: App Port
+	EnvVariables map[string]string `json:"envVariables,omitempty"` // Environment variables
 }
 
 type Response struct {
@@ -245,11 +246,12 @@ func (s *Server) createWebApp(ctx context.Context, namespace, name, image string
 				"namespace": namespace,
 			},
 			"spec": map[string]interface{}{
-				"displayName": req.Name,
-				"image":       image,       // Use the auto-generated image string
-				"port":        int64(port), // Ensure int64 for json serialization numbers
-				"repoURL":     req.RepoURL,
-				"branch":      req.Branch,
+				"displayName":  req.Name,
+				"image":        image,       // Use the auto-generated image string
+				"port":         int64(port), // Ensure int64 for json serialization numbers
+				"repoURL":      req.RepoURL,
+				"branch":       req.Branch,
+				"envVariables": req.EnvVariables,
 			},
 		},
 	}
@@ -274,6 +276,9 @@ func (s *Server) createWebApp(ctx context.Context, namespace, name, image string
 			}
 			spec["image"] = image
 			spec["branch"] = req.Branch
+			if req.EnvVariables != nil {
+				spec["envVariables"] = req.EnvVariables
+			}
 			existing.Object["spec"] = spec
 
 			// Submit Update
