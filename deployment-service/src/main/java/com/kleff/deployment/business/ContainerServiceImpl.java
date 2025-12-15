@@ -44,6 +44,10 @@ public class ContainerServiceImpl {
         }
     }
 
+    public ContainerResponseModel toResponseModel(Container container) {
+        return containerMapper.containerToContainerResponseModel(container);
+    }
+
     public ContainerResponseModel createContainer(ContainerRequestModel containerRequestModel) {
         Container container = containerMapper.containerRequestModelToContainer(containerRequestModel);
         container.setStatus("Running"); 
@@ -109,5 +113,40 @@ public class ContainerServiceImpl {
         public int getAppPort() { return appPort; }
         public String getProjectID() { return projectID; }
         public java.util.Map<String, String> getEnvVariables() { return envVariables; }
+    }
+
+    public ContainerResponseModel updateContainerEnvVariables(String containerID, java.util.Map<String, String> envVariables) {
+        Container container = containerRepository.findContainerByContainerID(containerID);
+        if (container == null) {
+            throw new RuntimeException("Container not found with ID: " + containerID);
+        }
+
+        // Convert the map to JSON string for storage
+        String envVarsJson = containerMapper.mapToJson(envVariables);
+        container.setEnvVariables(envVarsJson);
+
+        // Save the updated container
+        Container updatedContainer = containerRepository.save(container);
+
+        // Trigger update to the WebApp CRD in Kubernetes
+        triggerWebAppUpdate(container, envVariables);
+
+        return containerMapper.containerToContainerResponseModel(updatedContainer);
+    }
+
+    private void triggerWebAppUpdate(Container container, java.util.Map<String, String> envVariables) {
+        String updateServiceUrl = "https://api.kleff.io/api/v1/webapp/update";
+
+        java.util.Map<String, Object> updateRequest = new java.util.HashMap<>();
+        updateRequest.put("projectID", container.getProjectID());
+        updateRequest.put("name", container.getName());
+        updateRequest.put("envVariables", envVariables);
+
+        try {
+            restTemplate.patchForObject(updateServiceUrl, updateRequest, String.class);
+            System.out.println("WebApp update triggered successfully for: " + container.getName());
+        } catch (Exception e) {
+            System.err.println("Failed to trigger WebApp update: " + e.getMessage());
+        }
     }
 }

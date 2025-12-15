@@ -7,10 +7,13 @@ import { Spinner } from "@shared/ui/Spinner";
 import { MiniCard } from "@shared/ui/MiniCard";
 import { Badge } from "@shared/ui/Badge";
 import { GradientIcon } from "@shared/ui/GradientIcon";
-import { Hash, User, Layers, Activity, Calendar, Clock, Box } from "lucide-react";
+import { Hash, User, Layers, Activity, Calendar, Clock, Box, Settings } from "lucide-react";
 import { useProject } from "@features/projects/hooks/useProject";
 import { useProjectContainers } from "@features/projects/hooks/useProjectContainers";
 import { CreateContainerModal } from "@features/projects/components/CreateContainerModal";
+import { EditEnvVariablesModal } from "@features/projects/components/EditEnvVariablesModal";
+import updateContainerEnvVariables from "@features/projects/api/updateContainerEnvVariables";
+import type { Container } from "@features/projects/types/Container";
 import { ROUTES } from "@app/routes/routes";
 import enTranslations from "@app/locales/en/projects.json";
 import frTranslations from "@app/locales/fr/projects.json";
@@ -26,8 +29,21 @@ export function ProjectDetailPage() {
   const { project, isLoading: projectLoading, error: projectError } = useProject(projectId || "");
   const { containers, isLoading: containersLoading, error: containersError, reload } = useProjectContainers(projectId || "");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
+  const [selectedContainer, setSelectedContainer] = useState<Container | null>(null);
   const [locale] = useState(getLocale());
   const t = translations[locale].projectDetail;
+
+  const handleEditEnv = (container: Container) => {
+    setSelectedContainer(container);
+    setIsEnvModalOpen(true);
+  };
+
+  const handleSaveEnvVariables = async (containerId: string, envVariables: Record<string, string>) => {
+    await updateContainerEnvVariables(containerId, envVariables);
+    // After successful save, reload containers
+    await reload();
+  };
 
   if (projectLoading) {
     return (
@@ -175,6 +191,7 @@ export function ProjectDetailPage() {
                   <TableHead>Repository URL</TableHead>
                   <TableHead>Branch</TableHead>
                   <TableHead>{t.table.created_at}</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -213,6 +230,17 @@ export function ProjectDetailPage() {
                       {container.branch || <span className="text-neutral-500">—</span>}
                     </TableCell>
                     <TableCell className="text-neutral-300 text-xs">{container.createdAt}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleEditEnv(container)}
+                        className="rounded-full px-3 py-1.5 text-xs"
+                      >
+                        <Settings className="mr-1 h-3 w-3" />
+                        Edit Env
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -226,6 +254,16 @@ export function ProjectDetailPage() {
         onClose={() => setIsModalOpen(false)}
         projectId={projectId || ""}
         onSuccess={() => reload()}
+      />
+
+      <EditEnvVariablesModal
+        isOpen={isEnvModalOpen}
+        onClose={() => {
+          setIsEnvModalOpen(false);
+          setSelectedContainer(null);
+        }}
+        container={selectedContainer}
+        onSave={handleSaveEnvVariables}
       />
     </section>
   );

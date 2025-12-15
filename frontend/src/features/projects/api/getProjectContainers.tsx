@@ -13,7 +13,8 @@ export default async function fetchProjectContainers(projectId: string): Promise
       ports: item.ports || (item.port ? [item.port.toString()] : []),
       createdAt: item.createdAt,
       repoUrl: item.repoUrl || '',
-      branch: item.branch || 'main', // Added missing required property
+      branch: item.branch || 'main',
+      envVariables: item.envVariables || {},
     }));
     return containers;
   } catch (error: any) {

@@ -44,6 +44,12 @@ type BuildRequest struct {
 	EnvVariables map[string]string `json:"envVariables,omitempty"` // Environment variables
 }
 
+type UpdateWebAppRequest struct {
+	ProjectID    string            `json:"projectID"`
+	Name         string            `json:"name"`          // App name
+	EnvVariables map[string]string `json:"envVariables"`  // Environment variables
+}
+
 type Response struct {
 	Namespace string `json:"namespace"`
 	JobName   string `json:"job_name,omitempty"`
@@ -124,6 +130,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/v1/build/create", enableCors(server.handleCreateBuild))
+	mux.HandleFunc("/api/v1/webapp/update", enableCors(server.handleUpdateWebApp))
 
 	srv := &http.Server{
 		Addr:         ":8080",
@@ -289,6 +296,82 @@ func (s *Server) createWebApp(ctx context.Context, namespace, name, image string
 	}
 
 	return nil
+}
+
+func (s *Server) handleUpdateWebApp(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPatch && r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	r.Body = http.MaxBytesReader(w, r.Body, 1048576)
+
+	var req UpdateWebAppRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+		return
+	}
+
+	// Validation
+	if req.ProjectID == "" || req.Name == "" {
+		http.Error(w, "projectID and name are required", http.StatusBadRequest)
+		return
+	}
+
+	// Sanitize
+	namespaceName, err := validateAndSanitize(req.ProjectID)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Invalid Project ID: %v", err), http.StatusBadRequest)
+		return
+	}
+
+	appName, err := validateAndSanitize(req.Name)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Invalid App Name: %v", err), http.StatusBadRequest)
+		return
+	}
+
+	// Update the WebApp CRD
+	if err := s.updateWebAppEnvVariables(r.Context(), namespaceName, appName, req.EnvVariables); err != nil {
+		s.Logger.Error("Failed to update WebApp", "error", err)
+		http.Error(w, fmt.Sprintf("Failed to update WebApp: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	s.Logger.Info("WebApp updated successfully", "name", appName, "namespace", namespaceName)
+
+	resp := Response{
+		Namespace: namespaceName,
+		AppName:   appName,
+		Message:   "WebApp environment variables updated successfully",
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
+
+func (s *Server) updateWebAppEnvVariables(ctx context.Context, namespace, name string, envVariables map[string]string) error {
+	// Get existing WebApp
+	existing, err := s.DynamicClient.Resource(webAppGVR).Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		if k8serrors.IsNotFound(err) {
+			return fmt.Errorf("WebApp not found: %s/%s", namespace, name)
+		}
+		return err
+	}
+
+	// Update envVariables in spec
+	spec, ok := existing.Object["spec"].(map[string]interface{})
+	if !ok {
+		spec = make(map[string]interface{})
+	}
+	
+	spec["envVariables"] = envVariables
+	existing.Object["spec"] = spec
+
+	// Submit Update
+	_, updateErr := s.DynamicClient.Resource(webAppGVR).Namespace(namespace).Update(ctx, existing, metav1.UpdateOptions{})
+	return updateErr
 }
 
 func (s *Server) createNamespace(ctx context.Context, name string) (bool, error) {

@@ -4,6 +4,7 @@ import com.kleff.deployment.business.ContainerServiceImpl;
 import com.kleff.deployment.data.container.Container;
 import com.kleff.deployment.data.container.ContainerRequestModel;
 import com.kleff.deployment.data.container.ContainerResponseModel;
+import com.kleff.deployment.data.container.UpdateEnvVariablesRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -26,11 +27,22 @@ public class ContainerController {
     }
 
     @GetMapping("{projectID}")
-    public List<Container> getAllContainersByProjectID(@PathVariable String projectID) {
-        return containerService.getContainersByProjectID(projectID);
+    public List<ContainerResponseModel> getAllContainersByProjectID(@PathVariable String projectID) {
+        List<Container> containers = containerService.getContainersByProjectID(projectID);
+        return containers.stream()
+                .map(container -> containerService.toResponseModel(container))
+                .toList();
     }
+    
     @PostMapping
     public ContainerResponseModel createContainer(@RequestBody ContainerRequestModel container) {
         return containerService.createContainer(container);
+    }
+    
+    @PatchMapping("/{containerID}/env")
+    public ContainerResponseModel updateContainerEnvVariables(
+            @PathVariable String containerID,
+            @RequestBody UpdateEnvVariablesRequest request) {
+        return containerService.updateContainerEnvVariables(containerID, request.getEnvVariables());
     }
 }
