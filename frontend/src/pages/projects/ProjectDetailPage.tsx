@@ -7,7 +7,7 @@ import { Spinner } from "@shared/ui/Spinner";
 import { MiniCard } from "@shared/ui/MiniCard";
 import { Badge } from "@shared/ui/Badge";
 import { GradientIcon } from "@shared/ui/GradientIcon";
-import { Hash, User, Layers, Activity, Calendar, Clock, Box, Settings } from "lucide-react";
+import { Hash, User, Layers, Activity, Calendar, Clock, Box, Settings, ExternalLink } from "lucide-react";
 import { useProject } from "@features/projects/hooks/useProject";
 import { useProjectContainers } from "@features/projects/hooks/useProjectContainers";
 import { CreateContainerModal } from "@features/projects/components/CreateContainerModal";
@@ -28,6 +28,16 @@ const translations = {
   fr: frTranslations
 };
 
+// Matches backend sanitization: lowercase, replace spaces/underscores with dashes, trim dashes
+const sanitizeAppName = (name: string) => {
+  if (!name) return "";
+  return name
+    .toLowerCase()
+    .replace(/_/g, '-')      // Replace underscores with dashes
+    .replace(/\s+/g, '-')    // Replace spaces with dashes
+    .replace(/^-+|-+$/g, ''); // Trim leading/trailing dashes
+};
+
 export function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const { project, isLoading: projectLoading, error: projectError } = useProject(projectId || "");
@@ -37,6 +47,7 @@ export function ProjectDetailPage() {
     error: containersError,
     reload
   } = useProjectContainers(projectId || "");
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBillingModalOpen] = useState(false);
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
@@ -90,15 +101,6 @@ export function ProjectDetailPage() {
   }
 
   const containerNames = !containersLoading && containers?.map(c => c.name).filter(Boolean) || [];
-  
-
-  console.log('Container check:', { 
-    containersLoading,
-    containerNames, 
-    length: containerNames.length, 
-    shouldShow: containerNames.length > 0,
-    containers 
-  });
 
   return (
     <section className="h-full">
@@ -215,6 +217,7 @@ export function ProjectDetailPage() {
                 <TableRow className="border-b border-white/10 bg-white/5 hover:bg-white/5">
                   <TableHead>{t.table.name}</TableHead>
                   <TableHead>{t.table.status}</TableHead>
+                  <TableHead>App URL</TableHead>
                   <TableHead>{t.table.image}</TableHead>
                   <TableHead>{t.table.ports}</TableHead>
                   <TableHead>Repository URL</TableHead>
@@ -224,74 +227,89 @@ export function ProjectDetailPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {containers.map((container) => (
-                  <TableRow key={container.containerId} className="hover:bg-white/5">
-                    <TableCell>
-                      <span className="font-semibold text-neutral-50">{container.name}</span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          container.status?.toLowerCase().includes("running")
-                            ? "success"
-                            : container.status?.toLowerCase().includes("stopped")
-                              ? "secondary"
-                              : "warning"
-                        }
-                        className="text-xs"
-                      >
-                        {container.status || t.unknown}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="font-mono text-xs text-neutral-300">
-                      {container.image}
-                    </TableCell>
-                    <TableCell className="text-neutral-300">
-                      {container.ports.length > 0 ? (
-                        <div className="flex flex-wrap gap-1">
-                          {container.ports.map((port, index) => (
-                            <Badge
-                              key={index}
-                              variant="outline"
-                              className="px-1.5 py-0.5 text-[10px]"
-                            >
-                              {port}
-                            </Badge>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-neutral-500">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="font-mono text-xs text-neutral-300">
-                      {container.repoUrl || <span className="text-neutral-500">—</span>}
-                    </TableCell>
-                    <TableCell className="text-xs text-neutral-300">
-                      {container.branch || <span className="text-neutral-500">—</span>}
-                    </TableCell>
-                    <TableCell className="text-neutral-300 text-xs">{container.createdAt}</TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleEditEnv(container)}
-                        className="rounded-full px-3 py-1.5 text-xs"
-                      >
-                        <Settings className="mr-1 h-3 w-3" />
-                        Edit Env
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {containers.map((container) => {
+                  const appUrl = `https://${sanitizeAppName(container.name)}.kleff.io`;
+                  return (
+                    <TableRow key={container.containerId} className="hover:bg-white/5">
+                      <TableCell>
+                        <span className="font-semibold text-neutral-50">{container.name}</span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            container.status?.toLowerCase().includes("running")
+                              ? "success"
+                              : container.status?.toLowerCase().includes("stopped")
+                                ? "secondary"
+                                : "warning"
+                          }
+                          className="text-xs"
+                        >
+                          {container.status || t.unknown}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <a 
+                          href={appUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 hover:text-blue-300 hover:underline transition-colors"
+                        >
+                          Visit App
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      </TableCell>
+                      <TableCell className="font-mono text-xs text-neutral-300">
+                        {container.image}
+                      </TableCell>
+                      <TableCell className="text-neutral-300">
+                        {container.ports.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {container.ports.map((port, index) => (
+                              <Badge
+                                key={index}
+                                variant="outline"
+                                className="px-1.5 py-0.5 text-[10px]"
+                              >
+                                {port}
+                              </Badge>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-neutral-500">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs text-neutral-300">
+                        {container.repoUrl || <span className="text-neutral-500">—</span>}
+                      </TableCell>
+                      <TableCell className="text-xs text-neutral-300">
+                        {container.branch || <span className="text-neutral-500">—</span>}
+                      </TableCell>
+                      <TableCell className="text-neutral-300 text-xs">{container.createdAt}</TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleEditEnv(container)}
+                          className="rounded-full px-3 py-1.5 text-xs"
+                        >
+                          <Settings className="mr-1 h-3 w-3" />
+                          Edit Env
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}
         </SoftPanel>
      
-    <div className="space-y-6">
-      <InvoiceTable projectId={""} />
-    </div>
- </div>
+        <div className="space-y-6">
+          <InvoiceTable projectId={""} />
+        </div>
+      </div>
+      
       <BillingModal
         isOpen={isBillingModalOpen}
         onClose={() => setIsModalOpen(false)}
