@@ -15,7 +15,7 @@ import { ROUTES } from "@app/routes/routes";
 import enTranslations from "@app/locales/en/projects.json";
 import frTranslations from "@app/locales/fr/projects.json";
 import { getLocale } from "@app/locales/locale";
-import { getUsernameById } from "@features/users/api/getUsernameById";
+import { getUsernameById, useUsername } from "@features/users/api/getUsernameById";
 const translations = {
   en: enTranslations,
   fr: frTranslations
@@ -29,7 +29,7 @@ export function ProjectDetailPage() {
   const [locale] = useState(getLocale());
   const t = translations[locale].projectDetail;
   const id = project?.ownerId || "";
-  const ownerUser = (getUsernameById(id));
+  const ownerUser = (useUsername(id));
 
   if (projectLoading) {
     return (
@@ -99,7 +99,7 @@ export function ProjectDetailPage() {
             <MiniCard title={t.owner}>
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-neutral-400" />
-                <span className="text-sm text-neutral-200">{ownerUser || "—"}</span>
+                <span className="text-sm text-neutral-200">{ownerUser.username || "—"}</span>
               </div>
             </MiniCard>
             <MiniCard title={t.stack}>
