@@ -1,16 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
-import { Save, AlertCircle, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Save, AlertCircle, CheckCircle2, User, ArrowLeft, FolderGit2, Palette, Mail, CreditCard } from "lucide-react";
+import { Link } from "react-router-dom";
 
 import { updateUserProfile } from "@features/users/api/UpdateUserProfile";
 import { getMyAuditLogs } from "@features/users/api/getMyAuditLogs";
 import { useUser } from "@features/users/hooks/useUser";
 
 import { Button } from "@shared/ui/Button";
-import { Card } from "@shared/ui/Card";
 import { Input } from "@shared/ui/Input";
 import { Label } from "@shared/ui/Label";
 import { UserAvatar } from "@shared/ui/UserAvatar";
 import { Skeleton } from "@shared/ui/Skeleton";
+import { KleffDot } from "@shared/ui/KleffDot";
+import { ROUTES } from "@app/routes/routes";
 
 import type { AuditLog, AuditLogPage } from "@features/users/types/Audit";
 
@@ -22,6 +24,31 @@ interface Notification {
 }
 
 const PAGE_SIZE = 10;
+
+// Mock data for empty state
+const MOCK_AUDIT_LOGS = [
+  {
+    id: "mock-1",
+    action: "Profile updated",
+    ipAddress: "192.168.1.1",
+    userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+    timestamp: new Date(Date.now() - 86400000 * 2).toISOString()
+  },
+  {
+    id: "mock-2",
+    action: "Password changed",
+    ipAddress: "192.168.1.1",
+    userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+    timestamp: new Date(Date.now() - 86400000 * 7).toISOString()
+  },
+  {
+    id: "mock-3",
+    action: "Logged in",
+    ipAddress: "192.168.1.1",
+    userAgent: "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)",
+    timestamp: new Date(Date.now() - 86400000 * 14).toISOString()
+  }
+];
 
 interface AuditPaginationProps {
   currentPage: number;
@@ -46,64 +73,53 @@ function AuditPagination({
   const pages = Array.from({ length: totalPages }, (_, idx) => idx + 1);
 
   return (
-    <div className="mt-4 border-t border-neutral-800 pt-4">
-      <div className="flex justify-center">
-        <div className="inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-full border border-neutral-800/80 bg-neutral-950/80 px-1.5 py-1 shadow-inner shadow-black/40">
-          <button
-            type="button"
-            disabled={isLoading || currentPage === 1}
-            onClick={() => handleClick(currentPage - 1)}
-            className={
-              "flex h-7 w-7 items-center justify-center rounded-full border border-transparent transition " +
-              (isLoading || currentPage === 1
-                ? "cursor-not-allowed text-neutral-300 opacity-40"
-                : "cursor-pointer text-neutral-300 hover:border-neutral-700 hover:bg-neutral-900/80 hover:text-neutral-50")
-            }
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
+    <div className="mt-6 flex items-center justify-between border-t border-neutral-800 pt-4">
+      <button
+        type="button"
+        disabled={isLoading || currentPage === 1}
+        onClick={() => handleClick(currentPage - 1)}
+        className="inline-flex items-center gap-1 rounded-md border border-neutral-800 px-3 py-1.5 text-sm text-neutral-300 transition hover:border-neutral-700 hover:bg-neutral-900 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Previous
+      </button>
 
-          {pages.map((pageNumber) => {
-            const isActive = pageNumber === currentPage;
-            return (
-              <button
-                key={pageNumber}
-                type="button"
-                disabled={isLoading}
-                onClick={() => handleClick(pageNumber)}
-                className={
-                  "inline-flex h-7 min-w-7 cursor-pointer items-center justify-center rounded-full px-2 text-[11px] transition " +
-                  (isActive
-                    ? "bg-gradient-kleff text-neutral-950 shadow-[0_0_0_1px_rgba(0,0,0,0.6)]"
-                    : "border border-transparent text-neutral-300 hover:border-neutral-700 hover:bg-neutral-900/80 hover:text-neutral-50 disabled:text-neutral-500")
-                }
-              >
-                {pageNumber}
-              </button>
-            );
-          })}
-
-          <button
-            type="button"
-            disabled={isLoading || currentPage === totalPages}
-            onClick={() => handleClick(currentPage + 1)}
-            className={
-              "flex h-7 w-7 items-center justify-center rounded-full border border-transparent transition " +
-              (isLoading || currentPage === totalPages
-                ? "cursor-not-allowed text-neutral-300 opacity-40"
-                : "cursor-pointer text-neutral-300 hover:border-neutral-700 hover:bg-neutral-900/80 hover:text-neutral-50")
-            }
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
+      <div className="flex items-center gap-1">
+        {pages.map((pageNumber) => {
+          const isActive = pageNumber === currentPage;
+          return (
+            <button
+              key={pageNumber}
+              type="button"
+              disabled={isLoading}
+              onClick={() => handleClick(pageNumber)}
+              className={
+                "inline-flex h-8 min-w-8 items-center justify-center rounded-md px-2 text-sm transition " +
+                (isActive
+                  ? "bg-gradient-kleff text-neutral-950 font-medium"
+                  : "text-neutral-300 hover:bg-neutral-900 disabled:text-neutral-500")
+              }
+            >
+              {pageNumber}
+            </button>
+          );
+        })}
       </div>
+
+      <button
+        type="button"
+        disabled={isLoading || currentPage === totalPages}
+        onClick={() => handleClick(currentPage + 1)}
+        className="inline-flex items-center gap-1 rounded-md border border-neutral-800 px-3 py-1.5 text-sm text-neutral-300 transition hover:border-neutral-700 hover:bg-neutral-900 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Next
+      </button>
     </div>
   );
 }
 
 export function SettingsPage() {
   const { avatarUrl: oidcAvatar, user, isLoading, error: loadError, reload } = useUser();
+  const [activeTab, setActiveTab] = useState("profile");
 
   const [formData, setFormData] = useState({
     username: "",
@@ -220,10 +236,8 @@ export function SettingsPage() {
 
       setNotification({
         type: "success",
-        message: "Profile updated successfully."
+        message: "Profile updated successfully!"
       });
-
-      void loadAuditPage(auditPage);
     } catch (err) {
       setNotification({
         type: "error",
@@ -234,326 +248,383 @@ export function SettingsPage() {
     }
   };
 
-  const createdAtDate = user?.createdAt ? new Date(user.createdAt) : null;
-  const createdAtLabel = createdAtDate
-    ? createdAtDate.toLocaleDateString(undefined, {
-        year: "numeric",
-        month: "short",
-        day: "numeric"
-      })
-    : "Unknown";
-
   if (isLoading) {
     return (
-      <div
-        className="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6"
-        data-testid="settings-profile-skeleton"
-      >
-        <div className="space-y-3">
-          <Skeleton className="h-7 w-40" />
-          <Skeleton className="h-4 w-64" />
+      <div className="bg-kleff-bg text-foreground relative min-h-screen">
+        <div className="pointer-events-none fixed inset-0">
+          <div className="bg-modern-noise bg-kleff-spotlight h-full w-full opacity-60" />
+          <div className="bg-kleff-grid absolute inset-0 opacity-[0.25]" />
         </div>
-
-        <Card className="border-neutral-800/80 bg-neutral-950/70 p-6 pb-10 shadow-lg shadow-black/40">
-          <div className="mb-6 flex items-center gap-4">
-            <Skeleton className="h-12 w-12 rounded-full" />
-            <div className="flex-1 space-y-2">
-              <Skeleton className="h-4 w-40" />
-              <Skeleton className="h-3 w-64" />
-              <Skeleton className="h-3 w-32" />
-            </div>
-          </div>
-          <div className="space-y-4">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-2/3" />
-            <Skeleton className="h-24 w-full" />
-          </div>
-        </Card>
-
-        <Card className="border-neutral-800/80 bg-neutral-950/70 p-6">
-          <Skeleton className="h-4 w-40" />
-          <Skeleton className="mt-2 h-3 w-56" />
-          <div className="mt-4 space-y-2">
-            {Array.from({ length: 10 }).map((_, idx) => (
-              <Skeleton
-                key={idx}
-                className="h-10 w-full rounded-md border border-neutral-800 bg-neutral-900/70"
-              />
-            ))}
-          </div>
-        </Card>
+        <div className="relative z-10 mx-auto max-w-5xl px-4 py-8">
+          <Skeleton className="h-8 w-48 bg-neutral-900" />
+          <Skeleton className="mt-8 h-96 w-full bg-neutral-900" />
+        </div>
       </div>
     );
   }
 
   if (loadError || !user) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="text-red-400">
-          Error loading profile: {loadError?.message ?? "Unknown error"}
+      <div className="bg-kleff-bg text-foreground relative min-h-screen">
+        <div className="pointer-events-none fixed inset-0">
+          <div className="bg-modern-noise bg-kleff-spotlight h-full w-full opacity-60" />
+          <div className="bg-kleff-grid absolute inset-0 opacity-[0.25]" />
+        </div>
+        <div className="relative z-10 mx-auto max-w-5xl px-4 py-8">
+          <div className="rounded-md border border-red-500/30 bg-red-500/10 p-4 text-red-300">
+            {loadError?.message || "Failed to load user"}
+          </div>
         </div>
       </div>
     );
   }
 
-  const initial = (formData.displayName || formData.email || "K").charAt(0).toUpperCase();
   const displayAvatar = formData.avatarUrl || oidcAvatar || undefined;
+  const initial = (formData.displayName || formData.username || "?")[0].toUpperCase();
+  const createdAtLabel = user.createdAt
+    ? new Date(user.createdAt).toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric"
+      })
+    : "Unknown";
 
-  const showAuditSkeleton = auditLoading;
+  const showAuditSkeleton = auditLoading && auditLogs.length === 0;
+  const displayLogs = auditLogs.length > 0 ? auditLogs : MOCK_AUDIT_LOGS;
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-neutral-50 sm:text-3xl">
-            Account settings
-          </h1>
-          <p className="mt-1 text-sm text-neutral-400">
-            Manage your profile details and review your account activity.
-          </p>
-        </div>
+    <div className="bg-kleff-bg text-foreground relative flex min-h-screen flex-col">
+      {/* Background - FIXED positioning */}
+      <div className="pointer-events-none fixed inset-0">
+        <div className="bg-modern-noise bg-kleff-spotlight h-full w-full opacity-60" />
+        <div className="bg-kleff-grid absolute inset-0 opacity-[0.25]" />
       </div>
 
-      {notification && (
-        <div
-          className={`flex items-center gap-3 rounded-lg border p-4 text-sm ${
-            notification.type === "success"
-              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
-              : "border-red-500/30 bg-red-500/10 text-red-300"
-          }`}
-        >
-          {notification.type === "success" ? (
-            <CheckCircle2 className="h-5 w-5 shrink-0" />
-          ) : (
-            <AlertCircle className="h-5 w-5 shrink-0" />
-          )}
-          <span>{notification.message}</span>
-        </div>
-      )}
-
-      <div className="space-y-6">
-        <Card className="border-neutral-800/80 bg-neutral-950/70 px-6 py-6 pb-12 shadow-lg shadow-black/40">
-          <div className="mb-6 flex items-center gap-4">
-            <UserAvatar initial={initial} size="lg" src={displayAvatar} />
-            <div className="space-y-1">
-              <h2 className="text-lg font-semibold text-neutral-50">
-                {formData.displayName || "Your profile"}
-              </h2>
-              <p className="text-xs text-neutral-400">
-                These details appear in dashboards, deployments and activity views.
-              </p>
-              <div className="text-xs text-neutral-500">{formData.email}</div>
-              <div className="text-[11px] text-neutral-500">
-                Member since <span className="text-neutral-300">{createdAtLabel}</span>
-              </div>
-            </div>
-          </div>
-
-          <form
-            onSubmit={handleSubmit}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && e.target instanceof HTMLInputElement) {
-                e.preventDefault();
-              }
-            }}
-            className="grid gap-4"
-          >
-            <div className="space-y-2">
-              <Label htmlFor="username" className="text-xs font-medium text-neutral-400 uppercase">
-                Username <span className="text-red-400">*</span>
-              </Label>
-              <Input
-                id="username"
-                value={formData.username}
-                onChange={(e) => setFormData((prev) => ({ ...prev, username: e.target.value }))}
-                placeholder="your-username"
-                className="focus:border-kleff-gold focus:ring-kleff-gold border-neutral-800 bg-neutral-900/80 text-neutral-50"
-              />
-              <p className="text-xs text-neutral-500">
-                Used in URLs and mentions. Only lowercase letters, numbers, dashes and underscores.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label
-                htmlFor="displayName"
-                className="text-xs font-medium tracking-wide text-neutral-400 uppercase"
-              >
-                Display name <span className="text-red-400">*</span>
-              </Label>
-              <Input
-                id="displayName"
-                value={formData.displayName}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    displayName: e.target.value
-                  }))
-                }
-                placeholder="How you appear in the app"
-                className="focus:border-kleff-gold focus:ring-kleff-gold border-neutral-800 bg-neutral-900/80 text-neutral-50"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label
-                htmlFor="email"
-                className="text-xs font-medium tracking-wide text-neutral-400 uppercase"
-              >
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                disabled
-                className="border-neutral-900 bg-neutral-950/80 text-neutral-500"
-              />
-              <p className="text-xs text-neutral-500">
-                Email is managed by Authentik and cannot be changed here.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label
-                htmlFor="avatarUrl"
-                className="text-xs font-medium tracking-wide text-neutral-400 uppercase"
-              >
-                Avatar URL
-              </Label>
-              <Input
-                id="avatarUrl"
-                value={formData.avatarUrl}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    avatarUrl: e.target.value
-                  }))
-                }
-                placeholder="https://example.com/avatar.png"
-                className="focus:border-kleff-gold focus:ring-kleff-gold border-neutral-800 bg-neutral-900/80 text-neutral-50"
-              />
-              <p className="text-xs text-neutral-500">
-                Optional. In the future this can be replaced with uploads.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label
-                htmlFor="bio"
-                className="text-xs font-medium tracking-wide text-neutral-400 uppercase"
-              >
-                Bio
-              </Label>
-              <textarea
-                id="bio"
-                value={formData.bio}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    bio: e.target.value
-                  }))
-                }
-                maxLength={512}
-                className="focus:border-kleff-gold focus:ring-kleff-gold max-h-48 min-h-24 w-full resize-none rounded-md border border-neutral-800 bg-neutral-900/80 px-3 py-2 text-sm text-neutral-50 ring-0 transition outline-none focus:ring-1"
-                placeholder="Tell people a bit about yourself."
-              />
-
-              <div className="flex justify-between text-[11px] text-neutral-500">
-                <span>Up to 512 characters.</span>
-                <span>
-                  {formData.bio.length}
-                  /512
-                </span>
-              </div>
-            </div>
-
-            <div className="flex justify-end pt-4">
-              <Button
-                type="submit"
-                disabled={isSaving || !isDirty}
-                className="bg-gradient-kleff mt-1 inline-flex w-full items-center gap-2 rounded-full px-5 py-3 text-base shadow-md shadow-black/40 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-              >
-                <Save className="h-4 w-4" />
-                {isSaving ? "Saving…" : "Save"}
-              </Button>
-            </div>
-          </form>
-        </Card>
-
-        <Card className="border-neutral-800/80 bg-neutral-950/70 p-6">
-          <div className="mb-4 flex items-center justify-between gap-2">
-            <div>
-              <h2 className="text-sm font-semibold text-neutral-50">Account activity</h2>
-              <p className="mt-1 text-xs text-neutral-400">
-                Security-relevant events recorded by the user-service.
-              </p>
-            </div>
-            <span className="hidden text-[11px] text-neutral-500 sm:inline">
-              Page {auditPage} of {totalPages}
-            </span>
-          </div>
-
-          {/* Skeleton for audits on initial load + page transitions */}
-          {showAuditSkeleton && (
-            <div className="mt-2 space-y-2" data-testid="settings-audit-skeleton">
-              {Array.from({ length: 10 }).map((_, idx) => (
-                <Skeleton
-                  key={idx}
-                  className="h-10 w-full rounded-md border border-neutral-800 bg-neutral-900/70"
-                />
-              ))}
-            </div>
-          )}
-
-          {!showAuditSkeleton && auditError && (
-            <div
-              className="rounded-md border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-300"
-              data-testid="settings-audit-error"
+      {/* Header */}
+      <header className="relative z-50 border-b border-white/10 bg-[#0f0f10]/40 backdrop-blur-xl">
+        <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-[#0f0f10]/60 via-[#0f0f10]/50 to-[#0f0f10]/60" />
+        <div className="pointer-events-none absolute inset-0 z-0 shadow-[0_1px_0_0_rgba(255,255,255,0.05)]" />
+        
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 items-center justify-between">
+            <Link 
+              to={ROUTES.DASHBOARD} 
+              className="flex items-center gap-3 transition group"
             >
-              {auditError}
-            </div>
-          )}
+              <KleffDot variant="full" size={24} />
+              <span className="text-sm font-semibold tracking-[0.32em] text-neutral-100 uppercase">
+                LEFF
+              </span>
+              <span className="mx-2 text-neutral-600">|</span>
+              <span className="text-base font-medium text-neutral-400">Settings</span>
+            </Link>
+            <Link
+              to={ROUTES.DASHBOARD}
+              className="flex items-center gap-2 text-sm text-neutral-400 hover:text-neutral-50 transition"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Dashboard
+            </Link>
+          </div>
+        </div>
+      </header>
 
-          {!showAuditSkeleton && !auditError && auditLogs.length === 0 && (
-            <div className="py-4 text-sm text-neutral-500" data-testid="settings-audit-empty">
-              No activity recorded yet.
-            </div>
-          )}
+      {/* Main Content with Sidebar */}
+      <main className="relative z-0 flex-1">
+        <div className="mx-auto max-w-7xl w-full px-4 py-8 sm:px-6 lg:px-8">
+          <div className="flex gap-8">
+            {/* Sidebar - NO STICKY */}
+            <aside className="w-64 flex-shrink-0">
+              <nav className="space-y-1">
+                <button
+                  onClick={() => setActiveTab("profile")}
+                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition ${
+                    activeTab === "profile"
+                      ? "bg-neutral-800/50 text-neutral-50 font-medium"
+                      : "text-neutral-400 hover:bg-neutral-800/30 hover:text-neutral-200"
+                  }`}
+                >
+                  <User className="h-4 w-4" />
+                  Public profile
+                </button>
+                <button
+                  onClick={() => setActiveTab("projects")}
+                  disabled
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-500 cursor-not-allowed"
+                >
+                  <FolderGit2 className="h-4 w-4" />
+                  Your projects
+                </button>
+                <button
+                  onClick={() => setActiveTab("appearance")}
+                  disabled
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-500 cursor-not-allowed"
+                >
+                  <Palette className="h-4 w-4" />
+                  Appearance
+                </button>
+                <button
+                  onClick={() => setActiveTab("email")}
+                  disabled
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-500 cursor-not-allowed"
+                >
+                  <Mail className="h-4 w-4" />
+                  Email
+                </button>
+                <button
+                  onClick={() => setActiveTab("billing")}
+                  disabled
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-500 cursor-not-allowed"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  Billing
+                </button>
+              </nav>
+            </aside>
 
-          {!showAuditSkeleton && !auditError && auditLogs.length > 0 && (
-            <>
-              <div className="mt-2 space-y-2" data-testid="settings-audit-list">
-                {auditLogs.map((log) => (
-                  <div
-                    key={log.id}
-                    className="flex flex-col gap-1 rounded-md border border-neutral-800 bg-neutral-950/90 p-3 text-xs sm:flex-row sm:items-center sm:justify-between"
-                  >
-                    <div>
-                      <div className="font-medium text-neutral-50">{log.action}</div>
-                      <div className="mt-0.5 text-[11px] text-neutral-500">
-                        IP: {log.ipAddress ?? "unknown"} · Agent:{" "}
-                        {log.userAgent?.slice(0, 60) ?? "unknown"}
+            {/* Main Content Area */}
+            <div className="flex-1 min-w-0">
+              {/* Notification */}
+              {notification && (
+                <div
+                  className={`mb-8 flex items-center gap-3 rounded-lg border px-5 py-4 text-sm shadow-lg ${
+                    notification.type === "success"
+                      ? "border-green-500/30 bg-green-500/10 text-green-300"
+                      : "border-red-500/30 bg-red-500/10 text-red-300"
+                  }`}
+                >
+                  {notification.type === "success" ? (
+                    <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
+                  ) : (
+                    <AlertCircle className="h-5 w-5 flex-shrink-0" />
+                  )}
+                  {notification.message}
+                </div>
+              )}
+
+              <div className="space-y-8">
+                {/* Profile Section */}
+                <div className="rounded-xl border border-neutral-800/80 bg-neutral-900/60 backdrop-blur-sm p-8 shadow-xl">
+                  <div className="mb-6 pb-6 border-b border-neutral-800/50">
+                    <h2 className="text-xl font-bold text-neutral-50 mb-2">Public profile</h2>
+                    <p className="text-sm text-neutral-400">
+                      This information will be displayed publicly so be careful what you share.
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleSubmit} className="space-y-8">
+                    {/* Profile Picture */}
+                    <div className="flex items-start gap-8 pb-8 border-b border-neutral-800/50">
+                      <div className="flex-shrink-0">
+                        <UserAvatar initial={initial} size="lg" src={displayAvatar} />
+                        <p className="mt-3 text-xs text-neutral-500 text-center">
+                          Member since<br />
+                          <span className="text-neutral-400 font-medium">{createdAtLabel}</span>
+                        </p>
+                      </div>
+                      <div className="flex-1">
+                        <Label htmlFor="avatarUrl" className="text-sm font-semibold text-neutral-200 mb-2 block">
+                          Profile picture
+                        </Label>
+                        <Input
+                          id="avatarUrl"
+                          value={formData.avatarUrl}
+                          onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, avatarUrl: e.target.value }))
+                          }
+                          placeholder="https://example.com/avatar.png"
+                          className="bg-neutral-950/80 border-neutral-800 text-neutral-50"
+                        />
+                        <p className="mt-3 text-xs text-neutral-500">
+                          Enter a URL to your profile picture. File uploads coming soon.
+                        </p>
                       </div>
                     </div>
-                    <div className="text-[11px] text-neutral-500 sm:text-right">
-                      {new Date(log.timestamp).toLocaleString()}
-                    </div>
-                  </div>
-                ))}
-              </div>
 
-              <AuditPagination
-                currentPage={auditPage}
-                totalPages={totalPages}
-                isLoading={auditLoading}
-                onPageChange={(page) => void loadAuditPage(page)}
-              />
-            </>
-          )}
-        </Card>
-      </div>
+                    {/* Username */}
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                      <Label htmlFor="username" className="text-sm font-semibold text-neutral-200 md:text-right md:pt-3">
+                        Username
+                      </Label>
+                      <div className="md:col-span-2">
+                        <Input
+                          id="username"
+                          value={formData.username}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, username: e.target.value }))}
+                          placeholder="your-username"
+                          className="bg-neutral-950/80 border-neutral-800 text-neutral-50"
+                        />
+                        <p className="mt-3 text-xs text-neutral-500">
+                          Used in URLs and mentions. Only lowercase letters, numbers, dashes and underscores.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Display Name */}
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                      <Label htmlFor="displayName" className="text-sm font-semibold text-neutral-200 md:text-right md:pt-3">
+                        Display name
+                      </Label>
+                      <div className="md:col-span-2">
+                        <Input
+                          id="displayName"
+                          value={formData.displayName}
+                          onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, displayName: e.target.value }))
+                          }
+                          placeholder="How you appear in the app"
+                          className="bg-neutral-950/80 border-neutral-800 text-neutral-50"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Email */}
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                      <Label htmlFor="email" className="text-sm font-semibold text-neutral-200 md:text-right md:pt-3">
+                        Email
+                      </Label>
+                      <div className="md:col-span-2">
+                        <Input
+                          id="email"
+                          type="email"
+                          value={formData.email}
+                          disabled
+                          className="bg-neutral-900/80 border-neutral-800 text-neutral-500 cursor-not-allowed"
+                        />
+                        <p className="mt-3 text-xs text-neutral-500">
+                          Email is managed by Authentik and cannot be changed here.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Bio */}
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                      <Label htmlFor="bio" className="text-sm font-semibold text-neutral-200 md:text-right md:pt-3">
+                        Bio
+                      </Label>
+                      <div className="md:col-span-2">
+                        <textarea
+                          id="bio"
+                          value={formData.bio}
+                          onChange={(e) => setFormData((prev) => ({ ...prev, bio: e.target.value }))}
+                          maxLength={512}
+                          rows={5}
+                          className="w-full rounded-lg border border-neutral-800 bg-neutral-950/80 px-4 py-3 text-sm text-neutral-50 outline-none transition focus:border-kleff-gold focus:ring-2 focus:ring-kleff-gold/20 resize-none"
+                          placeholder="Tell people a bit about yourself."
+                        />
+                        <div className="mt-3 flex justify-between text-xs text-neutral-500">
+                          <span>You can @mention other users and organizations to link to them.</span>
+                          <span className="font-medium">
+                            {formData.bio.length}/512
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Save Button */}
+                    <div className="flex justify-end pt-6 border-t border-neutral-800/50">
+                      <Button
+                        type="submit"
+                        disabled={isSaving || !isDirty}
+                        className="bg-gradient-kleff inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-bold text-neutral-950 shadow-lg shadow-kleff-gold/20 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <Save className="h-4 w-4" />
+                        {isSaving ? "Saving..." : "Update profile"}
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+
+                {/* Account Activity */}
+                <div className="rounded-xl border border-neutral-800/80 bg-neutral-900/60 backdrop-blur-sm p-8 shadow-xl">
+                  <div className="mb-6 pb-6 border-b border-neutral-800/50">
+                    <h2 className="text-xl font-bold text-neutral-50 mb-2">Account activity</h2>
+                    <p className="text-sm text-neutral-400">
+                      Security-relevant events recorded by the user-service.
+                    </p>
+                  </div>
+
+                  {showAuditSkeleton && (
+                    <div className="space-y-3">
+                      {Array.from({ length: 5 }).map((_, idx) => (
+                        <Skeleton
+                          key={idx}
+                          className="h-20 w-full rounded-lg border border-neutral-800 bg-neutral-900/70"
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {!showAuditSkeleton && auditError && (
+                    <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
+                      {auditError}
+                    </div>
+                  )}
+
+                  {!showAuditSkeleton && !auditError && (
+                    <>
+                      <div className="space-y-0 divide-y divide-neutral-800/50">
+                        {displayLogs.map((log) => (
+                          <div key={log.id} className="flex items-center justify-between py-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="font-semibold text-sm text-neutral-50 mb-1">{log.action}</div>
+                              <div className="text-xs text-neutral-500 truncate">
+                                {log.ipAddress ?? "unknown"} · {log.userAgent?.slice(0, 80) ?? "unknown"}
+                              </div>
+                            </div>
+                            <div className="text-xs text-neutral-500 ml-4 flex-shrink-0">
+                              {new Date(log.timestamp).toLocaleString()}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {auditLogs.length === 0 && (
+                        <p className="mt-6 text-xs text-neutral-500 italic text-center">
+                          Note: Showing example activity data. Real audit logs coming soon.
+                        </p>
+                      )}
+
+                      {auditLogs.length > 0 && (
+                        <AuditPagination
+                          currentPage={auditPage}
+                          totalPages={totalPages}
+                          isLoading={auditLoading}
+                          onPageChange={(page) => void loadAuditPage(page)}
+                        />
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="relative z-20 border-t border-neutral-800/50 bg-neutral-900/30 backdrop-blur-sm">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
+            <div className="flex items-center gap-3">
+              <KleffDot variant="full" size={20} />
+              <span className="text-sm text-neutral-400">
+                © {new Date().getFullYear()} Kleff. All rights reserved.
+              </span>
+            </div>
+            <div className="flex gap-8 text-sm text-neutral-400">
+              <Link to="/privacy" className="hover:text-neutral-50 transition font-medium">
+                Privacy
+              </Link>
+              <Link to="/terms" className="hover:text-neutral-50 transition font-medium">
+                Terms
+              </Link>
+              <Link to="/faq" className="hover:text-neutral-50 transition font-medium">
+                FAQ
+              </Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

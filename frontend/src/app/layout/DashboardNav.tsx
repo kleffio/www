@@ -75,7 +75,7 @@ function MobileHeader() {
 
   const handleSettings = useCallback(() => {
     setOpen(false);
-    navigate(ROUTES.DASHBOARD_SETTINGS);
+    navigate(ROUTES.SETTINGS);
   }, [navigate]);
 
   const handleLogout = useCallback(async () => {

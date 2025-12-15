@@ -78,13 +78,18 @@ export const router = createBrowserRouter([
         element: <ProjectDetailPage />
       },
       {
-        path: "settings",
-        element: <SettingsPage />
-      },
-      {
         path: "systems",
         element: <MetricsDashboard />
       }
     ]
+  },
+  {
+    path: ROUTES.SETTINGS,
+    element: (
+      <ProtectedRoute>
+        <SettingsPage />
+      </ProtectedRoute>
+    ),
+    errorElement: <ErrorPage />
   }
 ]);
