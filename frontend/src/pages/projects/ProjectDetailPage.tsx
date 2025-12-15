@@ -1,5 +1,4 @@
 import { useParams, Link } from "react-router-dom";
-import { DollarSign } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@shared/ui/Button";
 import { SoftPanel } from "@shared/ui/SoftPanel";
@@ -30,7 +29,7 @@ export function ProjectDetailPage() {
   const { project, isLoading: projectLoading, error: projectError } = useProject(projectId || "");
   const { containers, isLoading: containersLoading, error: containersError, reload } = useProjectContainers(projectId || "");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
+  const [isBillingModalOpen] = useState(false);
   const [locale] = useState(getLocale());
   const t = translations[locale].projectDetail;
   const invoices: Invoice[] = [

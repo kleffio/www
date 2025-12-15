@@ -2,11 +2,11 @@ import { Button } from "@shared/ui/Button";
 import { GradientIcon } from "@shared/ui/GradientIcon";
 import { MiniCard } from "@shared/ui/MiniCard";
 import { SoftPanel } from "@shared/ui/SoftPanel";
-import { DollarSign, Calendar, Badge } from "lucide-react";
-import { useState, Activity } from "react";
+import { DollarSign, Calendar } from "lucide-react";
+import { useState} from "react";
 import type { Invoice } from "../types/Invoice";
 export const BillingPanel = ({ data }: { data: Invoice }) => {
-  const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
+  const [_isBillingModalOpen, setIsBillingModalOpen] = useState(false);
   
   return (
     <SoftPanel>
