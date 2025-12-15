@@ -15,14 +15,11 @@ import { ROUTES } from "@app/routes/routes";
 import enTranslations from "@app/locales/en/projects.json";
 import frTranslations from "@app/locales/fr/projects.json";
 import { getLocale } from "@app/locales/locale";
-<<<<<<< HEAD
 import { BillingModal } from "@features/billing/components/viewBillsModal";
-import { BillingPanel } from "@features/billing/components/BillingPanel";
 import type { Invoice } from "@features/billing/types/Invoice";
 
-=======
-import { getUsernameById, useUsername } from "@features/users/api/getUsernameById";
->>>>>>> main
+import { useUsername } from "@features/users/api/getUsernameById";
+import InvoiceTable from "@features/billing/components/InvoiceTable";
 const translations = {
   en: enTranslations,
   fr: frTranslations
@@ -37,6 +34,39 @@ export function ProjectDetailPage() {
   const [locale] = useState(getLocale());
   const t = translations[locale].projectDetail;
   const invoices: Invoice[] = [
+    {
+      invoiceId: "INV-001",
+      projectId: "PRJ-123",
+      startDate: new Date("2024-11-01"),
+      endDate: new Date("2024-11-30"),
+      amount: 156.80,
+      status: "paid",
+      subtotal: 140.00,
+      taxes: 16.80,
+      total: 156.80
+    },
+    {
+      invoiceId: "INV-001",
+      projectId: "PRJ-123",
+      startDate: new Date("2024-11-01"),
+      endDate: new Date("2024-11-30"),
+      amount: 156.80,
+      status: "paid",
+      subtotal: 140.00,
+      taxes: 16.80,
+      total: 156.80
+    },
+    {
+      invoiceId: "INV-001",
+      projectId: "PRJ-123",
+      startDate: new Date("2024-11-01"),
+      endDate: new Date("2024-11-30"),
+      amount: 156.80,
+      status: "paid",
+      subtotal: 140.00,
+      taxes: 16.80,
+      total: 156.80
+    },
     {
       invoiceId: "INV-001",
       projectId: "PRJ-123",
@@ -242,13 +272,11 @@ export function ProjectDetailPage() {
             </Table>
           )}
         </SoftPanel>
-      </div>
+     
     <div className="space-y-6">
-      {invoices.map((invoice) => (
-        <BillingPanel key={invoice.invoiceId} data={invoice} />
-      ))}
+      <InvoiceTable />
     </div>
-
+ </div>
       <BillingModal
         isOpen={isBillingModalOpen}
         onClose={() => setIsModalOpen(false)}
