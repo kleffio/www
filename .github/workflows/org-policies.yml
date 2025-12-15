@@ -28,11 +28,13 @@ jobs:
     name: Action Lint
     uses: kleffio/.github/.github/workflows/_actionlint.yml@main
 
-  shellcheck:
-    name: Shell Check
-    uses: kleffio/.github/.github/workflows/_shellcheck.yml@main
-    with:
-      exclude: "./operator/*"
+  # when issue with .github repo is fixed we can add this back
+  # shellcheck:
+    # name: Shell Check
+    # uses: kleffio/.github/.github/workflows/_shellcheck.yml@main
+    # when issue with .github repo is fixed we can add this back
+    # with:
+     #  exclude: "./operator/*"
 
   # --- PR-specific ---
   auto-label:
