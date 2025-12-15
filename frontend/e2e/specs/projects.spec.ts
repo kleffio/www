@@ -121,4 +121,141 @@ test.describe("Container Management", () => {
     await detailPage.expectContainerExists(container1);
     await detailPage.expectContainerExists(container2);
   });
+  // Add this test.describe block to the END of your existing e2e/specs/projects.spec.ts
+
+test.describe("Project Metrics", () => {
+  let projectName: string;
+  let containerName: string;
+
+  test.beforeAll(async ({ browser }) => {
+    projectName = generateTestString("metrics-project");
+    containerName = generateTestString("container");
+
+    const context = await browser.newContext({
+      storageState: "e2e/storage/auth.json"
+    });
+    const page = await context.newPage();
+
+    const dash = new DashboardPage(page);
+    await dash.open();
+    await dash.expectLoaded();
+    await dash.createProject(projectName, "Project for metrics testing");
+
+    const projectsPage = new ProjectsPage(page);
+    await projectsPage.open();
+    await projectsPage.expectLoaded();
+
+    const projectCell = page.getByRole("cell", { name: projectName, exact: true });
+    await projectCell.click();
+
+    const detailPage = new ProjectDetailPage(page);
+    await detailPage.expectLoaded();
+
+    const containerModal = new ContainerModal(page);
+    await containerModal.open();
+    await containerModal.expectLoaded();
+    await containerModal.createContainer(containerName, "nginx:latest", "8080");
+
+    await context.close();
+  });
+
+  test("displays metrics section when project has containers", async ({ page }) => {
+    const projectsPage = new ProjectsPage(page);
+    await projectsPage.open();
+    await projectsPage.expectLoaded();
+
+    const projectCell = page.getByRole("cell", { name: projectName, exact: true });
+    await projectCell.click();
+
+    const detailPage = new ProjectDetailPage(page);
+    await detailPage.expectLoaded();
+
+    // Wait for container to appear
+    await detailPage.expectRunningContainersSection();
+    await detailPage.expectContainerExists(containerName);
+
+    // Then check metrics
+    await detailPage.expectMetricsVisible();
+    await detailPage.expectMetricsLoaded();
+  });
+
+  test("displays all four metric cards", async ({ page }) => {
+    const projectsPage = new ProjectsPage(page);
+    await projectsPage.open();
+    await projectsPage.expectLoaded();
+
+    const projectCell = page.getByRole("cell", { name: projectName, exact: true });
+    await projectCell.click();
+
+    const detailPage = new ProjectDetailPage(page);
+    await detailPage.expectLoaded();
+
+    // Wait for container to appear
+    await detailPage.expectRunningContainersSection();
+    await detailPage.expectContainerExists(containerName);
+
+    // Then check metrics cards
+    await detailPage.expectAllMetricCardsVisible();
+  });
+
+  test("metrics section positioned between project overview and running containers", async ({ page }) => {
+    const projectsPage = new ProjectsPage(page);
+    await projectsPage.open();
+    await projectsPage.expectLoaded();
+
+    const projectCell = page.getByRole("cell", { name: projectName, exact: true });
+    await projectCell.click();
+
+    const detailPage = new ProjectDetailPage(page);
+    await detailPage.expectLoaded();
+
+    // Wait for container to appear
+    await detailPage.expectRunningContainersSection();
+    await detailPage.expectContainerExists(containerName);
+
+    // Then check positioning
+    await detailPage.expectMetricsBetweenSections();
+  });
+
+  test("does not display metrics on project without containers", async ({ page }) => {
+    const emptyProjectName = generateTestString("empty-project");
+    
+    const dash = new DashboardPage(page);
+    await dash.open();
+    await dash.expectLoaded();
+    await dash.createProject(emptyProjectName, "Empty project for testing");
+
+    const projectsPage = new ProjectsPage(page);
+    await projectsPage.open();
+    await projectsPage.expectLoaded();
+
+    const projectCell = page.getByRole("cell", { name: emptyProjectName, exact: true });
+    await projectCell.click();
+
+    const detailPage = new ProjectDetailPage(page);
+    await detailPage.expectLoaded();
+
+    await detailPage.expectMetricsNotVisible();
+  });
+
+  test("container count reflects actual running containers", async ({ page }) => {
+    const projectsPage = new ProjectsPage(page);
+    await projectsPage.open();
+    await projectsPage.expectLoaded();
+
+    const projectCell = page.getByRole("cell", { name: projectName, exact: true });
+    await projectCell.click();
+
+    const detailPage = new ProjectDetailPage(page);
+    await detailPage.expectLoaded();
+
+    // Wait for container to appear
+    await detailPage.expectRunningContainersSection();
+    await detailPage.expectContainerExists(containerName);
+
+    // Then check metrics
+    await detailPage.expectMetricsVisible();
+    await detailPage.expectContainerCountInMetrics(1);
+  });
+});
 });
