@@ -1,10 +1,6 @@
 import { expect } from "@playwright/test";
 import { BaseComponent } from "./base.component";
 
-/**
- * Project creation modal component
- * Used on dashboard and projects pages to create new projects
- */
 export class ProjectModal extends BaseComponent {
   async open() {
     await this.page
@@ -49,11 +45,9 @@ export class ProjectModal extends BaseComponent {
     await expect(create).toBeEnabled({ timeout: 30_000 });
     await create.click();
 
-    // Wait for the modal to close
     const modal = this.projectCreateModal();
     await expect(modal).not.toBeVisible({ timeout: 30_000 });
 
-    // Wait a moment for the creation to complete
     await this.page.waitForTimeout(1000);
   }
 }

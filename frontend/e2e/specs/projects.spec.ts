@@ -121,7 +121,6 @@ test.describe("Container Management", () => {
     await detailPage.expectContainerExists(container1);
     await detailPage.expectContainerExists(container2);
   });
-  // Add this test.describe block to the END of your existing e2e/specs/projects.spec.ts
 
 test.describe("Project Metrics", () => {
   let projectName: string;
@@ -170,11 +169,9 @@ test.describe("Project Metrics", () => {
     const detailPage = new ProjectDetailPage(page);
     await detailPage.expectLoaded();
 
-    // Wait for container to appear
     await detailPage.expectRunningContainersSection();
     await detailPage.expectContainerExists(containerName);
 
-    // Then check metrics
     await detailPage.expectMetricsVisible();
     await detailPage.expectMetricsLoaded();
   });
@@ -190,11 +187,9 @@ test.describe("Project Metrics", () => {
     const detailPage = new ProjectDetailPage(page);
     await detailPage.expectLoaded();
 
-    // Wait for container to appear
     await detailPage.expectRunningContainersSection();
     await detailPage.expectContainerExists(containerName);
 
-    // Then check metrics cards
     await detailPage.expectAllMetricCardsVisible();
   });
 
@@ -209,11 +204,11 @@ test.describe("Project Metrics", () => {
     const detailPage = new ProjectDetailPage(page);
     await detailPage.expectLoaded();
 
-    // Wait for container to appear
+ 
     await detailPage.expectRunningContainersSection();
     await detailPage.expectContainerExists(containerName);
 
-    // Then check positioning
+
     await detailPage.expectMetricsBetweenSections();
   });
 

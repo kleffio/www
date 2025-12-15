@@ -69,11 +69,10 @@ export function ProjectDetailPage() {
     );
   }
 
-  // Get container names for metrics (only when containers are loaded)
   const containerNames = !containersLoading && containers?.map(c => c.name).filter(Boolean) || [];
   
-  // Debug logging
-  console.log('🔍 Container check:', { 
+
+  console.log('Container check:', { 
     containersLoading,
     containerNames, 
     length: containerNames.length, 
@@ -154,7 +153,6 @@ export function ProjectDetailPage() {
           </div>
         </SoftPanel>
 
-        {/* Add Project Metrics Card here */}
         {!containersLoading && containerNames.length > 0 && (
           <ProjectMetricsCard 
             projectId={project.projectId}
