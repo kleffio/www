@@ -18,7 +18,9 @@ import { ROUTES } from "@app/routes/routes";
 import enTranslations from "@app/locales/en/projects.json";
 import frTranslations from "@app/locales/fr/projects.json";
 import { getLocale } from "@app/locales/locale";
+import { BillingModal } from "@features/billing/components/viewBillsModal";
 import { useUsername } from "@features/users/api/getUsernameById";
+import InvoiceTable from "@features/billing/components/InvoiceTable";
 import ProjectMetricsCard from "@features/observability/components/ProjectMetricsCard";
 
 const translations = {
@@ -36,10 +38,12 @@ export function ProjectDetailPage() {
     reload
   } = useProjectContainers(projectId || "");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBillingModalOpen] = useState(false);
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
   const [selectedContainer, setSelectedContainer] = useState<Container | null>(null);
   const [locale] = useState(getLocale());
   const t = translations[locale].projectDetail;
+  
   const id = project?.ownerId || "";
   const ownerUser = useUsername(id);
 
@@ -283,7 +287,16 @@ export function ProjectDetailPage() {
             </Table>
           )}
         </SoftPanel>
-      </div>
+     
+    <div className="space-y-6">
+      <InvoiceTable projectId={""} />
+    </div>
+ </div>
+      <BillingModal
+        isOpen={isBillingModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        projectId={projectId || ""}
+      />
 
       <CreateContainerModal
         isOpen={isModalOpen}

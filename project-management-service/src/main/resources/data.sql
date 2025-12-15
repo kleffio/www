@@ -1,7 +1,7 @@
 -- Insert dummy projects
 INSERT INTO projects (project_id, name, description, owner_id, repository_url, branch, docker_compose_path, project_status, created_date, updated_date)
 VALUES
-    (gen_random_uuid(),
+    ('project123',
      'E-Commerce Platform',
      'Full-stack e-commerce application with React frontend and Spring Boot backend',
      'user-123',
@@ -12,7 +12,7 @@ VALUES
      CURRENT_TIMESTAMP,
      CURRENT_TIMESTAMP),
 
-    (gen_random_uuid(),
+    ('project456',
      'Analytics Dashboard',
      'Real-time analytics dashboard for monitoring application metrics',
      'user-123',
@@ -23,7 +23,7 @@ VALUES
      CURRENT_TIMESTAMP - INTERVAL '5 days',
      CURRENT_TIMESTAMP - INTERVAL '2 days'),
 
-    (gen_random_uuid(),
+    ('project789',
      'Task Management System',
      'Collaborative task management tool with team features',
      'user-456',
