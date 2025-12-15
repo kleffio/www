@@ -16,18 +16,11 @@ export default async function globalSetup() {
   }
 
   if (fs.existsSync(outPath)) {
-    try {
-      const txt = fs.readFileSync(outPath, "utf8").trim();
-      if (txt) JSON.parse(txt);
-      if (txt) {
-        console.log("[e2e] globalSetup using existing storageState:", outPath);
-        return;
-      }
-    } catch {
-      // regenerate below
-    }
+    console.log("[e2e] Deleting existing auth state");
+    fs.unlinkSync(outPath);
   }
 
+  console.log("[e2e] Generating fresh auth state...");
   const browser = await chromium.launch({ headless: false });
   const context = await browser.newContext();
   const page = await context.newPage();
