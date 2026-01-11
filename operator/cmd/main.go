@@ -21,8 +21,6 @@ import (
 	"flag"
 	"os"
 
-	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
-	// to ensure that exec-entrypoint and run can make use of them.
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
 	istionetworking "istio.io/client-go/pkg/apis/networking/v1beta1"
@@ -34,6 +32,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/metrics/filters"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
+
+	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
+
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	kleffv1 "kleff.io/api/v1"
@@ -47,14 +48,15 @@ var (
 )
 
 func init() {
-    utilruntime.Must(clientgoscheme.AddToScheme(scheme))
+	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-    utilruntime.Must(kleffv1.AddToScheme(scheme))
-    
-    // ADD THIS HERE: Register Istio types before the manager starts
-    utilruntime.Must(istionetworking.AddToScheme(scheme))
-    
-    // +kubebuilder:scaffold:scheme
+	utilruntime.Must(kleffv1.AddToScheme(scheme))
+
+	// ADD THIS HERE: Register Istio types before the manager starts
+	utilruntime.Must(gatewayv1.AddToScheme(scheme))
+	utilruntime.Must(istionetworking.AddToScheme(scheme))
+
+	// +kubebuilder:scaffold:scheme
 }
 
 // nolint:gocyclo
