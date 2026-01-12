@@ -408,13 +408,14 @@ func (s *Server) createKanikoJob(ctx context.Context, namespace, jobName, gitRep
 	if branch != "" {
 		gitContext = fmt.Sprintf("%s#refs/heads/%s", gitContext, branch)
 	}
-
+	ttl := int32(3600)
 	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      jobName,
 			Namespace: namespace,
 		},
 		Spec: batchv1.JobSpec{
+			TTLSecondsAfterFinished: &ttl, 
 			BackoffLimit: func(i int32) *int32 { return &i }(2),
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
