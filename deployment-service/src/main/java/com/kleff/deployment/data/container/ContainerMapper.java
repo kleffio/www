@@ -16,7 +16,9 @@ public interface ContainerMapper {
     ContainerResponseModel containerToContainerResponseModel(Container container);
     
     List<ContainerResponseModel> containerToContainerResponseModel(List<Container> container);
-    
+
+    @Mapping(target = "status", constant = "Pending") // Default status
+    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "envVariables", source = "envVariables", qualifiedByName = "mapToJson")
     Container containerRequestModelToContainer(ContainerRequestModel containerRequest);
     
