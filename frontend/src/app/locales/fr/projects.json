@@ -52,6 +52,7 @@
     "container": "conteneur",
     "containers": "conteneurs",
     "no_containers": "Aucun conteneur en cours d'exécution pour ce projet.",
+    "no_containers_description": "Ce projet n'a pas encore de conteneurs. Créez-en un pour commencer.",
     "create_first_container": "Créez votre premier conteneur pour commencer",
     "table": {
       "name": "NOM",

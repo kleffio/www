@@ -51,6 +51,7 @@
     "running_containers": "Running Containers",
     "container": "container",
     "containers": "containers",
+    "no_containers_description": "This project doesn't have any containers yet. Create one to get started.",
     "no_containers": "No running containers for this project.",
     "create_first_container": "Create your first container to get started",
     "table": {
