@@ -22,6 +22,9 @@ public class Invoice {
     Date startDate;
     Date endDate;
     InvoiceStatus status;
+    Double totalCPU;
+    Double totalRAM;
+    Double totalSTORAGE;
     Double subtotal;
     Double taxes;
     Double total;

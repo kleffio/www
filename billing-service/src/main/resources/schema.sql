@@ -44,3 +44,7 @@ CREATE TABLE if NOT EXISTS invoice_items(
     quantity Double,
     recorded_at DATETIME
 );
+CREATE TABLE if NOT EXISTS prices(
+    metric VARCHAR(20) PRIMARY KEY DEFAULT,
+    price Double
+    );

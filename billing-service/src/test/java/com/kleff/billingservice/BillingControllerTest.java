@@ -5,8 +5,6 @@ import com.kleff.billingservice.buisnesslayer.BillingService;
 import com.kleff.billingservice.datalayer.Allocation.ReservedAllocation;
 import com.kleff.billingservice.datalayer.Invoice.Invoice;
 import com.kleff.billingservice.datalayer.Invoice.InvoiceStatus;
-import com.kleff.billingservice.datalayer.Record.InvoiceItem;
-import com.kleff.billingservice.datalayer.Record.UsageMetric;
 import com.kleff.billingservice.datalayer.Record.UsageRecord;
 import com.kleff.billingservice.presentationlayer.BillingController;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,8 +14,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import java.sql.Date;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;

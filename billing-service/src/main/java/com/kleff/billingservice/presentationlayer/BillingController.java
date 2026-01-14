@@ -2,7 +2,6 @@ package com.kleff.billingservice.presentationlayer;
 import com.kleff.billingservice.buisnesslayer.BillingService;
 import com.kleff.billingservice.datalayer.Allocation.ReservedAllocation;
 import com.kleff.billingservice.datalayer.Invoice.Invoice;
-import com.kleff.billingservice.datalayer.Record.InvoiceItem;
 import com.kleff.billingservice.datalayer.Record.UsageRecord;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
