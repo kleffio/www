@@ -17,6 +17,7 @@ jobs:
       matrix:
         service:
           - project-management-service
+          - billing-service
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

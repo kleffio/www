@@ -33,36 +33,6 @@ public class BillingController {
         return ResponseEntity.ok(records);
     }
 
-    // Invoice Item Endpoints
-    @PostMapping("/invoice-items/")
-    public ResponseEntity<String> createInvoiceItem(@RequestBody UsageRecord usageRecord) {
-        billingService.createInvoiceItem(usageRecord);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Invoice item created successfully");
-    }
-
-    @GetMapping("/invoice-items/{invoiceId}/")
-    public ResponseEntity<InvoiceItem> getInvoiceItem(@PathVariable String invoiceId) {
-        InvoiceItem item = billingService.getInvoiceItem(invoiceId);
-        if (item == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(item);
-    }
-
-    @GetMapping("/{projectId}/invoice-items/")
-    public ResponseEntity<List<InvoiceItem>> getInvoiceItemsForProject(@PathVariable String projectId) {
-        List<InvoiceItem> items = billingService.getInvoiceItemsForProject(projectId);
-        return ResponseEntity.ok(items);
-    }
-
-    // Invoice Endpoints
-    @PostMapping("/invoices/")
-    public ResponseEntity<Invoice> createInvoice(@RequestBody List<InvoiceItem> invoiceItems) {
-        Invoice invoice = billingService.createInvoice(invoiceItems);
-        return ResponseEntity.status(HttpStatus.CREATED).body(invoice);
-    }
-
     @PostMapping("/invoices/{invoiceId}/pay/")
     public ResponseEntity<String> payInvoice(@PathVariable String invoiceId) {
         try {
