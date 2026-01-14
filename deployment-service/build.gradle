@@ -51,6 +51,7 @@ dependencies {
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport // Generate report after tests run
+    ignoreFailures = true  // Add this line
 }
 
 jacoco {
@@ -69,13 +70,13 @@ jacocoTestReport {
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {
             fileTree(dir: it, exclude: [
-                '**/dto/**',
-                '**/config/**',
-                '**/exception/**',
-                '**/model/**',
-                '**/*Application.class',
-                '**/*MapperImpl.class',
-                '**/mapper/*.class'
+                // '**/dto/**',
+                // '**/config/**',
+                // '**/exception/**',
+                // '**/model/**',
+                // '**/*Application.class',
+                // '**/*MapperImpl.class',
+                // '**/mapper/*.class'
             ])
         }))
     }

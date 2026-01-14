@@ -24,7 +24,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -181,7 +183,7 @@ class ContainerServiceImplTest {
         when(containerMapper.containerToContainerResponseModel(saved)).thenReturn(response);
 
         // EXPECTATION: External API Fails with 500
-        mockServer.expect(ExpectedCount.once(), requestTo("https://api.kleff.io/api/v1/deployment/build"))
+        mockServer.expect(ExpectedCount.once(), requestTo("https://api.kleff.io/api/v1/build/create"))
                 .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
 
         // Act
@@ -191,6 +193,94 @@ class ContainerServiceImplTest {
         mockServer.verify();
         verify(containerRepository).save(any(Container.class)); // DB save still happened
         assertThat(result).isNotNull(); // User still got a response
+    }
+
+
+    @Test
+    @DisplayName("updateContainerEnvVariables: Should update DB and trigger PATCH request to WebApp service")
+    void whenUpdateEnvVariables_thenSaveAndTriggerPatch() throws JsonProcessingException {
+        // Arrange
+        String containerID = "cont-123";
+        Map<String, String> newEnv = new HashMap<>();
+        newEnv.put("DB_URL", "jdbc:mysql://localhost");
+        newEnv.put("PORT", "3000");
+        String jsonEnv = "{\"DB_URL\":\"...\"}";
+
+        Container existingContainer = Container.builder()
+                .containerID(containerID)
+                .projectID("proj-456")
+                .name("my-web-app")
+                .build();
+
+        ContainerResponseModel responseModel = ContainerResponseModel.builder()
+                .containerID(containerID)
+                .build();
+
+        when(containerRepository.findContainerByContainerID(containerID)).thenReturn(existingContainer);
+        when(containerMapper.mapToJson(newEnv)).thenReturn(jsonEnv);
+        when(containerRepository.save(any(Container.class))).thenReturn(existingContainer);
+        when(containerMapper.containerToContainerResponseModel(existingContainer)).thenReturn(responseModel);
+
+        // Mock the PATCH request inside triggerWebAppUpdate
+        mockServer.expect(ExpectedCount.once(),
+                        requestTo("https://api.kleff.io/api/v1/webapp/update"))
+                .andExpect(method(HttpMethod.PATCH))
+                .andExpect(jsonPath("$.projectID").value("proj-456"))
+                .andExpect(jsonPath("$.name").value("my-web-app"))
+                .andExpect(jsonPath("$.envVariables.DB_URL").value("jdbc:mysql://localhost"))
+                .andRespond(withSuccess("Updated", MediaType.APPLICATION_JSON));
+
+        // Act
+        ContainerResponseModel result = containerService.updateContainerEnvVariables(containerID, newEnv);
+
+        // Assert
+        assertThat(result).isNotNull();
+        verify(containerRepository, times(1)).save(existingContainer);
+        mockServer.verify(); // Ensures PATCH request was sent
+    }
+
+
+    @Test
+    @DisplayName("updateContainerEnvVariables: Should still return response even if PATCH request fails")
+    void whenWebAppUpdateFails_thenStillReturnResponse() {
+        // Arrange
+        String id = "cont-123";
+        Map<String, String> env = Map.of("K", "V");
+        Container container = Container.builder().containerID(id).projectID("p1").name("n1").build();
+        ContainerResponseModel response = ContainerResponseModel.builder().containerID(id).build();
+
+        when(containerRepository.findContainerByContainerID(id)).thenReturn(container);
+        when(containerRepository.save(any())).thenReturn(container);
+        when(containerMapper.containerToContainerResponseModel(container)).thenReturn(response);
+
+        // Mock RestTemplate failure (500 Internal Server Error)
+        mockServer.expect(ExpectedCount.once(), requestTo("https://api.kleff.io/api/v1/webapp/update"))
+                .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        // Act
+        ContainerResponseModel result = containerService.updateContainerEnvVariables(id, env);
+
+        // Assert
+        assertThat(result).isNotNull();
+        mockServer.verify();
+        // Logic check: The catch block in triggerWebAppUpdate prevents the whole method from failing
+        verify(containerRepository).save(any());
+    }
+
+    @Test
+    @DisplayName("getContainersByProjectID: Should return list of containers")
+    void whenGetByProjectId_thenReturnList() {
+        // Arrange
+        String projectId = "proj-1";
+        List<Container> containers = List.of(new Container(), new Container());
+        when(containerRepository.findContainersByProjectID(projectId)).thenReturn(containers);
+
+        // Act
+        List<Container> result = containerService.getContainersByProjectID(projectId);
+
+        // Assert
+        assertThat(result).hasSize(2);
+        verify(containerRepository).findContainersByProjectID(projectId);
     }
 
 
@@ -214,7 +304,7 @@ class ContainerServiceImplTest {
         when(containerMapper.containerToContainerResponseModel(saved)).thenReturn(response);
 
         // Expectation for the external build API
-        mockServer.expect(ExpectedCount.once(), requestTo("https://api.kleff.io/api/v1/deployment/build"))
+        mockServer.expect(ExpectedCount.once(), requestTo("https://api.kleff.io/api/v1/build/create"))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(jsonPath("$.name").value("updated-name"))
                 .andExpect(jsonPath("$.containerID").value(id))

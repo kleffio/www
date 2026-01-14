@@ -37,7 +37,12 @@ public class ContainerServiceImpl {
     }
 
     public Container getContainerByContainerId(String containerId) {
-        return containerRepository.findContainerByContainerID(containerId);
+        try {
+            return containerRepository.findContainerByContainerID(containerId);
+        } catch (Exception e) {
+            log.error("Error finding container with ID {}: {}", containerId, e.getMessage());
+            return null;
+        }
     }
 
     public List<Container> getContainersByProjectID(String projectID) {
