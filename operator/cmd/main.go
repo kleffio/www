@@ -23,7 +23,6 @@ import (
 
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 
-	istionetworking "istio.io/client-go/pkg/apis/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -54,8 +53,6 @@ func init() {
 
 	// ADD THIS HERE: Register Istio types before the manager starts
 	utilruntime.Must(gatewayv1.AddToScheme(scheme))
-	utilruntime.Must(istionetworking.AddToScheme(scheme))
-
 	// +kubebuilder:scaffold:scheme
 }
 
