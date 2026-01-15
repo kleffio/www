@@ -14,7 +14,6 @@ interface CreateContainerModalProps {
 
 export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: CreateContainerModalProps) {
   const [name, setName] = useState("");
-  const [image, setImage] = useState("");
   const [port, setPort] = useState("");
   const [repoUrl, setRepoUrl] = useState("");
   const [branch, setBranch] = useState("");
@@ -26,7 +25,6 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
 
   const resetForm = () => {
     setName("");
-    setImage("");
     setPort("");
     setRepoUrl("");
     setBranch("");
@@ -40,10 +38,7 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
       setError("Container name is required.");
       return;
     }
-    if (!image.trim()) {
-      setError("Image is required.");
-      return;
-    }
+    
     const portNum = parseInt(port);
     if (isNaN(portNum) || portNum <= 0) {
       setError("Port must be a positive number.");
@@ -65,7 +60,6 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
       await createContainer({
         projectID: projectId,
         name: name.trim(),
-        image: image.trim(),
         port: portNum,
         repoUrl: repoUrl.trim(),
         branch: branch.trim(),
@@ -132,24 +126,6 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
                 onChange={(e) => setName(e.target.value)}
                 className={inputBase}
                 placeholder="my-container"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label
-                htmlFor="container-image"
-                className="block text-xs font-medium tracking-wide text-neutral-300 uppercase"
-              >
-                Image <span className="text-red-400">*</span>
-              </label>
-              <input
-                id="container-image"
-                name="image"
-                type="text"
-                value={image}
-                onChange={(e) => setImage(e.target.value)}
-                className={inputBase}
-                placeholder="nginx:latest"
               />
             </div>
 
