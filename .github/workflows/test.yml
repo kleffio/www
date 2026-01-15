@@ -1,9 +1,8 @@
-# This workflow is optimized for the deployment-service and project-management-service
-# It performs builds, runs tests with Jacoco coverage, and generates a summary report.
+---
 
 name: Java CI with Gradle
 
-on:
+"on":
   push:
     branches: ["main"]
   pull_request:
@@ -26,7 +25,10 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-deployment-${{ hashFiles('**/deployment-service/*.gradle*', '**/deployment-service/gradle-wrapper.properties') }}
+          key: >-
+            ${{ runner.os }}-gradle-deployment-${{
+            hashFiles('**/deployment-service/*.gradle*',
+            '**/deployment-service/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-deployment-
             ${{ runner.os }}-gradle-
@@ -66,7 +68,10 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-project-mgmt-${{ hashFiles('**/project-management-service/*.gradle*', '**/project-management-service/gradle-wrapper.properties') }}
+          key: >-
+            ${{ runner.os }}-gradle-project-mgmt-${{
+            hashFiles('**/project-management-service/*.gradle*',
+            '**/project-management-service/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-project-mgmt-
             ${{ runner.os }}-gradle-
@@ -91,9 +96,10 @@ jobs:
 
   coverage-summary:
     runs-on: "ubuntu-22.04"
-    # needs: [deployment_service_test, project_management_service_test]
     needs: [deployment_service_test]
-    if: always() && (github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
+    if: >-
+      always() && (github.event_name == 'pull_request' ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main'))
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -105,7 +111,8 @@ jobs:
         run: |
           echo "## Code Coverage Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Coverage reports generated for updated microservices." >> $GITHUB_STEP_SUMMARY
+          echo "Coverage reports generated for updated microservices." \
+            >> $GITHUB_STEP_SUMMARY
           echo "### Actual Coverage Results" >> $GITHUB_STEP_SUMMARY
 
           for report_dir in coverage-reports/*/; do
@@ -114,13 +121,15 @@ jobs:
               main_index="$report_dir/index.html"
               if [ -f "$main_index" ]; then
                 # Attempt to extract percentage from Jacoco HTML
-                coverage=$(grep -o 'class="ctr2">[0-9]*%' "$main_index" | head -1 | grep -o '[0-9]*%')
+                coverage=$(grep -o 'class="ctr2">[0-9]*%' "$main_index" | \
+                  head -1 | grep -o '[0-9]*%')
                 if [ -z "$coverage" ]; then
                   coverage=$(grep -o '[0-9]*%' "$main_index" | head -1)
                 fi
                 echo "- $service_name: $coverage" >> $GITHUB_STEP_SUMMARY
               else
-                echo "- $service_name: No coverage report found" >> $GITHUB_STEP_SUMMARY
+                echo "- $service_name: No coverage report found" \
+                  >> $GITHUB_STEP_SUMMARY
               fi
             fi
           done
