@@ -91,7 +91,8 @@ jobs:
 
   coverage-summary:
     runs-on: "ubuntu-22.04"
-    needs: [deployment_service_test, project_management_service_test]
+    # needs: [deployment_service_test, project_management_service_test]
+    needs: [deployment_service_test]
     if: always() && (github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main'))
     steps:
       - name: Checkout sources
