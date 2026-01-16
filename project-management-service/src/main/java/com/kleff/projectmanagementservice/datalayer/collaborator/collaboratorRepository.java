@@ -1,4 +1,5 @@
 package com.kleff.projectmanagementservice.datalayer.collaborator;
 
-public class collaboratorRepository {
+public interface collaboratorRepository extends JpaRepository<Collaborator, Integer> {
+    
 }
