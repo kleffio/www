@@ -46,6 +46,10 @@ spec:
                   to remove/update
                 minLength: 1
                 type: string
+              envVariables:
+                additionalProperties:
+                  type: string
+                type: object
               image:
                 type: string
               port:
