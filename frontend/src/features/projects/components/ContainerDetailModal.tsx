@@ -3,7 +3,7 @@ import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Button } from "@shared/ui/Button";
 import { Badge } from "@shared/ui/Badge";
 import { MiniCard } from "@shared/ui/MiniCard";
-import { X, ExternalLink, Settings, Hash, Box, Code, GitBranch, Calendar, Server, Copy, Play, Square, Trash2 } from "lucide-react";
+import { X, ExternalLink, Settings, Hash, Box, Code, GitBranch, Calendar, Server, Copy, Play, Square, Trash2, Network } from "lucide-react";
 import { formatRepoUrl, formatTimeAgo, formatPort } from "@shared/lib/utils";
 import type { Container } from "@features/projects/types/Container";
 import enTranslations from "@app/locales/en/projects.json";
@@ -41,7 +41,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
 
   return (
     <section className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
 
       <section className="relative z-10 w-full max-w-4xl px-4 sm:px-0 max-h-[90vh] overflow-y-auto">
         <SoftPanel className="border border-white/10 bg-black/70 shadow-2xl shadow-black/60">
@@ -61,6 +61,12 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
                   }
                   className="mt-1 text-xs"
                 >
+                  {container.status?.toLowerCase().includes("running") && (
+                    <span className="relative mr-1.5 inline-flex h-1.5 w-1.5">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/40" />
+                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                    </span>
+                  )}
                   {container.status || "Unknown"}
                 </Badge>
               </div>
@@ -68,8 +74,9 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
             <div className="flex items-center gap-3">
               <Button
                 size="sm"
+                variant="ghost"
                 onClick={() => window.open(appUrl, '_blank')}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
                 Visit App
@@ -84,86 +91,85 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
             </div>
           </div>
 
-          {/* Two Column Body */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left Column - Source */}
-            <div className="space-y-6">
-              <div>
-                <h3 className="mb-4 text-lg font-semibold text-white">Source</h3>
-                <div className="space-y-4">
-                  {/* Repository URL */}
-                  <MiniCard title="Repository">
-                    <div className="flex items-center gap-2">
-                      <Code className="h-4 w-4 text-neutral-400" />
-                      {(() => {
-                        const repo = formatRepoUrl(container.repoUrl);
-                        return repo.link ? (
-                          <a
-                            href={repo.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-sm text-blue-400 hover:text-blue-300 hover:underline transition-colors"
-                          >
-                            {repo.display}
-                          </a>
-                        ) : (
-                          <span className="text-sm text-neutral-400">{repo.display}</span>
-                        );
-                      })()}
-                    </div>
-                  </MiniCard>
+          {/* Details Section */}
+          <div>
+            <h3 className="mb-4 text-lg font-semibold text-white">Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Container ID */}
+              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
+                <Hash className="h-5 w-5 text-neutral-400 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-neutral-100">Container ID</div>
+                  <button
+                    onClick={handleCopyId}
+                    className="font-mono text-sm text-neutral-200 hover:text-blue-400 transition-colors truncate flex items-center gap-1 group"
+                    title="Click to copy"
+                  >
+                    {truncateId(container.containerId)}
+                    <Copy className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
+                  {copiedId && (
+                    <span className="text-xs text-emerald-400 animate-pulse">Copied!</span>
+                  )}
+                </div>
+              </div>
 
-                  {/* Branch */}
-                  <MiniCard title="Branch">
-                    <div className="flex items-center gap-2">
-                      <GitBranch className="h-4 w-4 text-neutral-400" />
-                      <span className="text-sm text-neutral-200">{container.branch || "Not specified"}</span>
-                    </div>
-                  </MiniCard>
+              {/* Ports */}
+              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
+                <Network className="h-5 w-5 text-neutral-400 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-neutral-100">Ports</div>
+                  <div className="font-mono text-sm text-neutral-200 truncate">
+                    {container.ports.length > 0 ? (
+                      container.ports.map((port, index) => (
+                        <span key={index}>
+                          {formatPort(port)}
+                          {index < container.ports.length - 1 && ", "}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-neutral-400">None</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Branch */}
+              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
+                <GitBranch className="h-5 w-5 text-neutral-400 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-neutral-100">Branch</div>
+                  <div className="font-mono text-sm text-neutral-200 truncate">
+                    {container.branch || "main"}
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Right Column - Runtime */}
-            <div className="space-y-6">
-              <div>
-                <h3 className="mb-4 text-lg font-semibold text-white">Runtime</h3>
-                <div className="space-y-4">
-                  {/* Internal Ports */}
-                  <MiniCard title="Internal Ports">
-                    <div className="flex items-center gap-2">
-                      {container.ports.length > 0 ? (
-                        <div className="flex flex-wrap gap-1">
-                          {container.ports.map((port, index) => (
-                            <span key={index} className="text-sm text-neutral-200">
-                              {formatPort(port)}
-                              {index < container.ports.length - 1 && ", "}
-                            </span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="text-sm text-neutral-400">No ports configured</span>
-                      )}
-                    </div>
-                  </MiniCard>
-
-                  {/* Deployment Date */}
-                  <MiniCard title="Deployment Date">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-neutral-400" />
-                      <span className="text-sm text-neutral-200">{formatTimeAgo(container.createdAt)}</span>
-                    </div>
-                  </MiniCard>
-
-                  {/* Uptime - For now, just show deployment time. In a real app, this would calculate actual uptime */}
-                  <MiniCard title="Uptime">
-                    <div className="flex items-center gap-2">
-                      <Box className="h-4 w-4 text-neutral-400" />
-                      <span className="text-sm text-neutral-200">{formatTimeAgo(container.createdAt)}</span>
-                    </div>
-                  </MiniCard>
+          {/* Source Code Section */}
+          <div className="mt-8">
+            <h3 className="mb-4 text-lg font-semibold text-white">Source Code</h3>
+            <div
+              className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-4 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-colors"
+              onClick={() => {
+                const repo = formatRepoUrl(container.repoUrl);
+                if (repo.link) window.open(repo.link, '_blank');
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <Code className="h-5 w-5 text-blue-400" />
+                <div>
+                  <div className="font-medium text-neutral-100">
+                    {(() => {
+                      const repo = formatRepoUrl(container.repoUrl);
+                      return repo.display;
+                    })()}
+                  </div>
+                  <div className="text-sm text-neutral-400">Click to open repository</div>
                 </div>
               </div>
+              <ExternalLink className="h-5 w-5 text-neutral-400" />
             </div>
           </div>
 
@@ -219,10 +225,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => {
-                    console.log('Edit Environment Variables button clicked');
-                    onEditEnv(container);
-                  }}
+                  onClick={() => onEditEnv(container)}
                   className="border-slate-600 bg-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-600"
                 >
                   <Settings className="mr-2 h-4 w-4" />
