@@ -2,16 +2,17 @@ import { useParams, Link } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@shared/ui/Button";
 import { SoftPanel } from "@shared/ui/SoftPanel";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@shared/ui/Table";
 import { Spinner } from "@shared/ui/Spinner";
 import { MiniCard } from "@shared/ui/MiniCard";
 import { Badge } from "@shared/ui/Badge";
 import { GradientIcon } from "@shared/ui/GradientIcon";
-import { Hash, User, Layers, Activity, Calendar, Clock, Box, Settings, ExternalLink } from "lucide-react";
+import { Hash, User, Layers, Activity, Calendar, Clock, Box } from "lucide-react";
 import { useProject } from "@features/projects/hooks/useProject";
 import { useProjectContainers } from "@features/projects/hooks/useProjectContainers";
 import { CreateContainerModal } from "@features/projects/components/CreateContainerModal";
 import { EditEnvVariablesModal } from "@features/projects/components/EditEnvVariablesModal";
+import { ContainerStatusCard } from "@features/projects/components/ContainerStatusCard";
+import { ContainerDetailModal } from "@features/projects/components/ContainerDetailModal";
 import updateContainerEnvVariables from "@features/projects/api/updateContainerEnvVariables";
 import type { Container } from "@features/projects/types/Container";
 import { ROUTES } from "@app/routes/routes";
@@ -51,6 +52,7 @@ export function ProjectDetailPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBillingModalOpen] = useState(false);
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedContainer, setSelectedContainer] = useState<Container | null>(null);
   const [locale] = useState(getLocale());
   const t = translations[locale].projectDetail;
@@ -59,8 +61,10 @@ export function ProjectDetailPage() {
   const ownerUser = useUsername(id);
 
   const handleEditEnv = (container: Container) => {
+    console.log('handleEditEnv called with container:', container.name);
     setSelectedContainer(container);
     setIsEnvModalOpen(true);
+    console.log('isEnvModalOpen set to true');
   };
 
   const handleSaveEnvVariables = async (containerId: string, envVariables: Record<string, string>) => {
@@ -185,12 +189,9 @@ export function ProjectDetailPage() {
         <SoftPanel>
           <div className="mb-6 flex items-center gap-3">
             <GradientIcon icon={Box} />
-            <h2 className="text-lg font-semibold text-neutral-50">{t.running_containers}</h2>
-            {containers && containers.length > 0 && (
-              <Badge variant="info" className="text-xs">
-                {containers.length} {containers.length === 1 ? t.container : t.containers}
-              </Badge>
-            )}
+            <h2 className="text-lg font-semibold text-neutral-50">
+              {t.running_containers} {containers && containers.length > 0 && `(${containers.length})`}
+            </h2>
           </div>
 
           {containersLoading && (
@@ -212,96 +213,18 @@ export function ProjectDetailPage() {
           )}
 
           {!containersLoading && !containersError && containers.length > 0 && (
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b border-white/10 bg-white/5 hover:bg-white/5">
-                  <TableHead>{t.table.name}</TableHead>
-                  <TableHead>{t.table.status}</TableHead>
-                  <TableHead>App URL</TableHead>
-                  <TableHead>{t.table.image}</TableHead>
-                  <TableHead>{t.table.ports}</TableHead>
-                  <TableHead>Repository URL</TableHead>
-                  <TableHead>Branch</TableHead>
-                  <TableHead>{t.table.created_at}</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {containers.map((container) => {
-                  const appUrl = `https://${sanitizeAppName(container.name)}.kleff.io`;
-                  return (
-                    <TableRow key={container.containerId} className="hover:bg-white/5">
-                      <TableCell>
-                        <span className="font-semibold text-neutral-50">{container.name}</span>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            container.status?.toLowerCase().includes("running")
-                              ? "success"
-                              : container.status?.toLowerCase().includes("stopped")
-                                ? "secondary"
-                                : "warning"
-                          }
-                          className="text-xs"
-                        >
-                          {container.status || t.unknown}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <a 
-                          href={appUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 hover:text-blue-300 hover:underline transition-colors"
-                        >
-                          Visit App
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </TableCell>
-                      <TableCell className="font-mono text-xs text-neutral-300">
-                        {container.image}
-                      </TableCell>
-                      <TableCell className="text-neutral-300">
-                        {container.ports.length > 0 ? (
-                          <div className="flex flex-wrap gap-1">
-                            {container.ports.map((port, index) => (
-                              <Badge
-                                key={index}
-                                variant="outline"
-                                className="px-1.5 py-0.5 text-[10px]"
-                              >
-                                {port}
-                              </Badge>
-                            ))}
-                          </div>
-                        ) : (
-                          <span className="text-neutral-500">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="font-mono text-xs text-neutral-300">
-                        {container.repoUrl || <span className="text-neutral-500">—</span>}
-                      </TableCell>
-                      <TableCell className="text-xs text-neutral-300">
-                        {container.branch || <span className="text-neutral-500">—</span>}
-                      </TableCell>
-                      <TableCell className="text-neutral-300 text-xs">{container.createdAt}</TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleEditEnv(container)}
-                          className="rounded-full px-3 py-1.5 text-xs"
-                        >
-                          <Settings className="mr-1 h-3 w-3" />
-                          Edit Env
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+            <div className="space-y-4">
+              {containers.map((container) => (
+                <ContainerStatusCard
+                  key={container.containerId}
+                  container={container}
+                  onManage={(container) => {
+                    setSelectedContainer(container);
+                    setIsDetailModalOpen(true);
+                  }}
+                />
+              ))}
+            </div>
           )}
         </SoftPanel>
      
@@ -327,10 +250,20 @@ export function ProjectDetailPage() {
         isOpen={isEnvModalOpen}
         onClose={() => {
           setIsEnvModalOpen(false);
-          setSelectedContainer(null);
+          // Don't clear selectedContainer here as ContainerDetailModal is still open
         }}
         container={selectedContainer}
         onSave={handleSaveEnvVariables}
+      />
+
+      <ContainerDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false);
+          setSelectedContainer(null);
+        }}
+        container={selectedContainer}
+        onEditEnv={handleEditEnv}
       />
     </section>
   );
