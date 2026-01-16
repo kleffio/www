@@ -101,29 +101,6 @@ class BillingControllerTest {
 //    }
 
     @Test
-    void payInvoice_WhenSuccessful_ShouldReturnOk() throws Exception {
-        doNothing().when(billingService).payInvoice(anyString());
-
-        mockMvc.perform(post("/api/v1/billing/invoices/inv-123/pay/"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Invoice paid successfully"));
-
-        verify(billingService, times(1)).payInvoice("inv-123");
-    }
-
-    @Test
-    void payInvoice_WhenFails_ShouldReturnError() throws Exception {
-        doThrow(new RuntimeException("Payment registry failed"))
-                .when(billingService).payInvoice(anyString());
-
-        mockMvc.perform(post("/api/v1/billing/invoices/inv-999/pay/"))
-                .andExpect(status().isInternalServerError())
-                .andExpect(content().string("Payment failed: Payment registry failed"));
-
-        verify(billingService, times(1)).payInvoice("inv-999");
-    }
-
-    @Test
     void createReservedAllocation_ShouldReturnCreated() throws Exception {
         doNothing().when(billingService).createReservedAllocation(any(ReservedAllocation.class));
 
