@@ -12,6 +12,7 @@ interface EditEnvVariablesModalProps {
 }
 
 export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: EditEnvVariablesModalProps) {
+  console.log('EditEnvVariablesModal render - isOpen:', isOpen, 'container:', container?.name);
   const [envVariables, setEnvVariables] = useState<Array<{ key: string; value: string }>>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,7 +89,7 @@ export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: Ed
     "transition-colors hover:border-white/20 focus:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/30";
 
   return (
-    <section className="fixed inset-0 z-50 flex items-center justify-center">
+    <section className="fixed inset-0 z-60 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       <section className="relative z-10 w-full max-w-2xl max-h-[90vh] flex flex-col px-4 sm:px-0">
