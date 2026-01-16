@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { DollarSign, Calendar, X, Eye, Loader2 } from 'lucide-react';
+import { Button } from "@shared/ui/Button";
+import { Spinner } from "@shared/ui/Spinner";
 import type { Invoice } from '@features/billing/types/Invoice';
-import fetchInvoice from '../api/viewInvoicesForProject';
+import { fetchInvoice } from '../api/viewInvoicesForProject';
+import { handlePayNow } from '../api/handlePayNow';
 
 interface InvoiceTableProps {
   projectId: string;
@@ -12,13 +15,15 @@ export default function InvoiceTable({ projectId }: InvoiceTableProps) {
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [payLoading, setPayLoading] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadInvoices = async () => {
       try {
         setLoading(true);
         setError(null);
-        const data = await fetchInvoice();
+        const data = await fetchInvoice(projectId);
         setInvoices(data);
       } catch (err: any) {
         setError(err.message || 'Failed to load invoices');
@@ -43,9 +48,15 @@ export default function InvoiceTable({ projectId }: InvoiceTableProps) {
     }
   };
 
+  const handlePay = () => {
+    if (selectedInvoice) {
+      handlePayNow(selectedInvoice.projectId, selectedInvoice.invoiceId, setPayError, setPayLoading);
+    }
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br p-6">
+      <div className="min-h-screen bg-gradient-to-br p-0">
         <div className="max-w-7xl mx-auto flex items-center justify-center h-96">
           <div className="flex flex-col items-center gap-3">
             <Loader2 className="h-8 w-8 text-emerald-400 animate-spin" />
@@ -58,7 +69,7 @@ export default function InvoiceTable({ projectId }: InvoiceTableProps) {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br  p-6">
+      <div className="min-h-screen bg-gradient-to-br  p-0">
         <div className="max-w-7xl mx-auto flex items-center justify-center h-96">
           <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-6 max-w-md">
             <p className="text-red-400 text-center">{error}</p>
@@ -69,7 +80,7 @@ export default function InvoiceTable({ projectId }: InvoiceTableProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br p-6">
+    <div className="min-h-screen bg-gradient-to-br p-0">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
@@ -133,10 +144,10 @@ export default function InvoiceTable({ projectId }: InvoiceTableProps) {
                   {invoices.map((invoice) => (
                     <tr key={invoice.invoiceId} className="hover:bg-neutral-800/30 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-medium text-neutral-200">{invoice.invoiceId}</span>
+                        <span className="text-sm font-medium text-neutral-200">{invoice.invoiceId.slice(0, Math.floor(invoice.invoiceId.length / 2))}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm text-neutral-300">{invoice.projectId}</span>
+                        <span className="text-sm text-neutral-300">{invoice.projectId.slice(0, Math.floor(invoice.projectId.length / 2))}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2 text-sm text-neutral-300">
@@ -220,6 +231,18 @@ export default function InvoiceTable({ projectId }: InvoiceTableProps) {
                 <h4 className="text-sm font-semibold text-neutral-400 mb-4">Payment Breakdown</h4>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
+                    <span className="text-neutral-300">Total CPU</span>
+                    <span className="font-medium text-neutral-200">{selectedInvoice.totalCPU.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-neutral-300">Total RAM</span>
+                    <span className="font-medium text-neutral-200">{selectedInvoice.totalRAM.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-neutral-300">Total Storage</span>
+                    <span className="font-medium text-neutral-200">{selectedInvoice.totalSTORAGE.toFixed(2)}</span>
+                  </div>
+                  <div className="border-t border-neutral-700 pt-3 flex justify-between items-center">
                     <span className="text-neutral-300">Subtotal</span>
                     <span className="font-medium text-neutral-200">${selectedInvoice.subtotal.toFixed(2)}</span>
                   </div>
@@ -233,6 +256,21 @@ export default function InvoiceTable({ projectId }: InvoiceTableProps) {
                   </div>
                 </div>
               </div>
+            </div>
+            {payError && <p className="text-sm text-red-400 mt-4">{payError}</p>}
+            <div className="flex gap-3 mt-6">
+              {selectedInvoice.status.toLowerCase() !== 'paid' && (
+                <Button
+                  onClick={handlePay}
+                  disabled={payLoading}
+                  className="bg-gradient-kleff rounded-full px-4 py-2 text-sm font-semibold text-black"
+                >
+                  {payLoading ? <Spinner /> : 'Pay Now'}
+                </Button>
+              )}
+              <Button variant="ghost" onClick={() => setSelectedInvoice(null)} className="rounded-full px-4 py-2 text-sm">
+                Close
+              </Button>
             </div>
           </div>
         </div>

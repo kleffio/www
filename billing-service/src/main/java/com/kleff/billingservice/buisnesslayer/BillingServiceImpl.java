@@ -8,6 +8,7 @@ import com.kleff.billingservice.datalayer.Invoice.InvoiceStatus;
 import com.kleff.billingservice.datalayer.Pricing.Price;
 import com.kleff.billingservice.datalayer.Pricing.PriceRepository;
 import com.kleff.billingservice.datalayer.Record.*;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -85,6 +86,46 @@ public class BillingServiceImpl implements BillingService {
         return invoiceRepository.findByProjectId(projectId);
     }
 
+
+    // Validation for payment
+    public long computeOutstandingCents(String invoiceId, String userId) {
+
+        // 1. Find the invoice
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new EntityNotFoundException("Invoice not found: " + invoiceId));
+
+
+//        if (!project.getOwnerUsername().equals(username)) {
+//            throw new UnauthorizedException("You don't have permission to pay this invoice");
+//        }
+
+        // 3. Verify invoice is payable
+        if (invoice.getStatus() == InvoiceStatus.PAID) {
+            throw new IllegalArgumentException("Invoice is already paid");
+        }
+
+        if (invoice.getStatus() == InvoiceStatus.VOID) {
+            throw new IllegalArgumentException("Invoice is cancelled");
+        }
+
+        // 4. Calculate outstanding amount (in cents for Stripe)
+        long totalCents = (long) (invoice.getTotal()*100);
+        long paidCents = (long) (invoice.getTotalPaid()*100);
+        long outstandingCents = totalCents - paidCents;
+
+        if (outstandingCents <= 0) {
+            throw new IllegalArgumentException("No outstanding balance on this invoice");
+        }
+
+        // 5. Optional: Check for minimum amount
+        if (outstandingCents < 50) { // Stripe minimum is $0.50
+            throw new IllegalArgumentException("Amount too small for payment processing");
+        }
+
+        return outstandingCents;
+    }
+
+
     //Bellow is where the price endpoints will be
 
     public Price getPrice(String itemId) {
@@ -115,7 +156,7 @@ public class BillingServiceImpl implements BillingService {
                 .withNano(0);
 
         // Query all bills from last month
-        List<UsageRecord> lastMonthUsageRecords = usageRecordRepository.findByCreatedAtBetween(
+        List<UsageRecord> lastMonthUsageRecords = usageRecordRepository.findByRecordedAtBetween(
                 startOfLastMonth,
                 startOfThisMonth
         );

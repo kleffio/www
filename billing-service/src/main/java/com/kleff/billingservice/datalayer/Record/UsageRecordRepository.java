@@ -11,5 +11,5 @@ import java.util.List;
 public interface UsageRecordRepository extends JpaRepository<UsageRecord, String> {
     public List<UsageRecord> findByContainerId(String containerId);
     public List<UsageRecord> findByProjectIdIs(String projectId);
-    public List<UsageRecord> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+    public List<UsageRecord> findByRecordedAtBetween(LocalDateTime start, LocalDateTime end);
 }

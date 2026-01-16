@@ -18,6 +18,7 @@ public interface BillingService {
     public List<Invoice> getInvoicesForAProject(String projectId);
     public Price getPrice(String itemId);
     public void setPrice(Price price);
+    public long computeOutstandingCents(String invoiceId, String username);
 
 
 }

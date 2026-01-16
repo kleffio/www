@@ -306,15 +306,20 @@ export function ProjectDetailPage() {
         </SoftPanel>
      
         <div className="space-y-6">
-          <InvoiceTable projectId={""} />
+          <InvoiceTable projectId={project.projectId} />
         </div>
       </div>
-      
-      <BillingModal
-        isOpen={isBillingModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        projectId={projectId || ""}
-      />
+
+   
+      <div className="p-0">
+        <BillingModal
+          isOpen={isBillingModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          projectId={projectId || ""}
+         
+        />
+      </div>
+  
 
       <CreateContainerModal
         isOpen={isModalOpen}
