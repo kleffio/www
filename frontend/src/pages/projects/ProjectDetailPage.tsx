@@ -29,16 +29,6 @@ const translations = {
   fr: frTranslations
 };
 
-// Matches backend sanitization: lowercase, replace spaces/underscores with dashes, trim dashes
-const sanitizeAppName = (name: string) => {
-  if (!name) return "";
-  return name
-    .toLowerCase()
-    .replace(/_/g, '-')      // Replace underscores with dashes
-    .replace(/\s+/g, '-')    // Replace spaces with dashes
-    .replace(/^-+|-+$/g, ''); // Trim leading/trailing dashes
-};
-
 export function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const { project, isLoading: projectLoading, error: projectError } = useProject(projectId || "");

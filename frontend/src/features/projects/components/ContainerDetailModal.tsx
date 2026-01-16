@@ -2,13 +2,9 @@ import React from "react";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Button } from "@shared/ui/Button";
 import { Badge } from "@shared/ui/Badge";
-import { MiniCard } from "@shared/ui/MiniCard";
-import { X, ExternalLink, Settings, Hash, Box, Code, GitBranch, Calendar, Server, Copy, Play, Square, Trash2, Network } from "lucide-react";
-import { formatRepoUrl, formatTimeAgo, formatPort } from "@shared/lib/utils";
+import { X, ExternalLink, Settings, Hash, Box, Code, GitBranch, Copy, Play, Square, Trash2, Network } from "lucide-react";
+import { formatRepoUrl, formatPort } from "@shared/lib/utils";
 import type { Container } from "@features/projects/types/Container";
-import enTranslations from "@app/locales/en/projects.json";
-import frTranslations from "@app/locales/fr/projects.json";
-import { getLocale } from "@app/locales/locale";
 
 interface ContainerDetailModalProps {
   isOpen: boolean;
@@ -97,7 +93,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Container ID */}
               <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
-                <Hash className="h-5 w-5 text-neutral-400 flex-shrink-0" />
+                <Hash className="h-5 w-5 text-neutral-400 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold text-neutral-100">Container ID</div>
                   <button
@@ -116,7 +112,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
 
               {/* Ports */}
               <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
-                <Network className="h-5 w-5 text-neutral-400 flex-shrink-0" />
+                <Network className="h-5 w-5 text-neutral-400 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold text-neutral-100">Ports</div>
                   <div className="font-mono text-sm text-neutral-200 truncate">
@@ -136,7 +132,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
 
               {/* Branch */}
               <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
-                <GitBranch className="h-5 w-5 text-neutral-400 flex-shrink-0" />
+                <GitBranch className="h-5 w-5 text-neutral-400 shrink-0" />
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold text-neutral-100">Branch</div>
                   <div className="font-mono text-sm text-neutral-200 truncate">
