@@ -26,6 +26,7 @@ export const ROUTES = {
 
   AUTH_SIGNIN: "/auth/signin",
   AUTH_CALLBACK: "/auth/callback",
+  AUTH_LOGOUT: "/auth/logout",
 
   DASHBOARD: "/dashboard",
   DASHBOARD_PROJECTS: "/dashboard/projects",

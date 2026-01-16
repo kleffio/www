@@ -11,8 +11,9 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - VITE_AUTH_CLIENT_ID=8qNA2sSV88fusOocZcMj6GirTLWYygdAXnmtLUfe
-      - VITE_BACKEND_URL=http://localhost:8080
+      - VITE_AUTH_CLIENT_ID=${VITE_AUTH_CLIENT_ID}
+      - VITE_BACKEND_URL=${VITE_BACKEND_URL:-http://localhost:8080}
+      - VITE_USE_BFF=${VITE_USE_BFF:-true}
 
   project-management-service:
     build:
@@ -70,7 +71,6 @@ services:
     volumes:
       - billing_data:/var/lib/postgresql/data
 
-
   user-service:
     build:
       context: ./user-service
@@ -79,13 +79,28 @@ services:
     ports:
       - "8082:8080"
     environment:
+      # HTTP Server
       - HTTP_ADDR=:8080
+      
+      # Authentik Configuration
       - AUTHENTIK_BASE_URL=${AUTHENTIK_BASE_URL:-http://authentik:9000}
       - AUTHENTIK_API_TOKEN=${AUTHENTIK_API_TOKEN}
+      
+      # OAuth Credentials
+      - AUTHENTIK_CLIENT_ID=${AUTHENTIK_CLIENT_ID}
+      - AUTHENTIK_CLIENT_SECRET=${AUTHENTIK_CLIENT_SECRET}
+      
+      # Database
       - POSTGRES_USER_DSN=postgres://user:pass@user-service-postgres:5432/userservice?sslmode=disable
       - POSTGRES_AUDIT_DSN=postgres://user:pass@user-service-postgres:5432/userservice?sslmode=disable
+      
+      # Redis for BFF Sessions
+      - REDIS_URL=redis://user-service-redis:6379/0
+      - SESSION_TTL_HOURS=24
     depends_on:
       user-service-postgres:
+        condition: service_healthy
+      user-service-redis:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
@@ -123,6 +138,22 @@ services:
       retries: 5
       start_period: 10s
 
+  user-service-redis:
+    image: redis:7-alpine
+    container_name: user-service-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - user_service_redis_data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
   deployment-service:
     build:
       context: ./deployment-service
@@ -150,6 +181,7 @@ services:
       - "5435:5432"
     volumes:
       - deployment_data:/var/lib/postgresql/data
+
   observability-service:
     build:
       context: ./observability-service
@@ -180,4 +212,5 @@ volumes:
   project_management_data:
   deployment_data:
   user_service_postgres_data:
+  user_service_redis_data:
   billing_data:

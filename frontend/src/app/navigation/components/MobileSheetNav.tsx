@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { MenuIcon, ChevronDown, Settings, LogOut, LayoutDashboard, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import {
   Sheet,
@@ -14,7 +15,6 @@ import {
 
 import { Button } from "@shared/ui/Button";
 import { cn } from "@shared/lib/utils";
-import { logoutEverywhere } from "@features/users/api/logout";
 import type { MegaMenuSection } from "../Navigation";
 import { MEGA_MENU_SECTIONS, SIMPLE_NAV_LINKS } from "../Navigation";
 import { ROUTES } from "@app/routes/routes";
@@ -197,12 +197,14 @@ const MegaMenuSectionItem = React.memo(
 MegaMenuSectionItem.displayName = "MegaMenuSectionItem";
 
 const AuthenticatedSection = React.memo(({ onNavigate }: { onNavigate: () => void }) => {
-  const { auth, displayName, email, initial, avatarUrl } = useUser();
+  const { displayName, email, initial, avatarUrl } = useUser();
 
-  const handleLogout = React.useCallback(async () => {
+  const navigate = useNavigate();
+
+  const handleLogout = React.useCallback(() => {
     onNavigate();
-    await logoutEverywhere(auth);
-  }, [onNavigate, auth]);
+    navigate("/auth/logout");
+  }, [onNavigate, navigate]);
 
   return (
     <div className="space-y-3 px-2 pb-2">

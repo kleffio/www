@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -70,6 +71,9 @@ func (v *TokenValidator) ValidateToken(ctx context.Context, bearerToken string) 
 	if ui.Sub == "" {
 		return nil, fmt.Errorf("missing sub claim")
 	}
+
+	log.Printf("DEBUG: Token validation - sub=%s email=%s preferred_username=%s",
+		ui.Sub, ui.Email, ui.PreferredUsername)
 
 	return &port.TokenClaims{
 		Sub:               ui.Sub,

@@ -1,29 +1,43 @@
 import type { AuthContextProps } from "react-oidc-context";
+import { logoutSession } from "./authService";
+
+let isLoggingOut = false;
 
 export async function logoutEverywhere(auth: AuthContextProps) {
-  const endSessionEndpoint =
-    auth.settings?.metadata?.end_session_endpoint ??
-    `${auth.settings?.authority?.replace(/\/+$/, "")}/end-session/`;
+  if (isLoggingOut) return;
 
-  const postLogout = `${window.location.origin}/`;
+  isLoggingOut = true;
 
   try {
+    try {
+      await logoutSession();
+    } catch (e) {
+      const err = e as { response?: { status?: number }; message?: string };
+
+      if (err.response?.status === 404 || err.message?.includes("no session")) {
+        console.log("No backend session to clear");
+      }
+    }
+
     await auth.removeUser();
 
-    if (auth.signoutRedirect) {
-      await auth.signoutRedirect({ post_logout_redirect_uri: postLogout });
-      return;
-    }
+    const idToken = auth.user?.id_token;
+    if (idToken) {
+      const origin = window.location.origin;
+      const logoutUrl = `https://auth.kleff.io/application/o/kleff/end-session/?id_token_hint=${encodeURIComponent(
+        idToken
+      )}&post_logout_redirect_uri=${encodeURIComponent(origin)}`;
 
-    if (endSessionEndpoint) {
-      const url = new URL(endSessionEndpoint);
-      if (auth.user?.id_token) url.searchParams.set("id_token_hint", auth.user.id_token);
-      url.searchParams.set("post_logout_redirect_uri", postLogout);
-
-      window.location.assign(url.toString());
-      return;
+      window.location.href = logoutUrl;
+    } else {
+      window.location.href = "/";
     }
-  } finally {
-    window.location.assign("/");
+  } catch (error) {
+    console.error("Logout error:", error);
+
+    await auth.removeUser();
+
+    isLoggingOut = false;
+    window.location.href = "/";
   }
 }

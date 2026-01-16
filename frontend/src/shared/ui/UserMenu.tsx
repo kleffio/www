@@ -4,7 +4,6 @@ import { useAuth } from "react-oidc-context";
 import { LogOut, Settings, LayoutDashboard } from "lucide-react";
 import { cn } from "@shared/lib/utils";
 import { Button } from "@shared/ui/Button";
-import { logoutEverywhere } from "@features/users/api/logout";
 import { UserAvatar } from "./UserAvatar";
 import { ROUTES } from "@app/routes/routes";
 import { useUser } from "@features/users/hooks/useUser";
@@ -44,9 +43,9 @@ export function UserMenu({
 
   if (!auth.isAuthenticated) return null;
 
-  const handleSignOut = async () => {
+  const handleSignOut = () => {
     setMenuOpen(false);
-    await logoutEverywhere(auth);
+    navigate("/auth/logout");
   };
 
   const handleOpenSettings = () => {

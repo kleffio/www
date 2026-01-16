@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
@@ -25,10 +24,10 @@ type AuthentikManager struct {
 
 var _ port.AuthentikUserManager = (*AuthentikManager)(nil)
 
-func NewAuthentikManager(baseURL string) *AuthentikManager {
+func NewAuthentikManager(baseURL string, apiToken string) *AuthentikManager {
 	return &AuthentikManager{
 		baseURL:  strings.TrimRight(baseURL, "/"),
-		apiToken: os.Getenv("AUTHENTIK_API_TOKEN"),
+		apiToken: apiToken,
 		http: &http.Client{
 			Timeout: 10 * time.Second,
 		},
@@ -39,62 +38,74 @@ type updateUsernameRequest struct {
 	Username string `json:"username"`
 }
 
-type authentikUserList struct {
-	Results []struct {
-		PK    int    `json:"pk"`
-		Email string `json:"email"`
-	} `json:"results"`
+type authentikUser struct {
+	PK       int    `json:"pk"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	UID      string `json:"uid"`
 }
 
-func (m *AuthentikManager) ResolveUserID(ctx context.Context, email string) (string, error) {
+type authentikUserList struct {
+	Results []authentikUser `json:"results"`
+}
+
+func (m *AuthentikManager) resolveUserPK(ctx context.Context, authentikUUID string) (int, error) {
 	if m.apiToken == "" {
-		return "", fmt.Errorf("AUTHENTIK_API_TOKEN not configured")
+		return 0, fmt.Errorf("AUTHENTIK_API_TOKEN not configured")
 	}
-	email = strings.TrimSpace(email)
-	if email == "" {
-		return "", fmt.Errorf("email is empty")
+
+	authentikUUID = strings.TrimSpace(authentikUUID)
+	if authentikUUID == "" {
+		return 0, fmt.Errorf("authentik UUID is empty")
 	}
 
 	listURL := fmt.Sprintf(
-		"%s/api/v3/core/users/?email=%s",
+		"%s/api/v3/core/users/?uid=%s",
 		m.baseURL,
-		url.QueryEscape(email),
+		url.QueryEscape(authentikUUID),
 	)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, listURL, nil)
 	if err != nil {
-		return "", fmt.Errorf("failed to create authentik lookup request: %w", err)
+		return 0, fmt.Errorf("failed to create authentik lookup request: %w", err)
 	}
 	req.Header.Set("Authorization", "Bearer "+m.apiToken)
 
 	resp, err := m.http.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("authentik lookup request failed: %w", err)
+		return 0, fmt.Errorf("authentik lookup request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound {
-		return "", fmt.Errorf("user not found in authentik")
+		return 0, fmt.Errorf("user not found in authentik")
+	}
+	if resp.StatusCode == http.StatusForbidden {
+		return 0, fmt.Errorf("authentik API token lacks permissions (403 Forbidden) - ensure token is for an admin user")
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return "", fmt.Errorf("authentik lookup returned status %d", resp.StatusCode)
+		return 0, fmt.Errorf("authentik lookup returned status %d", resp.StatusCode)
 	}
 
 	var list authentikUserList
 	if err := json.NewDecoder(resp.Body).Decode(&list); err != nil {
-		return "", fmt.Errorf("failed to decode authentik user list: %w", err)
+		return 0, fmt.Errorf("failed to decode authentik user list: %w", err)
 	}
 	if len(list.Results) == 0 {
-		return "", fmt.Errorf("user not found in authentik")
+		return 0, fmt.Errorf("user not found in authentik (uid=%s)", authentikUUID)
 	}
 
-	return fmt.Sprintf("%d", list.Results[0].PK), nil
+	return list.Results[0].PK, nil
 }
 
-// UpdateUsername updates a user's username in Authentik
-func (m *AuthentikManager) UpdateUsername(ctx context.Context, userID string, username string) error {
+func (m *AuthentikManager) UpdateUsername(ctx context.Context, authentikUUID string, username string) error {
 	if m.apiToken == "" {
 		return fmt.Errorf("AUTHENTIK_API_TOKEN not configured")
+	}
+
+	pk, err := m.resolveUserPK(ctx, authentikUUID)
+	if err != nil {
+		return fmt.Errorf("failed to resolve user PK from UUID %s: %w", authentikUUID, err)
 	}
 
 	reqBody := updateUsernameRequest{
@@ -106,8 +117,8 @@ func (m *AuthentikManager) UpdateUsername(ctx context.Context, userID string, us
 		return fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	url := fmt.Sprintf("%s/api/v3/core/users/%s/", m.baseURL, userID)
-	req, err := http.NewRequestWithContext(ctx, http.MethodPatch, url, bytes.NewBuffer(jsonData))
+	updateURL := fmt.Sprintf("%s/api/v3/core/users/%d/", m.baseURL, pk)
+	req, err := http.NewRequestWithContext(ctx, http.MethodPatch, updateURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return fmt.Errorf("failed to create request: %w", err)
 	}
@@ -122,7 +133,11 @@ func (m *AuthentikManager) UpdateUsername(ctx context.Context, userID string, us
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("user not found in Authentik")
+		return fmt.Errorf("user not found in Authentik (PK=%d)", pk)
+	}
+
+	if resp.StatusCode == http.StatusForbidden {
+		return fmt.Errorf("authentik API token lacks permissions (403 Forbidden) - ensure token is for an admin user")
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {

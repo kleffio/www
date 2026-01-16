@@ -14,7 +14,6 @@ import { Button } from "@shared/ui/Button";
 import { UserMenu } from "@shared/ui/UserMenu";
 import { cn } from "@shared/lib/utils";
 import { useUser } from "@features/users/hooks/useUser";
-import { logoutEverywhere } from "@features/users/api/logout";
 import { DASHBOARD_NAV_ITEMS, isNavItemActive } from "@app/navigation/Navigation";
 import { ROUTES } from "@app/routes/routes";
 import { Brand } from "@shared/ui/Brand";
@@ -63,7 +62,7 @@ function MobileHeader() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { auth, displayName, email, initial, avatarUrl, isAuthenticated } = useUser();
+  const { displayName, email, initial, avatarUrl, isAuthenticated } = useUser();
 
   useEffect(() => {
     if (!open) return;
@@ -78,10 +77,10 @@ function MobileHeader() {
     navigate(ROUTES.SETTINGS);
   }, [navigate]);
 
-  const handleLogout = useCallback(async () => {
+  const handleLogout = useCallback(() => {
     setOpen(false);
-    await logoutEverywhere(auth);
-  }, [auth]);
+    navigate("/auth/logout");
+  }, [navigate]);
 
   const closeSheet = useCallback(() => setOpen(false), []);
 

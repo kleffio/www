@@ -16,6 +16,8 @@ import { FAQPage } from "@pages/legal/FAQPage";
 import { PrivacyPolicyPage } from "@pages/legal/PrivacyPolicyPage";
 import { TermsOfServicePage } from "@pages/legal/TermsOfServicePage";
 import { AuthPage } from "@pages/auth/AuthPage";
+import { LogoutPage } from "@pages/auth/LogoutPage";
+import { SilentLogoutCallback } from "@pages/auth/SilentLogoutCallback";
 
 export const router = createBrowserRouter([
   {
@@ -45,7 +47,11 @@ export const router = createBrowserRouter([
           },
           {
             path: "silent-callback",
-            element: null // Literally here as placeholder btw
+            element: <SilentLogoutCallback />
+          },
+          {
+            path: "logout",
+            element: <LogoutPage />
           }
         ]
       }

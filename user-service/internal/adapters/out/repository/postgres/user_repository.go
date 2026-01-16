@@ -167,38 +167,79 @@ func (r *PostgresUserRepository) UsernameExists(ctx context.Context, username st
 }
 
 func (r *PostgresUserRepository) Save(ctx context.Context, user *domain.User) error {
-	query := `
-		INSERT INTO users (id, authentik_id, email, email_verified, login_username,
-		                   username, display_name, avatar_url, bio, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-		ON CONFLICT (id) DO UPDATE SET
-			authentik_id   = EXCLUDED.authentik_id,
-			email          = EXCLUDED.email,
-			email_verified = EXCLUDED.email_verified,
-			login_username = EXCLUDED.login_username,
-			username       = EXCLUDED.username,
-			display_name   = EXCLUDED.display_name,
-			avatar_url     = EXCLUDED.avatar_url,
-			bio            = EXCLUDED.bio,
-			updated_at     = EXCLUDED.updated_at
-	`
-
-	_, err := r.db.ExecContext(ctx, query,
-		user.ID,
-		nullString(user.AuthentikID),
-		user.Email,
-		user.EmailVerified,
-		nullString(user.LoginUsername),
-		user.Username,
-		user.DisplayName,
-		nullStringPtr(user.AvatarURL),
-		nullStringPtr(user.Bio),
-		user.CreatedAt,
-		user.UpdatedAt,
-	)
-
+	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
-		return fmt.Errorf("save failed: %w", err)
+		return fmt.Errorf("failed to start transaction: %w", err)
+	}
+	defer tx.Rollback()
+
+	checkQuery := `
+		SELECT id FROM users 
+		WHERE id = $1 OR email = $2
+		FOR UPDATE
+	`
+	var existingID string
+	err = tx.QueryRowContext(ctx, checkQuery, user.ID, user.Email).Scan(&existingID)
+
+	if err == sql.ErrNoRows {
+		insertQuery := `
+			INSERT INTO users (id, authentik_id, email, email_verified, login_username,
+			                   username, display_name, avatar_url, bio, created_at, updated_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+		`
+		_, err = tx.ExecContext(ctx, insertQuery,
+			user.ID,
+			nullString(user.AuthentikID),
+			user.Email,
+			user.EmailVerified,
+			nullString(user.LoginUsername),
+			user.Username,
+			user.DisplayName,
+			nullStringPtr(user.AvatarURL),
+			nullStringPtr(user.Bio),
+			user.CreatedAt,
+			user.UpdatedAt,
+		)
+		if err != nil {
+			return fmt.Errorf("insert failed: %w", err)
+		}
+	} else if err != nil {
+		return fmt.Errorf("check failed: %w", err)
+	} else {
+		updateQuery := `
+			UPDATE users SET
+				authentik_id   = $2,
+				email          = $3,
+				email_verified = $4,
+				login_username = $5,
+				username       = $6,
+				display_name   = $7,
+				avatar_url     = $8,
+				bio            = $9,
+				updated_at     = $10
+			WHERE id = $1
+		`
+		_, err = tx.ExecContext(ctx, updateQuery,
+			existingID, // Use the existing ID
+			nullString(user.AuthentikID),
+			user.Email,
+			user.EmailVerified,
+			nullString(user.LoginUsername),
+			user.Username,
+			user.DisplayName,
+			nullStringPtr(user.AvatarURL),
+			nullStringPtr(user.Bio),
+			user.UpdatedAt,
+		)
+		if err != nil {
+			return fmt.Errorf("update failed: %w", err)
+		}
+		// Update the user object with the actual ID
+		user.ID = domain.ID(existingID)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit failed: %w", err)
 	}
 
 	log.Printf("[postgres] saved user %s", user.ID)

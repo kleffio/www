@@ -26,6 +26,5 @@ type TokenValidator interface {
 }
 
 type AuthentikUserManager interface {
-	UpdateUsername(ctx context.Context, userID string, username string) error
-	ResolveUserID(ctx context.Context, uuid string) (string, error)
+	UpdateUsername(ctx context.Context, authentikUUID string, username string) error
 }

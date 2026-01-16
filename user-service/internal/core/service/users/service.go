@@ -73,82 +73,107 @@ func (s *Service) EnsureUserFromToken(ctx context.Context, claims *port.TokenCla
 		return nil, fmt.Errorf("failed to check existing user: %w", err)
 	}
 
-	now := time.Now().UTC()
-
-	if user == nil {
-		username := s.generateUniqueUsername(ctx, claims)
-		displayName := s.generateDisplayName(claims)
-
-		var authentikID string
-		if s.authentikManager != nil && claims.Email != "" {
-			if uuid, err := s.authentikManager.ResolveUserID(ctx, claims.Email); err != nil {
-				log.Printf("failed to resolve authentik uuid for %s: %v", claims.Email, err)
+	if user != nil {
+		if user.AuthentikID == "" {
+			user.AuthentikID = claims.Sub
+			user.UpdatedAt = time.Now().UTC()
+			if err := s.repo.Save(ctx, user); err != nil {
+				log.Printf("failed to save authentik id for user %s: %v", user.ID, err)
 			} else {
-				authentikID = uuid
+				log.Printf("backfilled authentik_id for user %s: %s", user.ID, claims.Sub)
 			}
 		}
 
-		log.Printf(authentikID)
+		updated := false
+		oldUser := *user
 
-		user = &domain.User{
-			ID:            domain.ID(claims.Sub),
-			AuthentikID:   authentikID,
-			Email:         claims.Email,
-			EmailVerified: claims.EmailVerified,
-			LoginUsername: claims.PreferredUsername,
-			Username:      username,
-			DisplayName:   displayName,
-			CreatedAt:     now,
-			UpdatedAt:     now,
+		if user.Email != claims.Email {
+			user.Email = claims.Email
+			updated = true
+		}
+		if user.EmailVerified != claims.EmailVerified {
+			user.EmailVerified = claims.EmailVerified
+			updated = true
 		}
 
-		if err := s.repo.Save(ctx, user); err != nil {
-			return nil, fmt.Errorf("failed to create user: %w", err)
+		if claims.PreferredUsername != "" && user.LoginUsername != claims.PreferredUsername {
+			user.LoginUsername = claims.PreferredUsername
+			updated = true
+
+			if user.Username == normalizeUsername(user.LoginUsername) {
+				newNormalizedUsername := normalizeUsername(claims.PreferredUsername)
+				if newNormalizedUsername != "" {
+					// Check if new username is available
+					exists, err := s.repo.UsernameExists(ctx, newNormalizedUsername, user.ID)
+					if err != nil {
+						log.Printf("failed to check username availability: %v", err)
+					} else if !exists {
+						log.Printf("syncing username from Authentik: %s → %s", user.Username, newNormalizedUsername)
+						user.Username = newNormalizedUsername
+						updated = true
+					} else {
+						log.Printf("cannot sync username from Authentik - %s already taken", newNormalizedUsername)
+					}
+				}
+			}
 		}
 
-		log.Printf("created new user: id=%s username=%s", user.ID, user.Username)
+		if updated {
+			user.UpdatedAt = time.Now().UTC()
+			if err := s.repo.Save(ctx, user); err != nil {
+				return nil, fmt.Errorf("failed to update user: %w", err)
+			}
+			s.detectAndLogChanges(ctx, &oldUser, user)
+			log.Printf("updated user identity from Authentik: id=%s", user.ID)
+		}
+
 		return user, nil
 	}
 
-	if user.AuthentikID == "" && s.authentikManager != nil && claims.Email != "" {
-		if uuid, err := s.authentikManager.ResolveUserID(ctx, claims.Email); err != nil {
-			log.Printf("failed to backfill authentik uuid for %s: %v", claims.Email, err)
-		} else {
-			user.AuthentikID = uuid
-			user.UpdatedAt = now
-			if err := s.repo.Save(ctx, user); err != nil {
-				log.Printf("failed to save authentik uuid for user %s: %v", user.ID, err)
+	now := time.Now().UTC()
+
+	existingByEmail, err := s.repo.GetByUsername(ctx, claims.Email)
+	if err != nil {
+		log.Printf("error checking user by email: %v", err)
+	}
+
+	if existingByEmail != nil {
+		log.Printf("WARNING: User with email %s already exists with ID %s, expected %s",
+			claims.Email, existingByEmail.ID, claims.Sub)
+		return existingByEmail, nil
+	}
+
+	username := s.generateUniqueUsername(ctx, claims)
+	displayName := s.generateDisplayName(claims)
+
+	authentikID := claims.Sub
+
+	log.Printf("Creating user: sub=%s (this is the Authentik UUID)", authentikID)
+
+	user = &domain.User{
+		ID:            domain.ID(claims.Sub),
+		AuthentikID:   authentikID,
+		Email:         claims.Email,
+		EmailVerified: claims.EmailVerified,
+		LoginUsername: claims.PreferredUsername,
+		Username:      username,
+		DisplayName:   displayName,
+		CreatedAt:     now,
+		UpdatedAt:     now,
+	}
+
+	if err := s.repo.Save(ctx, user); err != nil {
+		if strings.Contains(err.Error(), "duplicate key") {
+			log.Printf("duplicate key error for user %s, attempting to fetch existing user", claims.Sub)
+			user, fetchErr := s.repo.GetByID(ctx, domain.ID(claims.Sub))
+			if fetchErr == nil && user != nil {
+				return user, nil
 			}
 		}
+		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	// Existing user - update identity fields if changed
-	updated := false
-	oldUser := *user
-
-	if user.Email != claims.Email {
-		user.Email = claims.Email
-		updated = true
-	}
-	if user.EmailVerified != claims.EmailVerified {
-		user.EmailVerified = claims.EmailVerified
-		updated = true
-	}
-	if claims.PreferredUsername != "" && user.LoginUsername != claims.PreferredUsername {
-		user.LoginUsername = claims.PreferredUsername
-		updated = true
-	}
-
-	if updated {
-		user.UpdatedAt = now
-		if err := s.repo.Save(ctx, user); err != nil {
-			return nil, fmt.Errorf("failed to update user: %w", err)
-		}
-
-		s.detectAndLogChanges(ctx, &oldUser, user)
-		log.Printf("updated user identity: id=%s", user.ID)
-	}
-
+	log.Printf("created new user: id=%s username=%s authentik_id=%s", user.ID, user.Username, user.AuthentikID)
 	return user, nil
 }
 
