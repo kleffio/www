@@ -15,9 +15,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	istionetworking "istio.io/client-go/pkg/apis/networking/v1beta1"
-	istioapi "istio.io/api/networking/v1beta1"
-	
+	// Import Gateway API types
+	gatewayv1 "sigs.k8s.io/gateway-api/apis/v1"
+
 	kleffv1 "kleff.io/api/v1"
 )
 
@@ -30,7 +30,7 @@ type WebAppReconciler struct {
 //+kubebuilder:rbac:groups=kleff.kleff.io,resources=webapps/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups="",resources=services,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=networking.istio.io,resources=virtualservices,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=gateway.networking.k8s.io,resources=httproutes,verbs=get;list;watch;create;update;patch;delete
 
 func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
@@ -84,7 +84,6 @@ func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 			{Name: "acr-creds"},
 		}
 
-		// Build environment variables from WebApp spec
 		var envVars []corev1.EnvVar
 		if webapp.Spec.EnvVariables != nil {
 			for key, value := range webapp.Spec.EnvVariables {
@@ -119,9 +118,6 @@ func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		logger.Error(err, "Failed to reconcile Deployment")
 		return r.updateStatus(ctx, webapp, metav1.ConditionFalse, "DeploymentFailed", err.Error())
 	}
-	if op != controllerutil.OperationResultNone {
-		logger.Info("Deployment reconciled", "operation", op)
-	}
 
 	// 3. Sync Service
 	service := &corev1.Service{
@@ -147,46 +143,48 @@ func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		return r.updateStatus(ctx, webapp, metav1.ConditionFalse, "ServiceFailed", err.Error())
 	}
 
-	// 4. Sync VirtualService
-	virtualService := &istionetworking.VirtualService{
-		ObjectMeta: metav1.ObjectMeta{Name: webapp.Name + "-vs", Namespace: webapp.Namespace},
+	// ---------------------------------------------------------
+	// 4. Sync HTTPRoute (Envoy Gateway)
+	// ---------------------------------------------------------
+	httpRoute := &gatewayv1.HTTPRoute{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      webapp.Name + "-route",
+			Namespace: webapp.Namespace,
+		},
 	}
 
-	op, err = controllerutil.CreateOrUpdate(ctx, r.Client, virtualService, func() error {
-		// Apply labels to VirtualService metadata
-		virtualService.Labels = labels
-
-		host := fmt.Sprintf("%s.kleff.io", webapp.Name)
-		
-		if virtualService.Annotations == nil {
-			virtualService.Annotations = make(map[string]string)
+	op, err = controllerutil.CreateOrUpdate(ctx, r.Client, httpRoute, func() error {
+		// Set Annotations for ExternalDNS
+		if httpRoute.Annotations == nil {
+			httpRoute.Annotations = make(map[string]string)
 		}
-		
-		virtualService.Annotations["external-dns.alpha.kubernetes.io/target"] = "66.130.187.229"
-		virtualService.Annotations["external-dns.alpha.kubernetes.io/cloudflare-proxied"] = "false"
-		virtualService.Annotations["external-dns.alpha.kubernetes.io/ttl"] = "3600"
+		httpRoute.Annotations["external-dns.alpha.kubernetes.io/target"] = "66.130.187.229"
+		httpRoute.Annotations["external-dns.alpha.kubernetes.io/cloudflare-proxied"] = "false"
+		httpRoute.Annotations["external-dns.alpha.kubernetes.io/ttl"] = "3600"
 
-		virtualService.Spec = istioapi.VirtualService{
-			Hosts:    []string{host},
-			Gateways: []string{"istio-system/kleff-gateway"},
-			Http: []*istioapi.HTTPRoute{
-				{
-					Match: []*istioapi.HTTPMatchRequest{
-						{
-							Uri: &istioapi.StringMatch{
-								MatchType: &istioapi.StringMatch_Prefix{
-									Prefix: "/",
-								},
-							},
-						},
-					},
-					Route: []*istioapi.HTTPRouteDestination{
-						{
-							Destination: &istioapi.Destination{
-								Host: webapp.Name,
-								Port: &istioapi.PortSelector{
-									Number: 80,
-								},
+		// Define Parent Reference (The Gateway)
+		gwNamespace := gatewayv1.Namespace("envoy-gateway-system")
+		httpRoute.Spec.CommonRouteSpec.ParentRefs = []gatewayv1.ParentReference{
+			{
+				Name:      "prod-web",
+				Namespace: &gwNamespace,
+			},
+		}
+
+		// Define Hostname
+		hostname := gatewayv1.Hostname(fmt.Sprintf("%s.kleff.io", webapp.Name))
+		httpRoute.Spec.Hostnames = []gatewayv1.Hostname{hostname}
+
+		// Define Rules (Points to the Service created in Step 3)
+		port := gatewayv1.PortNumber(80)
+		httpRoute.Spec.Rules = []gatewayv1.HTTPRouteRule{
+			{
+				BackendRefs: []gatewayv1.HTTPBackendRef{
+					{
+						BackendRef: gatewayv1.BackendRef{
+							BackendObjectReference: gatewayv1.BackendObjectReference{
+								Name: gatewayv1.ObjectName(webapp.Name),
+								Port: &port,
 							},
 						},
 					},
@@ -194,21 +192,21 @@ func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 			},
 		}
 
-		return controllerutil.SetControllerReference(webapp, virtualService, r.Scheme)
+		return controllerutil.SetControllerReference(webapp, httpRoute, r.Scheme)
 	})
 
 	if err != nil {
-		logger.Error(err, "Failed to reconcile VirtualService")
-		return r.updateStatus(ctx, webapp, metav1.ConditionFalse, "VirtualServiceFailed", err.Error())
+		logger.Error(err, "Failed to reconcile HTTPRoute")
+		return r.updateStatus(ctx, webapp, metav1.ConditionFalse, "HTTPRouteFailed", err.Error())
 	}
-	
+
 	if op != controllerutil.OperationResultNone {
-		logger.Info("VirtualService reconciled", "operation", op)
+		logger.Info("HTTPRoute reconciled", "operation", op)
 	}
 
 	// 5. Update Status
 	if deployment.Status.ReadyReplicas > 0 {
-		return r.updateStatus(ctx, webapp, metav1.ConditionTrue, "Available", "WebApp is running and exposed")
+		return r.updateStatus(ctx, webapp, metav1.ConditionTrue, "Available", "WebApp is running and exposed via HTTPRoute")
 	} else {
 		return r.updateStatus(ctx, webapp, metav1.ConditionFalse, "Progressing", "Waiting for pods to be ready")
 	}
@@ -245,6 +243,6 @@ func (r *WebAppReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&kleffv1.WebApp{}).
 		Owns(&appsv1.Deployment{}).
 		Owns(&corev1.Service{}).
-		Owns(&istionetworking.VirtualService{}). 
+		Owns(&gatewayv1.HTTPRoute{}).
 		Complete(r)
 }

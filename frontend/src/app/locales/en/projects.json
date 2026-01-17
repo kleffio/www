@@ -61,6 +61,21 @@
       "ports": "PORTS",
       "created_at": "CREATED AT"
     },
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "visit_app": "Visit App",
+    "manage": "Manage",
+    "modal": {
+      "source": "Source",
+      "runtime": "Runtime",
+      "repository": "Repository",
+      "image_version": "Image Version",
+      "deployment_date": "Deployment Date",
+      "uptime": "Uptime",
+      "actions": "Actions",
+      "restart": "Restart",
+      "stop": "Stop",
+      "edit_env": "Edit Environment Variables",
+      "delete": "Delete"
+    }
   }
 }
