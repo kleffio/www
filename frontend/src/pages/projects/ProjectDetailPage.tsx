@@ -23,21 +23,22 @@ import { BillingModal } from "@features/billing/components/viewBillsModal";
 import { useUsername } from "@features/users/api/getUsernameById";
 import InvoiceTable from "@features/billing/components/InvoiceTable";
 import ProjectMetricsCard from "@features/observability/components/ProjectMetricsCard";
+import { SimpleContainerLogsSheet } from "@features/projects/components/SimpleContainerLogsSheet";
 
 const translations = {
   en: enTranslations,
   fr: frTranslations
 };
 
-// Matches backend sanitization: lowercase, replace spaces/underscores with dashes, trim dashes
-const sanitizeAppName = (name: string) => {
-  if (!name) return "";
-  return name
-    .toLowerCase()
-    .replace(/_/g, '-')      // Replace underscores with dashes
-    .replace(/\s+/g, '-')    // Replace spaces with dashes
-    .replace(/^-+|-+$/g, ''); // Trim leading/trailing dashes
-};
+
+// const sanitizeAppName = (name: string) => {
+//   if (!name) return "";
+//   return name
+//     .toLowerCase()
+//     .replace(/_/g, '-')      
+//     .replace(/\s+/g, '-')    
+//     .replace(/^-+|-+$/g, ''); 
+// };
 
 export function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -56,9 +57,17 @@ export function ProjectDetailPage() {
   const [selectedContainer, setSelectedContainer] = useState<Container | null>(null);
   const [locale] = useState(getLocale());
   const t = translations[locale].projectDetail;
+
+  const [isLogsOpen, setIsLogsOpen] = useState(false);
+  const [logsContainer, setLogsContainer] = useState<Container | null>(null);
   
   const id = project?.ownerId || "";
   const ownerUser = useUsername(id);
+
+  const handleViewLogs = (container: Container) => {
+  setLogsContainer(container);
+  setIsLogsOpen(true);
+  };
 
   const handleEditEnv = (container: Container) => {
     console.log('handleEditEnv called with container:', container.name);
@@ -222,6 +231,7 @@ export function ProjectDetailPage() {
                     setSelectedContainer(container);
                     setIsDetailModalOpen(true);
                   }}
+                  onViewLogs={handleViewLogs}
                 />
               ))}
             </div>
@@ -265,6 +275,12 @@ export function ProjectDetailPage() {
         container={selectedContainer}
         onEditEnv={handleEditEnv}
       />
+      <SimpleContainerLogsSheet
+      container={logsContainer}
+      projectId={projectId || ""}
+      open={isLogsOpen}
+      onOpenChange={setIsLogsOpen}
+/>
     </section>
   );
 }

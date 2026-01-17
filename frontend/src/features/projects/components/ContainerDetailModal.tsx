@@ -2,13 +2,13 @@ import React from "react";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Button } from "@shared/ui/Button";
 import { Badge } from "@shared/ui/Badge";
-import { MiniCard } from "@shared/ui/MiniCard";
-import { X, ExternalLink, Settings, Hash, Box, Code, GitBranch, Calendar, Server, Copy, Play, Square, Trash2, Network } from "lucide-react";
-import { formatRepoUrl, formatTimeAgo, formatPort } from "@shared/lib/utils";
+// import { MiniCard } from "@shared/ui/MiniCard";
+import { X, ExternalLink, Settings, Hash, Box, Code, GitBranch, Copy, Play, Square, Trash2, Network } from "lucide-react";
+import { formatRepoUrl, formatPort } from "@shared/lib/utils";
 import type { Container } from "@features/projects/types/Container";
-import enTranslations from "@app/locales/en/projects.json";
-import frTranslations from "@app/locales/fr/projects.json";
-import { getLocale } from "@app/locales/locale";
+// import enTranslations from "@app/locales/en/projects.json";
+// import frTranslations from "@app/locales/fr/projects.json";
+// import { getLocale } from "@app/locales/locale";
 
 interface ContainerDetailModalProps {
   isOpen: boolean;

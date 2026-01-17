@@ -1,15 +1,16 @@
 import React from "react";
 import { Button } from "@shared/ui/Button";
 import { Badge } from "@shared/ui/Badge";
-import { Box, ExternalLink } from "lucide-react";
+import { Box, ExternalLink, FileText } from "lucide-react";
 import type { Container } from "@features/projects/types/Container";
 
 interface ContainerStatusCardProps {
   container: Container;
   onManage: (container: Container) => void;
+  onViewLogs?: (container: Container) => void; 
 }
 
-export function ContainerStatusCard({ container, onManage }: ContainerStatusCardProps) {
+export function ContainerStatusCard({ container, onManage, onViewLogs }: ContainerStatusCardProps) {
   const appUrl = `https://${container.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}.kleff.io`;
 
   const handleVisitApp = (e: React.MouseEvent) => {
@@ -48,6 +49,20 @@ export function ContainerStatusCard({ container, onManage }: ContainerStatusCard
 
       {/* Right side: Actions */}
       <div className="flex items-center gap-2">
+        {onViewLogs && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewLogs(container);
+            }}
+            className="h-8 px-3 text-xs text-blue-400 hover:text-blue-300"
+          >
+            <FileText className="mr-1 h-3 w-3" />
+            View Logs
+          </Button>
+        )}
         <Button
           size="sm"
           variant="ghost"
