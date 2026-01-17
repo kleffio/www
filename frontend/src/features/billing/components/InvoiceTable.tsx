@@ -50,7 +50,7 @@ export default function InvoiceTable({ projectId }: InvoiceTableProps) {
 
   const handlePay = () => {
     if (selectedInvoice) {
-      handlePayNow(selectedInvoice.projectId, selectedInvoice.invoiceId, setPayError, setPayLoading);
+      handlePayNow( selectedInvoice.invoiceId, setPayError, setPayLoading);
     }
   };
 

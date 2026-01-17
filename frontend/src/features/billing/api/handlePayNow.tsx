@@ -1,7 +1,6 @@
 import { client } from "@shared/lib/client";
 
 export const handlePayNow = async (
-  projectId : string,
     invoiceId: string,
   setPayError: (error: string | null) => void,
   setPayLoading: (loading: boolean) => void
@@ -9,14 +8,14 @@ export const handlePayNow = async (
   try {
     setPayError(null);
     setPayLoading(true);
-    const res = await client.post(`/api/v1/billing/pay/${projectId}/`, { invoiceId });
-    if (res.data.checkoutUrl) {
-      window.location.href = res.data.checkoutUrl;
+    const res = await client.post(`/api/v1/billing/pay/${invoiceId}`);
+    if (res.data.url) {
+      window.location.href = res.data.url;
     } else {
-      throw new Error(res.data.message || "No checkout URL returned");
+      throw new Error(res.data.error || "No checkout URL returned");
     }
   } catch (err: any) {
-    setPayError(err?.message || "Unexpected error during payment");
+    setPayError(err?.response?.data?.error || err?.message || "Unexpected error during payment");
   } finally {
     setPayLoading(false);
   }

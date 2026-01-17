@@ -28,5 +28,5 @@ public class Invoice {
     Double subtotal;
     Double taxes;
     Double total;
-    Double totalPaid;
+    Double totalPaid = (double) 0;
 }

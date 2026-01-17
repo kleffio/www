@@ -47,6 +47,7 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     public Invoice createInvoice(Invoice invoice) {
+        invoice.setTotalPaid((double) 0);
         return invoiceRepository.save(invoice);
     }
 
@@ -88,7 +89,7 @@ public class BillingServiceImpl implements BillingService {
 
 
     // Validation for payment
-    public long computeOutstandingCents(String invoiceId, String userId) {
+    public long computeOutstandingCents(String invoiceId) {
 
         // 1. Find the invoice
         Invoice invoice = invoiceRepository.findById(invoiceId)
@@ -110,17 +111,23 @@ public class BillingServiceImpl implements BillingService {
 
         // 4. Calculate outstanding amount (in cents for Stripe)
         long totalCents = (long) (invoice.getTotal()*100);
-        long paidCents = (long) (invoice.getTotalPaid()*100);
+        long paidCents;
+        if (invoice.getTotalPaid() == null){
+            paidCents = 0;
+        }
+        else {
+            paidCents = (long) (invoice.getTotalPaid() * 100);
+
+        }
         long outstandingCents = totalCents - paidCents;
+            if (outstandingCents <= 0) {
+                throw new IllegalArgumentException("No outstanding balance on this invoice");
+            }
 
-        if (outstandingCents <= 0) {
-            throw new IllegalArgumentException("No outstanding balance on this invoice");
-        }
-
-        // 5. Optional: Check for minimum amount
-        if (outstandingCents < 50) { // Stripe minimum is $0.50
-            throw new IllegalArgumentException("Amount too small for payment processing");
-        }
+            // 5. Optional: Check for minimum amount
+            if (outstandingCents < 50) { // Stripe minimum is $0.50
+                throw new IllegalArgumentException("Amount too small for payment processing");
+            }
 
         return outstandingCents;
     }
@@ -182,6 +189,7 @@ public class BillingServiceImpl implements BillingService {
             MEMORY += usageRecord.getMEMORY_GB_HOURS();
             STORAGE += usageRecord.getSTORAGE_GB();
         }
+        invoice.setTotalPaid((double) 0);
         invoice.setTotalCPU((CPU * getPrice("CPU_HOURS").getPrice()));
         invoice.setTotalCPU((MEMORY * getPrice("MEMORY_GB_HOURS").getPrice()));
         invoice.setTotalCPU((STORAGE * getPrice("STORAGE_GB").getPrice()));

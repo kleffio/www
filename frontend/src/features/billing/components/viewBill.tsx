@@ -1,22 +1,40 @@
 import { useState } from 'react';
 import { Button } from "@shared/ui/Button";
 import { Spinner } from "@shared/ui/Spinner";
-import { handlePayNow } from "@features/billing/api/handlePayNow";
+import { client } from '@shared/lib/client';
 
 interface ViewBillModalProps {
   isOpen: boolean;
   onClose: () => void;
   invoiceId: string;
-  projectId: string;
   status: string;
 }
 
-export function ViewBillModal({ isOpen, onClose, invoiceId, projectId, status }: ViewBillModalProps) {
+interface PaymentResponse {
+  url: string;
+  sessionId: string;
+}
+
+export function ViewBillModal({ isOpen, onClose, invoiceId, status }: ViewBillModalProps) {
   const [payLoading, setPayLoading] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
 
-  const handlePay = () => {
-    handlePayNow(projectId, invoiceId, setPayError, setPayLoading);
+  const handlePay = async () => {
+    setPayLoading(true);
+    setPayError(null);
+
+    try {
+      const { data } = await client.post<PaymentResponse>(
+        `/api/v1/billing/pay/${invoiceId}`
+      );
+
+      // Redirect to Stripe
+      window.location.href = data.url;
+      
+    } catch (err: any) {
+      setPayError(err.response?.data?.error || 'Payment failed');
+      setPayLoading(false);
+    }
   };
 
   if (!isOpen) return null;
