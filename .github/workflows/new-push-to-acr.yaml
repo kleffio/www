@@ -3,10 +3,10 @@
 name: Build and Push to ACR
 
 on:
-  push: true
-  #   branches: [ main ]
-  # pull_request:
-  #   branches: [ main ]
+  push: 
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build-and-push:
@@ -38,7 +38,8 @@ jobs:
         with:
           context: ${{ matrix.service.context }}
           # Only push on merge to main, not on PRs (optional but recommended)
-          push: ${{ github.event_name != 'pull_request' }}
+          # push: ${{ github.event_name != 'pull_request' }}
+          push: true
           # Tags with both 'latest' and the specific commit hash
           tags: |
             ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service.tag }}:latest
