@@ -2,22 +2,21 @@ package controller
 
 import (
 	"context"
-	"fmt" // Added for string formatting
+	"fmt"
 
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	istioapi "istio.io/api/networking/v1beta1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	// Import Istio networking types
 	istionetworking "istio.io/client-go/pkg/apis/networking/v1beta1"
+	istioapi "istio.io/api/networking/v1beta1"
 	
 	kleffv1 "kleff.io/api/v1"
 )
@@ -43,18 +42,30 @@ func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
+	// --- DEFINE LABELS ---
+	// We define common labels here to reuse them for Deployment, Pods, and Service.
+	// We inject the ContainerID here so we can find resources by UUID later.
+	labels := map[string]string{
+		"app":        webapp.Name,
+		"controller": "webapp",
+	}
+	if webapp.Spec.ContainerID != "" {
+		labels["container-id"] = webapp.Spec.ContainerID
+	}
+	// ---------------------
+
 	// 2. Sync Deployment
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{Name: webapp.Name, Namespace: webapp.Namespace},
 	}
 
 	op, err := controllerutil.CreateOrUpdate(ctx, r.Client, deployment, func() error {
-		labels := map[string]string{
-			"app":        webapp.Name,
-			"controller": "webapp",
-		}
+		// Update Deployment metadata labels
+		deployment.Labels = labels
 
 		if deployment.CreationTimestamp.IsZero() {
+			// Selector must correspond to the Pod template labels.
+			// Note: We usually keep selectors immutable/simple, but here we match the labels map.
 			deployment.Spec.Selector = &metav1.LabelSelector{MatchLabels: labels}
 		}
 
@@ -64,9 +75,11 @@ func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		if deployment.Spec.Template.ObjectMeta.Labels == nil {
 			deployment.Spec.Template.ObjectMeta.Labels = make(map[string]string)
 		}
+		// Apply labels to the Pod Template
 		for k, v := range labels {
 			deployment.Spec.Template.ObjectMeta.Labels[k] = v
 		}
+
 		deployment.Spec.Template.Spec.ImagePullSecrets = []corev1.LocalObjectReference{
 			{Name: "acr-creds"},
 		}
@@ -116,10 +129,9 @@ func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	}
 
 	op, err = controllerutil.CreateOrUpdate(ctx, r.Client, service, func() error {
-		labels := map[string]string{
-			"app":        webapp.Name,
-			"controller": "webapp",
-		}
+		// Apply labels to Service metadata
+		service.Labels = labels
+
 		service.Spec.Selector = labels
 		service.Spec.Type = corev1.ServiceTypeClusterIP
 		service.Spec.Ports = []corev1.ServicePort{{
@@ -135,63 +147,55 @@ func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		return r.updateStatus(ctx, webapp, metav1.ConditionFalse, "ServiceFailed", err.Error())
 	}
 
-	// ---------------------------------------------------------
-	// 4. Sync VirtualService (Added Logic)
-	// ---------------------------------------------------------
-    // 4. Sync VirtualService
-    virtualService := &istionetworking.VirtualService{
-        ObjectMeta: metav1.ObjectMeta{Name: webapp.Name + "-vs", Namespace: webapp.Namespace},
-    }
+	// 4. Sync VirtualService
+	virtualService := &istionetworking.VirtualService{
+		ObjectMeta: metav1.ObjectMeta{Name: webapp.Name + "-vs", Namespace: webapp.Namespace},
+	}
 
-    op, err = controllerutil.CreateOrUpdate(ctx, r.Client, virtualService, func() error {
-        host := fmt.Sprintf("%s.kleff.io", webapp.Name)
-        
-        if virtualService.Annotations == nil {
-            virtualService.Annotations = make(map[string]string)
-        }
-        // 1. Tell ExternalDNS to create a record for this hostname
-        
-        // 2. Set the target IP explicitly (Matches your "content": "66.152.251.9")
-        // If you omit this, ExternalDNS tries to find the IP of your Istio Ingress Gateway service.
-        virtualService.Annotations["external-dns.alpha.kubernetes.io/target"] = "66.130.187.229"
+	op, err = controllerutil.CreateOrUpdate(ctx, r.Client, virtualService, func() error {
+		// Apply labels to VirtualService metadata
+		virtualService.Labels = labels
 
-        // 3. Set Cloudflare proxy status (Matches "proxied": false)
-        virtualService.Annotations["external-dns.alpha.kubernetes.io/cloudflare-proxied"] = "false"
+		host := fmt.Sprintf("%s.kleff.io", webapp.Name)
+		
+		if virtualService.Annotations == nil {
+			virtualService.Annotations = make(map[string]string)
+		}
+		
+		virtualService.Annotations["external-dns.alpha.kubernetes.io/target"] = "66.130.187.229"
+		virtualService.Annotations["external-dns.alpha.kubernetes.io/cloudflare-proxied"] = "false"
+		virtualService.Annotations["external-dns.alpha.kubernetes.io/ttl"] = "3600"
 
-        // 4. Set TTL (Matches "ttl": 3600)
-        virtualService.Annotations["external-dns.alpha.kubernetes.io/ttl"] = "3600"
-        // --- CHANGE END ---
-        // IMPORTANT: We replace the entire Spec using the "istioapi" types
-        virtualService.Spec = istioapi.VirtualService{
-            Hosts:    []string{host},
-            Gateways: []string{"istio-system/kleff-gateway"},
-            Http: []*istioapi.HTTPRoute{
-                {
-                    Match: []*istioapi.HTTPMatchRequest{
-                        {
-                            Uri: &istioapi.StringMatch{
-                                MatchType: &istioapi.StringMatch_Prefix{
-                                    Prefix: "/",
-                                },
-                            },
-                        },
-                    },
-                    Route: []*istioapi.HTTPRouteDestination{
-                        {
-                            Destination: &istioapi.Destination{
-                                Host: webapp.Name,
-                                Port: &istioapi.PortSelector{
-                                    Number: 80,
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        }
+		virtualService.Spec = istioapi.VirtualService{
+			Hosts:    []string{host},
+			Gateways: []string{"istio-system/kleff-gateway"},
+			Http: []*istioapi.HTTPRoute{
+				{
+					Match: []*istioapi.HTTPMatchRequest{
+						{
+							Uri: &istioapi.StringMatch{
+								MatchType: &istioapi.StringMatch_Prefix{
+									Prefix: "/",
+								},
+							},
+						},
+					},
+					Route: []*istioapi.HTTPRouteDestination{
+						{
+							Destination: &istioapi.Destination{
+								Host: webapp.Name,
+								Port: &istioapi.PortSelector{
+									Number: 80,
+								},
+							},
+						},
+					},
+				},
+			},
+		}
 
-        return controllerutil.SetControllerReference(webapp, virtualService, r.Scheme)
-    })
+		return controllerutil.SetControllerReference(webapp, virtualService, r.Scheme)
+	})
 
 	if err != nil {
 		logger.Error(err, "Failed to reconcile VirtualService")
@@ -241,7 +245,6 @@ func (r *WebAppReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		For(&kleffv1.WebApp{}).
 		Owns(&appsv1.Deployment{}).
 		Owns(&corev1.Service{}).
-		// Watch VirtualService so if someone manually deletes it, it gets recreated
 		Owns(&istionetworking.VirtualService{}). 
 		Complete(r)
 }

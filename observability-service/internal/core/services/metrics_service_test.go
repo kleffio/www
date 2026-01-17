@@ -20,6 +20,7 @@ type mockMetricsRepository struct {
 	getNodesFunc                func(ctx context.Context) ([]domain.NodeMetric, error)
 	getNamespacesFunc           func(ctx context.Context) ([]domain.NamespaceMetric, error)
 	getDatabaseIOMetricsFunc    func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
+	getProjectUsageMetricsFunc  func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
 }
 
 func (m *mockMetricsRepository) GetClusterOverview(ctx context.Context) (*domain.ClusterOverview, error) {
@@ -88,6 +89,13 @@ func (m *mockMetricsRepository) GetNamespaces(ctx context.Context) ([]domain.Nam
 func (m *mockMetricsRepository) GetDatabaseIOMetrics(ctx context.Context, duration string) (*domain.DatabaseMetrics, error) {
 	if m.getDatabaseIOMetricsFunc != nil {
 		return m.getDatabaseIOMetricsFunc(ctx, duration)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsRepository) GetProjectUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error) {
+	if m.getProjectUsageMetricsFunc != nil {
+		return m.getProjectUsageMetricsFunc(ctx, projectID)
 	}
 	return nil, errors.New("not implemented")
 }

@@ -21,6 +21,7 @@ import { BillingModal } from "@features/billing/components/viewBillsModal";
 import { useUsername } from "@features/users/api/getUsernameById";
 import InvoiceTable from "@features/billing/components/InvoiceTable";
 import ProjectMetricsCard from "@features/observability/components/ProjectMetricsCard";
+import ProjectUsageCard from "@features/observability/components/ProjectUsageCard";
 
 const translations = {
   en: enTranslations,
@@ -189,11 +190,13 @@ export function ProjectDetailPage() {
         </SoftPanel>
 
         {!containersLoading && containerNames.length > 0 && (
-          <ProjectMetricsCard 
+          <ProjectMetricsCard
             projectId={project.projectId}
             containerNames={containerNames}
           />
         )}
+
+        <ProjectUsageCard projectId={project.projectId} />
 
            
 <SoftPanel>

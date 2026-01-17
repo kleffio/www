@@ -57,6 +57,6 @@ func (s *metricsService) GetDatabaseIOMetrics(ctx context.Context, duration stri
 	return s.metricsRepo.GetDatabaseIOMetrics(ctx, duration)
 }
 
-func (s *metricsService) GetProjectMetrics(ctx context.Context, projectID string, containerNames []string) (*domain.ProjectMetrics, error) {
-	return s.metricsRepo.GetProjectMetrics(ctx, projectID, containerNames)
+func (s *metricsService) GetProjectUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error) {
+	return s.metricsRepo.GetProjectUsageMetrics(ctx, projectID)
 }
