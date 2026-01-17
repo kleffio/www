@@ -14,12 +14,12 @@ jobs:
     strategy:
       matrix:
         service: [
-          { name: frontend, context: ./frontend, tag: frontend },
-          { name: project-management, context: ./project-management-service, tag: project-management-service },
+          # { name: frontend, context: ./frontend, tag: frontend },
+          # { name: project-management, context: ./project-management-service, tag: project-management-service },
           { name: deployment, context: ./deployment-service, tag: deployment-service },
-          { name: observability, context: ./observability-service, tag: observability-service },
-          { name: user, context: ./user-service, tag: user-service },
-          { name: server-api, context: ./server-apis, tag: deployment-backend }
+          # { name: observability, context: ./observability-service, tag: observability-service },
+          # { name: user, context: ./user-service, tag: user-service },
+          # { name: server-api, context: ./server-apis, tag: deployment-backend }
         ]
     
     steps:
