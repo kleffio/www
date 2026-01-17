@@ -76,6 +76,25 @@
       "stop": "Stop",
       "edit_env": "Edit Environment Variables",
       "delete": "Delete"
+    },
+    "containerDetail": {
+      "details": "Details",
+      "container_id": "Container ID",
+      "ports": "Ports",
+      "none": "None",
+      "branch": "Branch",
+      "main": "main",
+      "source_code": "Source Code",
+      "click_to_open_repo": "Click to open repository",
+      "environment_variables": "Environment Variables",
+      "edit_variables": "Edit Variables",
+      "edit_environment_variables": "Edit Environment Variables",
+      "visit_app": "Visit App",
+      "unknown": "Unknown",
+      "copied": "Copied!",
+      "restart": "Restart",
+      "stop": "Stop",
+      "delete": "Delete"
     }
   }
 }

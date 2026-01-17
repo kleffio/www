@@ -23,20 +23,10 @@ import { BillingModal } from "@features/billing/components/viewBillsModal";
 import { useUsername } from "@features/users/api/getUsernameById";
 import InvoiceTable from "@features/billing/components/InvoiceTable";
 import ProjectMetricsCard from "@features/observability/components/ProjectMetricsCard";
-import ProjectUsageCard from "@features/observability/components/ProjectUsageCard";
 
 const translations = {
   en: enTranslations,
   fr: frTranslations
-};
-
-const sanitizeAppName = (name: string) => {
-  if (!name) return "";
-  return name
-    .toLowerCase()
-    .replace(/_/g, '-')
-    .replace(/\s+/g, '-')
-    .replace(/^-+|-+$/g, '');
 };
 
 export function ProjectDetailPage() {
@@ -69,14 +59,6 @@ export function ProjectDetailPage() {
    */
   const handleCreateNew = () => {
     setSelectedContainerForEdit(null); // Explicitly null for "Create" mode
-    setIsContainerModalOpen(true);
-  };
-
-  /**
-   * Logic for Editing an existing container
-   */
-  const handleEditContainer = (container: Container) => {
-    setSelectedContainerForEdit(container); // Pass the container object for "Edit" mode
     setIsContainerModalOpen(true);
   };
 
@@ -122,7 +104,7 @@ export function ProjectDetailPage() {
     );
   }
 
-  const containerNames = !containersLoading && containers?.map(c => c.name).filter(Boolean) || [];
+
 
   return (
     <section className="h-full">
@@ -193,12 +175,9 @@ export function ProjectDetailPage() {
           </div>
         </SoftPanel>
 
-        {!containersLoading && containerNames.length > 0 && (
-          <ProjectMetricsCard
-            projectId={project.projectId}
-            containerNames={containerNames}
-          />
-        )}
+        <ProjectMetricsCard
+          projectId={project.projectId}
+        />
 
         <SoftPanel>
           <div className="mb-6 flex items-center gap-3">
