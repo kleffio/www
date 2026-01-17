@@ -101,7 +101,7 @@ public class ContainerServiceImpl {
     }
 
     private void triggerBuildDeployment(ContainerRequestModel request, String containerID) {
-        String deploymentServiceUrl = "https://api.kleff.io/api/v1/build/create"; 
+        String deploymentServiceUrl = "http://deployment-backend-service.kleff-deployment.svc.cluster.local/api/v1/build/create"; 
 
         GoBuildRequest buildRequest = new GoBuildRequest(
                 containerID,

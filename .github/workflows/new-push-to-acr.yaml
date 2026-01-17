@@ -63,3 +63,10 @@ jobs:
           context: ./user-service
           push: true
           tags: ${{ secrets.ACR_LOGIN_SERVER }}/user-service:latest
+      
+      - name: Build and push server-api image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./server-apis
+          push: true
+          tags: ${{ secrets.ACR_LOGIN_SERVER }}/deployment-backend:latest

@@ -1,5 +1,5 @@
-import type { ProjectMetrics } from '../types/projectMetrics.types';
-import type { ProjectUsage } from '../types/projectUsage.types';
+import type { ProjectMetrics } from '../types/projectMetrics.types.ts';
+import type { ProjectUsage } from '../types/projectUsage.types.ts';
 import { client } from '@shared/lib/client';
 
 export async function getProjectMetrics(
