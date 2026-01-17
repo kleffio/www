@@ -469,8 +469,8 @@ func (c *prometheusClient) GetProjectUsageMetrics(ctx context.Context, projectID
 	}
 	// If no data, MemoryUsageGB remains 0.0
 
-	// CPU query: sum(avg_over_time(kube_pod_container_resource_requests{resource="cpu", namespace="%s", container!="", container!="POD"}[30d]))
-	cpuQuery := fmt.Sprintf(`sum(avg_over_time(kube_pod_container_resource_requests{resource="cpu", namespace="%s", container!="", container!="POD"}[30d]))`, projectID)
+	// CPU query: sum(avg_over_time(rate(container_cpu_usage_seconds_total{namespace="%s", container!="", container!="POD"}[5m])[30d:1m]))
+	cpuQuery := fmt.Sprintf(`sum(avg_over_time(rate(container_cpu_usage_seconds_total{namespace="%s", container!="", container!="POD"}[5m])[30d:1m]))`, projectID)
 	cpuResp, err := c.queryPrometheus(ctx, cpuQuery)
 	if err == nil && len(cpuResp.Data.Result) > 0 {
 		if val, err := extractValue(cpuResp.Data.Result[0].Value); err == nil {
