@@ -12,7 +12,6 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     strategy:
-      # This runs all builds in parallel
       matrix:
         service: [
           { name: frontend, context: ./frontend, tag: frontend },
