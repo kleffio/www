@@ -12,7 +12,9 @@ public interface InvitationRequestMapper {
     @Mappings({
         @Mapping(source = "projectId", target = "projectId"),
         @Mapping(source = "inviteeEmail", target = "inviteeEmail"),
-        @Mapping(source = "role", target = "role")
+        @Mapping(source = "role", target = "role"),
+        @Mapping(source = "customRoleId", target = "customRoleId"),
+        @Mapping(source = "permissions", target = "permissions")
     })
     Invitation requestToEntity(InvitationRequestModel request);
 }

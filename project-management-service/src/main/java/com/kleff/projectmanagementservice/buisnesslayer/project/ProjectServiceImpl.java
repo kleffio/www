@@ -1,27 +1,58 @@
 package com.kleff.projectmanagementservice.buisnesslayer;
 
+import com.kleff.projectmanagementservice.buisnesslayer.collaborator.CollaboratorService;
+import com.kleff.projectmanagementservice.datalayer.collaborator.Collaborator;
+import com.kleff.projectmanagementservice.datalayer.collaborator.CollaboratorRole;
+import com.kleff.projectmanagementservice.datalayer.collaborator.collaboratorRepository;
 import com.kleff.projectmanagementservice.datalayer.project.Project;
 import com.kleff.projectmanagementservice.datalayer.project.ProjectRepository;
 import com.kleff.projectmanagementservice.datalayer.project.ProjectStatus;
+import com.kleff.projectmanagementservice.presentationlayer.collaborator.CollaboratorRequestModel;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
 
-    private ProjectRepository projectRepository;
+    private final ProjectRepository projectRepository;
+    private final CollaboratorService collaboratorService;
+    private final collaboratorRepository collaboratorRepo;
 
-    public ProjectServiceImpl(ProjectRepository projectRepository) {
+    public ProjectServiceImpl(ProjectRepository projectRepository, CollaboratorService collaboratorService, collaboratorRepository collaboratorRepo) {
         this.projectRepository = projectRepository;
+        this.collaboratorService = collaboratorService;
+        this.collaboratorRepo = collaboratorRepo;
     }
 
     //this currently only gets all projects
     @Override
     public List<Project> getAllOwnedProjects(String userId) {
-
-        return projectRepository.findByOwnerIdEquals(userId);
+        // Get projects owned by user
+        List<Project> ownedProjects = projectRepository.findByOwnerIdEquals(userId);
+        
+        // Get projects where user is a collaborator
+        List<Collaborator> collaborations = collaboratorRepo.findByUserId(userId);
+        List<String> collaboratedProjectIds = collaborations.stream()
+                .map(Collaborator::getProjectId)
+                .collect(Collectors.toList());
+        
+        List<Project> collaboratedProjects = new ArrayList<>();
+        for (String projectId : collaboratedProjectIds) {
+            Project project = projectRepository.findByProjectId(projectId);
+            if (project != null && !ownedProjects.contains(project)) {
+                collaboratedProjects.add(project);
+            }
+        }
+        
+        // Combine both lists
+        List<Project> allProjects = new ArrayList<>(ownedProjects);
+        allProjects.addAll(collaboratedProjects);
+        
+        return allProjects;
     }
 
     @Override
@@ -37,7 +68,24 @@ public class ProjectServiceImpl implements ProjectService {
 
     @Override
     public Project createProject(Project project) {
-        return projectRepository.save(project);
+        Project saved = projectRepository.save(project);
+        
+        // Auto-create OWNER collaborator for project creator
+        try {
+            CollaboratorRequestModel ownerCollab = CollaboratorRequestModel.builder()
+                    .projectId(saved.getProjectId())
+                    .userId(saved.getOwnerId())
+                    .role(CollaboratorRole.OWNER)
+                    .permissions(null)
+                    .build();
+            
+            collaboratorService.addCollaborator(ownerCollab, "system");
+        } catch (Exception e) {
+            // Log but don't fail project creation if collaborator creation fails
+            System.err.println("Failed to create owner collaborator: " + e.getMessage());
+        }
+        
+        return saved;
     }
 
     @Override

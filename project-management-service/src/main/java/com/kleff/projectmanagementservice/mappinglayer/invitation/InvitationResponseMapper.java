@@ -17,6 +17,7 @@ public interface InvitationResponseMapper {
         @Mapping(source = "inviterId", target = "inviterId"),
         @Mapping(source = "inviteeEmail", target = "inviteeEmail"),
         @Mapping(source = "role", target = "role"),
+        @Mapping(source = "customRoleId", target = "customRoleId"),
         @Mapping(source = "status", target = "status"),
         @Mapping(source = "expiresAt", target = "expiresAt"),
         @Mapping(source = "createdAt", target = "createdAt"),

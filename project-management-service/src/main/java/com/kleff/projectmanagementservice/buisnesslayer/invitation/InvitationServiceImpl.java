@@ -1,6 +1,7 @@
 package com.kleff.projectmanagementservice.buisnesslayer.invitation;
 
 import com.kleff.projectmanagementservice.buisnesslayer.collaborator.CollaboratorService;
+import com.kleff.projectmanagementservice.datalayer.customrole.CustomRoleRepository;
 import com.kleff.projectmanagementservice.datalayer.invitation.Invitation;
 import com.kleff.projectmanagementservice.datalayer.invitation.InvitationRepository;
 import com.kleff.projectmanagementservice.datalayer.invitation.InviteStatus;
@@ -19,15 +20,18 @@ import java.util.stream.Collectors;
 public class InvitationServiceImpl implements InvitationService {
 
     private final InvitationRepository invitationRepository;
+    private final CustomRoleRepository customRoleRepository;
     private final CollaboratorService collaboratorService;
     private final InvitationRequestMapper requestMapper;
     private final InvitationResponseMapper responseMapper;
 
     public InvitationServiceImpl(InvitationRepository invitationRepository,
+                                 CustomRoleRepository customRoleRepository,
                                  CollaboratorService collaboratorService,
                                  InvitationRequestMapper requestMapper,
                                  InvitationResponseMapper responseMapper) {
         this.invitationRepository = invitationRepository;
+        this.customRoleRepository = customRoleRepository;
         this.collaboratorService = collaboratorService;
         this.requestMapper = requestMapper;
         this.responseMapper = responseMapper;
@@ -53,7 +57,29 @@ public class InvitationServiceImpl implements InvitationService {
     public List<InvitationResponseModel> getPendingInvitationsForEmail(String inviteeEmail) {
         return invitationRepository.findByInviteeEmailAndStatus(inviteeEmail, InviteStatus.PENDING)
                 .stream()
-                .map(responseMapper::toResponseModel)
+                .map(invitation -> {
+                    InvitationResponseModel response = responseMapper.toResponseModel(invitation);
+                    if (invitation.getCustomRoleId() != null) {
+                        customRoleRepository.findById(invitation.getCustomRoleId())
+                            .ifPresent(customRole -> response.setCustomRoleName(customRole.getName()));
+                    }
+                    return response;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<InvitationResponseModel> getPendingInvitationsForProject(String projectId) {
+        return invitationRepository.findByProjectIdAndStatus(projectId, InviteStatus.PENDING)
+                .stream()
+                .map(invitation -> {
+                    InvitationResponseModel response = responseMapper.toResponseModel(invitation);
+                    if (invitation.getCustomRoleId() != null) {
+                        customRoleRepository.findById(invitation.getCustomRoleId())
+                            .ifPresent(customRole -> response.setCustomRoleName(customRole.getName()));
+                    }
+                    return response;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -74,12 +100,33 @@ public class InvitationServiceImpl implements InvitationService {
                 .projectId(inv.getProjectId())
                 .userId(currentUserId)
                 .role(inv.getRole())
-                .permissions(null)
+                .customRoleId(inv.getCustomRoleId())
+                .permissions(inv.getPermissions())
                 .build();
 
         collaboratorService.addCollaborator(collabRequest, inv.getInviterId());
 
         inv.setStatus(InviteStatus.ACCEPTED);
+        inv.setUpdatedAt(Instant.now());
+        invitationRepository.save(inv);
+
+        return responseMapper.toResponseModel(inv);
+    }
+
+    @Override
+    public InvitationResponseModel rejectInvitation(Integer invitationId, String currentUserEmail) {
+        Invitation inv = invitationRepository.findById(invitationId)
+                .orElseThrow(() -> new IllegalArgumentException("Invitation not found"));
+
+        if (inv.getStatus() != InviteStatus.PENDING) {
+            throw new IllegalStateException("Invitation is not pending");
+        }
+
+        if (inv.getInviteeEmail() == null || !inv.getInviteeEmail().equalsIgnoreCase(currentUserEmail)) {
+            throw new SecurityException("Authenticated user does not match invitee email");
+        }
+
+        inv.setStatus(InviteStatus.REFUSED);
         inv.setUpdatedAt(Instant.now());
         invitationRepository.save(inv);
 

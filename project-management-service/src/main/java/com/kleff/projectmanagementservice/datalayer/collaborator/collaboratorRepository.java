@@ -12,5 +12,7 @@ public interface collaboratorRepository extends JpaRepository<Collaborator, Inte
 
     List<Collaborator> findByProjectId(String projectId);
 
+    List<Collaborator> findByUserId(String userId);
+
     boolean existsByProjectIdAndUserId(String projectId, String userId);
 }

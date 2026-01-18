@@ -7,7 +7,7 @@ import { Spinner } from "@shared/ui/Spinner";
 import { MiniCard } from "@shared/ui/MiniCard";
 import { Badge } from "@shared/ui/Badge";
 import { GradientIcon } from "@shared/ui/GradientIcon";
-import { Hash, User, Layers, Activity, Calendar, Clock, Box, Settings, ExternalLink } from "lucide-react";
+import { Hash, User, Layers, Activity, Calendar, Clock, Box, Settings, ExternalLink, Users } from "lucide-react";
 import { useProject } from "@features/projects/hooks/useProject";
 import { useProjectContainers } from "@features/projects/hooks/useProjectContainers";
 import { CreateContainerModal } from "@features/projects/components/CreateContainerModal";
@@ -22,6 +22,8 @@ import { BillingModal } from "@features/billing/components/viewBillsModal";
 import { useUsername } from "@features/users/api/getUsernameById";
 import InvoiceTable from "@features/billing/components/InvoiceTable";
 import ProjectMetricsCard from "@features/observability/components/ProjectMetricsCard";
+import { usePermissions } from "@features/projects/hooks/usePermissions";
+import { TeamModal } from "@features/projects/components/TeamModal";
 
 const translations = {
   en: enTranslations,
@@ -48,9 +50,12 @@ export function ProjectDetailPage() {
     reload
   } = useProjectContainers(projectId || "");
   
+  const { role, canDeploy, canManageEnvVars, canManageBilling } = usePermissions(projectId);
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBillingModalOpen] = useState(false);
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [selectedContainer, setSelectedContainer] = useState<Container | null>(null);
   const [locale] = useState(getLocale());
   const t = translations[locale].projectDetail;
@@ -116,15 +121,33 @@ export function ProjectDetailPage() {
             <p className="mt-1 text-sm text-neutral-400">
               {project.description || t.no_description}
             </p>
+            {role && (
+              <Badge variant="info" className="mt-2 text-xs">
+                Your Role: {role}
+              </Badge>
+            )}
           </div>
 
-          <Button
-            size="lg"
-            onClick={() => setIsModalOpen(true)}
-            className="bg-gradient-kleff rounded-full px-5 py-2 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
-          >
-            {t.create_container}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="lg"
+              onClick={() => setIsTeamModalOpen(true)}
+              className="rounded-full px-5 py-2 text-sm font-semibold bg-white/5 border border-white/10 hover:bg-white/10 text-neutral-50"
+            >
+              <Users className="mr-2 h-4 w-4" />
+              Team
+            </Button>
+
+            {canDeploy && (
+              <Button
+                size="lg"
+                onClick={() => setIsModalOpen(true)}
+                className="bg-gradient-kleff rounded-full px-5 py-2 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
+              >
+                {t.create_container}
+              </Button>
+            )}
+          </div>
         </header>
 
         <SoftPanel>
@@ -287,15 +310,17 @@ export function ProjectDetailPage() {
                       </TableCell>
                       <TableCell className="text-neutral-300 text-xs">{container.createdAt}</TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleEditEnv(container)}
-                          className="rounded-full px-3 py-1.5 text-xs"
-                        >
-                          <Settings className="mr-1 h-3 w-3" />
-                          Edit Env
-                        </Button>
+                        {canManageEnvVars && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEditEnv(container)}
+                            className="rounded-full px-3 py-1.5 text-xs"
+                          >
+                            <Settings className="mr-1 h-3 w-3" />
+                            Edit Env
+                          </Button>
+                        )}
                       </TableCell>
                     </TableRow>
                   );
@@ -305,9 +330,11 @@ export function ProjectDetailPage() {
           )}
         </SoftPanel>
      
-        <div className="space-y-6">
-          <InvoiceTable projectId={""} />
-        </div>
+        {canManageBilling && (
+          <div className="space-y-6">
+            <InvoiceTable projectId={""} />
+          </div>
+        )}
       </div>
       
       <BillingModal
@@ -331,6 +358,13 @@ export function ProjectDetailPage() {
         }}
         container={selectedContainer}
         onSave={handleSaveEnvVariables}
+      />
+
+      <TeamModal
+        isOpen={isTeamModalOpen}
+        onClose={() => setIsTeamModalOpen(false)}
+        projectId={projectId || ""}
+        userRole={(role as 'OWNER' | 'ADMIN' | 'DEVELOPER' | 'VIEWER') || 'VIEWER'}
       />
     </section>
   );

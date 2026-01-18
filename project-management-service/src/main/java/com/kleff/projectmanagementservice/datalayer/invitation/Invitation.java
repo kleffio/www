@@ -1,6 +1,7 @@
 package com.kleff.projectmanagementservice.datalayer.invitation;
 
 import com.kleff.projectmanagementservice.datalayer.collaborator.CollaboratorRole;
+import com.kleff.projectmanagementservice.datalayer.collaborator.ProjectPermission;
 import com.kleff.projectmanagementservice.datalayer.invitation.InviteStatus;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -10,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.Set;
 import java.util.UUID;
 
 @Data
@@ -35,6 +37,15 @@ public class Invitation {
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private CollaboratorRole role;
+
+    @Column(name = "custom_role_id")
+    private Integer customRoleId;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "invitation_permissions", joinColumns = @JoinColumn(name = "invitation_id"))
+    @Column(name = "permission")
+    @Enumerated(EnumType.STRING)
+    private Set<ProjectPermission> permissions;
 
     @Column(name = "status")
     @Enumerated(EnumType.STRING)

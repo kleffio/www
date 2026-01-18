@@ -20,6 +20,8 @@ public class InvitationResponseModel {
     private String inviteeEmail;
     private String inviteeId;
     private CollaboratorRole role;
+    private Integer customRoleId;
+    private String customRoleName;
     private InviteStatus status;
     private Instant expiresAt;
     private Instant createdAt;

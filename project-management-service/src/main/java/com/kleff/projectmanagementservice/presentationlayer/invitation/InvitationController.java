@@ -28,6 +28,12 @@ public class InvitationController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @GetMapping("/projects/{projectId}/invitations")
+    public ResponseEntity<List<InvitationResponseModel>> getProjectInvitations(@PathVariable String projectId) {
+        List<InvitationResponseModel> invitations = invitationService.getPendingInvitationsForProject(projectId);
+        return ResponseEntity.ok(invitations);
+    }
+
     @GetMapping("/users/me/invitations")
     public ResponseEntity<List<InvitationResponseModel>> getPendingInvitationsForCurrentUser(@AuthenticationPrincipal Jwt jwt) {
 
@@ -43,6 +49,15 @@ public class InvitationController {
         String currentUserId = jwt.getSubject();
         String currentUserEmail = jwt.getClaimAsString("email");
         InvitationResponseModel response = invitationService.acceptInvitation(invitationId, currentUserId, currentUserEmail);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/invitations/{invitationId}/reject")
+    public ResponseEntity<InvitationResponseModel> rejectInvitation(@PathVariable Integer invitationId,
+                                                                     @AuthenticationPrincipal Jwt jwt) {
+
+        String currentUserEmail = jwt.getClaimAsString("email");
+        InvitationResponseModel response = invitationService.rejectInvitation(invitationId, currentUserEmail);
         return ResponseEntity.ok(response);
     }
 

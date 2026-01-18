@@ -10,7 +10,11 @@ public interface InvitationService {
 
     List<InvitationResponseModel> getPendingInvitationsForEmail(String inviteeEmail);
 
+    List<InvitationResponseModel> getPendingInvitationsForProject(String projectId);
+
     InvitationResponseModel acceptInvitation(Integer invitationId, String currentUserId, String currentUserEmail);
+
+    InvitationResponseModel rejectInvitation(Integer invitationId, String currentUserEmail);
 
     void cancelInvitation(Integer invitationId, String requesterId);
 }

@@ -1,7 +1,7 @@
-package com.kleff.projectmanagementservice.presentationlayer.collaborator;
+package com.kleff.projectmanagementservice.presentationlayer.customrole;
 
-import com.kleff.projectmanagementservice.datalayer.collaborator.CollaboratorRole;
 import com.kleff.projectmanagementservice.datalayer.collaborator.ProjectPermission;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,18 +14,15 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CollaboratorRequestModel {
-
+public class CustomRoleRequestModel {
     @NotNull
     private String projectId;
 
-    @NotNull
-    private String userId;
+    @NotBlank(message = "Role name is required")
+    private String name;
 
-    @NotNull
-    private CollaboratorRole role;
+    private String description;
 
-    private Integer customRoleId;
-
+    @NotNull(message = "Permissions are required")
     private Set<ProjectPermission> permissions;
 }

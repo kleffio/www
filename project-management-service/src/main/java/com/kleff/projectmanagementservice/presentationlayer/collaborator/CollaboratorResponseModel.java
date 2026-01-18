@@ -21,6 +21,8 @@ public class CollaboratorResponseModel {
     private String projectId;
     private String userId;
     private CollaboratorRole role;
+    private Integer customRoleId;
+    private String customRoleName;
     private CollaboratorStatus status;
     private Set<ProjectPermission> permissions;
     private String invitedBy;

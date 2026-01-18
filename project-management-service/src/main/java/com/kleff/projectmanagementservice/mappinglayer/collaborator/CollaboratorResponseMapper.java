@@ -16,6 +16,7 @@ public interface CollaboratorResponseMapper {
         @Mapping(source = "projectId", target = "projectId"),
         @Mapping(source = "userId", target = "userId"),
         @Mapping(source = "role", target = "role"),
+        @Mapping(source = "customRoleId", target = "customRoleId"),
         @Mapping(source = "collaboratorStatus", target = "status"),
         @Mapping(source = "permissions", target = "permissions"),
         @Mapping(source = "invitedBy", target = "invitedBy"),
