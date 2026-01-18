@@ -163,7 +163,7 @@ public class BillingServiceImpl implements BillingService {
         invoice.setTotalCPU((STORAGE * getPrice("STORAGE_GB").getPrice()));
         invoice.setSubtotal(invoice.getTotalCPU() + invoice.getTotalRAM() + invoice.getTotalSTORAGE());
         invoice.setTaxes(invoice.getSubtotal()*taxes);
-        BigDecimal bd = new BigDecimal(Double.toString(invoice.getSubtotal())+invoice.getTaxes());
+        BigDecimal bd = new BigDecimal(Double.toString((invoice.getSubtotal())+invoice.getTaxes()));
         double total = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
         invoice.setTotal(total);
         return invoice;
