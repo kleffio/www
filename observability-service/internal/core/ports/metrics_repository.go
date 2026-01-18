@@ -26,6 +26,5 @@ type MetricsRepository interface {
 	GetNamespaces(ctx context.Context) ([]domain.NamespaceMetric, error)
 
 	GetDatabaseIOMetrics(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
-
-	GetProjectMetrics(ctx context.Context, projectID string, containerNames []string) (*domain.ProjectMetrics, error)
+	GetProjectUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
 }

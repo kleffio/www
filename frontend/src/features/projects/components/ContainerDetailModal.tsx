@@ -2,23 +2,30 @@ import React from "react";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Button } from "@shared/ui/Button";
 import { Badge } from "@shared/ui/Badge";
-// import { MiniCard } from "@shared/ui/MiniCard";
-import { X, ExternalLink, Settings, Hash, Box, Code, GitBranch, Copy, Play, Square, Trash2, Network } from "lucide-react";
+import { X, ExternalLink, Settings, Hash, Box, Code, GitBranch, Copy, Play, Square, Trash2, Network, Edit } from "lucide-react";
 import { formatRepoUrl, formatPort } from "@shared/lib/utils";
 import type { Container } from "@features/projects/types/Container";
-// import enTranslations from "@app/locales/en/projects.json";
-// import frTranslations from "@app/locales/fr/projects.json";
-// import { getLocale } from "@app/locales/locale";
+import enTranslations from "@app/locales/en/projects.json";
+import frTranslations from "@app/locales/fr/projects.json";
+import { getLocale } from "@app/locales/locale";
+
+const translations = {
+  en: enTranslations,
+  fr: frTranslations
+};
 
 interface ContainerDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   container: Container | null;
   onEditEnv?: (container: Container) => void;
+  onEditContainer?: (container: Container) => void;
 }
 
-export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: ContainerDetailModalProps) {
+export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, onEditContainer }: ContainerDetailModalProps) {
   const [copiedId, setCopiedId] = React.useState(false);
+  const [locale] = React.useState(getLocale());
+  const t = translations[locale].projectDetail.containerDetail;
 
   if (!isOpen || !container) return null;
 
@@ -67,7 +74,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
                       <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
                     </span>
                   )}
-                  {container.status || "Unknown"}
+                  {container.status || t.unknown}
                 </Badge>
               </div>
             </div>
@@ -79,7 +86,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
                 className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
-                Visit App
+                {t.visit_app}
               </Button>
               <button
                 type="button"
@@ -93,13 +100,13 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
 
           {/* Details Section */}
           <div>
-            <h3 className="mb-4 text-lg font-semibold text-white">Details</h3>
+            <h3 className="mb-4 text-lg font-semibold text-white">{t.details}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Container ID */}
               <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
                 <Hash className="h-5 w-5 text-neutral-400 flex-shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-neutral-100">Container ID</div>
+                  <div className="text-sm font-semibold text-neutral-100">{t.container_id}</div>
                   <button
                     onClick={handleCopyId}
                     className="font-mono text-sm text-neutral-200 hover:text-blue-400 transition-colors truncate flex items-center gap-1 group"
@@ -109,7 +116,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
                     <Copy className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </button>
                   {copiedId && (
-                    <span className="text-xs text-emerald-400 animate-pulse">Copied!</span>
+                    <span className="text-xs text-emerald-400 animate-pulse">{t.copied}</span>
                   )}
                 </div>
               </div>
@@ -118,7 +125,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
               <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
                 <Network className="h-5 w-5 text-neutral-400 flex-shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-neutral-100">Ports</div>
+                  <div className="text-sm font-semibold text-neutral-100">{t.ports}</div>
                   <div className="font-mono text-sm text-neutral-200 truncate">
                     {container.ports.length > 0 ? (
                       container.ports.map((port, index) => (
@@ -128,7 +135,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
                         </span>
                       ))
                     ) : (
-                      <span className="text-neutral-400">None</span>
+                      <span className="text-neutral-400">{t.none}</span>
                     )}
                   </div>
                 </div>
@@ -138,9 +145,9 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
               <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
                 <GitBranch className="h-5 w-5 text-neutral-400 flex-shrink-0" />
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-neutral-100">Branch</div>
+                  <div className="text-sm font-semibold text-neutral-100">{t.branch}</div>
                   <div className="font-mono text-sm text-neutral-200 truncate">
-                    {container.branch || "main"}
+                    {container.branch || t.main}
                   </div>
                 </div>
               </div>
@@ -149,7 +156,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
 
           {/* Source Code Section */}
           <div className="mt-8">
-            <h3 className="mb-4 text-lg font-semibold text-white">Source Code</h3>
+            <h3 className="mb-4 text-lg font-semibold text-white">{t.source_code}</h3>
             <div
               className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-4 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-colors"
               onClick={() => {
@@ -166,7 +173,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
                       return repo.display;
                     })()}
                   </div>
-                  <div className="text-sm text-neutral-400">Click to open repository</div>
+                  <div className="text-sm text-neutral-400">{t.click_to_open_repo}</div>
                 </div>
               </div>
               <ExternalLink className="h-5 w-5 text-neutral-400" />
@@ -177,7 +184,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
           {container.envVariables && Object.keys(container.envVariables).length > 0 && (
             <div className="mt-8 bg-slate-900/60 rounded-lg p-6">
               <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-white">Environment Variables</h3>
+                <h3 className="text-lg font-semibold text-white">{t.environment_variables}</h3>
                 {onEditEnv && (
                   <Button
                     size="sm"
@@ -186,7 +193,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
                     className="border-slate-600 bg-slate-700 text-xs text-slate-300 hover:border-slate-500 hover:bg-slate-600"
                   >
                     <Settings className="mr-1 h-3 w-3" />
-                    Edit Variables
+                    {t.edit_variables}
                   </Button>
                 )}
               </div>
@@ -211,7 +218,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
                 className="border-slate-600 bg-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-600"
               >
                 <Play className="mr-2 h-4 w-4" />
-                Restart
+                {t.restart}
               </Button>
               <Button
                 size="sm"
@@ -219,8 +226,19 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
                 className="border-slate-600 bg-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-600"
               >
                 <Square className="mr-2 h-4 w-4" />
-                Stop
+                {t.stop}
               </Button>
+              {onEditContainer && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onEditContainer(container)}
+                  className="border-slate-600 bg-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-600"
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  {t.edit_container}
+                </Button>
+              )}
               {onEditEnv && (
                 <Button
                   size="sm"
@@ -229,7 +247,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
                   className="border-slate-600 bg-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-600"
                 >
                   <Settings className="mr-2 h-4 w-4" />
-                  Edit Environment Variables
+                  {t.edit_environment_variables}
                 </Button>
               )}
               <Button
@@ -238,7 +256,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
                 className="bg-red-600 hover:bg-red-700 text-white"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
-                Delete
+                {t.delete}
               </Button>
             </div>
           </div>

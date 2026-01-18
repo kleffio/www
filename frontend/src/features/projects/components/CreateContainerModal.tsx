@@ -1,18 +1,21 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Button } from "@shared/ui/Button";
 import { X, Plus, Trash2 } from "lucide-react";
-
+import updateContainer from "@features/projects/api/updateContainer";
+import type { Container } from "@features/projects/types/Container";
 import createContainer from "@features/projects/api/createContainer";
 
-interface CreateContainerModalProps {
+
+interface ContainerModalProps {
   isOpen: boolean;
   onClose: () => void;
   projectId: string;
   onSuccess?: () => void;
+  container?: Container | null; // Added: if null, we are creating. If object, we are editing.
 }
 
-export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: CreateContainerModalProps) {
+export function ContainerModal({ isOpen, onClose, projectId, onSuccess, container }: ContainerModalProps) {
   const [name, setName] = useState("");
   const [port, setPort] = useState("");
   const [repoUrl, setRepoUrl] = useState("");
@@ -21,7 +24,24 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!isOpen) return null;
+  const isEditMode = !!container;
+
+  // Initialize fields if in edit mode
+  useEffect(() => {
+    if (container && isOpen) {
+      setName(container.name || "");
+      setPort(container.ports?.[0]?.toString() || "");
+      setRepoUrl(container.repoUrl || "");
+      setBranch(container.branch || "");
+
+      if (container.envVariables) {
+        const envs = Object.entries(container.envVariables).map(([key, value]) => ({ key, value }));
+        setEnvVariables(envs);
+      }
+    } else if (!isOpen) {
+      resetForm();
+    }
+  }, [container, isOpen]);
 
   const resetForm = () => {
     setName("");
@@ -38,7 +58,7 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
       setError("Container name is required.");
       return;
     }
-    
+
     const portNum = parseInt(port);
     if (isNaN(portNum) || portNum <= 0) {
       setError("Port must be a positive number.");
@@ -49,33 +69,36 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
     setError(null);
 
     try {
-      // Convert env variables array to object
       const envVarsObject = envVariables.reduce((acc, { key, value }) => {
-        if (key.trim()) {
-          acc[key.trim()] = value;
-        }
+        if (key.trim()) acc[key.trim()] = value;
         return acc;
       }, {} as Record<string, string>);
 
-      await createContainer({
+      const payload = {
         projectID: projectId,
         name: name.trim(),
         port: portNum,
         repoUrl: repoUrl.trim(),
         branch: branch.trim(),
         envVariables: Object.keys(envVarsObject).length > 0 ? envVarsObject : undefined
-      });
+      };
 
-      resetForm();
+      if (isEditMode && container) {
+        await updateContainer(container.containerId, payload);
+      } else {
+        await createContainer(payload);
+      }
+
       onSuccess?.();
       onClose();
     } catch (err) {
-      console.error(err);
-      setError("Failed to create container. Please try again.");
+      setError("Failed to save container.");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (!isOpen) return null;
 
   const inputBase =
     "w-full rounded-lg border border-white/10 bg-black/40 px-3 py-2 text-sm text-neutral-50 placeholder-neutral-500 " +
@@ -89,9 +112,11 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
         <SoftPanel className="border border-white/10 bg-black/70 shadow-2xl shadow-black/60">
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-neutral-50">Create container</h2>
+              <h2 className="text-lg font-semibold text-neutral-50">
+                {isEditMode ? "Update container" : "Create container"}
+              </h2>
               <p className="mt-1 text-xs text-neutral-400">
-                Define the container details for this project.
+                {isEditMode ? "Update the container details for this project." : "Define the container details for this project."}
               </p>
             </div>
 
@@ -257,7 +282,7 @@ export function CreateContainerModal({ isOpen, onClose, projectId, onSuccess }: 
                 disabled={isSubmitting}
                 className="bg-gradient-kleff rounded-full px-5 py-2 text-xs font-semibold text-black shadow-md shadow-black/40 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isSubmitting ? "Creating…" : "Create container"}
+                {isSubmitting ? (isEditMode ? "Updating…" : "Creating…") : (isEditMode ? "Update container" : "Create container")}
               </Button>
             </div>
           </form>

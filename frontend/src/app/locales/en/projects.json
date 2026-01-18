@@ -51,6 +51,7 @@
     "running_containers": "Running Containers",
     "container": "container",
     "containers": "containers",
+    "no_containers_description": "This project doesn't have any containers yet. Create one to get started.",
     "no_containers": "No running containers for this project.",
     "create_first_container": "Create your first container to get started",
     "table": {
@@ -74,6 +75,26 @@
       "restart": "Restart",
       "stop": "Stop",
       "edit_env": "Edit Environment Variables",
+      "delete": "Delete"
+    },
+    "containerDetail": {
+      "details": "Details",
+      "container_id": "Container ID",
+      "ports": "Ports",
+      "none": "None",
+      "branch": "Branch",
+      "main": "main",
+      "source_code": "Source Code",
+      "click_to_open_repo": "Click to open repository",
+      "environment_variables": "Environment Variables",
+      "edit_variables": "Edit Variables",
+      "edit_environment_variables": "Edit Environment Variables",
+      "edit_container": "Edit Container",
+      "visit_app": "Visit App",
+      "unknown": "Unknown",
+      "copied": "Copied!",
+      "restart": "Restart",
+      "stop": "Stop",
       "delete": "Delete"
     }
   }

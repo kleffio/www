@@ -9,7 +9,7 @@ import { GradientIcon } from "@shared/ui/GradientIcon";
 import { Hash, User, Layers, Activity, Calendar, Clock, Box } from "lucide-react";
 import { useProject } from "@features/projects/hooks/useProject";
 import { useProjectContainers } from "@features/projects/hooks/useProjectContainers";
-import { CreateContainerModal } from "@features/projects/components/CreateContainerModal";
+import { ContainerModal } from "@features/projects/components/CreateContainerModal";
 import { EditEnvVariablesModal } from "@features/projects/components/EditEnvVariablesModal";
 import { ContainerStatusCard } from "@features/projects/components/ContainerStatusCard";
 import { ContainerDetailModal } from "@features/projects/components/ContainerDetailModal";
@@ -49,9 +49,13 @@ export function ProjectDetailPage() {
     error: containersError,
     reload
   } = useProjectContainers(projectId || "");
-  
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isBillingModalOpen] = useState(false);
+
+  // State for the Unified Container Modal (Create/Edit)
+  const [isContainerModalOpen, setIsContainerModalOpen] = useState(false);
+  const [selectedContainerForEdit, setSelectedContainerForEdit] = useState<Container | null>(null);
+
+  // State for other modals
+  const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedContainer, setSelectedContainer] = useState<Container | null>(null);
@@ -60,7 +64,7 @@ export function ProjectDetailPage() {
 
   const [isLogsOpen, setIsLogsOpen] = useState(false);
   const [logsContainer, setLogsContainer] = useState<Container | null>(null);
-  
+
   const id = project?.ownerId || "";
   const ownerUser = useUsername(id);
 
@@ -69,6 +73,22 @@ export function ProjectDetailPage() {
   setIsLogsOpen(true);
   };
 
+  const handleViewLogs = (container: Container) => {
+  setLogsContainer(container);
+  setIsLogsOpen(true);
+  };
+
+  /**
+   * Logic for Creating a new container
+   */
+  const handleCreateNew = () => {
+    setSelectedContainerForEdit(null); // Explicitly null for "Create" mode
+    setIsContainerModalOpen(true);
+  };
+
+  /**
+   * Logic for quick Env editing (if you still want the separate modal)
+   */
   const handleEditEnv = (container: Container) => {
     console.log('handleEditEnv called with container:', container.name);
     setSelectedContainer(container);
@@ -76,20 +96,22 @@ export function ProjectDetailPage() {
     console.log('isEnvModalOpen set to true');
   };
 
+  const handleEditContainer = (container: Container) => {
+    console.log('handleEditContainer called with container:', container.name);
+    setSelectedContainerForEdit(container);
+    setIsContainerModalOpen(true);
+    setIsDetailModalOpen(false); // Close the detail modal when opening edit modal
+  };
+
   const handleSaveEnvVariables = async (containerId: string, envVariables: Record<string, string>) => {
     await updateContainerEnvVariables(containerId, envVariables);
-    // After successful save, reload containers
     await reload();
   };
 
   if (projectLoading) {
     return (
       <section className="h-full">
-        <div className="app-container py-8">
-          <div className="flex justify-center py-10">
-            <Spinner />
-          </div>
-        </div>
+        <div className="app-container py-8 flex justify-center"><Spinner /></div>
       </section>
     );
   }
@@ -113,7 +135,7 @@ export function ProjectDetailPage() {
     );
   }
 
-  const containerNames = !containersLoading && containers?.map(c => c.name).filter(Boolean) || [];
+
 
   return (
     <section className="h-full">
@@ -126,14 +148,12 @@ export function ProjectDetailPage() {
               </Button>
             </Link>
             <h1 className="text-2xl font-semibold text-neutral-50 md:text-3xl">{project.name}</h1>
-            <p className="mt-1 text-sm text-neutral-400">
-              {project.description || t.no_description}
-            </p>
+            <p className="mt-1 text-sm text-neutral-400">{project.description || t.no_description}</p>
           </div>
 
           <Button
             size="lg"
-            onClick={() => setIsModalOpen(true)}
+            onClick={handleCreateNew}
             className="bg-gradient-kleff rounded-full px-5 py-2 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
           >
             {t.create_container}
@@ -165,9 +185,7 @@ export function ProjectDetailPage() {
               <div className="flex items-center gap-2">
                 <Activity className="h-4 w-4 text-neutral-400" />
                 {project.projectStatus ? (
-                  <Badge variant="success" className="text-xs">
-                    {project.projectStatus}
-                  </Badge>
+                  <Badge variant="success" className="text-xs">{project.projectStatus}</Badge>
                 ) : (
                   <span className="text-sm text-neutral-400">—</span>
                 )}
@@ -188,12 +206,9 @@ export function ProjectDetailPage() {
           </div>
         </SoftPanel>
 
-        {!containersLoading && containerNames.length > 0 && (
-          <ProjectMetricsCard 
-            projectId={project.projectId}
-            containerNames={containerNames}
-          />
-        )}
+        <ProjectMetricsCard
+          projectId={project.projectId}
+        />
 
         <SoftPanel>
           <div className="mb-6 flex items-center gap-3">
@@ -202,24 +217,6 @@ export function ProjectDetailPage() {
               {t.running_containers} {containers && containers.length > 0 && `(${containers.length})`}
             </h2>
           </div>
-
-          {containersLoading && (
-            <div className="flex justify-center py-10">
-              <Spinner />
-            </div>
-          )}
-
-          {containersError && <p className="py-6 text-sm text-red-400">{containersError}</p>}
-
-          {!containersLoading && !containersError && containers.length === 0 && (
-            <div className="py-10 text-center">
-              <div className="flex flex-col items-center gap-3">
-                <Box className="h-12 w-12 text-neutral-500" />
-                <p className="text-sm text-neutral-400">{t.no_containers}</p>
-                <p className="text-xs text-neutral-500">{t.create_first_container}</p>
-              </div>
-            </div>
-          )}
 
           {!containersLoading && !containersError && containers.length > 0 && (
             <div className="space-y-4">
@@ -237,23 +234,28 @@ export function ProjectDetailPage() {
             </div>
           )}
         </SoftPanel>
-     
+
         <div className="space-y-6">
-          <InvoiceTable projectId={""} />
+          <InvoiceTable projectId={projectId || ""} />
         </div>
       </div>
-      
-      <BillingModal
-        isOpen={isBillingModalOpen}
-        onClose={() => setIsModalOpen(false)}
+
+      {/* Container Modal - Handles both Create and Edit */}
+      <ContainerModal
+        isOpen={isContainerModalOpen}
+        onClose={() => {
+          setIsContainerModalOpen(false);
+          setSelectedContainerForEdit(null);
+        }}
         projectId={projectId || ""}
+        container={selectedContainerForEdit}
+        onSuccess={() => reload()}
       />
 
-      <CreateContainerModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+      <BillingModal
+        isOpen={isBillingModalOpen}
+        onClose={() => setIsBillingModalOpen(false)}
         projectId={projectId || ""}
-        onSuccess={() => reload()}
       />
 
       <EditEnvVariablesModal
@@ -280,6 +282,7 @@ export function ProjectDetailPage() {
       projectId={projectId || ""}
       open={isLogsOpen}
       onOpenChange={setIsLogsOpen}
+        onEditContainer={handleEditContainer}
 />
     </section>
   );
