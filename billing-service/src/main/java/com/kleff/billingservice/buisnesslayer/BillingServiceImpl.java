@@ -158,9 +158,19 @@ public class BillingServiceImpl implements BillingService {
         double MEMORY = usage.getMemoryUsageGB();
         double STORAGE = 0;
         invoice.setTotalPaid((double) 0);
-        invoice.setTotalCPU((CPU * (getPrice("CPU_HOURS") != null ? getPrice("CPU_HOURS").getPrice() : 0)));
-        invoice.setTotalRAM((MEMORY * (getPrice("MEMORY_GB_HOURS") != null ? getPrice("MEMORY_GB_HOURS").getPrice() : 0)));
-        invoice.setTotalSTORAGE((STORAGE * (getPrice("STORAGE_GB") != null ? getPrice("STORAGE_GB").getPrice() : 0)));
+        
+        // Fetch prices with null safety checks
+        Price cpuPrice = getPrice("CPU_HOURS");
+        Price memoryPrice = getPrice("MEMORY_GB_HOURS");
+        Price storagePrice = getPrice("STORAGE_GB");
+        
+        if (cpuPrice == null || memoryPrice == null || storagePrice == null) {
+            throw new EntityNotFoundException("One or more price records not found");
+        }
+        
+        invoice.setTotalCPU((CPU * cpuPrice.getPrice()));
+        invoice.setTotalRAM((MEMORY * memoryPrice.getPrice()));
+        invoice.setTotalSTORAGE((STORAGE * storagePrice.getPrice()));
         invoice.setSubtotal(invoice.getTotalCPU() + invoice.getTotalRAM() + invoice.getTotalSTORAGE());
         invoice.setTaxes(invoice.getSubtotal()*taxes);
         BigDecimal bd = new BigDecimal(Double.toString((invoice.getSubtotal())+invoice.getTaxes()));
