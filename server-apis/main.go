@@ -234,7 +234,6 @@ func (s *Server) handleCreateBuild(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 }
-
 // createWebApp uses the Dynamic Client to create or update the Custom Resource
 func (s *Server) createWebApp(ctx context.Context, namespace, name, image string, req BuildRequest) error {
 	// Set default port if not provided
@@ -251,11 +250,17 @@ func (s *Server) createWebApp(ctx context.Context, namespace, name, image string
 			"metadata": map[string]interface{}{
 				"name":      name,
 				"namespace": namespace,
+				// CHANGE 1: Add containerID as a label for easy filtering (optional but recommended)
+				"labels": map[string]interface{}{
+					"container-id": req.ContainerID,
+				},
 			},
 			"spec": map[string]interface{}{
+				// CHANGE 2: Add containerID to the Spec
+				"containerID":  req.ContainerID,
 				"displayName":  req.Name,
-				"image":        image,       // Use the auto-generated image string
-				"port":         int64(port), // Ensure int64 for json serialization numbers
+				"image":        image,
+				"port":         int64(port),
 				"repoURL":      req.RepoURL,
 				"branch":       req.Branch,
 				"envVariables": req.EnvVariables,
@@ -276,17 +281,28 @@ func (s *Server) createWebApp(ctx context.Context, namespace, name, image string
 			}
 
 			// Update fields
-			// Note: We use type assertion to safely access the map
 			spec, ok := existing.Object["spec"].(map[string]interface{})
 			if !ok {
 				spec = make(map[string]interface{})
 			}
+			
+			// CHANGE 3: Ensure containerID is updated if it changed (or was missing)
+			spec["containerID"] = req.ContainerID
+			
 			spec["image"] = image
 			spec["branch"] = req.Branch
 			if req.EnvVariables != nil {
 				spec["envVariables"] = req.EnvVariables
 			}
 			existing.Object["spec"] = spec
+
+			// CHANGE 4: Update metadata labels as well
+			labels := existing.GetLabels()
+			if labels == nil {
+				labels = make(map[string]string)
+			}
+			labels["container-id"] = req.ContainerID
+			existing.SetLabels(labels)
 
 			// Submit Update
 			_, updateErr := s.DynamicClient.Resource(webAppGVR).Namespace(namespace).Update(ctx, existing, metav1.UpdateOptions{})
@@ -408,13 +424,14 @@ func (s *Server) createKanikoJob(ctx context.Context, namespace, jobName, gitRep
 	if branch != "" {
 		gitContext = fmt.Sprintf("%s#refs/heads/%s", gitContext, branch)
 	}
-
+	ttl := int32(3600)
 	job := &batchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      jobName,
 			Namespace: namespace,
 		},
 		Spec: batchv1.JobSpec{
+			TTLSecondsAfterFinished: &ttl, 
 			BackoffLimit: func(i int32) *int32 { return &i }(2),
 			Template: corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{

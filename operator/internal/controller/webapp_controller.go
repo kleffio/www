@@ -42,18 +42,30 @@ func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
+	// --- DEFINE LABELS ---
+	// We define common labels here to reuse them for Deployment, Pods, and Service.
+	// We inject the ContainerID here so we can find resources by UUID later.
+	labels := map[string]string{
+		"app":        webapp.Name,
+		"controller": "webapp",
+	}
+	if webapp.Spec.ContainerID != "" {
+		labels["container-id"] = webapp.Spec.ContainerID
+	}
+	// ---------------------
+
 	// 2. Sync Deployment
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{Name: webapp.Name, Namespace: webapp.Namespace},
 	}
 
 	op, err := controllerutil.CreateOrUpdate(ctx, r.Client, deployment, func() error {
-		labels := map[string]string{
-			"app":        webapp.Name,
-			"controller": "webapp",
-		}
+		// Update Deployment metadata labels
+		deployment.Labels = labels
 
 		if deployment.CreationTimestamp.IsZero() {
+			// Selector must correspond to the Pod template labels.
+			// Note: We usually keep selectors immutable/simple, but here we match the labels map.
 			deployment.Spec.Selector = &metav1.LabelSelector{MatchLabels: labels}
 		}
 
@@ -63,9 +75,11 @@ func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		if deployment.Spec.Template.ObjectMeta.Labels == nil {
 			deployment.Spec.Template.ObjectMeta.Labels = make(map[string]string)
 		}
+		// Apply labels to the Pod Template
 		for k, v := range labels {
 			deployment.Spec.Template.ObjectMeta.Labels[k] = v
 		}
+
 		deployment.Spec.Template.Spec.ImagePullSecrets = []corev1.LocalObjectReference{
 			{Name: "acr-creds"},
 		}
@@ -111,10 +125,9 @@ func (r *WebAppReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 	}
 
 	op, err = controllerutil.CreateOrUpdate(ctx, r.Client, service, func() error {
-		labels := map[string]string{
-			"app":        webapp.Name,
-			"controller": "webapp",
-		}
+		// Apply labels to Service metadata
+		service.Labels = labels
+
 		service.Spec.Selector = labels
 		service.Spec.Type = corev1.ServiceTypeClusterIP
 		service.Spec.Ports = []corev1.ServicePort{{

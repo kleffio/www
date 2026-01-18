@@ -122,19 +122,14 @@ func (h *MetricsHandler) GetDatabaseIOMetrics(c *gin.Context) {
 	c.JSON(http.StatusOK, metrics)
 }
 
-type ProjectMetricsRequest struct {
-	ProjectID      string   `json:"projectId" binding:"required"`
-	ContainerNames []string `json:"containerNames" binding:"required"`
-}
-
-func (h *MetricsHandler) GetProjectMetrics(c *gin.Context) {
-	var req ProjectMetricsRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+func (h *MetricsHandler) GetProjectUsageMetrics(c *gin.Context) {
+	projectID := c.Param("projectID")
+	if projectID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "projectID is required"})
 		return
 	}
 
-	metrics, err := h.metricsService.GetProjectMetrics(c.Request.Context(), req.ProjectID, req.ContainerNames)
+	metrics, err := h.metricsService.GetProjectUsageMetrics(c.Request.Context(), projectID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

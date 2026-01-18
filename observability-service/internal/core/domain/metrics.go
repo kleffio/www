@@ -61,3 +61,10 @@ type DatabaseMetrics struct {
 	NetworkTransmitHistory     []TimeSeriesDataPoint `json:"networkTransmitHistory"`
 	Source                     string                `json:"source"`
 }
+
+type ProjectUsageMetrics struct {
+	ProjectID         string  `json:"projectID"`
+	MemoryUsageGB     float64 `json:"memoryUsageGB"`
+	CPURequestCores   float64 `json:"cpuRequestCores"`
+	Window            string  `json:"window"`
+}

@@ -34,7 +34,7 @@ jobs:
     # uses: kleffio/.github/.github/workflows/_shellcheck.yml@main
     # when issue with .github repo is fixed we can add this back
     # with:
-     #  exclude: "./operator/*"
+      # exclude: "./operator/*"
 
   # --- PR-specific ---
   auto-label:

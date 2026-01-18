@@ -8,8 +8,6 @@ COPY gradle/ gradle/
 # Fix permissions
 RUN chmod +x gradlew
 
-RUN ./gradlew build --no-daemon -x test || true
-
 # Copy source
 COPY src/ src/
 
