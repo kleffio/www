@@ -6,12 +6,9 @@ name: Build and Push to ACR
   push:
     branches: [main]
 
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    env:
-      ACR_TAG: ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service.tag }}
     strategy:
       matrix:
         service:
@@ -46,7 +43,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-
       - name: Login to ACR
         uses: azure/docker-login@v1
         with:
@@ -58,12 +54,11 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.service.context }}
-          # Only push on merge to main, not on PRs (optional but recommended)
           push: ${{ github.event_name != 'pull_request' }}
-          # Tags with both 'latest' and the specific commit hash
-          tags:
-            - ${ACR_TAG}:latest
-            - ${ACR_TAG}:${{ github.sha }}
+          # Use the pipe | for multi-line strings and reference secrets/matrix directly
+          tags: |
+            ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service.tag }}:latest
+            ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service.tag }}:${{ github.sha }}
           build-args: |
             VITE_AUTH_CLIENT_ID=${{ vars.VITE_AUTH_CLIENT_ID }}
             VITE_BACKEND_URL=${{ vars.VITE_BACKEND_URL }}
