@@ -14,6 +14,6 @@ public interface ProjectRepository extends JpaRepository<Project, String> {
 
     List<Project> findByOwnerIdEquals(String userId);
 
-    @Query("SELECT p.project_i FROM projects p")
+    @Query("SELECT p.projectId FROM Project p")
     List<String> getAllProjectIds();
 }
