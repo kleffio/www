@@ -89,6 +89,7 @@
       "environment_variables": "Environment Variables",
       "edit_variables": "Edit Variables",
       "edit_environment_variables": "Edit Environment Variables",
+      "edit_container": "Edit Container",
       "visit_app": "Visit App",
       "unknown": "Unknown",
       "copied": "Copied!",
