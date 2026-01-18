@@ -2,26 +2,36 @@
 
 name: Build and Push to ACR
 
-on:
-  push: 
-    branches: [ main ]
+"on":
+  push:
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        service: [
-          { name: frontend, context: ./frontend, tag: frontend },
-          { name: project-management, context: ./project-management-service, tag: project-management-service },
-          { name: deployment, context: ./deployment-service, tag: deployment-service },
-          { name: observability, context: ./observability-service, tag: observability-service },
-          { name: user, context: ./user-service, tag: user-service },
-          { name: server-api, context: ./server-apis, tag: deployment-backend }
-        ]
-    
+        service:
+          - name: frontend
+            context: ./frontend
+            tag: frontend
+          - name: project-management
+            context: ./project-management-service
+            tag: project-management-service
+          - name: deployment
+            context: ./deployment-service
+            tag: deployment-service
+          - name: observability
+            context: ./observability-service
+            tag: observability-service
+          - name: user
+            context: ./user-service
+            tag: user-service
+          - name: server-api
+            context: ./server-apis
+            tag: deployment-backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -52,9 +62,9 @@ jobs:
           # push: ${{ github.event_name != 'pull_request' }}
           push: true
           # Tags with both 'latest' and the specific commit hash
-          tags: |
-            ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service.tag }}:latest
-            ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service.tag }}:${{ github.sha }}
+          tags:
+            - ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service.tag }}:latest
+            - ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service.tag }}:${{ github.sha }}
           build-args: |
             VITE_AUTH_CLIENT_ID=${{ vars.VITE_AUTH_CLIENT_ID }}
             VITE_BACKEND_URL=${{ vars.VITE_BACKEND_URL }}
