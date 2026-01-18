@@ -74,6 +74,7 @@
       "environment_variables": "Variables d'environnement",
       "edit_variables": "Modifier les variables",
       "edit_environment_variables": "Modifier les variables d'environnement",
+      "edit_container": "Modifier le conteneur",
       "visit_app": "Visiter l'application",
       "unknown": "Inconnu",
       "copied": "Copié !",

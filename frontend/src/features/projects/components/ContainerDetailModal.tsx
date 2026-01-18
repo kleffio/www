@@ -2,7 +2,7 @@ import React from "react";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Button } from "@shared/ui/Button";
 import { Badge } from "@shared/ui/Badge";
-import { X, ExternalLink, Settings, Hash, Box, Code, GitBranch, Copy, Play, Square, Trash2, Network } from "lucide-react";
+import { X, ExternalLink, Settings, Hash, Box, Code, GitBranch, Copy, Play, Square, Trash2, Network, Edit } from "lucide-react";
 import { formatRepoUrl, formatPort } from "@shared/lib/utils";
 import type { Container } from "@features/projects/types/Container";
 import enTranslations from "@app/locales/en/projects.json";
@@ -19,9 +19,10 @@ interface ContainerDetailModalProps {
   onClose: () => void;
   container: Container | null;
   onEditEnv?: (container: Container) => void;
+  onEditContainer?: (container: Container) => void;
 }
 
-export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: ContainerDetailModalProps) {
+export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, onEditContainer }: ContainerDetailModalProps) {
   const [copiedId, setCopiedId] = React.useState(false);
   const [locale] = React.useState(getLocale());
   const t = translations[locale].projectDetail.containerDetail;
@@ -227,6 +228,17 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv }: 
                 <Square className="mr-2 h-4 w-4" />
                 {t.stop}
               </Button>
+              {onEditContainer && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onEditContainer(container)}
+                  className="border-slate-600 bg-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-600"
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  {t.edit_container}
+                </Button>
+              )}
               {onEditEnv && (
                 <Button
                   size="sm"
