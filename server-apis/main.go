@@ -225,7 +225,7 @@ func (s *Server) handleCreateBuild(w http.ResponseWriter, r *http.Request) {
 		"displayName", req.Name, 
 		"image", generatedImage,
 	)
-
+	
 	// 7. Success Response
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(Response{
@@ -237,7 +237,71 @@ func (s *Server) handleCreateBuild(w http.ResponseWriter, r *http.Request) {
 		Existed:   existed,
 	})
 }
+// createWebApp uses the Dynamic Client to create or update the Custom Resource
+	func (s *Server) createWebApp(ctx context.Context, namespace, resourceName, image string, req BuildRequest) error {
+		port := req.Port
+		if port == 0 {
+			port = 8080
+		}
 
+		// Construct the Unstructured object
+		webApp := &unstructured.Unstructured{
+			Object: map[string]interface{}{
+				"apiVersion": "kleff.kleff.io/v1",
+				"kind":       "WebApp",
+				"metadata": map[string]interface{}{
+					"name":      resourceName, // UUID
+					"namespace": namespace,
+					"labels": map[string]interface{}{
+						"container-id": req.ContainerID,
+					},
+				},
+				"spec": map[string]interface{}{
+					"containerID":  req.ContainerID,
+					"displayName":  req.Name, // User-friendly name
+					"image":        image,
+					"port":         int64(port),
+					"repoURL":      req.RepoURL,
+					"branch":       req.Branch,
+					"envVariables": req.EnvVariables,
+				},
+			},
+		}
+
+		_, err := s.DynamicClient.Resource(webAppGVR).Namespace(namespace).Create(ctx, webApp, metav1.CreateOptions{})
+		if err != nil {
+			if k8serrors.IsAlreadyExists(err) {
+				s.Logger.Info("Updating existing WebApp", "id", resourceName)
+
+				existing, getErr := s.DynamicClient.Resource(webAppGVR).Namespace(namespace).Get(ctx, resourceName, metav1.GetOptions{})
+				if getErr != nil {
+					return getErr
+				}
+
+				spec, ok := existing.Object["spec"].(map[string]interface{})
+				if !ok {
+					spec = make(map[string]interface{})
+				}
+				
+				// Update ALL fields to ensure they reflect the latest UI changes
+				spec["displayName"] = req.Name
+				spec["image"]       = image
+				spec["port"]        = int64(port)
+				spec["branch"]      = req.Branch
+				spec["repoURL"]     = req.RepoURL
+				if req.EnvVariables != nil {
+					spec["envVariables"] = req.EnvVariables
+				}
+				
+				existing.Object["spec"] = spec
+
+				_, updateErr := s.DynamicClient.Resource(webAppGVR).Namespace(namespace).Update(ctx, existing, metav1.UpdateOptions{})
+				return updateErr
+			}
+			return err
+		}
+		return nil
+	}
 func (s *Server) handleUpdateWebApp(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPatch && r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -427,3 +491,4 @@ func enableCors(next http.HandlerFunc) http.HandlerFunc {
 		next(w, r)
 	}
 }
+
