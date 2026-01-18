@@ -48,7 +48,7 @@ export function ContainerStatusCard({ container, onManage, onViewLogs }: Contain
       </Badge>
 
       {/* Right side: Actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center space-x-2 ml-auto">
         {onViewLogs && (
           <Button
             size="sm"

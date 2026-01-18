@@ -69,13 +69,8 @@ export function ProjectDetailPage() {
   const ownerUser = useUsername(id);
 
   const handleViewLogs = (container: Container) => {
-  setLogsContainer(container);
-  setIsLogsOpen(true);
-  };
-
-  const handleViewLogs = (container: Container) => {
-  setLogsContainer(container);
-  setIsLogsOpen(true);
+    setLogsContainer(container);
+    setIsLogsOpen(true);
   };
 
   /**
@@ -96,12 +91,12 @@ export function ProjectDetailPage() {
     console.log('isEnvModalOpen set to true');
   };
 
-  const handleEditContainer = (container: Container) => {
-    console.log('handleEditContainer called with container:', container.name);
-    setSelectedContainerForEdit(container);
-    setIsContainerModalOpen(true);
-    setIsDetailModalOpen(false); // Close the detail modal when opening edit modal
-  };
+  // const handleEditContainer = (container: Container) => {
+  //   console.log('handleEditContainer called with container:', container.name);
+  //   setSelectedContainerForEdit(container);
+  //   setIsContainerModalOpen(true);
+  //   setIsDetailModalOpen(false); // Close the detail modal when opening edit modal
+  // };
 
   const handleSaveEnvVariables = async (containerId: string, envVariables: Record<string, string>) => {
     await updateContainerEnvVariables(containerId, envVariables);
@@ -278,12 +273,11 @@ export function ProjectDetailPage() {
         onEditEnv={handleEditEnv}
       />
       <SimpleContainerLogsSheet
-      container={logsContainer}
-      projectId={projectId || ""}
-      open={isLogsOpen}
-      onOpenChange={setIsLogsOpen}
-        onEditContainer={handleEditContainer}
-/>
+        container={logsContainer}
+        projectId={projectId || ""}
+        open={isLogsOpen}
+        onOpenChange={setIsLogsOpen}
+      />
     </section>
   );
 }
