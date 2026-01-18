@@ -1,5 +1,3 @@
----
-
 name: Build and Push to ACR
 
 "on":
@@ -9,6 +7,8 @@ name: Build and Push to ACR
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    env:
+      REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
     strategy:
       matrix:
         service:
@@ -55,10 +55,9 @@ jobs:
         with:
           context: ${{ matrix.service.context }}
           push: ${{ github.event_name != 'pull_request' }}
-          # Use the pipe | for multi-line strings and reference secrets/matrix directly
           tags: |
-            ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service.tag }}:latest
-            ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service.tag }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ matrix.service.tag }}:latest
+            ${{ env.REGISTRY }}/${{ matrix.service.tag }}:${{ github.sha }}
           build-args: |
             VITE_AUTH_CLIENT_ID=${{ vars.VITE_AUTH_CLIENT_ID }}
             VITE_BACKEND_URL=${{ vars.VITE_BACKEND_URL }}
