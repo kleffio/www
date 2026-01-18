@@ -2,7 +2,7 @@ import { useState, useEffect, type FormEvent } from "react";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Button } from "@shared/ui/Button";
 import { X, Plus, Trash2 } from "lucide-react";
-import updateContainer from "@features/projects/api/updateContainer"; 
+import updateContainer from "@features/projects/api/updateContainer";
 import type { Container } from "@features/projects/types/Container";
 import createContainer from "@features/projects/api/createContainer";
 
@@ -30,11 +30,10 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
   useEffect(() => {
     if (container && isOpen) {
       setName(container.name || "");
-      setImage(container.image || "");
       setPort(container.ports?.[0]?.toString() || "");
       setRepoUrl(container.repoUrl || "");
       setBranch(container.branch || "");
-      
+
       if (container.envVariables) {
         const envs = Object.entries(container.envVariables).map(([key, value]) => ({ key, value }));
         setEnvVariables(envs);
@@ -59,7 +58,7 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
       setError("Container name is required.");
       return;
     }
-    
+
     const portNum = parseInt(port);
     if (isNaN(portNum) || portNum <= 0) {
       setError("Port must be a positive number.");

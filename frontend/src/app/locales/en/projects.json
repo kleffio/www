@@ -61,6 +61,40 @@
       "ports": "PORTS",
       "created_at": "CREATED AT"
     },
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "visit_app": "Visit App",
+    "manage": "Manage",
+    "modal": {
+      "source": "Source",
+      "runtime": "Runtime",
+      "repository": "Repository",
+      "image_version": "Image Version",
+      "deployment_date": "Deployment Date",
+      "uptime": "Uptime",
+      "actions": "Actions",
+      "restart": "Restart",
+      "stop": "Stop",
+      "edit_env": "Edit Environment Variables",
+      "delete": "Delete"
+    },
+    "containerDetail": {
+      "details": "Details",
+      "container_id": "Container ID",
+      "ports": "Ports",
+      "none": "None",
+      "branch": "Branch",
+      "main": "main",
+      "source_code": "Source Code",
+      "click_to_open_repo": "Click to open repository",
+      "environment_variables": "Environment Variables",
+      "edit_variables": "Edit Variables",
+      "edit_environment_variables": "Edit Environment Variables",
+      "visit_app": "Visit App",
+      "unknown": "Unknown",
+      "copied": "Copied!",
+      "restart": "Restart",
+      "stop": "Stop",
+      "delete": "Delete"
+    }
   }
 }

@@ -2,15 +2,17 @@ import { useParams, Link } from "react-router-dom";
 import { useState } from "react";
 import { Button } from "@shared/ui/Button";
 import { SoftPanel } from "@shared/ui/SoftPanel";
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@shared/ui/Table";
 import { Spinner } from "@shared/ui/Spinner";
 import { MiniCard } from "@shared/ui/MiniCard";
 import { Badge } from "@shared/ui/Badge";
-import { Hash, User, Layers, Activity, Calendar, Clock, Box, Settings, ExternalLink } from "lucide-react";
+import { GradientIcon } from "@shared/ui/GradientIcon";
+import { Hash, User, Layers, Activity, Calendar, Clock, Box } from "lucide-react";
 import { useProject } from "@features/projects/hooks/useProject";
 import { useProjectContainers } from "@features/projects/hooks/useProjectContainers";
 import { ContainerModal } from "@features/projects/components/CreateContainerModal";
 import { EditEnvVariablesModal } from "@features/projects/components/EditEnvVariablesModal";
+import { ContainerStatusCard } from "@features/projects/components/ContainerStatusCard";
+import { ContainerDetailModal } from "@features/projects/components/ContainerDetailModal";
 import updateContainerEnvVariables from "@features/projects/api/updateContainerEnvVariables";
 import type { Container } from "@features/projects/types/Container";
 import { ROUTES } from "@app/routes/routes";
@@ -27,15 +29,6 @@ const translations = {
   fr: frTranslations
 };
 
-const sanitizeAppName = (name: string) => {
-  if (!name) return "";
-  return name
-    .toLowerCase()
-    .replace(/_/g, '-')
-    .replace(/\s+/g, '-')
-    .replace(/^-+|-+$/g, '');
-};
-
 export function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const { project, isLoading: projectLoading, error: projectError } = useProject(projectId || "");
@@ -45,19 +38,19 @@ export function ProjectDetailPage() {
     error: containersError,
     reload
   } = useProjectContainers(projectId || "");
-  
+
   // State for the Unified Container Modal (Create/Edit)
   const [isContainerModalOpen, setIsContainerModalOpen] = useState(false);
   const [selectedContainerForEdit, setSelectedContainerForEdit] = useState<Container | null>(null);
-  
+
   // State for other modals
   const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
-  const [selectedContainerForEnv, setSelectedContainerForEnv] = useState<Container | null>(null);
-  
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedContainer, setSelectedContainer] = useState<Container | null>(null);
   const [locale] = useState(getLocale());
   const t = translations[locale].projectDetail;
-  
+
   const id = project?.ownerId || "";
   const ownerUser = useUsername(id);
 
@@ -70,19 +63,13 @@ export function ProjectDetailPage() {
   };
 
   /**
-   * Logic for Editing an existing container
-   */
-  const handleEditContainer = (container: Container) => {
-    setSelectedContainerForEdit(container); // Pass the container object for "Edit" mode
-    setIsContainerModalOpen(true);
-  };
-
-  /**
    * Logic for quick Env editing (if you still want the separate modal)
    */
   const handleEditEnv = (container: Container) => {
-    setSelectedContainerForEnv(container);
+    console.log('handleEditEnv called with container:', container.name);
+    setSelectedContainer(container);
     setIsEnvModalOpen(true);
+    console.log('isEnvModalOpen set to true');
   };
 
   const handleSaveEnvVariables = async (containerId: string, envVariables: Record<string, string>) => {
@@ -117,7 +104,7 @@ export function ProjectDetailPage() {
     );
   }
 
-  const containerNames = !containersLoading && containers?.map(c => c.name).filter(Boolean) || [];
+
 
   return (
     <section className="h-full">
@@ -188,132 +175,39 @@ export function ProjectDetailPage() {
           </div>
         </SoftPanel>
 
-        {!containersLoading && containerNames.length > 0 && (
-          <ProjectMetricsCard 
-            projectId={project.projectId}
-            containerNames={containerNames}
-          />
-        )}
+        <ProjectMetricsCard
+          projectId={project.projectId}
+        />
 
-           
-<SoftPanel>
-  <div className="mb-6 flex items-center gap-3">
-    <Box className="h-5 w-5 text-neutral-400" />
-    <h2 className="text-lg font-semibold text-neutral-50">{t.running_containers}</h2>
-    {containers && containers.length > 0 && (
-      <Badge variant="info" className="text-xs">
-        {containers.length} {containers.length === 1 ? t.container : t.containers}
-      </Badge>
-    )}
-  </div>
+        <SoftPanel>
+          <div className="mb-6 flex items-center gap-3">
+            <GradientIcon icon={Box} />
+            <h2 className="text-lg font-semibold text-neutral-50">
+              {t.running_containers} {containers && containers.length > 0 && `(${containers.length})`}
+            </h2>
+          </div>
 
-  {/* 1. Show Spinner while loading */}
-  {containersLoading && (
-    <div className="flex justify-center py-10">
-      <Spinner />
-    </div>
-  )}
+          {!containersLoading && !containersError && containers.length > 0 && (
+            <div className="space-y-4">
+              {containers.map((container) => (
+                <ContainerStatusCard
+                  key={container.containerId}
+                  container={container}
+                  onManage={(container) => {
+                    setSelectedContainer(container);
+                    setIsDetailModalOpen(true);
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </SoftPanel>
 
-  {/* 2. Show Table if containers exist */}
-  {!containersLoading && !containersError && containers.length > 0 && (
-    <Table>
-      <TableHeader>
-        <TableRow className="border-b border-white/10 bg-white/5 hover:bg-white/5">
-          <TableHead>{t.table.name}</TableHead>
-          <TableHead>{t.table.status}</TableHead>
-          <TableHead>App URL</TableHead>
-          <TableHead>{t.table.image}</TableHead>
-          <TableHead>{t.table.ports}</TableHead>
-          <TableHead>Repository</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {containers.map((container) => {
-          const appUrl = `https://${sanitizeAppName(container.name)}.kleff.io`;
-          return (
-            <TableRow key={container.containerId} className="hover:bg-white/5">
-              <TableCell className="font-semibold text-neutral-50">{container.name}</TableCell>
-              <TableCell>
-                <Badge variant={container.status?.toLowerCase().includes("running") ? "success" : "secondary"} className="text-xs">
-                  {container.status || t.unknown}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <a href={appUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 hover:text-blue-300">
-                  Visit <ExternalLink className="h-3 w-3" />
-                </a>
-              </TableCell>
-              <TableCell className="font-mono text-xs text-neutral-300 truncate max-w-[150px]">{container.image}</TableCell>
-              <TableCell>
-                <div className="flex flex-wrap gap-1">
-                  {container.ports?.map((port, i) => (
-                    <Badge key={i} variant="outline" className="px-1.5 py-0.5 text-[10px]">{port}</Badge>
-                  ))}
-                </div>
-              </TableCell>
-              <TableCell className="font-mono text-xs text-neutral-300 truncate max-w-[100px]">{container.repoUrl || "—"}</TableCell>
-              
-              <TableCell className="text-right">
-                <div className="flex justify-end gap-2">
-                   <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleEditContainer(container)}
-                    className="rounded-full px-3 py-1.5 text-xs text-neutral-300 hover:text-white"
-                  >
-                    <Settings className="mr-1 h-3 w-3" />
-                    Edit
-                  </Button>
-                  
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleEditEnv(container)}
-                    className="rounded-full px-3 py-1.5 text-xs"
-                  >
-                    Env
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
-  )}
-
-  {/* 3. EMPTY STATE: Show if not loading and no containers found */}
-  {!containersLoading && !containersError && containers.length === 0 && (
-    <div className="flex flex-col items-center justify-center py-12 text-center">
-      <div className="mb-4 rounded-full bg-white/5 p-6">
-        <Box className="h-10 w-10 text-neutral-500 opacity-50" />
-      </div>
-      <h3 className="text-lg font-medium text-neutral-200">
-        {t.no_containers}
-      </h3>
-      <p className="mt-2 max-w-xs text-sm text-neutral-400">
-        {t.no_containers_description || "This project doesn't have any containers yet. Create one to get started."}
-      </p>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleCreateNew}
-        className="mt-6 rounded-full border-white/10 bg-white/5 hover:bg-white/10"
-      >
-        {t.create_first_container || "Deploy your first container"}
-      </Button>
-    </div>
-  )}
-</SoftPanel>
-
-   
-     
         <div className="space-y-6">
           <InvoiceTable projectId={projectId || ""} />
         </div>
       </div>
-      
+
       {/* Container Modal - Handles both Create and Edit */}
       <ContainerModal
         isOpen={isContainerModalOpen}
@@ -336,10 +230,20 @@ export function ProjectDetailPage() {
         isOpen={isEnvModalOpen}
         onClose={() => {
           setIsEnvModalOpen(false);
-          setSelectedContainerForEnv(null);
+          // Don't clear selectedContainer here as ContainerDetailModal is still open
         }}
-        container={selectedContainerForEnv}
+        container={selectedContainer}
         onSave={handleSaveEnvVariables}
+      />
+
+      <ContainerDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => {
+          setIsDetailModalOpen(false);
+          setSelectedContainer(null);
+        }}
+        container={selectedContainer}
+        onEditEnv={handleEditEnv}
       />
     </section>
   );

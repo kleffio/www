@@ -61,6 +61,25 @@
       "ports": "PORTS",
       "created_at": "CRÉÉ LE"
     },
-    "unknown": "Inconnu"
+    "unknown": "Inconnu",
+    "containerDetail": {
+      "details": "Détails",
+      "container_id": "ID du conteneur",
+      "ports": "Ports",
+      "none": "Aucun",
+      "branch": "Branche",
+      "main": "main",
+      "source_code": "Code source",
+      "click_to_open_repo": "Cliquez pour ouvrir le dépôt",
+      "environment_variables": "Variables d'environnement",
+      "edit_variables": "Modifier les variables",
+      "edit_environment_variables": "Modifier les variables d'environnement",
+      "visit_app": "Visiter l'application",
+      "unknown": "Inconnu",
+      "copied": "Copié !",
+      "restart": "Redémarrer",
+      "stop": "Arrêter",
+      "delete": "Supprimer"
+    }
   }
 }
