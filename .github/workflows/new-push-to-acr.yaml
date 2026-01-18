@@ -54,7 +54,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.service.context }}
-          push: ${{ github.event_name != 'pull_request' }}
+          # push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: |
             ${{ env.REGISTRY }}/${{ matrix.service.tag }}:latest
             ${{ env.REGISTRY }}/${{ matrix.service.tag }}:${{ github.sha }}
