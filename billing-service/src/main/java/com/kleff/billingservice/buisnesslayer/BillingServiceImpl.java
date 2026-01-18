@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -179,16 +180,16 @@ public class BillingServiceImpl implements BillingService {
         return invoiceItemsByProject;
     }
 
-    public Invoice aggregateUsageRecordIntoInvoice(List<UsageRecord> usageRecords) {
+    public Invoice getLastsMonthUsageRecords(List<UsageRecord> usageRecords) {
+
+
         Invoice invoice = new Invoice();
         double CPU = 0;
         double MEMORY = 0;
         double STORAGE = 0;
-        for (UsageRecord usageRecord : usageRecords) {
-            CPU += usageRecord.getCPU_HOURS();
-            MEMORY += usageRecord.getMEMORY_GB_HOURS();
-            STORAGE += usageRecord.getSTORAGE_GB();
-        }
+
+
+
         invoice.setTotalPaid((double) 0);
         invoice.setTotalCPU((CPU * getPrice("CPU_HOURS").getPrice()));
         invoice.setTotalCPU((MEMORY * getPrice("MEMORY_GB_HOURS").getPrice()));
@@ -201,15 +202,22 @@ public class BillingServiceImpl implements BillingService {
         return invoice;
     }
 
+    public List<Project> getLastsMonthUsageRecords(List<UsageRecord> usageRecords) {
+
+
 
     @Scheduled(cron = "0 0 3 1 * ?")
     @Transactional
     public void CreateMonthlyBills(){
-    Map<String, List<UsageRecord>> mappedRecords = getUsageRecordsFromLastMonthGroupedByProject();
+        YearMonth previousMonth = YearMonth.now().minusMonths(1);
+        int daysInPreviousMonth = previousMonth.lengthOfMonth();
 
-    mappedRecords.forEach((projectId, usageRecords) -> {
-    aggregateUsageRecordIntoInvoice(usageRecords);
-    });
+
+
+//    Map<String, List<UsageRecord>> mappedRecords = getUsageRecordsFromLastMonthGroupedByProject();
+//    mappedRecords.forEach((projectId, usageRecords) -> {
+//    aggregateUsageRecordIntoInvoice(usageRecords);
+//    });
 
 
 
