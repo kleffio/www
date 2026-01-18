@@ -20,14 +20,26 @@ const translations = {
 };
 
 export function ProjectsPage() {
-  const [locale] = useState(getLocale());
+  const [locale, setLocaleState] = useState(getLocale());
   const { projects, isLoading, error, reload } = useProjects();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [invitationCount, setInvitationCount] = useState(0);
   const auth = useAuth();
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLocale = getLocale();
+      if (currentLocale !== locale) {
+        setLocaleState(currentLocale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [locale]);
+  
   const t = translations[locale].projects;
   const tModal = translations[locale].projectModal;
+  const tNotifications = translations[locale].notifications;
   
   const currentUserId = auth.user?.profile?.sub;
 
@@ -147,11 +159,11 @@ export function ProjectsPage() {
                       <Bell className="h-6 w-6 text-blue-400" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-semibold text-neutral-50">Notifications</h2>
+                      <h2 className="text-xl font-semibold text-neutral-50">{tNotifications.header_title}</h2>
                       <p className="text-sm text-neutral-400">
                         {invitationCount > 0 
-                          ? `${invitationCount} pending invitation${invitationCount !== 1 ? 's' : ''}`
-                          : 'No new notifications'
+                          ? `${invitationCount} ${invitationCount !== 1 ? tNotifications.pending_invitations : tNotifications.pending_invitation}`
+                          : tNotifications.no_new_notifications
                         }
                       </p>
                     </div>
@@ -258,7 +270,7 @@ export function ProjectsPage() {
             {collaboratedProjects.length > 0 && (
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <h2 className="text-lg font-semibold text-neutral-50">Shared with Me</h2>
+                  <h2 className="text-lg font-semibold text-neutral-50">{t.shared_with_me}</h2>
                   <span className="text-sm text-neutral-400">({collaboratedProjects.length})</span>
                 </div>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -272,7 +284,7 @@ export function ProjectsPage() {
                         <div className="flex flex-col h-full min-h-[180px]">
                           <div className="flex items-start justify-between mb-3">
                             <Badge variant="info" className="text-xs">
-                              Collaborator
+                              {t.collaborator_badge}
                             </Badge>
                           </div>
                           

@@ -6,6 +6,8 @@
     "create_first": "Create your first project",
     "loading": "Loading projects…",
     "failed_load_projects": "Failed to load projects",
+    "collaborator_badge": "Collaborator",
+    "shared_with_me": "Shared with Me",
     "table": {
       "name": "Name",
       "description": "Description",
@@ -97,5 +99,120 @@
       "stop": "Stop",
       "delete": "Delete"
     }
+  },
+  "teamModal": {
+    "title": "Team Management",
+    "subtitle": "Manage collaborators and permissions",
+    "team_members": "Team Members",
+    "pending_invitations": "Pending Invitations",
+    "custom_roles": "Custom Roles",
+    "invite_member": "Invite Member",
+    "create_role": "Create Custom Role",
+    "loading": "Loading team...",
+    "no_members": "No team members yet",
+    "no_invitations": "No pending invitations",
+    "no_custom_roles": "No custom roles created",
+    "table": {
+      "user": "User",
+      "role": "Role",
+      "status": "Status",
+      "invited_by": "Invited By",
+      "invited_at": "Invited At",
+      "accepted_at": "Accepted At",
+      "actions": "Actions",
+      "email": "Email"
+    },
+    "roles": {
+      "OWNER": "Owner",
+      "ADMIN": "Admin",
+      "DEVELOPER": "Developer",
+      "VIEWER": "Viewer"
+    },
+    "role_descriptions": {
+      "OWNER": "Full access including project deletion",
+      "ADMIN": "Manage team, deploy, and configure",
+      "DEVELOPER": "Deploy containers and manage env vars",
+      "VIEWER": "Read-only access"
+    },
+    "inviteModal": {
+      "title": "Invite Collaborator",
+      "email": "Email Address",
+      "email_placeholder": "collaborator@example.com",
+      "role_type": "Role Type",
+      "builtin": "Built-in Role",
+      "custom": "Custom Role",
+      "select_role": "Select Role",
+      "select_custom_role": "Select Custom Role",
+      "inviting": "Inviting...",
+      "invite_button": "Send Invitation",
+      "cancel": "Cancel"
+    },
+    "createRoleModal": {
+      "title": "Create Custom Role",
+      "subtitle": "Define permissions for a custom role",
+      "role_name": "Role Name",
+      "role_name_placeholder": "e.g., Deploy Manager",
+      "description": "Description",
+      "description_placeholder": "Brief description of this role",
+      "permissions": "Permissions",
+      "select_permissions": "Select the permissions for this role",
+      "creating": "Creating...",
+      "create_button": "Create Role",
+      "cancel": "Cancel"
+    },
+    "permissions": {
+      "READ_PROJECT": "Read Project",
+      "READ_PROJECT_DESC": "View project details",
+      "WRITE_PROJECT": "Write Project",
+      "WRITE_PROJECT_DESC": "Edit project settings",
+      "DEPLOY": "Deploy",
+      "DEPLOY_DESC": "Deploy containers",
+      "MANAGE_ENV_VARS": "Manage Env Vars",
+      "MANAGE_ENV_VARS_DESC": "Edit environment variables",
+      "VIEW_LOGS": "View Logs",
+      "VIEW_LOGS_DESC": "View container logs",
+      "VIEW_METRICS": "View Metrics",
+      "VIEW_METRICS_DESC": "View project metrics",
+      "MANAGE_COLLABORATORS": "Manage Team",
+      "MANAGE_COLLABORATORS_DESC": "Invite and remove collaborators",
+      "DELETE_PROJECT": "Delete Project",
+      "DELETE_PROJECT_DESC": "Delete the project",
+      "MANAGE_BILLING": "Manage Billing",
+      "MANAGE_BILLING_DESC": "View and manage billing"
+    },
+    "actions": {
+      "remove": "Remove",
+      "cancel_invitation": "Cancel",
+      "change_role": "Change Role",
+      "updating": "Updating..."
+    },
+    "messages": {
+      "invitation_sent": "Invitation sent successfully!",
+      "invitation_cancelled": "Invitation cancelled",
+      "member_removed": "Member removed from project",
+      "role_updated": "Role updated successfully",
+      "role_created": "Custom role created successfully!",
+      "error_loading": "Failed to load team data",
+      "error_inviting": "Failed to send invitation",
+      "error_removing": "Failed to remove member",
+      "error_updating": "Failed to update role",
+      "error_creating_role": "Failed to create custom role"
+    }
+  },
+  "notifications": {
+    "title": "Pending Invitations",
+    "header_title": "Notifications",
+    "no_new_notifications": "No new notifications",
+    "pending_invitation": "pending invitation",
+    "pending_invitations": "pending invitations",
+    "loading": "Loading invitations...",
+    "no_notifications": "No notifications",
+    "all_caught_up": "You're all caught up!",
+    "project_invitation": "Project Invitation",
+    "expires": "Expires",
+    "accept": "Accept",
+    "decline": "Decline",
+    "error_accept": "Failed to accept invitation",
+    "error_reject": "Failed to reject invitation"
   }
 }

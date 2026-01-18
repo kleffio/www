@@ -5,6 +5,14 @@ import { Badge } from '@shared/ui/Badge';
 import { Mail, Check, X } from 'lucide-react';
 import { getMyInvitations, acceptInvitation, rejectInvitation } from '../api/invitations';
 import fetchProject from '../api/getProject';
+import enTranslations from '@app/locales/en/projects.json';
+import frTranslations from '@app/locales/fr/projects.json';
+import { getLocale } from '@app/locales/locale';
+
+const translations = {
+  en: enTranslations,
+  fr: frTranslations
+};
 
 interface Invitation {
   id: number;
@@ -29,9 +37,22 @@ interface PendingInvitationsProps {
 }
 
 export function PendingInvitations({ onUpdate }: PendingInvitationsProps) {
+  const [locale, setLocaleState] = useState(getLocale());
   const [invitations, setInvitations] = useState<InvitationWithProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<number | null>(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLocale = getLocale();
+      if (currentLocale !== locale) {
+        setLocaleState(currentLocale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [locale]);
+
+  const t = translations[locale].notifications;
 
   const loadInvitations = async () => {
     try {
@@ -75,7 +96,7 @@ export function PendingInvitations({ onUpdate }: PendingInvitationsProps) {
       onUpdate?.();
     } catch (error) {
       console.error('Failed to accept invitation:', error);
-      alert('Failed to accept invitation');
+      alert(t.error_accept);
     } finally {
       setProcessing(null);
     }
@@ -89,7 +110,7 @@ export function PendingInvitations({ onUpdate }: PendingInvitationsProps) {
       onUpdate?.();
     } catch (error) {
       console.error('Failed to reject invitation:', error);
-      alert('Failed to reject invitation');
+      alert(t.error_reject);
     } finally {
       setProcessing(null);
     }
@@ -98,7 +119,7 @@ export function PendingInvitations({ onUpdate }: PendingInvitationsProps) {
   if (loading) {
     return (
       <SoftPanel>
-        <p className="text-sm text-neutral-400">Loading invitations...</p>
+        <p className="text-sm text-neutral-400">{t.loading}</p>
       </SoftPanel>
     );
   }
@@ -107,7 +128,7 @@ export function PendingInvitations({ onUpdate }: PendingInvitationsProps) {
     <SoftPanel>
       <div className="flex items-center gap-2 mb-4">
         <Mail className="h-5 w-5 text-blue-400" />
-        <h3 className="text-lg font-semibold text-neutral-50">Pending Invitations</h3>
+        <h3 className="text-lg font-semibold text-neutral-50">{t.title}</h3>
         {invitations.length > 0 && (
           <Badge variant="info" className="text-xs">
             {invitations.length}
@@ -118,8 +139,8 @@ export function PendingInvitations({ onUpdate }: PendingInvitationsProps) {
       {invitations.length === 0 ? (
         <div className="py-8 text-center">
           <Mail className="h-12 w-12 text-neutral-600 mx-auto mb-3" />
-          <p className="text-sm text-neutral-400">No notifications</p>
-          <p className="text-xs text-neutral-500 mt-1">You're all caught up!</p>
+          <p className="text-sm text-neutral-400">{t.no_notifications}</p>
+          <p className="text-xs text-neutral-500 mt-1">{t.all_caught_up}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -131,7 +152,7 @@ export function PendingInvitations({ onUpdate }: PendingInvitationsProps) {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <span className="font-medium text-neutral-200">
-                  {invitation.projectName || 'Project Invitation'}
+                  {invitation.projectName || t.project_invitation}
                 </span>
                 <Badge variant="info" className="text-xs">
                   {invitation.customRoleName || invitation.role}
@@ -143,7 +164,7 @@ export function PendingInvitations({ onUpdate }: PendingInvitationsProps) {
                 </p>
               )}
               <p className="text-xs text-neutral-500">
-                Expires: {new Date(invitation.expiresAt).toLocaleDateString()}
+                {t.expires}: {new Date(invitation.expiresAt).toLocaleDateString()}
               </p>
             </div>
 
@@ -155,7 +176,7 @@ export function PendingInvitations({ onUpdate }: PendingInvitationsProps) {
                 className="bg-green-500 hover:bg-green-600 text-white rounded-full px-4"
               >
                 <Check className="h-4 w-4 mr-1" />
-                Accept
+                {t.accept}
               </Button>
               <Button
                 size="sm"
@@ -165,7 +186,7 @@ export function PendingInvitations({ onUpdate }: PendingInvitationsProps) {
                 className="rounded-full px-4"
               >
                 <X className="h-4 w-4 mr-1" />
-                Decline
+                {t.decline}
               </Button>
             </div>
           </div>

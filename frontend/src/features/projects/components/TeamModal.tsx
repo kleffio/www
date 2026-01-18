@@ -11,6 +11,14 @@ import { UserPlus, Trash2, X, Mail, Edit2, Users, CheckSquare, Square, Lock, Plu
 import { getProjectCollaborators, deleteCollaborator, updateCollaboratorRole } from '../api/collaborators';
 import { createInvitation, getProjectInvitations, deleteInvitation, type Invitation } from '../api/invitations';
 import { getProjectCustomRoles, createCustomRole, type CustomRole } from '../api/customRoles';
+import enTranslations from '@app/locales/en/projects.json';
+import frTranslations from '@app/locales/fr/projects.json';
+import { getLocale } from '@app/locales/locale';
+
+const translations = {
+  en: enTranslations,
+  fr: frTranslations
+};
 
 interface Collaborator {
   id: number;
@@ -32,34 +40,48 @@ interface TeamModalProps {
   userRole: 'OWNER' | 'ADMIN' | 'DEVELOPER' | 'VIEWER';
 }
 
-const ROLE_DESCRIPTIONS = {
-  OWNER: 'Full access including project deletion',
-  ADMIN: 'Manage team, deploy, and configure',
-  DEVELOPER: 'Deploy containers and manage env vars',
-  VIEWER: 'Read-only access',
-};
-
-const AVAILABLE_PERMISSIONS = [
-  { value: 'READ_PROJECT', label: 'Read Project', description: 'View project details' },
-  { value: 'WRITE_PROJECT', label: 'Write Project', description: 'Edit project settings' },
-  { value: 'DEPLOY', label: 'Deploy', description: 'Deploy containers' },
-  { value: 'MANAGE_ENV_VARS', label: 'Manage Env Vars', description: 'Edit environment variables' },
-  { value: 'VIEW_LOGS', label: 'View Logs', description: 'View container logs' },
-  { value: 'VIEW_METRICS', label: 'View Metrics', description: 'View project metrics' },
-  { value: 'MANAGE_COLLABORATORS', label: 'Manage Team', description: 'Invite and remove collaborators' },
-  { value: 'DELETE_PROJECT', label: 'Delete Project', description: 'Delete the project' },
-  { value: 'MANAGE_BILLING', label: 'Manage Billing', description: 'View and manage billing' },
-];
-
-// Role-based default permissions (like AWS IAM roles)
-const ROLE_DEFAULT_PERMISSIONS: Record<string, string[]> = {
-  VIEWER: ['READ_PROJECT', 'VIEW_LOGS', 'VIEW_METRICS'],
-  DEVELOPER: ['READ_PROJECT', 'VIEW_LOGS', 'VIEW_METRICS', 'DEPLOY', 'MANAGE_ENV_VARS'],
-  ADMIN: ['READ_PROJECT', 'WRITE_PROJECT', 'DEPLOY', 'MANAGE_ENV_VARS', 'VIEW_LOGS', 'VIEW_METRICS', 'MANAGE_COLLABORATORS', 'MANAGE_BILLING'],
-  OWNER: ['READ_PROJECT', 'WRITE_PROJECT', 'DEPLOY', 'MANAGE_ENV_VARS', 'VIEW_LOGS', 'VIEW_METRICS', 'MANAGE_COLLABORATORS', 'DELETE_PROJECT', 'MANAGE_BILLING'],
-};
-
 export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalProps) {
+  const [locale, setLocaleState] = useState(getLocale());
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLocale = getLocale();
+      if (currentLocale !== locale) {
+        setLocaleState(currentLocale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [locale]);
+  
+  const t = translations[locale].teamModal;
+  
+  const ROLE_DESCRIPTIONS = {
+    OWNER: t.role_descriptions.OWNER,
+    ADMIN: t.role_descriptions.ADMIN,
+    DEVELOPER: t.role_descriptions.DEVELOPER,
+    VIEWER: t.role_descriptions.VIEWER,
+  };
+
+  const AVAILABLE_PERMISSIONS = [
+    { value: 'READ_PROJECT', label: t.permissions.READ_PROJECT, description: t.permissions.READ_PROJECT_DESC },
+    { value: 'WRITE_PROJECT', label: t.permissions.WRITE_PROJECT, description: t.permissions.WRITE_PROJECT_DESC },
+    { value: 'DEPLOY', label: t.permissions.DEPLOY, description: t.permissions.DEPLOY_DESC },
+    { value: 'MANAGE_ENV_VARS', label: t.permissions.MANAGE_ENV_VARS, description: t.permissions.MANAGE_ENV_VARS_DESC },
+    { value: 'VIEW_LOGS', label: t.permissions.VIEW_LOGS, description: t.permissions.VIEW_LOGS_DESC },
+    { value: 'VIEW_METRICS', label: t.permissions.VIEW_METRICS, description: t.permissions.VIEW_METRICS_DESC },
+    { value: 'MANAGE_COLLABORATORS', label: t.permissions.MANAGE_COLLABORATORS, description: t.permissions.MANAGE_COLLABORATORS_DESC },
+    { value: 'DELETE_PROJECT', label: t.permissions.DELETE_PROJECT, description: t.permissions.DELETE_PROJECT_DESC },
+    { value: 'MANAGE_BILLING', label: t.permissions.MANAGE_BILLING, description: t.permissions.MANAGE_BILLING_DESC },
+  ];
+
+  // Role-based default permissions (like AWS IAM roles)
+  const ROLE_DEFAULT_PERMISSIONS: Record<string, string[]> = {
+    VIEWER: ['READ_PROJECT', 'VIEW_LOGS', 'VIEW_METRICS'],
+    DEVELOPER: ['READ_PROJECT', 'VIEW_LOGS', 'VIEW_METRICS', 'DEPLOY', 'MANAGE_ENV_VARS'],
+    ADMIN: ['READ_PROJECT', 'WRITE_PROJECT', 'DEPLOY', 'MANAGE_ENV_VARS', 'VIEW_LOGS', 'VIEW_METRICS', 'MANAGE_COLLABORATORS', 'MANAGE_BILLING'],
+    OWNER: ['READ_PROJECT', 'WRITE_PROJECT', 'DEPLOY', 'MANAGE_ENV_VARS', 'VIEW_LOGS', 'VIEW_METRICS', 'MANAGE_COLLABORATORS', 'DELETE_PROJECT', 'MANAGE_BILLING'],
+  };
+  
   const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [customRoles, setCustomRoles] = useState<CustomRole[]>([]);
@@ -90,7 +112,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
       setCollaborators(data);
       setError(null);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load team members');
+      setError(err.response?.data?.message || t.messages.error_loading);
     } finally {
       setLoading(false);
     }
@@ -127,7 +149,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
     e.preventDefault();
     
     if (!inviteEmail) {
-      setError('Please enter an email address');
+      setError(t.inviteModal.email_placeholder);
       return;
     }
 
@@ -142,7 +164,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
         customRoleId: selectedRoleType === 'custom' ? selectedCustomRoleId! : undefined,
       });
       
-      setSuccess(`Invitation sent to ${inviteEmail}`);
+      setSuccess(t.messages.invitation_sent);
       setIsInviteModalOpen(false);
       setInviteEmail('');
       setSelectedRoleType('builtin');
@@ -153,7 +175,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
       
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to send invitation');
+      setError(err.response?.data?.message || t.messages.error_inviting);
     } finally {
       setInviting(false);
     }
@@ -163,7 +185,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
     e.preventDefault();
     
     if (!newRoleName || newRolePermissions.length === 0) {
-      setError('Please provide a name and select at least one permission');
+      setError(t.createRoleModal.select_permissions);
       return;
     }
 
@@ -178,7 +200,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
         permissions: newRolePermissions,
       });
       
-      setSuccess(`Custom role "${newRoleName}" created`);
+      setSuccess(t.messages.role_created);
       setIsCreateRoleModalOpen(false);
       setNewRoleName('');
       setNewRoleDescription('');
@@ -187,7 +209,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
       
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create custom role');
+      setError(err.response?.data?.message || t.messages.error_creating_role);
     } finally {
       setCreatingRole(false);
     }
@@ -196,11 +218,11 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
   const handleRemove = async (userId: string) => {
     try {
       await deleteCollaborator(projectId, userId);
-      setSuccess('Collaborator removed');
+      setSuccess(t.messages.member_removed);
       await loadCollaborators();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to remove collaborator');
+      setError(err.response?.data?.message || t.messages.error_removing);
       setTimeout(() => setError(null), 3000);
     }
   };
@@ -208,11 +230,11 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
   const handleDeleteInvitation = async (invitationId: number) => {
     try {
       await deleteInvitation(invitationId);
-      setSuccess('Invitation deleted');
+      setSuccess(t.messages.invitation_cancelled);
       await loadInvitations();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to delete invitation');
+      setError(err.response?.data?.message || t.messages.error_inviting);
       setTimeout(() => setError(null), 3000);
     }
   };
@@ -220,12 +242,12 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
   const handleUpdateRole = async (userId: string) => {
     try {
       await updateCollaboratorRole(projectId, userId, editingRole);
-      setSuccess('Role updated successfully');
+      setSuccess(t.messages.role_updated);
       setEditingUserId(null);
       await loadCollaborators();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update role');
+      setError(err.response?.data?.message || t.messages.error_updating);
       setTimeout(() => setError(null), 3000);
     }
   };
@@ -254,7 +276,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
                 <Users className="h-6 w-6 text-blue-400" />
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-neutral-50">Team Management</h2>
+                <h2 className="text-xl font-semibold text-neutral-50">{t.title}</h2>
                 <p className="text-sm text-neutral-400">
                   {collaborators.length} member{collaborators.length !== 1 ? 's' : ''}
                   {canViewInvitations && invitations.length > 0 && ` • ${invitations.length} pending invitation${invitations.length !== 1 ? 's' : ''}`}
@@ -269,7 +291,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
                   className="rounded-full px-4 py-2 text-sm bg-gradient-kleff text-black font-semibold"
                 >
                   <UserPlus className="mr-2 h-4 w-4" />
-                  Invite Member
+                  {t.invite_member}
                 </Button>
               )}
               <button
@@ -297,29 +319,29 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
 
             {/* Team Members Section */}
             <div>
-              <h3 className="text-md font-semibold text-neutral-50 mb-3">Team Members</h3>
+              <h3 className="text-md font-semibold text-neutral-50 mb-3">{t.team_members}</h3>
               <div className="rounded-lg border border-white/10 overflow-hidden">
                 <Table>
                   <TableHeader>
                     <TableRow className="border-b border-white/10 bg-white/5 hover:bg-white/5">
-                      <TableHead>User ID</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Joined</TableHead>
-                      {canManageTeam && <TableHead className="w-[120px]">Actions</TableHead>}
+                      <TableHead>{t.table.user}</TableHead>
+                      <TableHead>{t.table.role}</TableHead>
+                      <TableHead>{t.table.status}</TableHead>
+                      <TableHead>{t.table.invited_at}</TableHead>
+                      {canManageTeam && <TableHead className="w-[120px]">{t.table.actions}</TableHead>}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {loading ? (
                       <TableRow>
                         <TableCell colSpan={canManageTeam ? 5 : 4} className="text-center text-neutral-400 py-8">
-                          Loading...
+                          {t.loading}
                         </TableCell>
                       </TableRow>
                     ) : collaborators.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={canManageTeam ? 5 : 4} className="text-center text-neutral-400 py-8">
-                          No team members yet
+                          {t.no_members}
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -339,9 +361,9 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="ADMIN">Admin</SelectItem>
-                                    <SelectItem value="DEVELOPER">Developer</SelectItem>
-                                    <SelectItem value="VIEWER">Viewer</SelectItem>
+                                    <SelectItem value="ADMIN">{t.roles.ADMIN}</SelectItem>
+                                    <SelectItem value="DEVELOPER">{t.roles.DEVELOPER}</SelectItem>
+                                    <SelectItem value="VIEWER">{t.roles.VIEWER}</SelectItem>
                                   </SelectContent>
                                 </Select>
                                 <Button
@@ -423,16 +445,16 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
               <div>
                 <h3 className="text-md font-semibold text-neutral-50 mb-3 flex items-center gap-2">
                   <Mail className="h-4 w-4" />
-                  Pending Invitations
+                  {t.pending_invitations}
                 </h3>
                 <div className="rounded-lg border border-white/10 overflow-hidden">
                   <Table>
                     <TableHeader>
                       <TableRow className="border-b border-white/10 bg-white/5 hover:bg-white/5">
-                        <TableHead>Email</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Sent</TableHead>
-                        {canManageTeam && <TableHead className="w-[100px]">Actions</TableHead>}
+                        <TableHead>{t.table.email}</TableHead>
+                        <TableHead>{t.table.role}</TableHead>
+                        <TableHead>{t.table.invited_at}</TableHead>
+                        {canManageTeam && <TableHead className="w-[100px]">{t.table.actions}</TableHead>}
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -441,8 +463,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
                           <TableCell colSpan={canManageTeam ? 4 : 3} className="text-center text-neutral-400 py-8">
                             <div className="flex flex-col items-center gap-1">
                               <Mail className="h-8 w-8 text-neutral-600 mb-2" />
-                              <p className="text-sm">No pending invitations</p>
-                              <p className="text-xs text-neutral-500">Invited users will appear here</p>
+                              <p className="text-sm">{t.no_invitations}</p>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -503,7 +524,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
           >
             <SoftPanel>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-neutral-50">Invite Team Member</h3>
+                <h3 className="text-lg font-semibold text-neutral-50">{t.inviteModal.title}</h3>
                 <button
                   onClick={() => setIsInviteModalOpen(false)}
                   className="text-neutral-400 hover:text-neutral-200 transition-colors"
@@ -519,12 +540,12 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
               <form onSubmit={handleInvite} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium text-neutral-200">
-                    Email Address
+                    {t.inviteModal.email}
                   </Label>
                   <Input
                     id="email"
                     type="email"
-                    placeholder="colleague@example.com"
+                    placeholder={t.inviteModal.email_placeholder}
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
                     required
@@ -534,7 +555,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
 
                 <div className="space-y-2">
                   <Label htmlFor="role" className="text-sm font-medium text-neutral-200">
-                    Role
+                    {t.inviteModal.select_role}
                   </Label>
                   <div className="flex gap-2">
                     <div className="flex-1">
@@ -554,19 +575,19 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <div className="px-2 py-1.5 text-xs font-semibold text-neutral-400">Built-in Roles</div>
+                          <div className="px-2 py-1.5 text-xs font-semibold text-neutral-400">{t.inviteModal.builtin}</div>
                           <SelectItem value="ADMIN">
-                            Admin - {ROLE_DESCRIPTIONS.ADMIN}
+                            {t.roles.ADMIN} - {ROLE_DESCRIPTIONS.ADMIN}
                           </SelectItem>
                           <SelectItem value="DEVELOPER">
-                            Developer - {ROLE_DESCRIPTIONS.DEVELOPER}
+                            {t.roles.DEVELOPER} - {ROLE_DESCRIPTIONS.DEVELOPER}
                           </SelectItem>
                           <SelectItem value="VIEWER">
-                            Viewer - {ROLE_DESCRIPTIONS.VIEWER}
+                            {t.roles.VIEWER} - {ROLE_DESCRIPTIONS.VIEWER}
                           </SelectItem>
                           {customRoles.length > 0 && (
                             <>
-                              <div className="px-2 py-1.5 text-xs font-semibold text-neutral-400 border-t border-white/10 mt-2">Custom Roles</div>
+                              <div className="px-2 py-1.5 text-xs font-semibold text-neutral-400 border-t border-white/10 mt-2">{t.custom_roles}</div>
                               {customRoles.map((role) => (
                                 <SelectItem key={role.id} value={`custom-${role.id}`}>
                                   {role.name}{role.description && ` - ${role.description}`}
@@ -620,14 +641,14 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
                     onClick={() => setIsInviteModalOpen(false)}
                     className="flex-1 rounded-full"
                   >
-                    Cancel
+                    {t.inviteModal.cancel}
                   </Button>
                   <Button
                     type="submit"
                     disabled={inviting}
                     className="flex-1 rounded-full bg-gradient-kleff text-black font-semibold"
                   >
-                    {inviting ? 'Sending...' : 'Send Invitation'}
+                    {inviting ? t.inviteModal.inviting : t.inviteModal.invite_button}
                   </Button>
                 </div>
               </form>
@@ -649,7 +670,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
           >
             <SoftPanel>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-neutral-50">Create Custom Role</h3>
+                <h3 className="text-lg font-semibold text-neutral-50">{t.createRoleModal.title}</h3>
                 <button
                   onClick={() => setIsCreateRoleModalOpen(false)}
                   className="text-neutral-400 hover:text-neutral-200 transition-colors"
@@ -659,18 +680,18 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
               </div>
 
               <p className="text-sm text-neutral-400 mb-6">
-                Define a custom role with specific permissions for this project
+                {t.createRoleModal.subtitle}
               </p>
 
               <form onSubmit={handleCreateRole} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="roleName" className="text-sm font-medium text-neutral-200">
-                    Role Name
+                    {t.createRoleModal.role_name}
                   </Label>
                   <Input
                     id="roleName"
                     type="text"
-                    placeholder="e.g., QA Engineer, Security Auditor"
+                    placeholder={t.createRoleModal.role_name_placeholder}
                     value={newRoleName}
                     onChange={(e) => setNewRoleName(e.target.value)}
                     required
@@ -680,11 +701,11 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
 
                 <div className="space-y-2">
                   <Label htmlFor="roleDescription" className="text-sm font-medium text-neutral-200">
-                    Description (Optional)
+                    {t.createRoleModal.description}
                   </Label>
                   <textarea
                     id="roleDescription"
-                    placeholder="Brief description of this role's responsibilities"
+                    placeholder={t.createRoleModal.description_placeholder}
                     value={newRoleDescription}
                     onChange={(e) => setNewRoleDescription(e.target.value)}
                     rows={2}
@@ -694,10 +715,10 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-neutral-200">
-                    Permissions
+                    {t.createRoleModal.permissions}
                   </Label>
                   <p className="text-xs text-neutral-500 mb-3">
-                    Select the permissions this role should have
+                    {t.createRoleModal.select_permissions}
                   </p>
                   <div className="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto p-3 rounded-lg border border-white/10 bg-white/5">
                     {AVAILABLE_PERMISSIONS.map((permission) => (
@@ -734,14 +755,14 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
                     onClick={() => setIsCreateRoleModalOpen(false)}
                     className="flex-1 rounded-full"
                   >
-                    Cancel
+                    {t.createRoleModal.cancel}
                   </Button>
                   <Button
                     type="submit"
                     disabled={creatingRole || !newRoleName || newRolePermissions.length === 0}
                     className="flex-1 rounded-full bg-gradient-kleff text-black font-semibold"
                   >
-                    {creatingRole ? 'Creating...' : 'Create Role'}
+                    {creatingRole ? t.createRoleModal.creating : t.createRoleModal.create_button}
                   </Button>
                 </div>
               </form>
