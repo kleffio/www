@@ -162,7 +162,7 @@ export const ResourceChart: React.FC<Props> = ({
                 borderRadius: "8px",
                 color: "#fff"
               }}
-              formatter={(value: any) => [`${Number(value || 0).toFixed(2)}%`, "Usage"]}
+              formatter={(value: number | undefined) => [`${value?.toFixed(2) ?? "0.00"}%`, "Usage"]}
               labelFormatter={(label) => timeFormatter(label as number)}
             />
             <Area
