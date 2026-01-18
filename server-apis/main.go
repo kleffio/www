@@ -46,6 +46,7 @@ type BuildRequest struct {
 
 type UpdateWebAppRequest struct {
 	ProjectID    string            `json:"projectID"`
+	ContainerID  string 		   `json:"containerID"`
 	Name         string            `json:"name"`          // App name
 	EnvVariables map[string]string `json:"envVariables"`  // Environment variables
 }
@@ -152,6 +153,7 @@ func (s *Server) handleCreateBuild(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Limit request body size (1MB)
 	r.Body = http.MaxBytesReader(w, r.Body, 1048576)
 
 	var req BuildRequest
@@ -160,160 +162,80 @@ func (s *Server) handleCreateBuild(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Basic Validation
-	if req.ProjectID == "" || req.RepoURL == "" {
-		http.Error(w, "projectID and repoUrl are required", http.StatusBadRequest)
+	// 1. Validation: ContainerID is now the mandatory unique identifier
+	if req.ProjectID == "" || req.ContainerID == "" || req.RepoURL == "" {
+		http.Error(w, "projectID, containerID, and repoUrl are required", http.StatusBadRequest)
 		return
 	}
 
-	// Sanitize ProjectID for Namespace
+	// 2. Sanitize IDs
+	// Namespace Name = Project ID
 	namespaceName, err := validateAndSanitize(req.ProjectID)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Invalid Project ID: %v", err), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("Invalid Project ID format: %v", err), http.StatusBadRequest)
 		return
 	}
 
-	// Sanitize Name for WebApp (default to projectID if empty)
-	appName := req.Name
-	if appName == "" {
-		appName = namespaceName
-	}
-	appName, err = validateAndSanitize(appName)
+	// Resource Name = Container UUID
+	// This ensures the CRD, Deployment, and Service are all named after the UUID
+	resourceName, err := validateAndSanitize(req.ContainerID)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Invalid App Name: %v", err), http.StatusBadRequest)
+		http.Error(w, fmt.Sprintf("Invalid Container ID format: %v", err), http.StatusBadRequest)
 		return
 	}
 
-	// --- GENERATE IMAGE DESTINATION ---
-	// Format: kleff.azurecr.io/appname:timestamp
-	// Using timestamp ensures K8s sees a new image tag and pulls it.
-	tag := fmt.Sprintf("%d", time.Now().Unix())
-	generatedImage := fmt.Sprintf("%s/%s:%s", s.RegistryBase, appName, tag)
+	// App Name for Docker Registry (we use human name here for registry readability)
+	imageRepoName, _ := validateAndSanitize(req.Name)
+	if imageRepoName == "" {
+		imageRepoName = resourceName
+	}
 
-	// 1. Create Target Namespace
+	// 3. Generate Image Tag
+	tag := fmt.Sprintf("%d", time.Now().Unix())
+	generatedImage := fmt.Sprintf("%s/%s:%s", s.RegistryBase, imageRepoName, tag)
+
+	// 4. Create Target Namespace (if not exists)
 	existed, err := s.createNamespace(r.Context(), namespaceName)
 	if err != nil {
 		s.Logger.Error("Failed to create namespace", "namespace", namespaceName, "error", err)
-		http.Error(w, "Failed to create namespace", http.StatusInternalServerError)
+		http.Error(w, "Failed to initialize environment", http.StatusInternalServerError)
 		return
 	}
 
-	// 2. Create Kaniko Build Job (in default namespace)
-	// We append the timestamp to the job name to allow multiple builds history
-	jobName := fmt.Sprintf("build-%s-%s", appName, tag)
+	// 5. Submit Kaniko Build Job
+	// We name the job with a timestamp to allow multiple build attempts for the same UUID
+	jobName := fmt.Sprintf("build-%s-%s", resourceName, tag)
 	if err := s.createKanikoJob(r.Context(), "default", jobName, req.RepoURL, req.Branch, generatedImage); err != nil {
-		s.Logger.Error("Failed to create build job", "error", err)
-		http.Error(w, "Failed to create build job", http.StatusInternalServerError)
+		s.Logger.Error("Failed to create build job", "job", jobName, "error", err)
+		http.Error(w, "Failed to start build process", http.StatusInternalServerError)
 		return
 	}
 
-	// 3. Create or Update WebApp CRD (in the Target Namespace)
-	if err := s.createWebApp(r.Context(), namespaceName, appName, generatedImage, req); err != nil {
-		s.Logger.Error("Failed to create WebApp CR", "error", err)
-		http.Error(w, fmt.Sprintf("Build started, but failed to create WebApp: %v", err), http.StatusInternalServerError)
+	// 6. Create or Update the WebApp Custom Resource
+	// Note: resourceName IS the ContainerID/UUID.
+	// This triggers your Reconciler to create [UUID].kleff.io
+	if err := s.createWebApp(r.Context(), namespaceName, resourceName, generatedImage, req); err != nil {
+		s.Logger.Error("Failed to create WebApp CR", "id", resourceName, "error", err)
+		http.Error(w, "Build started, but failed to sync deployment metadata", http.StatusInternalServerError)
 		return
 	}
 
-	// 4. Return Response
-	msg := "Build started and WebApp created"
-	if existed {
-		msg = "Namespace existed, new build started and WebApp updated/created"
-	}
+	s.Logger.Info("Build and Deployment triggered", 
+		"uuid", resourceName, 
+		"displayName", req.Name, 
+		"image", generatedImage,
+	)
 
-	s.Logger.Info("Build job submitted", "job", jobName, "app", appName, "image", generatedImage)
-
-	resp := Response{
+	// 7. Success Response
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(Response{
 		Namespace: namespaceName,
 		JobName:   jobName,
-		AppName:   appName,
+		AppName:   req.Name,       // Return human name for frontend display
 		Image:     generatedImage,
-		Message:   msg,
+		Message:   fmt.Sprintf("Deployment created. URL will be: https://%s.kleff.io", resourceName),
 		Existed:   existed,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
-}
-// createWebApp uses the Dynamic Client to create or update the Custom Resource
-func (s *Server) createWebApp(ctx context.Context, namespace, name, image string, req BuildRequest) error {
-	// Set default port if not provided
-	port := req.Port
-	if port == 0 {
-		port = 8080
-	}
-
-	// Construct the Unstructured object
-	webApp := &unstructured.Unstructured{
-		Object: map[string]interface{}{
-			"apiVersion": "kleff.kleff.io/v1",
-			"kind":       "WebApp",
-			"metadata": map[string]interface{}{
-				"name":      name,
-				"namespace": namespace,
-				// CHANGE 1: Add containerID as a label for easy filtering (optional but recommended)
-				"labels": map[string]interface{}{
-					"container-id": req.ContainerID,
-				},
-			},
-			"spec": map[string]interface{}{
-				// CHANGE 2: Add containerID to the Spec
-				"containerID":  req.ContainerID,
-				"displayName":  req.Name,
-				"image":        image,
-				"port":         int64(port),
-				"repoURL":      req.RepoURL,
-				"branch":       req.Branch,
-				"envVariables": req.EnvVariables,
-			},
-		},
-	}
-
-	// Create or Update logic
-	_, err := s.DynamicClient.Resource(webAppGVR).Namespace(namespace).Create(ctx, webApp, metav1.CreateOptions{})
-	if err != nil {
-		if k8serrors.IsAlreadyExists(err) {
-			s.Logger.Info("WebApp already exists, updating image...", "name", name, "image", image)
-
-			// Get existing
-			existing, getErr := s.DynamicClient.Resource(webAppGVR).Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
-			if getErr != nil {
-				return getErr
-			}
-
-			// Update fields
-			spec, ok := existing.Object["spec"].(map[string]interface{})
-			if !ok {
-				spec = make(map[string]interface{})
-			}
-			
-			// CHANGE 3: Ensure containerID is updated if it changed (or was missing)
-			spec["containerID"] = req.ContainerID
-			
-			spec["image"] = image
-			spec["branch"] = req.Branch
-			spec["displayName"] = req.Name // Good to update this too
-			spec["port"] = int64(port)
-			if req.EnvVariables != nil {
-				spec["envVariables"] = req.EnvVariables
-			}
-			existing.Object["spec"] = spec
-
-			// CHANGE 4: Update metadata labels as well
-			labels := existing.GetLabels()
-			if labels == nil {
-				labels = make(map[string]string)
-			}
-			labels["container-id"] = req.ContainerID
-			existing.SetLabels(labels)
-
-			// Submit Update
-			_, updateErr := s.DynamicClient.Resource(webAppGVR).Namespace(namespace).Update(ctx, existing, metav1.UpdateOptions{})
-			return updateErr
-		}
-		return err
-	}
-
-	return nil
+	})
 }
 
 func (s *Server) handleUpdateWebApp(w http.ResponseWriter, r *http.Request) {
@@ -322,50 +244,36 @@ func (s *Server) handleUpdateWebApp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	r.Body = http.MaxBytesReader(w, r.Body, 1048576)
-
 	var req UpdateWebAppRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
 		return
 	}
 
-	// Validation
-	if req.ProjectID == "" || req.Name == "" {
-		http.Error(w, "projectID and name are required", http.StatusBadRequest)
+	// Validation: Use ContainerID as the primary key
+	if req.ProjectID == "" || req.ContainerID == "" {
+		http.Error(w, "projectID and containerID are required", http.StatusBadRequest)
 		return
 	}
 
-	// Sanitize
-	namespaceName, err := validateAndSanitize(req.ProjectID)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Invalid Project ID: %v", err), http.StatusBadRequest)
-		return
-	}
+	namespaceName, _ := validateAndSanitize(req.ProjectID)
+	resourceName, _  := validateAndSanitize(req.ContainerID)
 
-	appName, err := validateAndSanitize(req.Name)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Invalid App Name: %v", err), http.StatusBadRequest)
-		return
-	}
-
-	// Update the WebApp CRD
-	if err := s.updateWebAppEnvVariables(r.Context(), namespaceName, appName, req.EnvVariables); err != nil {
-		s.Logger.Error("Failed to update WebApp", "error", err)
+	// Update the WebApp CRD using the resourceName (UUID)
+	if err := s.updateWebAppEnvVariables(r.Context(), namespaceName, resourceName, req.EnvVariables); err != nil {
+		s.Logger.Error("Failed to update WebApp env vars", "id", resourceName, "error", err)
 		http.Error(w, fmt.Sprintf("Failed to update WebApp: %v", err), http.StatusInternalServerError)
 		return
 	}
 
-	s.Logger.Info("WebApp updated successfully", "name", appName, "namespace", namespaceName)
-
-	resp := Response{
-		Namespace: namespaceName,
-		AppName:   appName,
-		Message:   "WebApp environment variables updated successfully",
-	}
+	s.Logger.Info("WebApp environment variables updated", "id", resourceName)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	json.NewEncoder(w).Encode(Response{
+		Namespace: namespaceName,
+		AppName:   req.Name,
+		Message:   "Environment variables updated successfully using UUID lookup",
+	})
 }
 
 func (s *Server) updateWebAppEnvVariables(ctx context.Context, namespace, name string, envVariables map[string]string) error {
