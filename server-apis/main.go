@@ -291,6 +291,8 @@ func (s *Server) createWebApp(ctx context.Context, namespace, name, image string
 			
 			spec["image"] = image
 			spec["branch"] = req.Branch
+			spec["displayName"] = req.Name // Good to update this too
+			spec["port"] = int64(port)
 			if req.EnvVariables != nil {
 				spec["envVariables"] = req.EnvVariables
 			}
