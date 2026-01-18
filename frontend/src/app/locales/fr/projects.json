@@ -7,7 +7,9 @@
     "loading": "Chargement des projets…",
     "failed_load_projects": "Échec du chargement des projets",
     "collaborator_badge": "Collaborateur",
+    "my_projects": "Mes Projets",
     "shared_with_me": "Partagé avec moi",
+    "no_description": "Aucune description fournie",
     "table": {
       "name": "Nom",
       "description": "Description",

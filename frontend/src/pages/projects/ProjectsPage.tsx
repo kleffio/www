@@ -223,12 +223,12 @@ export function ProjectsPage() {
         {!isLoading && !error && projects.length > 0 && (
           <div className="space-y-8">
             {/* My Projects Section */}
-            {ownedProjects.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <h2 className="text-lg font-semibold text-neutral-50">My Projects</h2>
-                  <span className="text-sm text-neutral-400">({ownedProjects.length})</span>
-                </div>
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <h2 className="text-lg font-semibold text-neutral-50">{t.my_projects}</h2>
+                <span className="text-sm text-neutral-400">({ownedProjects.length})</span>
+              </div>
+              {ownedProjects.length > 0 && (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {ownedProjects.map((p) => (
                     <Link
@@ -249,7 +249,7 @@ export function ProjectsPage() {
                           </h3>
                           
                           <p className="text-sm text-neutral-400 mb-4 flex-grow line-clamp-2">
-                            {p.description || "No description provided"}
+                            {p.description || t.no_description}
                           </p>
                           
                           <div className="flex items-center gap-4 text-xs text-neutral-500 mt-auto pt-3 border-t border-white/5">
@@ -263,16 +263,16 @@ export function ProjectsPage() {
                     </Link>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Shared with Me Section */}
-            {collaboratedProjects.length > 0 && (
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <h2 className="text-lg font-semibold text-neutral-50">{t.shared_with_me}</h2>
-                  <span className="text-sm text-neutral-400">({collaboratedProjects.length})</span>
-                </div>
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <h2 className="text-lg font-semibold text-neutral-50">{t.shared_with_me}</h2>
+                <span className="text-sm text-neutral-400">({collaboratedProjects.length})</span>
+              </div>
+              {collaboratedProjects.length > 0 && (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {collaboratedProjects.map((p) => (
                     <Link
@@ -293,7 +293,7 @@ export function ProjectsPage() {
                           </h3>
                           
                           <p className="text-sm text-neutral-400 mb-4 flex-grow line-clamp-2">
-                            {p.description || "No description provided"}
+                            {p.description || t.no_description}
                           </p>
                           
                           <div className="flex items-center gap-4 text-xs text-neutral-500 mt-auto pt-3 border-t border-white/5">
@@ -307,8 +307,8 @@ export function ProjectsPage() {
                     </Link>
                   ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
       </div>

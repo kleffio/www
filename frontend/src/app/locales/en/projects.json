@@ -7,7 +7,9 @@
     "loading": "Loading projects…",
     "failed_load_projects": "Failed to load projects",
     "collaborator_badge": "Collaborator",
+    "my_projects": "My Projects",
     "shared_with_me": "Shared with Me",
+    "no_description": "No description provided",
     "table": {
       "name": "Name",
       "description": "Description",
