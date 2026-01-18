@@ -29,7 +29,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, on
 
   if (!isOpen || !container) return null;
 
-  const appUrl = `https://${container.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}.kleff.io`;
+  const appUrl = `https://${container.containerId}.kleff.io`;
 
   const handleCopyId = async () => {
     try {
