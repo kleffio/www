@@ -29,7 +29,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, on
 
   if (!isOpen || !container) return null;
 
-  const appUrl = `https://${container.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}.kleff.io`;
+  const appUrl = `https://${container.containerId}.kleff.io`;
 
   const handleCopyId = async () => {
     try {
@@ -111,6 +111,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, on
                     onClick={handleCopyId}
                     className="font-mono text-sm text-neutral-200 hover:text-blue-400 transition-colors truncate flex items-center gap-1 group"
                     title="Click to copy"
+                    data-container-id={container.containerId}
                   >
                     {truncateId(container.containerId)}
                     <Copy className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />

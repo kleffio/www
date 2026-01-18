@@ -60,3 +60,7 @@ func (s *metricsService) GetDatabaseIOMetrics(ctx context.Context, duration stri
 func (s *metricsService) GetProjectUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error) {
 	return s.metricsRepo.GetProjectUsageMetrics(ctx, projectID)
 }
+
+func (s *metricsService) GetProjectUsageMetricsWithDays(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error) {
+	return s.metricsRepo.GetProjectUsageMetricsWithDays(ctx, projectID, days)
+}

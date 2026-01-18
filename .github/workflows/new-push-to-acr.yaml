@@ -5,10 +5,14 @@ name: Build and Push to ACR
 "on":
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    env:
+      REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
     strategy:
       matrix:
         service:
@@ -54,11 +58,37 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.service.context }}
-          push: ${{ github.event_name != 'pull_request' }}
-          # Use the pipe | for multi-line strings and reference secrets/matrix directly
+          push: true
           tags: |
-            ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service.tag }}:latest
-            ${{ secrets.ACR_LOGIN_SERVER }}/${{ matrix.service.tag }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ matrix.service.tag }}:latest
+            ${{ env.REGISTRY }}/${{ matrix.service.tag }}:${{ github.sha }}
           build-args: |
             VITE_AUTH_CLIENT_ID=${{ vars.VITE_AUTH_CLIENT_ID }}
             VITE_BACKEND_URL=${{ vars.VITE_BACKEND_URL }}
+
+  build-operator:
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to ACR
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build and Push Operator
+        working-directory: ./operator
+        run: |
+          make docker-buildx \
+            IMG="${{ env.REGISTRY }}/webapp-operator:latest" \
+            PLATFORMS="linux/amd64,linux/arm64"
+          make build-installer \
+            IMG="${{ env.REGISTRY }}/webapp-operator:latest"

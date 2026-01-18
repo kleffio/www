@@ -126,6 +126,7 @@ public class ContainerServiceImpl {
 
         Map<String, Object> updateRequest = Map.of(
             "projectID", container.getProjectID(),
+            "containerID", container.getContainerID(),
             "name", container.getName(),
             "envVariables", envVariables
         );
