@@ -159,8 +159,8 @@ public class BillingServiceImpl implements BillingService {
         double STORAGE = 0;
         invoice.setTotalPaid((double) 0);
         invoice.setTotalCPU((CPU * getPrice("CPU_HOURS").getPrice()));
-        invoice.setTotalCPU((MEMORY * getPrice("MEMORY_GB_HOURS").getPrice()));
-        invoice.setTotalCPU((STORAGE * getPrice("STORAGE_GB").getPrice()));
+        invoice.setTotalRAM((MEMORY * getPrice("MEMORY_GB_HOURS").getPrice()));
+        invoice.setTotalSTORAGE((STORAGE * getPrice("STORAGE_GB").getPrice()));
         invoice.setSubtotal(invoice.getTotalCPU() + invoice.getTotalRAM() + invoice.getTotalSTORAGE());
         invoice.setTaxes(invoice.getSubtotal()*taxes);
         BigDecimal bd = new BigDecimal(Double.toString((invoice.getSubtotal())+invoice.getTaxes()));

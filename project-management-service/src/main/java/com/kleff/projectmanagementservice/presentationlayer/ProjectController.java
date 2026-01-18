@@ -94,6 +94,6 @@ public class ProjectController {
 
     @GetMapping("/listID")
     public List<String> getallProjectIds(){
-        projectService.getAllProjectIds();
+        return projectService.getAllProjectIds();
     }
 }
