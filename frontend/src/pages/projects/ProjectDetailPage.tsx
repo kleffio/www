@@ -219,15 +219,13 @@ export function ProjectDetailPage() {
       <div className="p-0">
         <BillingModal
           isOpen={isBillingModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => setIsBillingModalOpen(false)}
           projectId={projectId || ""}
          
         />
       </div>
   
           <InvoiceTable projectId={projectId || ""} />
-        </div>
-      </div>
 
       {/* Container Modal - Handles both Create and Edit */}
       <ContainerModal

@@ -5,6 +5,9 @@ import { Badge } from "@shared/ui/Badge";
 import { X, ExternalLink, Settings, Hash, Box, Code, GitBranch, Copy, Play, Square, Trash2, Network, Edit } from "lucide-react";
 import { formatRepoUrl, formatPort } from "@shared/lib/utils";
 import type { Container } from "@features/projects/types/Container";
+import enTranslations from "@app/locales/en/projects.json";
+import frTranslations from "@app/locales/fr/projects.json";
+import { getLocale } from "@app/locales/locale";
 
 const translations = {
   en: enTranslations,
