@@ -24,7 +24,9 @@ type mockMetricsService struct {
 	getMemoryUtilizationFunc    func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
 	getNodesFunc                func(ctx context.Context) ([]domain.NodeMetric, error)
 	getNamespacesFunc           func(ctx context.Context) ([]domain.NamespaceMetric, error)
-	getDatabaseIOMetricsFunc    func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
+	getDatabaseIOMetricsFunc         func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
+	getProjectUsageMetricsFunc       func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
+	getProjectUsageMetricsWithDaysFunc func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error)
 }
 
 func (m *mockMetricsService) GetClusterOverview(ctx context.Context) (*domain.ClusterOverview, error) {
@@ -93,6 +95,20 @@ func (m *mockMetricsService) GetNamespaces(ctx context.Context) ([]domain.Namesp
 func (m *mockMetricsService) GetDatabaseIOMetrics(ctx context.Context, duration string) (*domain.DatabaseMetrics, error) {
 	if m.getDatabaseIOMetricsFunc != nil {
 		return m.getDatabaseIOMetricsFunc(ctx, duration)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsService) GetProjectUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error) {
+	if m.getProjectUsageMetricsFunc != nil {
+		return m.getProjectUsageMetricsFunc(ctx, projectID)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsService) GetProjectUsageMetricsWithDays(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error) {
+	if m.getProjectUsageMetricsWithDaysFunc != nil {
+		return m.getProjectUsageMetricsWithDaysFunc(ctx, projectID, days)
 	}
 	return nil, errors.New("not implemented")
 }
@@ -702,5 +718,193 @@ func TestGetDatabaseIOMetrics_Error(t *testing.T) {
 
 	if w.Code != http.StatusInternalServerError {
 		t.Errorf("Expected status code %d, got %d", http.StatusInternalServerError, w.Code)
+	}
+}
+
+func TestGetProjectUsageMetrics_Success(t *testing.T) {
+	expectedMetrics := &domain.ProjectUsageMetrics{
+		ProjectID:         "project-123",
+		MemoryUsageGB:     8.5,
+		CPURequestCores:   2.0,
+		Window:            "30d",
+	}
+
+	mockService := &mockMetricsService{
+		getProjectUsageMetricsFunc: func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error) {
+			if projectID != "project-123" {
+				t.Errorf("Expected projectID 'project-123', got '%s'", projectID)
+			}
+			return expectedMetrics, nil
+		},
+	}
+
+	handler := NewMetricsHandler(mockService)
+	router := setupTestRouter()
+	router.GET("/projects/:projectID/usage", handler.GetProjectUsageMetrics)
+
+	req := httptest.NewRequest(http.MethodGet, "/projects/project-123/usage", nil)
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+	}
+
+	var response domain.ProjectUsageMetrics
+	if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
+		t.Fatalf("Failed to parse response: %v", err)
+	}
+
+	if response.ProjectID != expectedMetrics.ProjectID {
+		t.Errorf("Expected ProjectID '%s', got '%s'", expectedMetrics.ProjectID, response.ProjectID)
+	}
+
+	if response.MemoryUsageGB != expectedMetrics.MemoryUsageGB {
+		t.Errorf("Expected MemoryUsageGB %.2f, got %.2f", expectedMetrics.MemoryUsageGB, response.MemoryUsageGB)
+	}
+
+	if response.CPURequestCores != expectedMetrics.CPURequestCores {
+		t.Errorf("Expected CPURequestCores %.2f, got %.2f", expectedMetrics.CPURequestCores, response.CPURequestCores)
+	}
+}
+
+func TestGetProjectUsageMetrics_Error(t *testing.T) {
+	mockService := &mockMetricsService{
+		getProjectUsageMetricsFunc: func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error) {
+			return nil, errors.New("project usage error")
+		},
+	}
+
+	handler := NewMetricsHandler(mockService)
+	router := setupTestRouter()
+	router.GET("/projects/:projectID/usage", handler.GetProjectUsageMetrics)
+
+	req := httptest.NewRequest(http.MethodGet, "/projects/project-123/usage", nil)
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("Expected status code %d, got %d", http.StatusInternalServerError, w.Code)
+	}
+}
+
+func TestGetProjectUsageMetrics_MissingProjectID(t *testing.T) {
+	mockService := &mockMetricsService{}
+
+	handler := NewMetricsHandler(mockService)
+	router := setupTestRouter()
+	router.GET("/projects/:projectID/usage", handler.GetProjectUsageMetrics)
+
+	req := httptest.NewRequest(http.MethodGet, "/projects//usage", nil)
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
+	}
+}
+
+func TestGetProjectUsageMetricsWithDays_Success(t *testing.T) {
+	expectedMetrics := &domain.ProjectUsageMetrics{
+		ProjectID:         "project-123",
+		MemoryUsageGB:     4.2,
+		CPURequestCores:   1.5,
+		Window:            "7d",
+	}
+
+	mockService := &mockMetricsService{
+		getProjectUsageMetricsWithDaysFunc: func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error) {
+			if projectID != "project-123" {
+				t.Errorf("Expected projectID 'project-123', got '%s'", projectID)
+			}
+			if days != 7 {
+				t.Errorf("Expected days 7, got %d", days)
+			}
+			return expectedMetrics, nil
+		},
+	}
+
+	handler := NewMetricsHandler(mockService)
+	router := setupTestRouter()
+	router.GET("/projects/:projectID/usage/:days", handler.GetProjectUsageMetricsWithDays)
+
+	req := httptest.NewRequest(http.MethodGet, "/projects/project-123/usage/7", nil)
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+	}
+
+	var response domain.ProjectUsageMetrics
+	if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
+		t.Fatalf("Failed to parse response: %v", err)
+	}
+
+	if response.ProjectID != expectedMetrics.ProjectID {
+		t.Errorf("Expected ProjectID '%s', got '%s'", expectedMetrics.ProjectID, response.ProjectID)
+	}
+
+	if response.Window != expectedMetrics.Window {
+		t.Errorf("Expected Window '%s', got '%s'", expectedMetrics.Window, response.Window)
+	}
+}
+
+func TestGetProjectUsageMetricsWithDays_Error(t *testing.T) {
+	mockService := &mockMetricsService{
+		getProjectUsageMetricsWithDaysFunc: func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error) {
+			return nil, errors.New("project usage error")
+		},
+	}
+
+	handler := NewMetricsHandler(mockService)
+	router := setupTestRouter()
+	router.GET("/projects/:projectID/usage/:days", handler.GetProjectUsageMetricsWithDays)
+
+	req := httptest.NewRequest(http.MethodGet, "/projects/project-123/usage/7", nil)
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("Expected status code %d, got %d", http.StatusInternalServerError, w.Code)
+	}
+}
+
+func TestGetProjectUsageMetricsWithDays_InvalidDays(t *testing.T) {
+	mockService := &mockMetricsService{}
+
+	handler := NewMetricsHandler(mockService)
+	router := setupTestRouter()
+	router.GET("/projects/:projectID/usage/:days", handler.GetProjectUsageMetricsWithDays)
+
+	req := httptest.NewRequest(http.MethodGet, "/projects/project-123/usage/invalid", nil)
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
+	}
+}
+
+func TestGetProjectUsageMetricsWithDays_ZeroDays(t *testing.T) {
+	mockService := &mockMetricsService{}
+
+	handler := NewMetricsHandler(mockService)
+	router := setupTestRouter()
+	router.GET("/projects/:projectID/usage/:days", handler.GetProjectUsageMetricsWithDays)
+
+	req := httptest.NewRequest(http.MethodGet, "/projects/project-123/usage/0", nil)
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
 	}
 }

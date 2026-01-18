@@ -38,6 +38,11 @@ public class ContainerController {
     public ContainerResponseModel createContainer(@RequestBody ContainerRequestModel container) {
         return containerService.createContainer(container);
     }
+
+    @PutMapping("/{containerID}")
+    public ContainerResponseModel updateContainer(@PathVariable String containerID, @RequestBody ContainerRequestModel containerRequest) {
+        return containerService.updateContainer(containerID, containerRequest);
+    }
     
     @PatchMapping("/{containerID}/env")
     public ContainerResponseModel updateContainerEnvVariables(

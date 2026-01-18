@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+	"strconv"
 
 	"prometheus-metrics-api/internal/core/ports"
 
@@ -122,19 +123,36 @@ func (h *MetricsHandler) GetDatabaseIOMetrics(c *gin.Context) {
 	c.JSON(http.StatusOK, metrics)
 }
 
-type ProjectMetricsRequest struct {
-	ProjectID      string   `json:"projectId" binding:"required"`
-	ContainerNames []string `json:"containerNames" binding:"required"`
-}
-
-func (h *MetricsHandler) GetProjectMetrics(c *gin.Context) {
-	var req ProjectMetricsRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request: " + err.Error()})
+func (h *MetricsHandler) GetProjectUsageMetrics(c *gin.Context) {
+	projectID := c.Param("projectID")
+	if projectID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "projectID is required"})
 		return
 	}
 
-	metrics, err := h.metricsService.GetProjectMetrics(c.Request.Context(), req.ProjectID, req.ContainerNames)
+	metrics, err := h.metricsService.GetProjectUsageMetrics(c.Request.Context(), projectID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, metrics)
+}
+
+func (h *MetricsHandler) GetProjectUsageMetricsWithDays(c *gin.Context) {
+	projectID := c.Param("projectID")
+	if projectID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "projectID is required"})
+		return
+	}
+
+	daysStr := c.Param("days")
+	days, err := strconv.Atoi(daysStr)
+	if err != nil || days <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "days must be a positive integer"})
+		return
+	}
+
+	metrics, err := h.metricsService.GetProjectUsageMetricsWithDays(c.Request.Context(), projectID, days)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -31,8 +31,8 @@ func SetupRouter(handler *MetricsHandler) *gin.Engine {
 		api.GET("/namespaces", handler.GetNamespaces)
 
 		api.GET("/database-io", handler.GetDatabaseIOMetrics)
-
-		api.POST("/project-metrics", handler.GetProjectMetrics)
+		api.GET("/projects/:projectID/usage", handler.GetProjectUsageMetrics)
+		api.GET("/projects/:projectID/usage/:days", handler.GetProjectUsageMetricsWithDays)
 	}
 
 	router.GET("/health", func(c *gin.Context) {

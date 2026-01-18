@@ -5,7 +5,14 @@ import com.kleff.deployment.business.ContainerServiceImpl;
 import com.kleff.deployment.data.container.Container;
 import com.kleff.deployment.data.container.ContainerRequestModel;
 import com.kleff.deployment.data.container.ContainerResponseModel;
-import com.kleff.deployment.presentation.ContainerController;
+
+import static org.springframework.mock.http.server.reactive.MockServerHttpRequest.patch;
+import static org.mockito.ArgumentMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.kleff.deployment.data.container.UpdateEnvVariablesRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +22,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ContainerController.class)
 class ContainerControllerUnitTest {
@@ -38,6 +42,8 @@ class ContainerControllerUnitTest {
     // DEPRECATION CHECK: If Spring Boot 3.4+, change @MockBean to @MockitoBean
     @MockitoBean
     private ContainerServiceImpl containerService;
+
+
 
     @Test
     @DisplayName("GET /api/v1/containers - Success")
@@ -63,25 +69,18 @@ class ContainerControllerUnitTest {
     @Test
     @DisplayName("GET /api/v1/containers/{projectID} - Success")
     void getContainersByProjectID_Success() throws Exception {
-        // Arrange
         String projectId = "proj-001";
-        Container container = Container.builder()
-                .containerID("c-123")
-                .projectID(projectId)
-                .name("project-container")
-                .build();
+        Container container = Container.builder().containerID("c-123").name("app").build();
+        ContainerResponseModel response = ContainerResponseModel.builder().containerID("c-123").name("app").build();
 
-        when(containerService.getContainersByProjectID(projectId))
-                .thenReturn(List.of(container));
+        // The controller calls getContainersByProjectID AND toResponseModel
+        when(containerService.getContainersByProjectID(projectId)).thenReturn(List.of(container));
+        when(containerService.toResponseModel(any(Container.class))).thenReturn(response);
 
-        // Act & Assert
-        mockMvc.perform(get("/api/v1/containers/{projectID}", projectId)
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/v1/containers/{projectID}", projectId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].projectID").value(projectId))
-                .andExpect(jsonPath("$[0].name").value("project-container"));
+                .andExpect(jsonPath("$[0].containerID").value("c-123"));
     }
-
     @Test
     @DisplayName("GET /api/v1/containers/{projectID} - Empty Result")
     void getContainersByProjectID_Empty() throws Exception {
@@ -125,4 +124,35 @@ class ContainerControllerUnitTest {
                 .andExpect(jsonPath("$.containerID").value("generated-id"))
                 .andExpect(jsonPath("$.status").value("Running"));
     }
+
+    // ... (existing setup)
+
+    @Test
+    @DisplayName("PUT /api/v1/containers/{id} - Success")
+    void updateContainer_Success() throws Exception {
+        // Arrange
+        String containerId = "c-123";
+        ContainerRequestModel request = ContainerRequestModel.builder()
+                .name("updated-app")
+                .port(9999)
+                .build();
+
+        ContainerResponseModel response = ContainerResponseModel.builder()
+                .containerID(containerId)
+                .name("updated-app")
+                .build();
+
+        when(containerService.updateContainer(eq(containerId), any(ContainerRequestModel.class)))
+                .thenReturn(response);
+
+        // Act & Assert
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/v1/containers/{containerID}", containerId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("updated-app"))
+                .andExpect(jsonPath("$.containerID").value(containerId));
+    }
+
+
 }

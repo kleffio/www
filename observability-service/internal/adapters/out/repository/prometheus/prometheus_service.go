@@ -452,3 +452,36 @@ func (c *prometheusClient) GetDatabaseIOMetrics(ctx context.Context, duration st
 
 	return metrics, nil
 }
+
+func (c *prometheusClient) GetProjectUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error) {
+	return c.GetProjectUsageMetricsWithDays(ctx, projectID, 30)
+}
+
+func (c *prometheusClient) GetProjectUsageMetricsWithDays(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error) {
+	metrics := &domain.ProjectUsageMetrics{
+		ProjectID: projectID,
+		Window:    fmt.Sprintf("%dd", days),
+	}
+
+	// Memory query: sum(avg_over_time(container_memory_working_set_bytes{namespace="%s", container!="", container!="POD"}[%dd])) / (1024^3)
+	memoryQuery := fmt.Sprintf(`sum(avg_over_time(container_memory_working_set_bytes{namespace="%s", container!="", container!="POD"}[%dd])) / (1024^3)`, projectID, days)
+	memoryResp, err := c.queryPrometheus(ctx, memoryQuery)
+	if err == nil && len(memoryResp.Data.Result) > 0 {
+		if val, err := extractValue(memoryResp.Data.Result[0].Value); err == nil {
+			metrics.MemoryUsageGB = val
+		}
+	}
+	// If no data, MemoryUsageGB remains 0.0
+
+	// CPU query: sum(avg_over_time(rate(container_cpu_usage_seconds_total{namespace="%s", container!="", container!="POD"}[5m])[%dd:1m]))
+	cpuQuery := fmt.Sprintf(`sum(avg_over_time(rate(container_cpu_usage_seconds_total{namespace="%s", container!="", container!="POD"}[5m])[%dd:1m]))`, projectID, days)
+	cpuResp, err := c.queryPrometheus(ctx, cpuQuery)
+	if err == nil && len(cpuResp.Data.Result) > 0 {
+		if val, err := extractValue(cpuResp.Data.Result[0].Value); err == nil {
+			metrics.CPURequestCores = val
+		}
+	}
+	// If no data, CPURequestCores remains 0.0
+
+	return metrics, nil
+}
