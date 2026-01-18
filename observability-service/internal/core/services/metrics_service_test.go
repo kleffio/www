@@ -19,8 +19,9 @@ type mockMetricsRepository struct {
 	getMemoryUtilizationFunc    func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
 	getNodesFunc                func(ctx context.Context) ([]domain.NodeMetric, error)
 	getNamespacesFunc           func(ctx context.Context) ([]domain.NamespaceMetric, error)
-	getDatabaseIOMetricsFunc    func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
-	getProjectUsageMetricsFunc  func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
+	getDatabaseIOMetricsFunc         func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
+	getProjectUsageMetricsFunc       func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
+	getProjectUsageMetricsWithDaysFunc func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error)
 }
 
 func (m *mockMetricsRepository) GetClusterOverview(ctx context.Context) (*domain.ClusterOverview, error) {
@@ -96,6 +97,13 @@ func (m *mockMetricsRepository) GetDatabaseIOMetrics(ctx context.Context, durati
 func (m *mockMetricsRepository) GetProjectUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error) {
 	if m.getProjectUsageMetricsFunc != nil {
 		return m.getProjectUsageMetricsFunc(ctx, projectID)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsRepository) GetProjectUsageMetricsWithDays(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error) {
+	if m.getProjectUsageMetricsWithDaysFunc != nil {
+		return m.getProjectUsageMetricsWithDaysFunc(ctx, projectID, days)
 	}
 	return nil, errors.New("not implemented")
 }
@@ -668,5 +676,43 @@ func TestGetDatabaseIOMetrics_Error(t *testing.T) {
 
 	if result != nil {
 		t.Errorf("Expected nil result, got %v", result)
+	}
+}
+
+func TestGetProjectUsageMetricsWithDays_Success(t *testing.T) {
+	expectedMetrics := &domain.ProjectUsageMetrics{
+		ProjectID:         "project-123",
+		MemoryUsageGB:     4.2,
+		CPURequestCores:   1.5,
+		Window:            "7d",
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getProjectUsageMetricsWithDaysFunc: func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error) {
+			if projectID != "project-123" {
+				t.Errorf("Expected projectID 'project-123', got '%s'", projectID)
+			}
+			if days != 7 {
+				t.Errorf("Expected days 7, got %d", days)
+			}
+			return expectedMetrics, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetProjectUsageMetricsWithDays(ctx, "project-123", 7)
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if result.ProjectID != expectedMetrics.ProjectID {
+		t.Errorf("Expected ProjectID '%s', got '%s'", expectedMetrics.ProjectID, result.ProjectID)
+	}
+
+	if result.Window != expectedMetrics.Window {
+		t.Errorf("Expected Window '%s', got '%s'", expectedMetrics.Window, result.Window)
 	}
 }
