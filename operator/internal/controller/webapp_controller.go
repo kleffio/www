@@ -243,27 +243,3 @@ func (r *WebAppReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Owns(&gatewayv1.HTTPRoute{}).
 		Complete(r)
 }
-
-func (s *Server) updateWebAppEnvVariables(ctx context.Context, namespace, name string, envVariables map[string]string) error {
-	// Get existing WebApp
-	existing, err := s.DynamicClient.Resource(webAppGVR).Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
-	if err != nil {
-		if k8serrors.IsNotFound(err) {
-			return fmt.Errorf("WebApp not found: %s/%s", namespace, name)
-		}
-		return err
-	}
-
-	// Update envVariables in spec
-	spec, ok := existing.Object["spec"].(map[string]interface{})
-	if !ok {
-		spec = make(map[string]interface{})
-	}
-	
-	spec["envVariables"] = envVariables
-	existing.Object["spec"] = spec
-
-	// Submit Update
-	_, updateErr := s.DynamicClient.Resource(webAppGVR).Namespace(namespace).Update(ctx, existing, metav1.UpdateOptions{})
-	return updateErr
-}
