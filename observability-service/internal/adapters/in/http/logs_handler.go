@@ -20,7 +20,6 @@ func NewLogsHandler(logsService ports.LogsService) *LogsHandler {
 	}
 }
 
-// QueryLogs handles custom log queries
 func (h *LogsHandler) QueryLogs(c *gin.Context) {
 	var params domain.LogQueryParams
 	if err := c.ShouldBindJSON(&params); err != nil {
@@ -37,7 +36,6 @@ func (h *LogsHandler) QueryLogs(c *gin.Context) {
 	c.JSON(http.StatusOK, logs)
 }
 
-// GetAllClusterLogs retrieves logs from all namespaces across the cluster
 func (h *LogsHandler) GetAllClusterLogs(c *gin.Context) {
 	limit := parseIntQuery(c, "limit", 100)
 	duration := c.DefaultQuery("duration", "1h")
@@ -51,7 +49,6 @@ func (h *LogsHandler) GetAllClusterLogs(c *gin.Context) {
 	c.JSON(http.StatusOK, logs)
 }
 
-// GetLogsByProjectID retrieves logs for a specific project by its UUID
 func (h *LogsHandler) GetLogsByProjectID(c *gin.Context) {
 	projectID := c.Param("projectId")
 	if projectID == "" {
@@ -71,7 +68,6 @@ func (h *LogsHandler) GetLogsByProjectID(c *gin.Context) {
 	c.JSON(http.StatusOK, logs)
 }
 
-// GetLogsByNamespace retrieves logs for a specific namespace
 func (h *LogsHandler) GetLogsByNamespace(c *gin.Context) {
 	namespace := c.Param("namespace")
 	if namespace == "" {
@@ -91,7 +87,6 @@ func (h *LogsHandler) GetLogsByNamespace(c *gin.Context) {
 	c.JSON(http.StatusOK, logs)
 }
 
-// GetLogsByPod retrieves logs for a specific pod
 func (h *LogsHandler) GetLogsByPod(c *gin.Context) {
 	namespace := c.Param("namespace")
 	pod := c.Param("pod")
@@ -113,7 +108,6 @@ func (h *LogsHandler) GetLogsByPod(c *gin.Context) {
 	c.JSON(http.StatusOK, logs)
 }
 
-// GetLogsByContainer retrieves logs for a specific container
 func (h *LogsHandler) GetLogsByContainer(c *gin.Context) {
 	namespace := c.Param("namespace")
 	pod := c.Param("pod")
@@ -136,7 +130,6 @@ func (h *LogsHandler) GetLogsByContainer(c *gin.Context) {
 	c.JSON(http.StatusOK, logs)
 }
 
-// GetLogStreamStats gets statistics about log streams
 func (h *LogsHandler) GetLogStreamStats(c *gin.Context) {
 	namespace := c.Param("namespace")
 	if namespace == "" {
@@ -155,7 +148,6 @@ func (h *LogsHandler) GetLogStreamStats(c *gin.Context) {
 	c.JSON(http.StatusOK, stats)
 }
 
-// GetErrorLogs retrieves logs with error level
 func (h *LogsHandler) GetErrorLogs(c *gin.Context) {
 	namespace := c.Param("namespace")
 	if namespace == "" {
@@ -175,7 +167,6 @@ func (h *LogsHandler) GetErrorLogs(c *gin.Context) {
 	c.JSON(http.StatusOK, logs)
 }
 
-// parseIntQuery parses an integer query parameter with a default value
 func parseIntQuery(c *gin.Context, key string, defaultValue int) int {
 	value := c.DefaultQuery(key, "")
 	if value == "" {
@@ -204,7 +195,6 @@ func (h *LogsHandler) GetProjectContainerLogs(c *gin.Context) {
 		return
 	}
 
-	// Set defaults
 	if req.Limit <= 0 {
 		req.Limit = 100
 	}

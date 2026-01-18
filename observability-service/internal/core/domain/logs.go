@@ -27,7 +27,7 @@ type LogQueryParams struct {
 	Start     string `json:"start,omitempty"`
 	End       string `json:"end,omitempty"`
 	Limit     int    `json:"limit,omitempty"`
-	Direction string `json:"direction,omitempty"` // "backward" or "forward"
+	Direction string `json:"direction,omitempty"`
 	Namespace string `json:"namespace,omitempty"`
 	Pod       string `json:"pod,omitempty"`
 	Container string `json:"container,omitempty"`

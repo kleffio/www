@@ -29,7 +29,6 @@ func NewLokiClient(baseURL string) ports.LogsRepository {
 	}
 }
 
-// LokiResponse represents the response from Loki's query_range API
 type LokiResponse struct {
 	Status string `json:"status"`
 	Data   struct {
@@ -50,7 +49,6 @@ type LokiResponse struct {
 	} `json:"data"`
 }
 
-// queryLokiRange queries Loki's query_range endpoint
 func (c *lokiClient) queryLokiRange(ctx context.Context, query string, start, end time.Time, limit int, direction string) (*LokiResponse, error) {
 	if direction == "" {
 		direction = "backward"
@@ -89,7 +87,6 @@ func (c *lokiClient) queryLokiRange(ctx context.Context, query string, start, en
 	return &lokiResp, nil
 }
 
-// parseDuration parses duration string like "1h", "30m", "24h"
 func parseDuration(duration string) (time.Duration, error) {
 	dur, err := time.ParseDuration(duration)
 	if err != nil {
@@ -98,14 +95,13 @@ func parseDuration(duration string) (time.Duration, error) {
 	return dur, nil
 }
 
-// convertToLogEntries converts Loki response to domain LogEntry slice
 func convertToLogEntries(lokiResp *LokiResponse) []domain.LogEntry {
 	var logs []domain.LogEntry
 
 	for _, result := range lokiResp.Data.Result {
 		for _, value := range result.Values {
 			if len(value) >= 2 {
-				// Parse timestamp (nanoseconds)
+
 				timestamp := value[0]
 				logLine := value[1]
 
@@ -122,16 +118,14 @@ func convertToLogEntries(lokiResp *LokiResponse) []domain.LogEntry {
 	return logs
 }
 
-// QueryLogs implements custom log query
 func (c *lokiClient) QueryLogs(ctx context.Context, params domain.LogQueryParams) (*domain.LogQueryResult, error) {
 	query := params.Query
 	if query == "" {
 		return nil, fmt.Errorf("query cannot be empty")
 	}
 
-	// Parse time range
 	end := time.Now()
-	start := end.Add(-1 * time.Hour) // default 1 hour
+	start := end.Add(-1 * time.Hour)
 
 	if params.Start != "" {
 		if t, err := time.Parse(time.RFC3339, params.Start); err == nil {
@@ -169,7 +163,6 @@ func (c *lokiClient) QueryLogs(ctx context.Context, params domain.LogQueryParams
 	}, nil
 }
 
-// GetAllClusterLogs retrieves logs from all namespaces across the cluster
 func (c *lokiClient) GetAllClusterLogs(ctx context.Context, limit int, duration string) (*domain.LogQueryResult, error) {
 	if limit <= 0 {
 		limit = 100
@@ -183,13 +176,11 @@ func (c *lokiClient) GetAllClusterLogs(ctx context.Context, limit int, duration 
 	end := time.Now()
 	start := end.Add(-dur)
 
-	// Query all logs - try both k8s_namespace_name and namespace label formats
-	// The {k8s_namespace_name=~".+"} pattern matches any non-empty namespace
 	query := `{k8s_namespace_name=~".+"} |= ""`
 
 	lokiResp, err := c.queryLokiRange(ctx, query, start, end, limit, "backward")
 	if err != nil {
-		// Fallback to standard namespace label if k8s_ prefix fails
+
 		query = `{namespace=~".+"} |= ""`
 		lokiResp, err = c.queryLokiRange(ctx, query, start, end, limit, "backward")
 		if err != nil {
@@ -206,8 +197,6 @@ func (c *lokiClient) GetAllClusterLogs(ctx context.Context, limit int, duration 
 	}, nil
 }
 
-// GetLogsByProjectID retrieves logs for a specific project by its UUID
-// In Kleff, each project deploys to a namespace named with the project UUID
 func (c *lokiClient) GetLogsByProjectID(ctx context.Context, projectID string, limit int, duration string) (*domain.LogQueryResult, error) {
 	if limit <= 0 {
 		limit = 100
@@ -221,12 +210,11 @@ func (c *lokiClient) GetLogsByProjectID(ctx context.Context, projectID string, l
 	end := time.Now()
 	start := end.Add(-dur)
 
-	// Try k8s_namespace_name label first (common in Kubernetes clusters)
 	query := fmt.Sprintf(`{k8s_namespace_name="%s"} |= ""`, projectID)
 
 	lokiResp, err := c.queryLokiRange(ctx, query, start, end, limit, "backward")
 	if err != nil || len(lokiResp.Data.Result) == 0 {
-		// Fallback to standard namespace label
+
 		query = fmt.Sprintf(`{namespace="%s"} |= ""`, projectID)
 		lokiResp, err = c.queryLokiRange(ctx, query, start, end, limit, "backward")
 		if err != nil {
@@ -243,7 +231,6 @@ func (c *lokiClient) GetLogsByProjectID(ctx context.Context, projectID string, l
 	}, nil
 }
 
-// GetLogsByNamespace retrieves logs for a specific namespace
 func (c *lokiClient) GetLogsByNamespace(ctx context.Context, namespace string, limit int, duration string) (*domain.LogQueryResult, error) {
 	if limit <= 0 {
 		limit = 100
@@ -257,12 +244,11 @@ func (c *lokiClient) GetLogsByNamespace(ctx context.Context, namespace string, l
 	end := time.Now()
 	start := end.Add(-dur)
 
-	// Try k8s_namespace_name label first
 	query := fmt.Sprintf(`{k8s_namespace_name="%s"} |= ""`, namespace)
 
 	lokiResp, err := c.queryLokiRange(ctx, query, start, end, limit, "backward")
 	if err != nil || len(lokiResp.Data.Result) == 0 {
-		// Fallback to standard namespace label
+
 		query = fmt.Sprintf(`{namespace="%s"} |= ""`, namespace)
 		lokiResp, err = c.queryLokiRange(ctx, query, start, end, limit, "backward")
 		if err != nil {
@@ -279,7 +265,6 @@ func (c *lokiClient) GetLogsByNamespace(ctx context.Context, namespace string, l
 	}, nil
 }
 
-// GetLogsByPod retrieves logs for a specific pod
 func (c *lokiClient) GetLogsByPod(ctx context.Context, namespace, pod string, limit int, duration string) (*domain.LogQueryResult, error) {
 	if limit <= 0 {
 		limit = 100
@@ -293,12 +278,11 @@ func (c *lokiClient) GetLogsByPod(ctx context.Context, namespace, pod string, li
 	end := time.Now()
 	start := end.Add(-dur)
 
-	// Try k8s_ prefixed labels first
 	query := fmt.Sprintf(`{k8s_namespace_name="%s", k8s_pod_name="%s"} |= ""`, namespace, pod)
 
 	lokiResp, err := c.queryLokiRange(ctx, query, start, end, limit, "backward")
 	if err != nil || len(lokiResp.Data.Result) == 0 {
-		// Fallback to standard labels
+
 		query = fmt.Sprintf(`{namespace="%s", pod="%s"} |= ""`, namespace, pod)
 		lokiResp, err = c.queryLokiRange(ctx, query, start, end, limit, "backward")
 		if err != nil {
@@ -315,7 +299,6 @@ func (c *lokiClient) GetLogsByPod(ctx context.Context, namespace, pod string, li
 	}, nil
 }
 
-// GetLogsByContainer retrieves logs for a specific container
 func (c *lokiClient) GetLogsByContainer(ctx context.Context, namespace, pod, container string, limit int, duration string) (*domain.LogQueryResult, error) {
 	if limit <= 0 {
 		limit = 100
@@ -329,12 +312,11 @@ func (c *lokiClient) GetLogsByContainer(ctx context.Context, namespace, pod, con
 	end := time.Now()
 	start := end.Add(-dur)
 
-	// Try k8s_ prefixed labels first
 	query := fmt.Sprintf(`{k8s_namespace_name="%s", k8s_pod_name="%s", k8s_container_name="%s"} |= ""`, namespace, pod, container)
 
 	lokiResp, err := c.queryLokiRange(ctx, query, start, end, limit, "backward")
 	if err != nil || len(lokiResp.Data.Result) == 0 {
-		// Fallback to standard labels
+
 		query = fmt.Sprintf(`{namespace="%s", pod="%s", container="%s"} |= ""`, namespace, pod, container)
 		lokiResp, err = c.queryLokiRange(ctx, query, start, end, limit, "backward")
 		if err != nil {
@@ -351,7 +333,6 @@ func (c *lokiClient) GetLogsByContainer(ctx context.Context, namespace, pod, con
 	}, nil
 }
 
-// GetLogStreamStats gets statistics about log streams
 func (c *lokiClient) GetLogStreamStats(ctx context.Context, namespace string, duration string) ([]domain.LogStreamStats, error) {
 	dur, err := parseDuration(duration)
 	if err != nil {
@@ -361,12 +342,11 @@ func (c *lokiClient) GetLogStreamStats(ctx context.Context, namespace string, du
 	end := time.Now()
 	start := end.Add(-dur)
 
-	// Try k8s_namespace_name first
 	query := fmt.Sprintf(`{k8s_namespace_name="%s"} |= ""`, namespace)
 
 	lokiResp, err := c.queryLokiRange(ctx, query, start, end, 5000, "backward")
 	if err != nil || len(lokiResp.Data.Result) == 0 {
-		// Fallback to standard namespace label
+
 		query = fmt.Sprintf(`{namespace="%s"} |= ""`, namespace)
 		lokiResp, err = c.queryLokiRange(ctx, query, start, end, 5000, "backward")
 		if err != nil {
@@ -374,11 +354,10 @@ func (c *lokiClient) GetLogStreamStats(ctx context.Context, namespace string, du
 		}
 	}
 
-	// Aggregate stats by pod and container
 	statsMap := make(map[string]*domain.LogStreamStats)
 
 	for _, result := range lokiResp.Data.Result {
-		// Try k8s_ prefixed labels first, fallback to standard labels
+
 		pod := result.Stream["k8s_pod_name"]
 		if pod == "" {
 			pod = result.Stream["pod"]
@@ -402,7 +381,6 @@ func (c *lokiClient) GetLogStreamStats(ctx context.Context, namespace string, du
 			}
 		}
 
-		// Count logs and check for errors/warnings
 		for _, value := range result.Values {
 			if len(value) >= 2 {
 				statsMap[key].LogCount++
@@ -417,7 +395,6 @@ func (c *lokiClient) GetLogStreamStats(ctx context.Context, namespace string, du
 		}
 	}
 
-	// Convert map to slice
 	var stats []domain.LogStreamStats
 	for _, stat := range statsMap {
 		stats = append(stats, *stat)
@@ -426,7 +403,6 @@ func (c *lokiClient) GetLogStreamStats(ctx context.Context, namespace string, du
 	return stats, nil
 }
 
-// GetErrorLogs retrieves logs with error level
 func (c *lokiClient) GetErrorLogs(ctx context.Context, namespace string, limit int, duration string) (*domain.LogQueryResult, error) {
 	if limit <= 0 {
 		limit = 100
@@ -440,13 +416,11 @@ func (c *lokiClient) GetErrorLogs(ctx context.Context, namespace string, limit i
 	end := time.Now()
 	start := end.Add(-dur)
 
-	// Query logs containing error keywords using LogQL
-	// Try k8s_namespace_name first
 	query := fmt.Sprintf(`{k8s_namespace_name="%s"} |~ "(?i)(error|exception|fatal)"`, namespace)
 
 	lokiResp, err := c.queryLokiRange(ctx, query, start, end, limit, "backward")
 	if err != nil || len(lokiResp.Data.Result) == 0 {
-		// Fallback to standard namespace label
+
 		query = fmt.Sprintf(`{namespace="%s"} |~ "(?i)(error|exception|fatal)"`, namespace)
 		lokiResp, err = c.queryLokiRange(ctx, query, start, end, limit, "backward")
 		if err != nil {
@@ -463,7 +437,6 @@ func (c *lokiClient) GetErrorLogs(ctx context.Context, namespace string, limit i
 	}, nil
 }
 
-// GetProjectContainerLogs retrieves logs for specific containers within a project
 func (c *lokiClient) GetProjectContainerLogs(ctx context.Context, projectID string, containerNames []string, limit int, duration string) (*domain.ProjectLogs, error) {
 	if limit <= 0 {
 		limit = 100
@@ -486,19 +459,17 @@ func (c *lokiClient) GetProjectContainerLogs(ctx context.Context, projectID stri
 		Timestamp:     time.Now().Unix(),
 	}
 
-	// Query logs for each container
 	for _, containerName := range containerNames {
-		// Build query for this container
-		// Try k8s_ labels first
+
 		query := fmt.Sprintf(`{k8s_namespace_name="%s", k8s_container_name="%s"} |= ""`, projectID, containerName)
 
 		lokiResp, err := c.queryLokiRange(ctx, query, start, end, limit, "backward")
 		if err != nil || len(lokiResp.Data.Result) == 0 {
-			// Fallback to standard labels
+
 			query = fmt.Sprintf(`{namespace="%s", container="%s"} |= ""`, projectID, containerName)
 			lokiResp, err = c.queryLokiRange(ctx, query, start, end, limit, "backward")
 			if err != nil {
-				// If this container has no logs, continue to next one
+
 				projectLogs.Containers = append(projectLogs.Containers, domain.ContainerLogs{
 					ContainerName: containerName,
 					Logs:          []domain.LogEntry{},
@@ -511,10 +482,8 @@ func (c *lokiClient) GetProjectContainerLogs(ctx context.Context, projectID stri
 			}
 		}
 
-		// Convert logs for this container
 		logs := convertToLogEntries(lokiResp)
 
-		// Count errors and warnings
 		errorCount := 0
 		warningCount := 0
 		for _, log := range logs {
