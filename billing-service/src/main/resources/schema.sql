@@ -1,7 +1,7 @@
 
 
 CREATE TABLE if NOT EXISTS reserved_allocations (
-        allocation_id UUID PRIMARY KEY DEFAULT,
+        allocation_id UUID PRIMARY KEY,
         user_id UUID,
         workspace_id UUID,
         project_id UUID,
@@ -14,7 +14,7 @@ CREATE TABLE if NOT EXISTS reserved_allocations (
         end_date Date
 );
 CREATE TABLE if NOT EXISTS invoices (
-    invoice_id UUID PRIMARY KEY DEFAULT,
+    invoice_id UUID PRIMARY KEY,
     workspace_id UUID,
     start_date Date,
     end_date Date,
@@ -25,7 +25,7 @@ CREATE TABLE if NOT EXISTS invoices (
 
 );
 CREATE TABLE if NOT EXISTS invoice_items(
-    item_id UUID PRIMARY KEY DEFAULT,
+    item_id UUID PRIMARY KEY,
     invoice_id UUID,
     project_id UUID,
     description VARCHAR(255),
@@ -36,7 +36,7 @@ CREATE TABLE if NOT EXISTS invoice_items(
     amount Double
 );
 CREATE TABLE if NOT EXISTS invoice_items(
-    usage_id UUID PRIMARY KEY DEFAULT,
+    usage_id UUID PRIMARY KEY,
     project_id UUID,
     container_id UUID,
     pricing_model VARCHAR(20),
@@ -45,6 +45,6 @@ CREATE TABLE if NOT EXISTS invoice_items(
     recorded_at DATETIME
 );
 CREATE TABLE if NOT EXISTS prices(
-    metric VARCHAR(20) PRIMARY KEY DEFAULT,
+    metric VARCHAR(20) PRIMARY KEY,
     price Double
     );

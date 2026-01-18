@@ -31,7 +31,7 @@ public class BillingServiceImpl implements BillingService {
     private InvoiceRepository invoiceRepository;
     private UsageRecordRepository usageRecordRepository;
     private PriceRepository priceRepository;
-    private double taxes = 1.14975;
+    private double taxes = 0.114975;
 
     public BillingServiceImpl(
             ReservedAllocationRepository reservedAllocationRepository,
@@ -158,9 +158,9 @@ public class BillingServiceImpl implements BillingService {
         double MEMORY = usage.getMemoryUsageGB();
         double STORAGE = 0;
         invoice.setTotalPaid((double) 0);
-        invoice.setTotalCPU((CPU * getPrice("CPU_HOURS").getPrice()));
-        invoice.setTotalRAM((MEMORY * getPrice("MEMORY_GB_HOURS").getPrice()));
-        invoice.setTotalSTORAGE((STORAGE * getPrice("STORAGE_GB").getPrice()));
+        invoice.setTotalCPU((CPU * (getPrice("CPU_HOURS") != null ? getPrice("CPU_HOURS").getPrice() : 0)));
+        invoice.setTotalRAM((MEMORY * (getPrice("MEMORY_GB_HOURS") != null ? getPrice("MEMORY_GB_HOURS").getPrice() : 0)));
+        invoice.setTotalSTORAGE((STORAGE * (getPrice("STORAGE_GB") != null ? getPrice("STORAGE_GB").getPrice() : 0)));
         invoice.setSubtotal(invoice.getTotalCPU() + invoice.getTotalRAM() + invoice.getTotalSTORAGE());
         invoice.setTaxes(invoice.getSubtotal()*taxes);
         BigDecimal bd = new BigDecimal(Double.toString((invoice.getSubtotal())+invoice.getTaxes()));
@@ -179,8 +179,9 @@ public class BillingServiceImpl implements BillingService {
         int daysInPreviousMonth = previousMonth.lengthOfMonth();
         List<String> listOfProjectIds = apiService.getListOfProjectIds();
         for(String  projectId : listOfProjectIds){
-            getLastsMonthUsageRecordsAverage(projectId,daysInPreviousMonth);
+            invoiceRepository.save(getLastsMonthUsageRecordsAverage(projectId,daysInPreviousMonth));
         }
+
     }
     }
 
