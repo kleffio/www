@@ -10,7 +10,7 @@ interface ContainerStatusCardProps {
 }
 
 export function ContainerStatusCard({ container, onManage }: ContainerStatusCardProps) {
-  const appUrl = `https://${container.containerId}.kleff.io`;
+  const appUrl = `https://app-${container.containerId}.kleff.io`;
 
   const handleVisitApp = (e: React.MouseEvent) => {
     e.stopPropagation();
