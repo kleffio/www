@@ -1,4 +1,7 @@
 ---
+vite:
+  backend:
+    url: ${VITE_BACKEND_URL}
 stripe:
   api:
     key: ${STRIPE_API_KEY}

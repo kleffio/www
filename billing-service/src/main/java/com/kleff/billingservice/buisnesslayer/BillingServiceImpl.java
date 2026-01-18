@@ -10,6 +10,7 @@ import com.kleff.billingservice.datalayer.Pricing.PriceRepository;
 import com.kleff.billingservice.datalayer.Record.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.Value;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 public class BillingServiceImpl implements BillingService {
 
     //Initialisation
+    private ApiService apiService;
     private ReservedAllocationRepository reservedAllocationRepository;
     private InvoiceRepository invoiceRepository;
     private UsageRecordRepository usageRecordRepository;
@@ -147,49 +149,14 @@ public class BillingServiceImpl implements BillingService {
         priceRepository.save(price1);
     }
 
-    public Map<String, List<UsageRecord>> getUsageRecordsFromLastMonthGroupedByProject() {
-        LocalDateTime startOfLastMonth = LocalDateTime.now()
-                .minusMonths(1)
-                .withDayOfMonth(1)
-                .withHour(0)
-                .withMinute(0)
-                .withSecond(0)
-                .withNano(0);
 
-        LocalDateTime startOfThisMonth = LocalDateTime.now()
-                .withDayOfMonth(1)
-                .withHour(0)
-                .withMinute(0)
-                .withSecond(0)
-                .withNano(0);
-
-        // Query all bills from last month
-        List<UsageRecord> lastMonthUsageRecords = usageRecordRepository.findByRecordedAtBetween(
-                startOfLastMonth,
-                startOfThisMonth
-        );
-
-//        log.info("Found {} bills from last month", lastMonthUsageRecords.size());
-
-        // Group by project ID
-        Map<String, List<UsageRecord>> invoiceItemsByProject = lastMonthUsageRecords.stream()
-                .collect(Collectors.groupingBy(UsageRecord::getProjectId));
-
-//        log.info("Bills grouped into {} projects", billsByProject.size());
-
-        return invoiceItemsByProject;
-    }
-
-    public Invoice getLastsMonthUsageRecords(List<UsageRecord> usageRecords) {
-
+    public Invoice getLastsMonthUsageRecordsAverage(String projectId, int days) {
+        UsageMonth usage = apiService.usageRecordForLastMonth(projectId, days);
 
         Invoice invoice = new Invoice();
-        double CPU = 0;
-        double MEMORY = 0;
+        double CPU = usage.getCpuRequestCores();
+        double MEMORY = usage.getMemoryUsageGB();
         double STORAGE = 0;
-
-
-
         invoice.setTotalPaid((double) 0);
         invoice.setTotalCPU((CPU * getPrice("CPU_HOURS").getPrice()));
         invoice.setTotalCPU((MEMORY * getPrice("MEMORY_GB_HOURS").getPrice()));
@@ -202,7 +169,6 @@ public class BillingServiceImpl implements BillingService {
         return invoice;
     }
 
-    public List<Project> getLastsMonthUsageRecords(List<UsageRecord> usageRecords) {
 
 
 
@@ -211,16 +177,10 @@ public class BillingServiceImpl implements BillingService {
     public void CreateMonthlyBills(){
         YearMonth previousMonth = YearMonth.now().minusMonths(1);
         int daysInPreviousMonth = previousMonth.lengthOfMonth();
-
-
-
-//    Map<String, List<UsageRecord>> mappedRecords = getUsageRecordsFromLastMonthGroupedByProject();
-//    mappedRecords.forEach((projectId, usageRecords) -> {
-//    aggregateUsageRecordIntoInvoice(usageRecords);
-//    });
-
-
-
+        List<String> listOfProjectIds = apiService.getListOfProjectIds();
+        for(String  projectId : listOfProjectIds){
+            getLastsMonthUsageRecordsAverage(projectId,daysInPreviousMonth);
+        }
     }
     }
 
