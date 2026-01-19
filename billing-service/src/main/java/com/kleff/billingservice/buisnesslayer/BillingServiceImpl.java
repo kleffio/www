@@ -10,18 +10,13 @@ import com.kleff.billingservice.datalayer.Pricing.PriceRepository;
 import com.kleff.billingservice.datalayer.Record.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import lombok.Value;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
+import lombok.extern.slf4j.Slf4j;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+@Slf4j
 @Service
 public class BillingServiceImpl implements BillingService {
 
@@ -197,12 +192,17 @@ public class BillingServiceImpl implements BillingService {
         YearMonth previousMonth = YearMonth.now().minusMonths(1);
         int daysInPreviousMonth = previousMonth.lengthOfMonth();
         List<String> listOfProjectIds = apiService.getListOfProjectIds();
-        for(String  projectId : listOfProjectIds){
-            invoiceRepository.save(getLastsMonthUsageRecordsAverage(projectId,daysInPreviousMonth));
-        }
 
+        for(String projectId : listOfProjectIds){
+            try {
+                invoiceRepository.save(getLastsMonthUsageRecordsAverage(projectId, daysInPreviousMonth));
+            } catch (Exception e) {
+                log.info("Failed to create invoice for project: " + projectId, e);
+                // Continue with other projects
+            }
+        }
     }
-    }
+}
 
 
 
