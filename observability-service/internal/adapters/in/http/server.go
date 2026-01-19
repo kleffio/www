@@ -44,6 +44,7 @@ func SetupRouter(handler *MetricsHandler, logsHandler *LogsHandler) *gin.Engine 
 		api.GET("/logs/namespace/:namespace/errors", logsHandler.GetErrorLogs)
 		api.POST("/logs/project-containers", logsHandler.GetProjectContainerLogs)
 		api.GET("/projects/:projectID/usage/:days", handler.GetProjectUsageMetricsWithDays)
+		api.GET("/projects/:projectID/usage", handler.GetProjectUsageMetrics)
 	}
 
 	router.GET("/health", func(c *gin.Context) {
