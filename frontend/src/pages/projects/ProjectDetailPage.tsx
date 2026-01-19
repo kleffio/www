@@ -293,8 +293,6 @@ export function ProjectDetailPage() {
          
         />
       </div>
-  
-          <InvoiceTable projectId={projectId || ""} />
 
       {/* Container Modal - Handles both Create and Edit */}
       <ContainerModal
