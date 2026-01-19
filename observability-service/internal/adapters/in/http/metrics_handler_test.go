@@ -24,6 +24,8 @@ type mockMetricsService struct {
 	getMemoryUtilizationFunc    func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
 	getNodesFunc                func(ctx context.Context) ([]domain.NodeMetric, error)
 	getNamespacesFunc           func(ctx context.Context) ([]domain.NamespaceMetric, error)
+	getUptimeMetricsFunc        func(ctx context.Context, duration string) (*domain.UptimeMetrics, error)
+	getSystemUptimeFunc         func(ctx context.Context) (float64, error)
 	getDatabaseIOMetricsFunc         func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
 	getProjectUsageMetricsFunc       func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
 	getProjectUsageMetricsWithDaysFunc func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error)
@@ -111,6 +113,20 @@ func (m *mockMetricsService) GetProjectUsageMetricsWithDays(ctx context.Context,
 		return m.getProjectUsageMetricsWithDaysFunc(ctx, projectID, days)
 	}
 	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsService) GetUptimeMetrics(ctx context.Context, duration string) (*domain.UptimeMetrics, error) {
+	if m.getUptimeMetricsFunc != nil {
+		return m.getUptimeMetricsFunc(ctx, duration)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsService) GetSystemUptime(ctx context.Context) (float64, error) {
+	if m.getSystemUptimeFunc != nil {
+		return m.getSystemUptimeFunc(ctx)
+	}
+	return 0, errors.New("not implemented")
 }
 
 func setupTestRouter() *gin.Engine {

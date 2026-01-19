@@ -1,8 +1,13 @@
 package com.kleff.projectmanagementservice.buisnesslayer;
 
+import com.kleff.projectmanagementservice.buisnesslayer.collaborator.CollaboratorService;
+import com.kleff.projectmanagementservice.datalayer.collaborator.Collaborator;
+import com.kleff.projectmanagementservice.datalayer.collaborator.CollaboratorRole;
+import com.kleff.projectmanagementservice.datalayer.collaborator.collaboratorRepository;
 import com.kleff.projectmanagementservice.datalayer.project.Project;
 import com.kleff.projectmanagementservice.datalayer.project.ProjectRepository;
 import com.kleff.projectmanagementservice.datalayer.project.ProjectStatus;
+import com.kleff.projectmanagementservice.presentationlayer.collaborator.CollaboratorRequestModel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +35,12 @@ class ProjectServiceImplTest {
 
         @Mock
         private ProjectRepository projectRepository;
+
+        @Mock
+        private CollaboratorService collaboratorService;
+
+        @Mock
+        private collaboratorRepository collaboratorRepo;
 
         @InjectMocks
         private ProjectServiceImpl projectService;
@@ -71,6 +82,7 @@ class ProjectServiceImplTest {
             // Arrange
             List<Project> expectedProjects = Arrays.asList(testProject1, testProject2);
             when(projectRepository.findByOwnerIdEquals(testUserId)).thenReturn(expectedProjects);
+            when(collaboratorRepo.findByUserId(testUserId)).thenReturn(Arrays.asList());
 
             // Act
             List<Project> result = projectService.getAllOwnedProjects(testUserId);
@@ -79,12 +91,14 @@ class ProjectServiceImplTest {
             assertThat(result).hasSize(2);
             assertThat(result).containsExactly(testProject1, testProject2);
             verify(projectRepository).findByOwnerIdEquals(testUserId);
+            verify(collaboratorRepo).findByUserId(testUserId);
         }
 
         @Test
         void getAllOwnedProjects_WithNoProjects_ReturnsEmptyList() {
             // Arrange
             when(projectRepository.findByOwnerIdEquals(testUserId)).thenReturn(Arrays.asList());
+            when(collaboratorRepo.findByUserId(testUserId)).thenReturn(Arrays.asList());
 
             // Act
             List<Project> result = projectService.getAllOwnedProjects(testUserId);
@@ -92,6 +106,7 @@ class ProjectServiceImplTest {
             // Assert
             assertThat(result).isEmpty();
             verify(projectRepository).findByOwnerIdEquals(testUserId);
+            verify(collaboratorRepo).findByUserId(testUserId);
         }
 
         @Test
@@ -104,6 +119,7 @@ class ProjectServiceImplTest {
 
             when(projectRepository.findByOwnerIdEquals(differentUserId))
                     .thenReturn(Arrays.asList(differentUserProject));
+            when(collaboratorRepo.findByUserId(differentUserId)).thenReturn(Arrays.asList());
 
             // Act
             List<Project> result = projectService.getAllOwnedProjects(differentUserId);
@@ -112,6 +128,100 @@ class ProjectServiceImplTest {
             assertThat(result).hasSize(1);
             assertThat(result.get(0).getOwnerId()).isEqualTo(differentUserId);
             verify(projectRepository).findByOwnerIdEquals(differentUserId);
+            verify(collaboratorRepo).findByUserId(differentUserId);
+        }
+
+        @Test
+        void getAllOwnedProjects_WithCollaborations_IncludesCollaboratedProjects() {
+            // Arrange
+            String otherUserId = "user-other";
+            Project collaboratedProject = new Project();
+            collaboratedProject.setProjectId("collab-project-1");
+            collaboratedProject.setName("Collaborated Project");
+            collaboratedProject.setOwnerId(otherUserId);
+
+            Collaborator collaboration = new Collaborator();
+            collaboration.setUserId(testUserId);
+            collaboration.setProjectId("collab-project-1");
+            collaboration.setRole(CollaboratorRole.ADMIN);
+
+            when(projectRepository.findByOwnerIdEquals(testUserId)).thenReturn(Arrays.asList());
+            when(collaboratorRepo.findByUserId(testUserId)).thenReturn(Arrays.asList(collaboration));
+            when(projectRepository.findByProjectId("collab-project-1")).thenReturn(collaboratedProject);
+
+            // Act
+            List<Project> result = projectService.getAllOwnedProjects(testUserId);
+
+            // Assert
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getProjectId()).isEqualTo("collab-project-1");
+            assertThat(result.get(0).getOwnerId()).isEqualTo(otherUserId);
+            verify(collaboratorRepo).findByUserId(testUserId);
+            verify(projectRepository).findByProjectId("collab-project-1");
+        }
+
+        @Test
+        void getAllOwnedProjects_WithBothOwnedAndCollaborated_ReturnsBoth() {
+            // Arrange
+            Project ownedProject = new Project();
+            ownedProject.setProjectId("owned-1");
+            ownedProject.setOwnerId(testUserId);
+
+            Project collaboratedProject = new Project();
+            collaboratedProject.setProjectId("collab-1");
+            collaboratedProject.setOwnerId("other-user");
+
+            Collaborator collaboration = new Collaborator();
+            collaboration.setUserId(testUserId);
+            collaboration.setProjectId("collab-1");
+
+            when(projectRepository.findByOwnerIdEquals(testUserId)).thenReturn(Arrays.asList(ownedProject));
+            when(collaboratorRepo.findByUserId(testUserId)).thenReturn(Arrays.asList(collaboration));
+            when(projectRepository.findByProjectId("collab-1")).thenReturn(collaboratedProject);
+
+            // Act
+            List<Project> result = projectService.getAllOwnedProjects(testUserId);
+
+            // Assert
+            assertThat(result).hasSize(2);
+            assertThat(result).contains(ownedProject, collaboratedProject);
+        }
+
+        @Test
+        void getAllOwnedProjects_WithNullCollaboratedProject_SkipsIt() {
+            // Arrange
+            Collaborator collaboration = new Collaborator();
+            collaboration.setUserId(testUserId);
+            collaboration.setProjectId("deleted-project");
+
+            when(projectRepository.findByOwnerIdEquals(testUserId)).thenReturn(Arrays.asList());
+            when(collaboratorRepo.findByUserId(testUserId)).thenReturn(Arrays.asList(collaboration));
+            when(projectRepository.findByProjectId("deleted-project")).thenReturn(null);
+
+            // Act
+            List<Project> result = projectService.getAllOwnedProjects(testUserId);
+
+            // Assert
+            assertThat(result).isEmpty();
+        }
+
+        @Test
+        void getAllOwnedProjects_WithDuplicateCollaboration_DoesNotIncludeTwice() {
+            // Arrange
+            when(projectRepository.findByOwnerIdEquals(testUserId)).thenReturn(Arrays.asList(testProject1));
+            
+            Collaborator collaboration = new Collaborator();
+            collaboration.setUserId(testUserId);
+            collaboration.setProjectId(testProject1.getProjectId());
+            
+            when(collaboratorRepo.findByUserId(testUserId)).thenReturn(Arrays.asList(collaboration));
+            when(projectRepository.findByProjectId(testProject1.getProjectId())).thenReturn(testProject1);
+
+            // Act
+            List<Project> result = projectService.getAllOwnedProjects(testUserId);
+
+            // Assert
+            assertThat(result).hasSize(1);
         }
 
         // ============ getProjectById Tests ============
@@ -200,6 +310,56 @@ class ProjectServiceImplTest {
 
             // Assert
             verify(projectRepository, times(1)).save(newProject);
+        }
+
+        @Test
+        void createProject_CreatesOwnerCollaborator() {
+            // Arrange
+            Project newProject = new Project();
+            newProject.setName("New Project");
+            newProject.setOwnerId(testUserId);
+
+            Project savedProject = new Project();
+            savedProject.setProjectId("project-new");
+            savedProject.setName("New Project");
+            savedProject.setOwnerId(testUserId);
+
+            when(projectRepository.save(newProject)).thenReturn(savedProject);
+
+            // Act
+            projectService.createProject(newProject);
+
+            // Assert
+            ArgumentCaptor<CollaboratorRequestModel> collabCaptor = ArgumentCaptor.forClass(CollaboratorRequestModel.class);
+            verify(collaboratorService).addCollaborator(collabCaptor.capture(), eq("system"));
+            
+            CollaboratorRequestModel captured = collabCaptor.getValue();
+            assertThat(captured.getProjectId()).isEqualTo("project-new");
+            assertThat(captured.getUserId()).isEqualTo(testUserId);
+            assertThat(captured.getRole()).isEqualTo(CollaboratorRole.OWNER);
+        }
+
+        @Test
+        void createProject_WhenCollaboratorCreationFails_StillReturnsProject() {
+            // Arrange
+            Project newProject = new Project();
+            newProject.setOwnerId(testUserId);
+
+            Project savedProject = new Project();
+            savedProject.setProjectId("project-new");
+            savedProject.setOwnerId(testUserId);
+
+            when(projectRepository.save(newProject)).thenReturn(savedProject);
+            doThrow(new RuntimeException("Collaborator service error"))
+                    .when(collaboratorService).addCollaborator(Mockito.any(), anyString());
+
+            // Act
+            Project result = projectService.createProject(newProject);
+
+            // Assert
+            assertThat(result).isNotNull();
+            assertThat(result.getProjectId()).isEqualTo("project-new");
+            verify(projectRepository).save(newProject);
         }
 
         // ============ updateProject Tests ============
@@ -362,6 +522,30 @@ class ProjectServiceImplTest {
 
             Project savedProject = projectCaptor.getValue();
             assertThat(savedProject.getProjectStatus()).isEqualTo(ProjectStatus.PAUSED);
+        }
+
+        @Test
+        void updateProject_WithOwnerIdChange_UpdatesOwnerId() {
+            // Arrange
+            Project existingProject = new Project();
+            existingProject.setProjectId(testProjectId);
+            existingProject.setOwnerId("old-owner-id");
+
+            Project updateData = new Project();
+            updateData.setOwnerId("new-owner-id");
+
+            when(projectRepository.findById(testProjectId)).thenReturn(Optional.of(existingProject));
+            when(projectRepository.save(Mockito.<Project>any())).thenReturn(existingProject);
+
+            // Act
+            projectService.updateProject(testProjectId, updateData);
+
+            // Assert
+            ArgumentCaptor<Project> projectCaptor = ArgumentCaptor.forClass(Project.class);
+            verify(projectRepository).save(projectCaptor.capture());
+
+            Project savedProject = projectCaptor.getValue();
+            assertThat(savedProject.getOwnerId()).isEqualTo("new-owner-id");
         }
 
         // ============ deleteProject Tests ============

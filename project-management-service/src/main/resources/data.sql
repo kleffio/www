@@ -55,3 +55,20 @@ VALUES
      'ACTIVE',
      CURRENT_TIMESTAMP - INTERVAL '30 days',
      CURRENT_TIMESTAMP - INTERVAL '5 days');
+
+INSERT INTO invitations (project_id, inviter_id, invitee_email, role, status, created_at, updated_at)
+VALUES 
+    ('proj-001', 'user-owner-1', 'developer@example.com', 'DEVELOPER', 'PENDING', now(), now()),
+    ('proj-001', 'user-owner-1', 'viewer@example.com', 'VIEWER', 'PENDING', now(), now()),
+    ('proj-002', 'user-owner-2', 'admin@example.com', 'ADMIN', 'ACCEPTED', now(), now()),
+    ('proj-003', 'user-owner-1', 'developer2@example.com', 'DEVELOPER', 'EXPIRED', now(), now());
+
+INSERT INTO collaborators (project_id, user_id, role, status, invited_by, invited_at, accepted_at, created_at, updated_at)
+VALUES 
+    ('project123', 'user-123', 'OWNER', 'ACCEPTED', 'system', now(), now(), now(), now()),
+    ('project123', 'user-dev-1', 'DEVELOPER', 'ACCEPTED', 'user-123', now(), now(), now(), now()),
+    ('project123', 'user-viewer-1', 'VIEWER', 'ACCEPTED', 'user-123', now(), now(), now(), now()),
+    ('project456', 'user-123', 'OWNER', 'ACCEPTED', 'system', now(), now(), now(), now()),
+    ('project456', 'user-admin-1', 'ADMIN', 'ACCEPTED', 'user-123', now(), now(), now(), now()),
+    ('project789', 'user-456', 'OWNER', 'ACCEPTED', 'system', now(), now(), now(), now()),
+    ('project789', 'user-dev-2', 'DEVELOPER', 'PENDING', 'user-456', now(), NULL, now(), now());

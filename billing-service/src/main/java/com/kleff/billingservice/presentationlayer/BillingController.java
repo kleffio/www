@@ -10,9 +10,13 @@ import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestClient;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +34,43 @@ public class BillingController {
 
     @Value("${frontend.url}")
     private String frontend;
+    @Value("${vite.backend.url}")
+    private String backendUrl;
+    
     private final BillingService billingService;
+    private final RestClient restClient;
 
-    public BillingController(BillingService billingService) {
+    public BillingController(BillingService billingService, RestClient.Builder restClientBuilder, @Value("${vite.backend.url}") String backendUrl) {
         this.billingService = billingService;
+        this.restClient = restClientBuilder.baseUrl(backendUrl).build();
+        this.backendUrl = backendUrl;
+    }
+    
+    private String getUserIdFromAuth(Authentication authentication) {
+        if (authentication != null && authentication.getPrincipal() instanceof Jwt jwt) {
+            return jwt.getSubject();
+        }
+        throw new RuntimeException("User not authenticated");
+    }
+    
+    private boolean hasPermission(String userId, String projectId, String permission, String authHeader) {
+        try {
+            String url = "/api/v1/collaborators/" + projectId + "/user/" + userId + "/permissions";
+            logger.info("Checking permission '{}' for user {} on project {}", permission, userId, projectId);
+            
+            List<String> permissions = restClient.get()
+                .uri(url)
+                .header("Authorization", authHeader)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<String>>() {});
+            
+            boolean hasPermission = permissions != null && permissions.contains(permission);
+            logger.info("User {} {} permission '{}' for project {}", userId, hasPermission ? "has" : "does not have", permission, projectId);
+            return hasPermission;
+        } catch (Exception e) {
+            logger.error("Error checking permission for user {} on project {}: {}", userId, projectId, e.getMessage());
+            return false;
+        }
     }
 
     // Usage Record Endpoints
@@ -45,20 +82,50 @@ public class BillingController {
     }
 
     @GetMapping("/{projectId}/usage-records/")
-    public ResponseEntity<List<UsageRecord>> getUsageRecordsForProject(@PathVariable String projectId) {
-        List<UsageRecord> records = billingService.getUsageRecordsForProject(projectId);
-        return ResponseEntity.ok(records);
+    public ResponseEntity<?> getUsageRecordsForProject(
+            @PathVariable String projectId,
+            Authentication authentication,
+            @RequestHeader("Authorization") String authHeader) {
+        try {
+            String userId = getUserIdFromAuth(authentication);
+            
+            // Check if user has MANAGE_BILLING permission
+            if (!hasPermission(userId, projectId, "MANAGE_BILLING", authHeader)) {
+                logger.warn("User {} attempted to view usage records for project {} without MANAGE_BILLING permission", userId, projectId);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "You don't have permission to view billing information for this project"));
+            }
+            
+            List<UsageRecord> records = billingService.getUsageRecordsForProject(projectId);
+            return ResponseEntity.ok(records);
+        } catch (Exception e) {
+            logger.error("Error getting usage records for project {}: {}", projectId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Failed to retrieve usage records"));
+        }
     }
 
     @PostMapping("/pay/{invoiceId}")
     public ResponseEntity<?> payInvoice(
-            @PathVariable String invoiceId) {
+            @PathVariable String invoiceId,
+            Authentication authentication,
+            @RequestHeader("Authorization") String authHeader) {
         try {
-
+            // Get userId first
+            String userId = getUserIdFromAuth(authentication);
+            
+            // Get the invoice to find the project
+            Invoice invoice = billingService.getInvoiceById(invoiceId);
+            
+            // Check if user has MANAGE_BILLING permission
+            if (!hasPermission(userId, invoice.getProjectId(), "MANAGE_BILLING", authHeader)) {
+                logger.warn("User {} attempted to pay invoice {} without MANAGE_BILLING permission", userId, invoiceId);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "You don't have permission to manage billing for this project"));
+            }
+            
             // Validate and compute amount server-side
-            long amountCents = billingService.computeOutstandingCents(
-                    invoiceId
-            );
+            long amountCents = billingService.computeOutstandingCents(invoiceId);
 
             logger.info("Creating Stripe session for invoice: {} with amount: {} cents", invoiceId, amountCents);
 
@@ -121,9 +188,27 @@ public class BillingController {
     }
 
     @GetMapping("/{projectId}/invoices/")
-    public ResponseEntity<List<Invoice>> getInvoicesForProject(@PathVariable String projectId) {
-        List<Invoice> items = billingService.getInvoicesForAProject(projectId);
-        return ResponseEntity.ok(items);
+    public ResponseEntity<?> getInvoicesForProject(
+            @PathVariable String projectId,
+            Authentication authentication,
+            @RequestHeader("Authorization") String authHeader) {
+        try {
+            String userId = getUserIdFromAuth(authentication);
+            
+            // Check if user has MANAGE_BILLING permission
+            if (!hasPermission(userId, projectId, "MANAGE_BILLING", authHeader)) {
+                logger.warn("User {} attempted to view invoices for project {} without MANAGE_BILLING permission", userId, projectId);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "You don't have permission to view billing information for this project"));
+            }
+            
+            List<Invoice> items = billingService.getInvoicesForAProject(projectId);
+            return ResponseEntity.ok(items);
+        } catch (Exception e) {
+            logger.error("Error getting invoices for project {}: {}", projectId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Failed to retrieve invoices"));
+        }
     }
 
     @PostMapping("/invoice")

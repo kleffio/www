@@ -1,12 +1,12 @@
 import { useParams, Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@shared/ui/Button";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Spinner } from "@shared/ui/Spinner";
 import { MiniCard } from "@shared/ui/MiniCard";
 import { Badge } from "@shared/ui/Badge";
 import { GradientIcon } from "@shared/ui/GradientIcon";
-import { Hash, User, Layers, Activity, Calendar, Clock, Box } from "lucide-react";
+import { Hash, User, Layers, Activity, Calendar, Clock, Box, Users } from "lucide-react";
 import { useProject } from "@features/projects/hooks/useProject";
 import { useProjectContainers } from "@features/projects/hooks/useProjectContainers";
 import { ContainerModal } from "@features/projects/components/CreateContainerModal";
@@ -23,11 +23,25 @@ import { BillingModal } from "@features/billing/components/viewBillsModal";
 import { useUsername } from "@features/users/api/getUsernameById";
 import InvoiceTable from "@features/billing/components/InvoiceTable";
 import ProjectMetricsCard from "@features/observability/components/ProjectMetricsCard";
+import { usePermissions } from "@features/projects/hooks/usePermissions";
+import { TeamModal } from "@features/projects/components/TeamModal";
+import { SecureComponent } from "@app/components/SecureComponent";
+import { SimpleContainerLogsSheet } from "@features/projects/components/SimpleContainerLogsSheet";
 
 const translations = {
   en: enTranslations,
   fr: frTranslations
 };
+
+
+// const sanitizeAppName = (name: string) => {
+//   if (!name) return "";
+//   return name
+//     .toLowerCase()
+//     .replace(/_/g, '-')      
+//     .replace(/\s+/g, '-')    
+//     .replace(/^-+|-+$/g, ''); 
+// };
 
 export function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -38,33 +52,45 @@ export function ProjectDetailPage() {
     error: containersError,
     reload
   } = useProjectContainers(projectId || "");
+  
+  const { role } = usePermissions(projectId);
 
-  // State for the Unified Container Modal (Create/Edit)
   const [isContainerModalOpen, setIsContainerModalOpen] = useState(false);
   const [selectedContainerForEdit, setSelectedContainerForEdit] = useState<Container | null>(null);
 
-  // State for other modals
   const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [selectedContainer, setSelectedContainer] = useState<Container | null>(null);
-  const [locale] = useState(getLocale());
+  const [locale, setLocaleState] = useState(getLocale());
   const t = translations[locale].projectDetail;
+
+  const [isLogsOpen, setIsLogsOpen] = useState(false);
+  const [logsContainer, setLogsContainer] = useState<Container | null>(null);
 
   const id = project?.ownerId || "";
   const ownerUser = useUsername(id);
 
-  /**
-   * Logic for Creating a new container
-   */
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLocale = getLocale();
+      if (currentLocale !== locale) {
+        setLocaleState(currentLocale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [locale]);
+  const handleViewLogs = (container: Container) => {
+    setLogsContainer(container);
+    setIsLogsOpen(true);
+  };
+
   const handleCreateNew = () => {
     setSelectedContainerForEdit(null); // Explicitly null for "Create" mode
     setIsContainerModalOpen(true);
   };
 
-  /**
-   * Logic for quick Env editing (if you still want the separate modal)
-   */
   const handleEditEnv = (container: Container) => {
     console.log('handleEditEnv called with container:', container.name);
     setSelectedContainer(container);
@@ -76,7 +102,6 @@ export function ProjectDetailPage() {
     console.log('handleEditContainer called with container:', container.name);
     setSelectedContainerForEdit(container);
     setIsContainerModalOpen(true);
-    setIsDetailModalOpen(false); // Close the detail modal when opening edit modal
   };
 
   const handleSaveEnvVariables = async (containerId: string, envVariables: Record<string, string>) => {
@@ -124,16 +149,36 @@ export function ProjectDetailPage() {
               </Button>
             </Link>
             <h1 className="text-2xl font-semibold text-neutral-50 md:text-3xl">{project.name}</h1>
-            <p className="mt-1 text-sm text-neutral-400">{project.description || t.no_description}</p>
+            <p className="mt-1 text-sm text-neutral-400">
+              {project.description || t.no_description}
+            </p>
+            {role && (
+              <Badge variant="info" className="mt-2 text-xs">
+                {t.your_role}: {role}
+              </Badge>
+            )}
           </div>
 
-          <Button
-            size="lg"
-            onClick={handleCreateNew}
-            className="bg-gradient-kleff rounded-full px-5 py-2 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
-          >
-            {t.create_container}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              size="lg"
+              onClick={() => setIsTeamModalOpen(true)}
+              className="rounded-full px-5 py-2 text-sm font-semibold bg-white/5 border border-white/10 hover:bg-white/10 text-neutral-50"
+            >
+              <Users className="mr-2 h-4 w-4" />
+              {t.team}
+            </Button>
+
+            <SecureComponent requiredPermission="DEPLOY">
+              <Button
+                size="lg"
+                onClick={handleCreateNew}
+                className="bg-gradient-kleff rounded-full px-5 py-2 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110"
+              >
+                {t.create_container}
+              </Button>
+            </SecureComponent>
+          </div>
         </header>
 
         <SoftPanel>
@@ -182,9 +227,11 @@ export function ProjectDetailPage() {
           </div>
         </SoftPanel>
 
-        <ProjectMetricsCard
-          projectId={project.projectId}
-        />
+        <SecureComponent requiredPermission="VIEW_METRICS">
+          <ProjectMetricsCard
+            projectId={project.projectId}
+          />
+        </SecureComponent>
 
         <SoftPanel>
           <div className="mb-6 flex items-center gap-3">
@@ -194,7 +241,13 @@ export function ProjectDetailPage() {
             </h2>
           </div>
 
-          {!containersLoading && !containersError && containers.length > 0 && (
+          {containersLoading ? (
+            <div className="py-8 text-center">
+              <Spinner />
+            </div>
+          ) : containersError ? (
+            <p className="py-4 text-sm text-red-400">{containersError}</p>
+          ) : containers.length > 0 ? (
             <div className="space-y-4">
               {containers.map((container) => (
                 <ContainerStatusCard
@@ -204,15 +257,22 @@ export function ProjectDetailPage() {
                     setSelectedContainer(container);
                     setIsDetailModalOpen(true);
                   }}
+                  onViewLogs={handleViewLogs}
                 />
               ))}
             </div>
+          ) : (
+            <p className="py-8 text-center text-sm text-neutral-400">
+              {t.no_containers || "No containers yet. Create one to get started."}
+            </p>
           )}
         </SoftPanel>
 
-        <div className="space-y-6">
-          <InvoiceTable projectId={project.projectId} />
-        </div>
+        <SecureComponent requiredPermission="MANAGE_BILLING">
+          <div className="space-y-6">
+            <InvoiceTable projectId={project.projectId} />
+          </div>
+        </SecureComponent>
       </div>
 
    
@@ -224,10 +284,7 @@ export function ProjectDetailPage() {
          
         />
       </div>
-  
-          <InvoiceTable projectId={projectId || ""} />
 
-      {/* Container Modal - Handles both Create and Edit */}
       <ContainerModal
         isOpen={isContainerModalOpen}
         onClose={() => {
@@ -249,10 +306,16 @@ export function ProjectDetailPage() {
         isOpen={isEnvModalOpen}
         onClose={() => {
           setIsEnvModalOpen(false);
-          // Don't clear selectedContainer here as ContainerDetailModal is still open
         }}
         container={selectedContainer}
         onSave={handleSaveEnvVariables}
+      />
+
+      <TeamModal
+        isOpen={isTeamModalOpen}
+        onClose={() => setIsTeamModalOpen(false)}
+        projectId={projectId || ""}
+        userRole={(role as 'OWNER' | 'ADMIN' | 'DEVELOPER' | 'VIEWER') || 'VIEWER'}
       />
 
       <ContainerDetailModal
@@ -264,6 +327,12 @@ export function ProjectDetailPage() {
         container={selectedContainer}
         onEditEnv={handleEditEnv}
         onEditContainer={handleEditContainer}
+      />
+      <SimpleContainerLogsSheet
+        container={logsContainer}
+        projectId={projectId || ""}
+        open={isLogsOpen}
+        onOpenChange={setIsLogsOpen}
       />
     </section>
   );

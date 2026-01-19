@@ -5,13 +5,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(handler *MetricsHandler) *gin.Engine {
+func SetupRouter(handler *MetricsHandler, logsHandler *LogsHandler) *gin.Engine {
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"https://kleff.io", "https://api.kleff.io", "http://localhost:5173", "http://localhost:8080", "http://localhost:3000"},
 		AllowMethods:     []string{"GET", "POST", "OPTIONS"},
-		AllowHeaders:     []string{"Authorization", "Content-Type"},
+		AllowHeaders:     []string{"Authorization", "Content-Type", "Cache-Control", "Pragma", "Expires"},
 		AllowCredentials: true,
 	}))
 
@@ -31,8 +31,15 @@ func SetupRouter(handler *MetricsHandler) *gin.Engine {
 		api.GET("/namespaces", handler.GetNamespaces)
 
 		api.GET("/database-io", handler.GetDatabaseIOMetrics)
-		api.GET("/projects/:projectID/usage", handler.GetProjectUsageMetrics)
+
+		api.POST("/project-metrics", handler.GetProjectUsageMetrics)
+
+		api.POST("/logs/project-containers", logsHandler.GetProjectContainerLogs)
 		api.GET("/projects/:projectID/usage/:days", handler.GetProjectUsageMetricsWithDays)
+		api.GET("/projects/:projectID/usage", handler.GetProjectUsageMetrics)
+
+		api.GET("/uptime", handler.GetUptimeMetrics)
+		api.GET("/system-uptime", handler.GetSystemUptime)
 	}
 
 	router.GET("/health", func(c *gin.Context) {

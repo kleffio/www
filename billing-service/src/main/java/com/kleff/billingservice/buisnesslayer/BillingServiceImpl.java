@@ -86,6 +86,12 @@ public class BillingServiceImpl implements BillingService {
     public List<Invoice> getInvoicesForAProject(String projectId) {
         return invoiceRepository.findByProjectId(projectId);
     }
+    
+    @Override
+    public Invoice getInvoiceById(String invoiceId) {
+        return invoiceRepository.findById(invoiceId)
+            .orElseThrow(() -> new EntityNotFoundException("Invoice not found: " + invoiceId));
+    }
 
 
     // Validation for payment
