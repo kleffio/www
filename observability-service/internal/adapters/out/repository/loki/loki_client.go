@@ -70,6 +70,8 @@ func (c *lokiClient) queryLokiRange(ctx context.Context, query string, start, en
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
+	req.Header.Set("X-Scope-OrgID", "1")
+
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute query: %w", err)
@@ -121,6 +123,9 @@ func convertToLogEntries(lokiResp *LokiResponse) []domain.LogEntry {
 }
 
 func (c *lokiClient) GetProjectContainerLogs(ctx context.Context, projectID string, containerNames []string, limit int, duration string) (*domain.ProjectLogs, error) {
+	log.Printf("[DEBUG] Loki client GetProjectContainerLogs called - ProjectID: %s, ContainerNames: %v, Limit: %d, Duration: %s",
+		projectID, containerNames, limit, duration)
+
 	if limit <= 0 {
 		limit = 100
 	}
