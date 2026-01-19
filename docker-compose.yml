@@ -164,6 +164,7 @@ services:
     environment:
       - PORT=8080
       - PROMETHEUS_URL=http://host.docker.internal:9090
+      - LOKI_URL=${LOKI_URL}
     extra_hosts:
       - "host.docker.internal:host-gateway"
 

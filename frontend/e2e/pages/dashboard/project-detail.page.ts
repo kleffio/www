@@ -60,6 +60,10 @@ export class ProjectDetailPage extends BasePage {
     return this.page.getByText("Time Window");
   }
 
+  containerStatusCard(): Locator {
+    return this.page.getByText("Container Status");
+  }
+
   async expectMetricsVisible() {
     await expect(this.metricsSection()).toBeVisible({ timeout: 10_000 });
   }
@@ -105,34 +109,120 @@ export class ProjectDetailPage extends BasePage {
     }
   }
 
-  // Container management methods
-  async openContainerDetailModal(containerName: string) {
-    const containerCard = this.page.locator('button').filter({ hasText: containerName });
-    await containerCard.click();
+  async expectContainerCountInMetrics(count: number) {
+    const statusCard = this.containerStatusCard().locator("..");
+    await expect(statusCard).toContainText(`${count}`);
+    await expect(statusCard).toContainText("running");
   }
 
-  // Container status card methods
-  async getContainerStatusCard(containerName: string) {
-    return this.page.locator('button').filter({ hasText: containerName }).locator('..').locator('..');
+  async expectViewLogsButton(containerName: string) {
+    const containerCard = this.page.locator(`[data-container-name="${containerName}"]`).or(
+      this.page.getByText(containerName).locator('..')
+    );
+    const viewLogsButton = containerCard.getByRole('button', { name: /view logs/i });
+    await expect(viewLogsButton).toBeVisible({ timeout: 10_000 });
   }
 
-  async visitAppFromStatusCard(containerName: string) {
-    // Find the "Visit App" button within the container card that contains the container name
-    const visitButton = this.page.locator('button').filter({ hasText: containerName }).locator('button').filter({ hasText: 'Visit App' });
-
-    const [newPage] = await Promise.all([
-      this.page.context().waitForEvent('page'),
-      visitButton.click()
-    ]);
-
-    return newPage;
+  async clickViewLogs(containerName: string) {
+    const containerCard = this.page.locator(`[data-container-name="${containerName}"]`).or(
+      this.page.getByText(containerName).locator('../..')
+    );
+    const viewLogsButton = containerCard.getByRole('button', { name: /view logs/i });
+    await viewLogsButton.click();
   }
 
-  async expectContainerStatusCardVisitAppUrl(containerName: string, containerId: string) {
-    // Since the button uses window.open which may not work in test environment,
-    // just verify the button exists and can be clicked
-    const visitButton = this.page.locator('button').filter({ hasText: containerName }).locator('button').filter({ hasText: 'Visit App' });
-    await expect(visitButton).toBeVisible();
-    // Note: Actual URL verification would require mocking window.open or using different approach
+  async expectLogsSheetOpen(containerName: string) {
+    // Sheet should be visible
+    const sheet = this.page.locator('[role="dialog"]').or(
+      this.page.locator('[data-testid="logs-sheet"]')
+    );
+    await expect(sheet).toBeVisible({ timeout: 10_000 });
   }
+
+  async expectLogsSheetClosed() {
+    const sheet = this.page.locator('[role="dialog"]').or(
+      this.page.locator('[data-testid="logs-sheet"]')
+    );
+    await expect(sheet).not.toBeVisible({ timeout: 5_000 });
+  }
+
+  async closeLogsSheet() {
+    // Look for close button (X icon)
+    const closeButton = this.page.locator('[role="dialog"]').getByRole('button', { name: /close/i }).or(
+      this.page.locator('button[aria-label="Close"]')
+    );
+    await closeButton.click();
+  }
+
+  async expectLogsSheetTitle(containerName: string) {
+    const sheet = this.page.locator('[role="dialog"]');
+    await expect(sheet.getByText(containerName)).toBeVisible({ timeout: 5_000 });
+  }
+
+  async expectNoLogsMessage() {
+    await expect(this.page.getByText(/no logs found/i)).toBeVisible({ timeout: 10_000 });
+  }
+
+  async expectLogsViewerVisible() {
+    // Look for the logs viewer container
+    const logsViewer = this.page.locator('[data-testid="logs-viewer"]').or(
+      this.page.getByText(/logs:/i).locator('..')
+    );
+    await expect(logsViewer).toBeVisible({ timeout: 5_000 });
+  }
+
+  async expectRefreshButtonVisible() {
+  const refreshButton = this.page.locator('[role="dialog"] .lucide-refresh-cw');
+  await expect(refreshButton).toBeVisible({ timeout: 5_000 });
+}
+
+  async clickRefreshLogs() {
+  const refreshButton = this.page.locator('[role="dialog"]').getByRole('button').last();
+  await refreshButton.click();
+}
+
+  async expectRefreshButtonLoading() {
+  const refreshIcon = this.page.locator('[role="dialog"] .lucide-refresh-cw');
+  await expect(refreshIcon).toHaveClass(/animate-spin/, { timeout: 2_000 });
+}
+
+  async expectLogsSheetAnimatesFromRight() {
+    const sheet = this.page.locator('[role="dialog"]');
+    await expect(sheet).toBeVisible({ timeout: 5_000 });
+    
+    // Verify sheet has right-side positioning
+    const box = await sheet.boundingBox();
+    if (box) {
+      const viewportSize = this.page.viewportSize();
+      if (viewportSize) {
+        // Sheet should be on the right side of the viewport
+        expect(box.x).toBeGreaterThan(viewportSize.width / 2);
+      }
+    }
+  }
+
+  async expectLogsContent(expectedLogLines: string[]) {
+    const logsContainer = this.page.locator('[role="dialog"]').locator('.font-mono');
+    
+    for (const logLine of expectedLogLines) {
+      await expect(logsContainer.getByText(logLine, { exact: false })).toBeVisible();
+    }
+  }
+
+  async expectLogTimestampsVisible() {
+    const logsContainer = this.page.locator('[role="dialog"]').locator('.font-mono');
+    const timestamps = logsContainer.locator('span').filter({ hasText: /\d{1,2}:\d{2}:\d{2}/ });
+    await expect(timestamps.first()).toBeVisible({ timeout: 5_000 });
+  }
+
+  async expectErrorCount(count: number) {
+    const sheet = this.page.locator('[role="dialog"]');
+    await expect(sheet.getByText(`${count} error`, { exact: false })).toBeVisible();
+  }
+
+  async expectWarningCount(count: number) {
+    const sheet = this.page.locator('[role="dialog"]');
+    await expect(sheet.getByText(`${count} warning`, { exact: false })).toBeVisible();
+  }
+
 }

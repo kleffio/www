@@ -26,11 +26,22 @@ import ProjectMetricsCard from "@features/observability/components/ProjectMetric
 import { usePermissions } from "@features/projects/hooks/usePermissions";
 import { TeamModal } from "@features/projects/components/TeamModal";
 import { SecureComponent } from "@app/components/SecureComponent";
+import { SimpleContainerLogsSheet } from "@features/projects/components/SimpleContainerLogsSheet";
 
 const translations = {
   en: enTranslations,
   fr: frTranslations
 };
+
+
+// const sanitizeAppName = (name: string) => {
+//   if (!name) return "";
+//   return name
+//     .toLowerCase()
+//     .replace(/_/g, '-')      
+//     .replace(/\s+/g, '-')    
+//     .replace(/^-+|-+$/g, ''); 
+// };
 
 export function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -57,6 +68,9 @@ export function ProjectDetailPage() {
   const [locale, setLocaleState] = useState(getLocale());
   const t = translations[locale].projectDetail;
 
+  const [isLogsOpen, setIsLogsOpen] = useState(false);
+  const [logsContainer, setLogsContainer] = useState<Container | null>(null);
+
   const id = project?.ownerId || "";
   const ownerUser = useUsername(id);
 
@@ -69,6 +83,10 @@ export function ProjectDetailPage() {
     }, 100);
     return () => clearInterval(interval);
   }, [locale]);
+  const handleViewLogs = (container: Container) => {
+    setLogsContainer(container);
+    setIsLogsOpen(true);
+  };
 
   /**
    * Logic for Creating a new container
@@ -88,12 +106,12 @@ export function ProjectDetailPage() {
     console.log('isEnvModalOpen set to true');
   };
 
-  const handleEditContainer = (container: Container) => {
-    console.log('handleEditContainer called with container:', container.name);
-    setSelectedContainerForEdit(container);
-    setIsContainerModalOpen(true);
-    setIsDetailModalOpen(false); // Close the detail modal when opening edit modal
-  };
+  // const handleEditContainer = (container: Container) => {
+  //   console.log('handleEditContainer called with container:', container.name);
+  //   setSelectedContainerForEdit(container);
+  //   setIsContainerModalOpen(true);
+  //   setIsDetailModalOpen(false); // Close the detail modal when opening edit modal
+  // };
 
   const handleSaveEnvVariables = async (containerId: string, envVariables: Record<string, string>) => {
     await updateContainerEnvVariables(containerId, envVariables);
@@ -248,6 +266,7 @@ export function ProjectDetailPage() {
                     setSelectedContainer(container);
                     setIsDetailModalOpen(true);
                   }}
+                  onViewLogs={handleViewLogs}
                 />
               ))}
             </div>
@@ -320,7 +339,12 @@ export function ProjectDetailPage() {
         }}
         container={selectedContainer}
         onEditEnv={handleEditEnv}
-        onEditContainer={handleEditContainer}
+      />
+      <SimpleContainerLogsSheet
+        container={logsContainer}
+        projectId={projectId || ""}
+        open={isLogsOpen}
+        onOpenChange={setIsLogsOpen}
       />
     </section>
   );
