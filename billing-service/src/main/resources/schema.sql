@@ -31,11 +31,3 @@ CREATE TABLE IF NOT EXISTS prices(
     metric VARCHAR(20) PRIMARY KEY,
     price DOUBLE PRECISION
 );
-
--- Initialize pricing for resources
-INSERT INTO prices (metric, price) VALUES ('CPU_HOURS', 0.10)
-    ON CONFLICT (metric) DO NOTHING;
-INSERT INTO prices (metric, price) VALUES ('MEMORY_GB_HOURS', 0.05)
-    ON CONFLICT (metric) DO NOTHING;
-INSERT INTO prices (metric, price) VALUES ('STORAGE_GB', 0.02)
-    ON CONFLICT (metric) DO NOTHING;
