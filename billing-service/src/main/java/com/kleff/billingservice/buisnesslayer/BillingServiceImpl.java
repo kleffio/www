@@ -144,6 +144,11 @@ public class BillingServiceImpl implements BillingService {
         return priceRepository.findById(itemId).orElse(null);
     }
 
+    public List<Price> getPrices() {
+
+        return priceRepository.findAll();
+    }
+
     // THIS ENDPOINT SHOULD ALWAYS BE RESTRICTED
     public void setPrice(Price price) {
         Price price1 = priceRepository.findByMetric(price.getMetric());
