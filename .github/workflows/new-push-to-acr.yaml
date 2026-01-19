@@ -1,6 +1,6 @@
 ---
 name: Build and Push to ACR
-"on":
+on:
   push:
     branches: [main]
   pull_request:
@@ -31,6 +31,9 @@ jobs:
           - name: server-api
             context: ./server-apis
             tag: deployment-backend
+          - name: billing-service
+            context: ./billing-service
+            tag: billing-service
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -56,9 +59,7 @@ jobs:
         with:
           context: ${{ matrix.service.context }}
           push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ matrix.service.tag }}:latest
-            ${{ env.REGISTRY }}/${{ matrix.service.tag }}:${{ github.sha }}
+          tags: ${{ env.REGISTRY }}/${{ matrix.service.tag }}:latest
           build-args: |
             VITE_AUTH_CLIENT_ID=${{ vars.VITE_AUTH_CLIENT_ID }}
             VITE_BACKEND_URL=${{ vars.VITE_BACKEND_URL }}
@@ -89,3 +90,4 @@ jobs:
             PLATFORMS="linux/amd64,linux/arm64"
           make build-installer \
             IMG="${{ env.REGISTRY }}/webapp-operator:latest"
+
