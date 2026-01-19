@@ -5,6 +5,14 @@ import { Section } from '@shared/ui/Section';
 import { Badge } from '@shared/ui/Badge';
 import { SoftPanel } from '@shared/ui/SoftPanel';
 import { viewPricesApi, type Price } from '@features/billing/api/viewPrices';
+import enTranslations from '@app/locales/en/legal.json';
+import frTranslations from '@app/locales/fr/legal.json';
+import { getLocale } from '@app/locales/locale';
+
+const translations = {
+  en: enTranslations,
+  fr: frTranslations
+};
 
 interface PricingItem {
   metric: string;
@@ -16,6 +24,19 @@ const PricingPage: React.FC = () => {
   const [prices, setPrices] = useState<Price[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [locale, setLocaleState] = useState(getLocale());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLocale = getLocale();
+      if (currentLocale !== locale) {
+        setLocaleState(currentLocale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [locale]);
+
+  const t = translations[locale].pricing;
 
   // Fetch prices on component mount
   useEffect(() => {
@@ -43,22 +64,22 @@ const PricingPage: React.FC = () => {
 
     return [
       {
-        metric: 'CPU',
-        description: 'per CPU core per hour',
+        metric: t.metrics.cpu.label,
+        description: t.metrics.cpu.description,
         price: prices.find((p) => p.metric === 'CPU_HOURS')?.price || 0,
       },
       {
-        metric: 'RAM',
-        description: 'per GB of RAM per hour',
+        metric: t.metrics.ram.label,
+        description: t.metrics.ram.description,
         price: prices.find((p) => p.metric === 'MEMORY_GB_HOURS')?.price || 0,
       },
       {
-        metric: 'Storage',
-        description: 'per gigabyte per month',
+        metric: t.metrics.storage.label,
+        description: t.metrics.storage.description,
         price: prices.find((p) => p.metric === 'STORAGE_GB')?.price || 0,
       },
     ];
-  }, [prices]);
+  }, [prices, locale, t]);
 
   const filteredItems = pricingItems;
 
@@ -68,7 +89,7 @@ const PricingPage: React.FC = () => {
         <Section className="flex flex-col items-center justify-center gap-8 px-4 pt-16 pb-12 min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-kleff-primary mx-auto mb-4"></div>
-            <p className="text-neutral-300">Loading pricing information...</p>
+            <p className="text-neutral-300">{t.loading}</p>
           </div>
         </Section>
       </div>
@@ -85,7 +106,7 @@ const PricingPage: React.FC = () => {
               onClick={() => window.location.reload()}
               className="bg-gradient-kleff inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-black shadow-md shadow-black/40 transition-all hover:brightness-110"
             >
-              Retry
+              {t.error_retry}
             </button>
           </div>
         </Section>
@@ -102,17 +123,17 @@ const PricingPage: React.FC = () => {
             className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-medium"
           >
             <Sparkles className="h-3 w-3" />
-            <span>Transparent Pricing</span>
+            <span>{t.badge}</span>
           </Badge>
 
           <div className="space-y-4">
             <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl lg:text-5xl xl:text-6xl">
-              Pay for what you
+              {t.title_line1}
               <br />
-              <span className="text-gradient-kleff">actually use.</span>
+              <span className="text-gradient-kleff">{t.title_line2}</span>
             </h1>
             <p className="text-xs text-neutral-300 sm:text-sm">
-              Simple, transparent pricing based on your actual consumption. We only charge for CPU, RAM, and storage. No hidden fees.
+              {t.subtitle}
             </p>
           </div>
         </div>
@@ -123,11 +144,10 @@ const PricingPage: React.FC = () => {
           {filteredItems.length === 0 ? (
             <div className="glass-panel p-12 text-center">
               <div className="mb-4 text-4xl">🔍</div>
-              <h3 className="mb-2 text-lg font-semibold text-white">No results found</h3>
+              <h3 className="mb-2 text-lg font-semibold text-white">{t.no_results.title}</h3>
               <p className="mb-6 text-sm text-neutral-400">
-                Try different keywords or browse all pricing
+                {t.no_results.description}
               </p>
-          
             </div>
           ) : (
             <div className="glass-panel p-3">
@@ -167,17 +187,17 @@ const PricingPage: React.FC = () => {
         <div className="mx-auto max-w-2xl text-center">
           <SoftPanel className="p-6 sm:p-8">
             <h2 className="mb-3 text-xl font-semibold text-white sm:text-2xl">
-              Need a custom plan?
+              {t.custom_plan.title}
             </h2>
             <p className="mb-4 text-[11px] text-neutral-300 sm:mb-6 sm:text-xs">
-              Contact our sales team for enterprise pricing and custom arrangements.
+              {t.custom_plan.description}
             </p>
             <a
               href="mailto:sales@kleff.ca"
               className="bg-gradient-kleff inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs font-semibold text-black shadow-md shadow-black/40 transition-all hover:brightness-110 sm:px-6 sm:py-2.5 sm:text-sm"
             >
               <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-              Talk to Sales
+              {t.custom_plan.button}
             </a>
           </SoftPanel>
         </div>
