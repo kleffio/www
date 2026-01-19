@@ -221,7 +221,7 @@ export function ProjectsPage() {
         )}
 
         {!isLoading && !error && projects.length > 0 && (
-          <div className="space-y-8">
+          <div className="space-y-8" data-testid="projects-list">
             {/* My Projects Section */}
             <div>
               <div className="flex items-center gap-2 mb-4">

@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@shared/ui/Button";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Spinner } from "@shared/ui/Spinner";
@@ -53,11 +53,21 @@ export function ProjectDetailPage() {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [selectedContainer, setSelectedContainer] = useState<Container | null>(null);
-  const [locale] = useState(getLocale());
+  const [locale, setLocaleState] = useState(getLocale());
   const t = translations[locale].projectDetail;
 
   const id = project?.ownerId || "";
   const ownerUser = useUsername(id);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLocale = getLocale();
+      if (currentLocale !== locale) {
+        setLocaleState(currentLocale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [locale]);
 
   /**
    * Logic for Creating a new container
@@ -134,7 +144,7 @@ export function ProjectDetailPage() {
             </p>
             {role && (
               <Badge variant="info" className="mt-2 text-xs">
-                Your Role: {role}
+                {t.your_role}: {role}
               </Badge>
             )}
           </div>
@@ -146,7 +156,7 @@ export function ProjectDetailPage() {
               className="rounded-full px-5 py-2 text-sm font-semibold bg-white/5 border border-white/10 hover:bg-white/10 text-neutral-50"
             >
               <Users className="mr-2 h-4 w-4" />
-              Team
+              {t.team}
             </Button>
 
             {canDeploy && (
