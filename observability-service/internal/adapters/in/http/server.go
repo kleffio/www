@@ -32,7 +32,7 @@ func SetupRouter(handler *MetricsHandler, logsHandler *LogsHandler) *gin.Engine 
 
 		api.GET("/database-io", handler.GetDatabaseIOMetrics)
 
-		api.POST("/project-metrics", handler.GetProjectUsageMetrics)
+		api.POST("/project-metrics", handler.GetProjectUsageMetricsPOST)
 
 		api.POST("/logs/query", logsHandler.QueryLogs)
 		api.GET("/logs/cluster", logsHandler.GetAllClusterLogs)
@@ -43,6 +43,7 @@ func SetupRouter(handler *MetricsHandler, logsHandler *LogsHandler) *gin.Engine 
 		api.GET("/logs/namespace/:namespace/stats", logsHandler.GetLogStreamStats)
 		api.GET("/logs/namespace/:namespace/errors", logsHandler.GetErrorLogs)
 		api.POST("/logs/project-containers", logsHandler.GetProjectContainerLogs)
+		api.GET("/projects/:projectID/usage", handler.GetProjectUsageMetrics)
 		api.GET("/projects/:projectID/usage/:days", handler.GetProjectUsageMetricsWithDays)
 	}
 

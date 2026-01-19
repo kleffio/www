@@ -730,9 +730,12 @@ func TestGetProjectUsageMetrics_Success(t *testing.T) {
 	}
 
 	mockService := &mockMetricsService{
-		getProjectUsageMetricsFunc: func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error) {
+		getProjectUsageMetricsWithDaysFunc: func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error) {
 			if projectID != "project-123" {
 				t.Errorf("Expected projectID 'project-123', got '%s'", projectID)
+			}
+			if days != 30 {
+				t.Errorf("Expected days 30, got %d", days)
 			}
 			return expectedMetrics, nil
 		},
@@ -771,7 +774,7 @@ func TestGetProjectUsageMetrics_Success(t *testing.T) {
 
 func TestGetProjectUsageMetrics_Error(t *testing.T) {
 	mockService := &mockMetricsService{
-		getProjectUsageMetricsFunc: func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error) {
+		getProjectUsageMetricsWithDaysFunc: func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error) {
 			return nil, errors.New("project usage error")
 		},
 	}

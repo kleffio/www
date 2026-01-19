@@ -123,21 +123,6 @@ func (h *MetricsHandler) GetDatabaseIOMetrics(c *gin.Context) {
 	c.JSON(http.StatusOK, metrics)
 }
 
-func (h *MetricsHandler) GetProjectUsageMetrics(c *gin.Context) {
-	projectID := c.Param("projectID")
-	if projectID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "projectID is required"})
-		return
-	}
-
-	metrics, err := h.metricsService.GetProjectUsageMetrics(c.Request.Context(), projectID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, metrics)
-}
-
 func (h *MetricsHandler) GetProjectUsageMetricsWithDays(c *gin.Context) {
 	projectID := c.Param("projectID")
 	if projectID == "" {
@@ -153,6 +138,39 @@ func (h *MetricsHandler) GetProjectUsageMetricsWithDays(c *gin.Context) {
 	}
 
 	metrics, err := h.metricsService.GetProjectUsageMetricsWithDays(c.Request.Context(), projectID, days)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, metrics)
+}
+
+func (h *MetricsHandler) GetProjectUsageMetrics(c *gin.Context) {
+	projectID := c.Param("projectID")
+	if projectID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "projectID is required"})
+		return
+	}
+
+	// Default to 30 days
+	metrics, err := h.metricsService.GetProjectUsageMetricsWithDays(c.Request.Context(), projectID, 30)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, metrics)
+}
+
+func (h *MetricsHandler) GetProjectUsageMetricsPOST(c *gin.Context) {
+	var req struct {
+		ProjectID string `json:"projectID"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		return
+	}
+
+	metrics, err := h.metricsService.GetProjectUsageMetrics(c.Request.Context(), req.ProjectID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
