@@ -3,6 +3,7 @@ package prometheus
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"prometheus-metrics-api/internal/core/domain"
 )
@@ -49,6 +50,14 @@ func (c *prometheusClient) GetClusterOverview(ctx context.Context) (*domain.Clus
 	if err == nil && len(resp.Data.Result) > 0 {
 		if val, err := extractValue(resp.Data.Result[0].Value); err == nil {
 			overview.MemoryUsagePercent = val
+		}
+	}
+
+	resp, err = c.queryPrometheus(ctx, `min(time() - node_boot_time_seconds)`)
+	if err == nil && len(resp.Data.Result) > 0 {
+		if val, err := extractValue(resp.Data.Result[0].Value); err == nil {
+			overview.UptimeSeconds = val
+			overview.UptimeFormatted = formatUptime(val)
 		}
 	}
 
@@ -338,12 +347,25 @@ func (c *prometheusClient) GetNodes(ctx context.Context) ([]domain.NodeMetric, e
 			}
 		}
 
+		uptimeQuery := fmt.Sprintf(`time() - node_boot_time_seconds{instance=~".*%s.*"}`, nodeName)
+		uptimeResp, _ := c.queryPrometheus(ctx, uptimeQuery)
+		var uptimeSeconds float64
+		var uptimeFormatted string
+		if len(uptimeResp.Data.Result) > 0 {
+			if uptime, err := extractValue(uptimeResp.Data.Result[0].Value); err == nil {
+				uptimeSeconds = uptime
+				uptimeFormatted = formatUptime(uptime)
+			}
+		}
+
 		nodes = append(nodes, domain.NodeMetric{
 			Name:               nodeName,
 			CPUUsagePercent:    cpuUsage,
 			MemoryUsagePercent: memUsage,
 			PodCount:           podCount,
 			Status:             "Ready",
+			UptimeSeconds:      uptimeSeconds,
+			UptimeFormatted:    uptimeFormatted,
 		})
 	}
 
@@ -484,4 +506,97 @@ func (c *prometheusClient) GetProjectUsageMetricsWithDays(ctx context.Context, p
 	// If no data, CPURequestCores remains 0.0
 
 	return metrics, nil
+}
+
+func (c *prometheusClient) GetSystemUptime(ctx context.Context) (float64, error) {
+	query := `time() - node_boot_time_seconds`
+	resp, err := c.queryPrometheus(ctx, query)
+	if err != nil {
+		return 0, fmt.Errorf("failed to query system uptime: %w", err)
+	}
+
+	if len(resp.Data.Result) == 0 {
+		return 0, fmt.Errorf("no uptime data available")
+	}
+
+	uptime, err := extractValue(resp.Data.Result[0].Value)
+	if err != nil {
+		return 0, fmt.Errorf("failed to extract uptime value: %w", err)
+	}
+
+	return uptime, nil
+}
+
+func (c *prometheusClient) GetUptimeMetrics(ctx context.Context, duration string) (*domain.UptimeMetrics, error) {
+	metrics := &domain.UptimeMetrics{
+		NodeUptimes: make([]domain.NodeUptimeMetric, 0),
+	}
+
+	systemUptimeQuery := `min(time() - node_boot_time_seconds)`
+	resp, err := c.queryPrometheus(ctx, systemUptimeQuery)
+	if err == nil && len(resp.Data.Result) > 0 {
+		if uptime, err := extractValue(resp.Data.Result[0].Value); err == nil {
+			metrics.SystemUptimeSeconds = uptime
+			metrics.SystemUptimeFormatted = formatUptime(uptime)
+		}
+	}
+
+	nodeUptimeQuery := `time() - node_boot_time_seconds`
+	nodeResp, err := c.queryPrometheus(ctx, nodeUptimeQuery)
+	if err == nil {
+		totalUptime := 0.0
+		for _, result := range nodeResp.Data.Result {
+			nodeName := result.Metric["instance"]
+			if nodeName == "" {
+				nodeName = result.Metric["node"]
+			}
+
+			uptime, err := extractValue(result.Value)
+			if err != nil {
+				continue
+			}
+
+			bootTime := time.Now().Unix() - int64(uptime)
+
+			nodeMetric := domain.NodeUptimeMetric{
+				NodeName:         nodeName,
+				UptimeSeconds:    uptime,
+				UptimeFormatted:  formatUptime(uptime),
+				BootTimestamp:    bootTime,
+				BootTimeReadable: time.Unix(bootTime, 0).Format("2006-01-02 15:04:05 MST"),
+			}
+
+			metrics.NodeUptimes = append(metrics.NodeUptimes, nodeMetric)
+			totalUptime += uptime
+		}
+
+		if len(metrics.NodeUptimes) > 0 {
+			metrics.AverageUptimeSeconds = totalUptime / float64(len(metrics.NodeUptimes))
+			metrics.AverageUptimeFormatted = formatUptime(metrics.AverageUptimeSeconds)
+		}
+	}
+
+	historyQuery := `min(time() - node_boot_time_seconds)`
+	histResp, err := c.queryPrometheusRange(ctx, historyQuery, duration)
+	if err == nil && len(histResp.Data.Result) > 0 {
+		metrics.UptimeHistory = extractTimeSeries(histResp.Data.Result[0].Values)
+	}
+
+	return metrics, nil
+}
+
+func formatUptime(seconds float64) string {
+	duration := time.Duration(seconds) * time.Second
+
+	days := int(duration.Hours() / 24)
+	hours := int(duration.Hours()) % 24
+	minutes := int(duration.Minutes()) % 60
+
+	if days > 0 {
+		return fmt.Sprintf("%dd %dh %dm", days, hours, minutes)
+	} else if hours > 0 {
+		return fmt.Sprintf("%dh %dm", hours, minutes)
+	} else {
+		return fmt.Sprintf("%dm", minutes)
+	}
 }

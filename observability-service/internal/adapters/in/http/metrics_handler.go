@@ -1,6 +1,7 @@
 package http
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -158,4 +159,40 @@ func (h *MetricsHandler) GetProjectUsageMetricsWithDays(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, metrics)
+}
+
+func (h *MetricsHandler) GetUptimeMetrics(c *gin.Context) {
+	duration := c.DefaultQuery("duration", "24h")
+
+	metrics, err := h.metricsService.GetUptimeMetrics(c.Request.Context(), duration)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, metrics)
+}
+
+func (h *MetricsHandler) GetSystemUptime(c *gin.Context) {
+	uptime, err := h.metricsService.GetSystemUptime(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"uptimeSeconds": uptime,
+		"uptime":        formatUptimeSimple(uptime),
+	})
+}
+
+func formatUptimeSimple(seconds float64) string {
+	days := int(seconds / 86400)
+	hours := int(seconds/3600) % 24
+	minutes := int(seconds/60) % 60
+
+	if days > 0 {
+		return fmt.Sprintf("%dd %dh %dm", days, hours, minutes)
+	} else if hours > 0 {
+		return fmt.Sprintf("%dh %dm", hours, minutes)
+	}
+	return fmt.Sprintf("%dm", minutes)
 }

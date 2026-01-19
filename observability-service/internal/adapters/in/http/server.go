@@ -34,17 +34,12 @@ func SetupRouter(handler *MetricsHandler, logsHandler *LogsHandler) *gin.Engine 
 
 		api.POST("/project-metrics", handler.GetProjectUsageMetrics)
 
-		api.POST("/logs/query", logsHandler.QueryLogs)
-		api.GET("/logs/cluster", logsHandler.GetAllClusterLogs)
-		api.GET("/logs/project/:projectId", logsHandler.GetLogsByProjectID)
-		api.GET("/logs/namespace/:namespace", logsHandler.GetLogsByNamespace)
-		api.GET("/logs/namespace/:namespace/pod/:pod", logsHandler.GetLogsByPod)
-		api.GET("/logs/namespace/:namespace/pod/:pod/container/:container", logsHandler.GetLogsByContainer)
-		api.GET("/logs/namespace/:namespace/stats", logsHandler.GetLogStreamStats)
-		api.GET("/logs/namespace/:namespace/errors", logsHandler.GetErrorLogs)
 		api.POST("/logs/project-containers", logsHandler.GetProjectContainerLogs)
 		api.GET("/projects/:projectID/usage/:days", handler.GetProjectUsageMetricsWithDays)
 		api.GET("/projects/:projectID/usage", handler.GetProjectUsageMetrics)
+
+		api.GET("/uptime", handler.GetUptimeMetrics)
+		api.GET("/system-uptime", handler.GetSystemUptime)
 	}
 
 	router.GET("/health", func(c *gin.Context) {

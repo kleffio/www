@@ -80,6 +80,7 @@ export const ResourceChart: React.FC<Props> = ({
 
   const timeFormatter = (ts: number | string) => {
     const n = typeof ts === "number" ? ts : Number(ts);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return new Date(n).toLocaleTimeString("en-US", tickOptions as any);
   };
 

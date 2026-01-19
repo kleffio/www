@@ -64,3 +64,11 @@ func (s *metricsService) GetProjectUsageMetrics(ctx context.Context, projectID s
 func (s *metricsService) GetProjectUsageMetricsWithDays(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error) {
 	return s.metricsRepo.GetProjectUsageMetricsWithDays(ctx, projectID, days)
 }
+
+func (s *metricsService) GetUptimeMetrics(ctx context.Context, duration string) (*domain.UptimeMetrics, error) {
+	return s.metricsRepo.GetUptimeMetrics(ctx, duration)
+}
+
+func (s *metricsService) GetSystemUptime(ctx context.Context) (float64, error) {
+	return s.metricsRepo.GetSystemUptime(ctx)
+}

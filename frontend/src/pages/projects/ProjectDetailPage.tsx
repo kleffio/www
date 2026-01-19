@@ -106,12 +106,12 @@ export function ProjectDetailPage() {
     console.log('isEnvModalOpen set to true');
   };
 
-  // const handleEditContainer = (container: Container) => {
-  //   console.log('handleEditContainer called with container:', container.name);
-  //   setSelectedContainerForEdit(container);
-  //   setIsContainerModalOpen(true);
-  //   setIsDetailModalOpen(false); // Close the detail modal when opening edit modal
-  // };
+  const handleEditContainer = (container: Container) => {
+    console.log('handleEditContainer called with container:', container.name);
+    setSelectedContainerForEdit(container);
+    setIsContainerModalOpen(true);
+    // Keep detail modal open so edit modal appears on top
+  };
 
   const handleSaveEnvVariables = async (containerId: string, envVariables: Record<string, string>) => {
     await updateContainerEnvVariables(containerId, envVariables);
@@ -337,6 +337,7 @@ export function ProjectDetailPage() {
         }}
         container={selectedContainer}
         onEditEnv={handleEditEnv}
+        onEditContainer={handleEditContainer}
       />
       <SimpleContainerLogsSheet
         container={logsContainer}
