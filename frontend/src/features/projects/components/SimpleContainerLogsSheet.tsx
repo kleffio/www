@@ -36,7 +36,7 @@ export function SimpleContainerLogsSheet({
 
         <SimpleLogsViewer
           projectId={projectId}
-          containerName={container.name}
+          containerName={container.containerId}
         />
       </SheetContent>
     </Sheet>

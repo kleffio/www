@@ -461,12 +461,12 @@ func (c *lokiClient) GetProjectContainerLogs(ctx context.Context, projectID stri
 
 	for _, containerName := range containerNames {
 
-		query := fmt.Sprintf(`{k8s_namespace_name="%s", k8s_container_name="%s"} |= ""`, projectID, containerName)
+		query := fmt.Sprintf(`{k8s_namespace_name="%s", k8s_deployment_name="app-%s"} |= ""`, projectID, containerName)
 
 		lokiResp, err := c.queryLokiRange(ctx, query, start, end, limit, "backward")
 		if err != nil || len(lokiResp.Data.Result) == 0 {
 
-			query = fmt.Sprintf(`{namespace="%s", container="%s"} |= ""`, projectID, containerName)
+			query = fmt.Sprintf(`{namespace="%s", deployment="app-%s"} |= ""`, projectID, containerName)
 			lokiResp, err = c.queryLokiRange(ctx, query, start, end, limit, "backward")
 			if err != nil {
 
