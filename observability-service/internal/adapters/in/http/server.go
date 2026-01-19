@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRouter(handler *MetricsHandler) *gin.Engine {
+func SetupRouter(handler *MetricsHandler, logsHandler *LogsHandler) *gin.Engine {
 	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
@@ -31,7 +31,18 @@ func SetupRouter(handler *MetricsHandler) *gin.Engine {
 		api.GET("/namespaces", handler.GetNamespaces)
 
 		api.GET("/database-io", handler.GetDatabaseIOMetrics)
-		api.GET("/projects/:projectID/usage", handler.GetProjectUsageMetrics)
+
+		api.POST("/project-metrics", handler.GetProjectUsageMetrics)
+
+		api.POST("/logs/query", logsHandler.QueryLogs)
+		api.GET("/logs/cluster", logsHandler.GetAllClusterLogs)
+		api.GET("/logs/project/:projectId", logsHandler.GetLogsByProjectID)
+		api.GET("/logs/namespace/:namespace", logsHandler.GetLogsByNamespace)
+		api.GET("/logs/namespace/:namespace/pod/:pod", logsHandler.GetLogsByPod)
+		api.GET("/logs/namespace/:namespace/pod/:pod/container/:container", logsHandler.GetLogsByContainer)
+		api.GET("/logs/namespace/:namespace/stats", logsHandler.GetLogStreamStats)
+		api.GET("/logs/namespace/:namespace/errors", logsHandler.GetErrorLogs)
+		api.POST("/logs/project-containers", logsHandler.GetProjectContainerLogs)
 		api.GET("/projects/:projectID/usage/:days", handler.GetProjectUsageMetricsWithDays)
 	}
 

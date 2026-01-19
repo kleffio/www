@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"prometheus-metrics-api/internal/adapters/in/http"
+	"prometheus-metrics-api/internal/adapters/out/repository/loki"
 	"prometheus-metrics-api/internal/adapters/out/repository/prometheus"
 	"prometheus-metrics-api/internal/config"
 	"prometheus-metrics-api/internal/core/services"
@@ -16,6 +17,7 @@ func main() {
 	log.Printf("Starting Prometheus Metrics API...")
 	log.Printf("Environment: %s", cfg.Environment)
 	log.Printf("Prometheus URL: %s", cfg.PrometheusURL)
+	log.Printf("Loki URL: %s", cfg.LokiURL)
 	log.Printf("Server Port: %s", cfg.ServerPort)
 
 	prometheusClient := prometheus.NewPrometheusClient(cfg.PrometheusURL)
@@ -24,7 +26,13 @@ func main() {
 
 	metricsHandler := http.NewMetricsHandler(metricsService)
 
-	router := http.SetupRouter(metricsHandler)
+	lokiClient := loki.NewLokiClient(cfg.LokiURL)
+
+	logsService := services.NewLogsService(lokiClient)
+
+	logsHandler := http.NewLogsHandler(logsService)
+
+	router := http.SetupRouter(metricsHandler, logsHandler)
 
 	log.Printf("Server listening on port %s", cfg.ServerPort)
 	if err := router.Run(":" + cfg.ServerPort); err != nil {
