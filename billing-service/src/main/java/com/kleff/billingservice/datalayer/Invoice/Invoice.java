@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 
 @Data
@@ -22,11 +23,11 @@ public class Invoice {
     Date startDate;
     Date endDate;
     InvoiceStatus status;
-    Double totalCPU;
-    Double totalRAM;
-    Double totalSTORAGE;
-    Double subtotal;
-    Double taxes;
-    Double total;
-    Double totalPaid = (double) 0;
+    BigDecimal totalCPU;
+    BigDecimal totalRAM;
+    BigDecimal totalSTORAGE;
+    BigDecimal subtotal;
+    BigDecimal taxes;
+    BigDecimal total;
+    BigDecimal totalPaid;
 }

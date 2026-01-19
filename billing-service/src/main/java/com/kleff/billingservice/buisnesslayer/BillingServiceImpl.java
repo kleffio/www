@@ -37,12 +37,14 @@ public class BillingServiceImpl implements BillingService {
             ReservedAllocationRepository reservedAllocationRepository,
             InvoiceRepository invoiceRepository,
             UsageRecordRepository usageRecordRepository,
-            PriceRepository priceRepository
+            PriceRepository priceRepository,
+            ApiService apiService
     ) {
         this.reservedAllocationRepository = reservedAllocationRepository;
         this.invoiceRepository = invoiceRepository;
         this.usageRecordRepository = usageRecordRepository;
         this.priceRepository = priceRepository;
+        this.apiService = apiService;
     }
 
     //All the invoice logic
@@ -50,7 +52,7 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     public Invoice createInvoice(Invoice invoice) {
-        invoice.setTotalPaid((double) 0);
+        invoice.setTotalPaid(BigDecimal.valueOf(0));
         return invoiceRepository.save(invoice);
     }
 
@@ -113,14 +115,13 @@ public class BillingServiceImpl implements BillingService {
         }
 
         // 4. Calculate outstanding amount (in cents for Stripe)
-        long totalCents = (long) (invoice.getTotal()*100);
+        long totalCents = invoice.getTotal().multiply(BigDecimal.valueOf(100)).longValue();
         long paidCents;
         if (invoice.getTotalPaid() == null){
             paidCents = 0;
         }
         else {
-            paidCents = (long) (invoice.getTotalPaid() * 100);
-
+            paidCents = invoice.getTotalPaid().multiply(BigDecimal.valueOf(100)).longValue();
         }
         long outstandingCents = totalCents - paidCents;
             if (outstandingCents <= 0) {
@@ -154,10 +155,10 @@ public class BillingServiceImpl implements BillingService {
         UsageMonth usage = apiService.usageRecordForLastMonth(projectId, days);
 
         Invoice invoice = new Invoice();
-        double CPU = usage.getCpuRequestCores();
-        double MEMORY = usage.getMemoryUsageGB();
-        double STORAGE = 0;
-        invoice.setTotalPaid((double) 0);
+        BigDecimal CPU = BigDecimal.valueOf(usage.getCpuRequestCores());
+        BigDecimal MEMORY = BigDecimal.valueOf(usage.getMemoryUsageGB());
+        BigDecimal STORAGE = BigDecimal.valueOf(0);
+        invoice.setTotalPaid(BigDecimal.valueOf(0));
         
         // Fetch prices with null safety checks
         Price cpuPrice = getPrice("CPU_HOURS");
@@ -168,13 +169,21 @@ public class BillingServiceImpl implements BillingService {
             throw new EntityNotFoundException("One or more price records not found");
         }
         
-        invoice.setTotalCPU((CPU * cpuPrice.getPrice()));
-        invoice.setTotalRAM((MEMORY * memoryPrice.getPrice()));
-        invoice.setTotalSTORAGE((STORAGE * storagePrice.getPrice()));
-        invoice.setSubtotal(invoice.getTotalCPU() + invoice.getTotalRAM() + invoice.getTotalSTORAGE());
-        invoice.setTaxes(invoice.getSubtotal()*taxes);
-        BigDecimal bd = new BigDecimal(Double.toString((invoice.getSubtotal())+invoice.getTaxes()));
-        double total = bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+        BigDecimal cpuPriceValue = BigDecimal.valueOf(cpuPrice.getPrice());
+        BigDecimal memoryPriceValue = BigDecimal.valueOf(memoryPrice.getPrice());
+        BigDecimal storagePriceValue = BigDecimal.valueOf(storagePrice.getPrice());
+        
+        invoice.setTotalCPU(CPU.multiply(cpuPriceValue));
+        invoice.setTotalRAM(MEMORY.multiply(memoryPriceValue));
+        invoice.setTotalSTORAGE(STORAGE.multiply(storagePriceValue));
+        
+        BigDecimal subtotal = invoice.getTotalCPU().add(invoice.getTotalRAM()).add(invoice.getTotalSTORAGE());
+        invoice.setSubtotal(subtotal);
+        
+        BigDecimal taxAmount = subtotal.multiply(BigDecimal.valueOf(taxes));
+        invoice.setTaxes(taxAmount);
+        
+        BigDecimal total = subtotal.add(taxAmount).setScale(2, BigDecimal.ROUND_HALF_UP);
         invoice.setTotal(total);
         return invoice;
     }

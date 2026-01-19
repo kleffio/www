@@ -35,15 +35,6 @@ CREATE TABLE if NOT EXISTS invoice_items(
     unit_price Double,
     amount Double
 );
-CREATE TABLE if NOT EXISTS invoice_items(
-    usage_id UUID PRIMARY KEY,
-    project_id UUID,
-    container_id UUID,
-    pricing_model VARCHAR(20),
-    metric VARCHAR(20),
-    quantity Double,
-    recorded_at DATETIME
-);
 CREATE TABLE if NOT EXISTS prices(
     metric VARCHAR(20) PRIMARY KEY,
     price Double
