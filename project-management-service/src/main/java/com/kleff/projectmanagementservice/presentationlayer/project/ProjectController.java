@@ -91,4 +91,9 @@ public class ProjectController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
+
+    @GetMapping("/listID")
+    public List<String> getallProjectIds(){
+        return projectService.getAllProjectIds();
+    }
 }
