@@ -3,6 +3,7 @@ package com.kleff.billingservice.presentationlayer;
 import com.kleff.billingservice.buisnesslayer.BillingService;
 import com.kleff.billingservice.datalayer.Allocation.ReservedAllocation;
 import com.kleff.billingservice.datalayer.Invoice.Invoice;
+import com.kleff.billingservice.datalayer.Pricing.Price;
 import com.kleff.billingservice.datalayer.Record.UsageRecord;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
@@ -130,6 +131,11 @@ public class BillingController {
         billingService.createInvoice(invoice);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Invoice created successfully");
+    }
+
+    @GetMapping("/prices")
+    public List<Price> getPrices() {
+        return billingService.getPrices();
     }
 
 

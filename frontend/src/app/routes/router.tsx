@@ -16,6 +16,7 @@ import { FAQPage } from "@pages/legal/FAQPage";
 import { PrivacyPolicyPage } from "@pages/legal/PrivacyPolicyPage";
 import { TermsOfServicePage } from "@pages/legal/TermsOfServicePage";
 import { AuthPage } from "@pages/auth/AuthPage";
+import PricingPage from "@pages/legal/PricingPage";
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +32,8 @@ export const router = createBrowserRouter([
       { path: "faq", element: <FAQPage /> },
       { path: "terms", element: <TermsOfServicePage /> },
       { path: "privacy", element: <PrivacyPolicyPage /> },
+      { path: "pricing", element: <PricingPage /> },
+      
       // Auth routes
       {
         path: "auth",
