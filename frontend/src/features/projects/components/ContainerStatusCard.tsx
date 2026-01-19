@@ -3,11 +3,6 @@ import { Button } from "@shared/ui/Button";
 import { Badge } from "@shared/ui/Badge";
 import { Box, ExternalLink, FileText } from "lucide-react";
 import type { Container } from "@features/projects/types/Container";
-import React from "react";
-import { Button } from "@shared/ui/Button";
-import { Badge } from "@shared/ui/Badge";
-import { Box, ExternalLink, FileText } from "lucide-react";
-import type { Container } from "@features/projects/types/Container";
 
 interface ContainerStatusCardProps {
   container: Container;
