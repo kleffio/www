@@ -33,6 +33,9 @@ func SetupRouter(handler *MetricsHandler) *gin.Engine {
 		api.GET("/database-io", handler.GetDatabaseIOMetrics)
 		api.GET("/projects/:projectID/usage", handler.GetProjectUsageMetrics)
 		api.GET("/projects/:projectID/usage/:days", handler.GetProjectUsageMetricsWithDays)
+
+		api.GET("/uptime", handler.GetUptimeMetrics)
+		api.GET("/system-uptime", handler.GetSystemUptime)
 	}
 
 	router.GET("/health", func(c *gin.Context) {
