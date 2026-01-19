@@ -54,6 +54,9 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      STRIPE_API_KEY: ${STRIPE_API_KEY}
+      FRONTEND_URL: ${FRONTEND_URL}
+      VITE_BACKEND_URL: ${VITE_BACKEND_URL}
     depends_on:
       - billing-db
 

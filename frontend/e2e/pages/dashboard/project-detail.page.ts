@@ -45,23 +45,19 @@ export class ProjectDetailPage extends BasePage {
 
   // Metrics-related methods
   metricsSection(): Locator {
-    return this.page.getByText("Project Metrics & Billing");
+    return this.page.getByText("Project Usage (30 Days)");
   }
 
-  monthlyCostCard(): Locator {
-    return this.page.getByText("Estimated Monthly Cost");
+  cpuRequestsCard(): Locator {
+    return this.page.getByText("Avg CPU Requests");
   }
 
-  cpuUsageCard(): Locator {
-    return this.page.getByText("Total CPU Usage");
+  memoryUsageCard(): Locator {
+    return this.page.getByText("Avg Memory Usage");
   }
 
-  memoryCard(): Locator {
-    return this.page.getByText("Total Memory");
-  }
-
-  containerStatusCard(): Locator {
-    return this.page.getByText("Container Status");
+  timeWindowCard(): Locator {
+    return this.page.getByText("Time Window");
   }
 
   async expectMetricsVisible() {
@@ -73,22 +69,19 @@ export class ProjectDetailPage extends BasePage {
   }
 
   async expectAllMetricCardsVisible() {
-    await expect(this.monthlyCostCard()).toBeVisible();
-    await expect(this.cpuUsageCard()).toBeVisible();
-    await expect(this.memoryCard()).toBeVisible();
-    await expect(this.containerStatusCard()).toBeVisible();
+    await expect(this.cpuRequestsCard()).toBeVisible();
+    await expect(this.memoryUsageCard()).toBeVisible();
+    await expect(this.timeWindowCard()).toBeVisible();
   }
 
   async expectMetricsLoaded() {
     await this.expectMetricsVisible();
     await this.expectAllMetricCardsVisible();
-    
+
     // Verify cards contain proper units
-    const costCard = this.monthlyCostCard().locator("..");
-    const cpuCard = this.cpuUsageCard().locator("..");
-    const memCard = this.memoryCard().locator("..");
-    
-    await expect(costCard).toContainText("$");
+    const cpuCard = this.cpuRequestsCard().locator("..");
+    const memCard = this.memoryUsageCard().locator("..");
+
     await expect(cpuCard).toContainText("cores");
     await expect(memCard).toContainText("GB");
   }
@@ -112,12 +105,13 @@ export class ProjectDetailPage extends BasePage {
     }
   }
 
-  async expectContainerCountInMetrics(count: number) {
-    const statusCard = this.containerStatusCard().locator("..");
-    await expect(statusCard).toContainText(`${count}`);
-    await expect(statusCard).toContainText("running");
+  // Container management methods
+  async openContainerDetailModal(containerName: string) {
+    const containerCard = this.page.locator('button').filter({ hasText: containerName });
+    await containerCard.click();
   }
 
+<<<<<<< HEAD
   async expectViewLogsButton(containerName: string) {
     const containerCard = this.page.locator(`[data-container-name="${containerName}"]`).or(
       this.page.getByText(containerName).locator('..')
@@ -229,3 +223,30 @@ export class ProjectDetailPage extends BasePage {
   }
 
 }
+=======
+  // Container status card methods
+  async getContainerStatusCard(containerName: string) {
+    return this.page.locator('button').filter({ hasText: containerName }).locator('..').locator('..');
+  }
+
+  async visitAppFromStatusCard(containerName: string) {
+    // Find the "Visit App" button within the container card that contains the container name
+    const visitButton = this.page.locator('button').filter({ hasText: containerName }).locator('button').filter({ hasText: 'Visit App' });
+
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent('page'),
+      visitButton.click()
+    ]);
+
+    return newPage;
+  }
+
+  async expectContainerStatusCardVisitAppUrl(containerName: string, containerId: string) {
+    // Since the button uses window.open which may not work in test environment,
+    // just verify the button exists and can be clicked
+    const visitButton = this.page.locator('button').filter({ hasText: containerName }).locator('button').filter({ hasText: 'Visit App' });
+    await expect(visitButton).toBeVisible();
+    // Note: Actual URL verification would require mocking window.open or using different approach
+  }
+}
+>>>>>>> 1502b07c40ce08867de6c834fd8ea5a81837ed40

@@ -19,7 +19,16 @@ export class ContainerModal extends BaseComponent {
 
     await expect(this.containerNameInput()).toBeVisible({ timeout: 30_000 });
     await expect(this.portInput()).toBeVisible({ timeout: 30_000 });
-    await expect(this.createButton()).toBeVisible({ timeout: 30_000 });
+
+    // Could be create or update button depending on mode
+    const hasCreateButton = await this.createButton().isVisible().catch(() => false);
+    const hasUpdateButton = await this.updateButton().isVisible().catch(() => false);
+    expect(hasCreateButton || hasUpdateButton).toBe(true);
+  }
+
+  async expectEditMode() {
+    await expect(this.page.getByRole("heading", { name: "Update container" })).toBeVisible();
+    await expect(this.updateButton()).toBeVisible();
   }
 
   containerCreateModal() {
@@ -28,10 +37,6 @@ export class ContainerModal extends BaseComponent {
 
   containerNameInput() {
     return this.page.locator("#container-name");
-  }
-
-  imageInput() {
-    return this.page.locator("#container-image");
   }
 
   portInput() {
@@ -50,6 +55,10 @@ export class ContainerModal extends BaseComponent {
     return this.page.locator('button[type="submit"]').filter({ hasText: /create container/i });
   }
 
+  updateButton() {
+    return this.page.locator('button[type="submit"]').filter({ hasText: /update container/i });
+  }
+
   addEnvVariableButton() {
     return this.page.getByRole("button", { name: /add variable/i });
   }
@@ -66,7 +75,7 @@ export class ContainerModal extends BaseComponent {
     return this.page.locator('button').filter({ has: this.page.locator('svg.lucide-trash-2') }).nth(index);
   }
 
-  async fillBasicInfo(name: string, image: string, port: string) {
+  async fillBasicInfo(name: string, port: string) {
     await this.containerNameInput().fill(name);
     await this.portInput().fill(port);
   }
@@ -101,12 +110,11 @@ export class ContainerModal extends BaseComponent {
 
   async createContainer(
     name: string,
-    image: string,
     port: string,
     repository?: { url: string; branch?: string },
     envVariables?: Array<{ key: string; value: string }>
   ) {
-    await this.fillBasicInfo(name, image, port);
+    await this.fillBasicInfo(name, port);
 
     if (repository) {
       await this.fillRepository(repository.url, repository.branch);
@@ -128,6 +136,40 @@ export class ContainerModal extends BaseComponent {
 
     // Wait for the container to appear in the list
     await this.expectContainerInList(name);
+  }
+
+  async updateContainer(
+    name: string,
+    port: string,
+    repository?: { url: string; branch?: string },
+    envVariables?: Array<{ key: string; value: string }>
+  ) {
+    await this.fillBasicInfo(name, port);
+
+    if (repository) {
+      await this.fillRepository(repository.url, repository.branch);
+    }
+
+    if (envVariables && envVariables.length > 0) {
+      // Clear existing env variables first
+      const existingEnvCount = await this.page.locator('input[placeholder="KEY"]').count();
+      for (let i = existingEnvCount - 1; i >= 0; i--) {
+        await this.removeEnvButton(i).click();
+      }
+
+      // Add new env variables
+      for (const env of envVariables) {
+        await this.addEnvVariable(env.key, env.value);
+      }
+    }
+
+    const update = this.updateButton();
+    await expect(update).toBeEnabled({ timeout: 30_000 });
+    await update.click();
+
+    // Wait for the modal to close
+    const modal = this.containerCreateModal();
+    await expect(modal).not.toBeVisible({ timeout: 30_000 });
   }
 
   async expectContainerInList(name: string) {

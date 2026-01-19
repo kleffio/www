@@ -9,6 +9,13 @@ name: Java CI with Gradle
     branches: ["main"]
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - project-management-service
+          - billing-service
   deployment_service_test:
     runs-on: "ubuntu-22.04"
     timeout-minutes: 15

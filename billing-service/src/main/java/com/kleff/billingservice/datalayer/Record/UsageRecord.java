@@ -22,8 +22,9 @@ public class UsageRecord {
     String projectId;
     String containerId;
     PricingModel pricingModel;
-    UsageMetric metric;
-    Double quantity;
+    Double CPU_HOURS;
+    Double MEMORY_GB_HOURS;
+    Double  STORAGE_GB;
     LocalDateTime recordedAt;
 
 }

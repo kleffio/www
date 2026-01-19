@@ -1,46 +1,33 @@
-
-
-CREATE TABLE if NOT EXISTS reserved_allocations (
-        allocation_id UUID PRIMARY KEY DEFAULT,
+CREATE TABLE IF NOT EXISTS reserved_allocations (
+        allocation_id UUID PRIMARY KEY,
         user_id UUID,
         workspace_id UUID,
         project_id UUID,
-        cpu_cores Double,
-        memory_gb Double,
-        storage_gb Double,
-        container_limit int,
-        monthly_price Double,
-        start_date Date,
-        end_date Date
+        cpu_cores DOUBLE PRECISION,
+        memory_gb DOUBLE PRECISION,
+        storage_gb DOUBLE PRECISION,
+        container_limit INT,
+        monthly_price DOUBLE PRECISION,
+        start_date DATE,
+        end_date DATE
 );
-CREATE TABLE if NOT EXISTS invoices (
-    invoice_id UUID PRIMARY KEY DEFAULT,
-    workspace_id UUID,
-    start_date Date,
-    end_date Date,
-    status VARCHAR(10),
-    subtotal Double,
-    taxes Double,
-    total Double,
 
-);
-CREATE TABLE if NOT EXISTS invoice_items(
-    item_id UUID PRIMARY KEY DEFAULT,
-    invoice_id UUID,
-    project_id UUID,
-    description VARCHAR(255),
-    pricing_model VARCHAR(20),
-    metric VARCHAR(20),
-    quantity Double,
-    unit_price Double,
-    amount Double
-);
-CREATE TABLE if NOT EXISTS invoice_items(
-    usage_id UUID PRIMARY KEY DEFAULT,
-    project_id UUID,
-    container_id UUID,
-    pricing_model VARCHAR(20),
-    metric VARCHAR(20),
-    quantity Double,
-    recorded_at DATETIME
+CREATE TABLE IF NOT EXISTS invoices (
+    invoice_id UUID PRIMARY KEY,
+    workspace_id UUID,
+    start_date DATE,
+    end_date DATE,
+    status VARCHAR(20),
+    total_cpu DECIMAL(19,2),
+    total_ram DECIMAL(19,2),
+    total_storage DECIMAL(19,2),
+    subtotal DECIMAL(19,2),
+    taxes DECIMAL(19,2),
+    total DECIMAL(19,2),
+    total_paid DECIMAL(19,2)
+    );
+
+CREATE TABLE IF NOT EXISTS prices(
+    metric VARCHAR(20) PRIMARY KEY,
+    price DOUBLE PRECISION
 );
