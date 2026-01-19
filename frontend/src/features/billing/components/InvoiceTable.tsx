@@ -5,6 +5,7 @@ import { Spinner } from "@shared/ui/Spinner";
 import type { Invoice } from '@features/billing/types/Invoice';
 import { fetchInvoice } from '../api/viewInvoicesForProject';
 import { handlePayNow } from '../api/handlePayNow';
+import { usePermissions } from '@features/projects/hooks/usePermissions';
 
 interface InvoiceTableProps {
   projectId: string;
@@ -17,9 +18,16 @@ export default function InvoiceTable({ projectId }: InvoiceTableProps) {
   const [error, setError] = useState<string | null>(null);
   const [payLoading, setPayLoading] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
+  const { canManageBilling, isLoading: permissionsLoading } = usePermissions(projectId);
 
   useEffect(() => {
     const loadInvoices = async () => {
+      // Don't fetch if user doesn't have permission
+      if (!canManageBilling) {
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         setError(null);
@@ -32,8 +40,10 @@ export default function InvoiceTable({ projectId }: InvoiceTableProps) {
       }
     };
 
-    loadInvoices();
-  }, [projectId]);
+    if (!permissionsLoading) {
+      loadInvoices();
+    }
+  }, [projectId, canManageBilling, permissionsLoading]);
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -54,7 +64,7 @@ export default function InvoiceTable({ projectId }: InvoiceTableProps) {
     }
   };
 
-  if (loading) {
+  if (loading || permissionsLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br p-0">
         <div className="max-w-7xl mx-auto flex items-center justify-center h-96">
@@ -65,6 +75,11 @@ export default function InvoiceTable({ projectId }: InvoiceTableProps) {
         </div>
       </div>
     );
+  }
+
+  // Don't show anything if user doesn't have permission
+  if (!canManageBilling) {
+    return null;
   }
 
   if (error) {

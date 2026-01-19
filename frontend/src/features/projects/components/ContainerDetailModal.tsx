@@ -8,6 +8,7 @@ import type { Container } from "@features/projects/types/Container";
 import enTranslations from "@app/locales/en/projects.json";
 import frTranslations from "@app/locales/fr/projects.json";
 import { getLocale } from "@app/locales/locale";
+import { SecureComponent } from "@app/components/SecureComponent";
 
 const translations = {
   en: enTranslations,
@@ -24,8 +25,18 @@ interface ContainerDetailModalProps {
 
 export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, onEditContainer }: ContainerDetailModalProps) {
   const [copiedId, setCopiedId] = React.useState(false);
-  const [locale] = React.useState(getLocale());
+  const [locale, setLocale] = React.useState(getLocale());
   const t = translations[locale].projectDetail.containerDetail;
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLocale = getLocale();
+      if (currentLocale !== locale) {
+        setLocale(currentLocale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [locale]);
 
   if (!isOpen || !container) return null;
 
@@ -187,15 +198,17 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, on
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-white">{t.environment_variables}</h3>
                 {onEditEnv && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => onEditEnv(container)}
-                    className="border-slate-600 bg-slate-700 text-xs text-slate-300 hover:border-slate-500 hover:bg-slate-600"
-                  >
-                    <Settings className="mr-1 h-3 w-3" />
-                    {t.edit_variables}
-                  </Button>
+                  <SecureComponent requiredPermission="MANAGE_ENV_VARS">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onEditEnv(container)}
+                      className="border-slate-600 bg-slate-700 text-xs text-slate-300 hover:border-slate-500 hover:bg-slate-600"
+                    >
+                      <Settings className="mr-1 h-3 w-3" />
+                      {t.edit_variables}
+                    </Button>
+                  </SecureComponent>
                 )}
               </div>
               <div className="space-y-3">
@@ -213,52 +226,62 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, on
           {/* Footer - Action Buttons */}
           <div className="mt-8 pt-6 border-t border-slate-700">
             <div className="flex flex-wrap gap-3 justify-end">
-              <Button
-                size="sm"
-                variant="outline"
-                className="border-slate-600 bg-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-600"
-              >
-                <Play className="mr-2 h-4 w-4" />
-                {t.restart}
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="border-slate-600 bg-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-600"
-              >
-                <Square className="mr-2 h-4 w-4" />
-                {t.stop}
-              </Button>
-              {onEditContainer && (
+              <SecureComponent requiredPermission="DEPLOY">
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => onEditContainer(container)}
                   className="border-slate-600 bg-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-600"
                 >
-                  <Edit className="mr-2 h-4 w-4" />
-                  {t.edit_container}
+                  <Play className="mr-2 h-4 w-4" />
+                  {t.restart}
                 </Button>
+              </SecureComponent>
+              <SecureComponent requiredPermission="DEPLOY">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-slate-600 bg-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-600"
+                >
+                  <Square className="mr-2 h-4 w-4" />
+                  {t.stop}
+                </Button>
+              </SecureComponent>
+              {onEditContainer && (
+                <SecureComponent requiredPermission="DEPLOY">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onEditContainer(container)}
+                    className="border-slate-600 bg-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-600"
+                  >
+                    <Edit className="mr-2 h-4 w-4" />
+                    {t.edit_container}
+                  </Button>
+                </SecureComponent>
               )}
               {onEditEnv && (
+                <SecureComponent requiredPermission="MANAGE_ENV_VARS">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onEditEnv(container)}
+                    className="border-slate-600 bg-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-600"
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    {t.edit_environment_variables}
+                  </Button>
+                </SecureComponent>
+              )}
+              <SecureComponent requiredPermission="DELETE_PROJECT">
                 <Button
                   size="sm"
-                  variant="outline"
-                  onClick={() => onEditEnv(container)}
-                  className="border-slate-600 bg-slate-700 text-slate-300 hover:border-slate-500 hover:bg-slate-600"
+                  variant="destructive"
+                  className="bg-red-600 hover:bg-red-700 text-white"
                 >
-                  <Settings className="mr-2 h-4 w-4" />
-                  {t.edit_environment_variables}
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {t.delete}
                 </Button>
-              )}
-              <Button
-                size="sm"
-                variant="destructive"
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                {t.delete}
-              </Button>
+              </SecureComponent>
             </div>
           </div>
         </SoftPanel>

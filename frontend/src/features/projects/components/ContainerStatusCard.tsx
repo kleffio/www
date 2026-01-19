@@ -1,16 +1,38 @@
 import React from "react";
 import { Button } from "@shared/ui/Button";
 import { Badge } from "@shared/ui/Badge";
-import { Box, ExternalLink } from "lucide-react";
+import { Box, ExternalLink, FileText } from "lucide-react";
 import type { Container } from "@features/projects/types/Container";
+import { SecureComponent } from "@app/components/SecureComponent";
+import enTranslations from "@app/locales/en/projects.json";
+import frTranslations from "@app/locales/fr/projects.json";
+import { getLocale } from "@app/locales/locale";
+
+const translations = {
+  en: enTranslations,
+  fr: frTranslations
+};
 
 interface ContainerStatusCardProps {
   container: Container;
   onManage: (container: Container) => void;
+  onViewLogs?: (container: Container) => void;
 }
 
-export function ContainerStatusCard({ container, onManage }: ContainerStatusCardProps) {
+export function ContainerStatusCard({ container, onManage, onViewLogs }: ContainerStatusCardProps) {
   const appUrl = `https://app-${container.containerId}.kleff.io`;
+  const [locale, setLocale] = React.useState(getLocale());
+  const t = translations[locale].projectDetail.containerDetail;
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLocale = getLocale();
+      if (currentLocale !== locale) {
+        setLocale(currentLocale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [locale]);
 
   const handleVisitApp = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -24,7 +46,7 @@ export function ContainerStatusCard({ container, onManage }: ContainerStatusCard
   return (
     <button
       onClick={handleCardClick}
-      className="grid w-full grid-cols-[1fr_auto_120px] items-center gap-4 rounded-lg border border-white/10 bg-white/5 p-4 hover:bg-white/10 focus:bg-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors cursor-pointer"
+      className="grid w-full grid-cols-[1fr_auto_auto] items-center gap-4 rounded-lg border border-white/10 bg-white/5 p-4 hover:bg-white/10 focus:bg-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors cursor-pointer"
     >
       {/* Left side: Icon + Container Name */}
       <div className="flex items-center gap-3">
@@ -43,11 +65,27 @@ export function ContainerStatusCard({ container, onManage }: ContainerStatusCard
         }
         className="text-xs justify-self-center"
       >
-        {container.status || "Unknown"}
+        {container.status || t.unknown}
       </Badge>
 
       {/* Right side: Actions */}
-      <div className="flex items-center justify-end gap-2">
+      <div className="flex items-center gap-2 justify-end">
+        {onViewLogs && (
+          <SecureComponent requiredPermission="VIEW_LOGS">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewLogs(container);
+              }}
+              className="h-8 px-3 text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
+            >
+              <FileText className="mr-1 h-3 w-3" />
+              {t.view_logs}
+            </Button>
+          </SecureComponent>
+        )}
         <Button
           size="sm"
           variant="ghost"
@@ -55,7 +93,7 @@ export function ContainerStatusCard({ container, onManage }: ContainerStatusCard
           className="h-8 px-3 text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
         >
           <ExternalLink className="mr-1 h-3 w-3" />
-          Visit App
+          {t.visit_app}
         </Button>
       </div>
     </button>

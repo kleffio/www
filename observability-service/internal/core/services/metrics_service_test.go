@@ -10,18 +10,20 @@ import (
 
 // mockMetricsRepository is a mock implementation of ports.MetricsRepository
 type mockMetricsRepository struct {
-	getClusterOverviewFunc      func(ctx context.Context) (*domain.ClusterOverview, error)
-	getRequestsMetricFunc       func(ctx context.Context, duration string) (*domain.MetricCard, error)
-	getPodsMetricFunc           func(ctx context.Context, duration string) (*domain.MetricCard, error)
-	getNodesMetricFunc          func(ctx context.Context, duration string) (*domain.MetricCard, error)
-	getTenantsMetricFunc        func(ctx context.Context, duration string) (*domain.MetricCard, error)
-	getCPUUtilizationFunc       func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
-	getMemoryUtilizationFunc    func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
-	getNodesFunc                func(ctx context.Context) ([]domain.NodeMetric, error)
-	getNamespacesFunc           func(ctx context.Context) ([]domain.NamespaceMetric, error)
-	getDatabaseIOMetricsFunc         func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
-	getProjectUsageMetricsFunc       func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
+	getClusterOverviewFunc             func(ctx context.Context) (*domain.ClusterOverview, error)
+	getRequestsMetricFunc              func(ctx context.Context, duration string) (*domain.MetricCard, error)
+	getPodsMetricFunc                  func(ctx context.Context, duration string) (*domain.MetricCard, error)
+	getNodesMetricFunc                 func(ctx context.Context, duration string) (*domain.MetricCard, error)
+	getTenantsMetricFunc               func(ctx context.Context, duration string) (*domain.MetricCard, error)
+	getCPUUtilizationFunc              func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
+	getMemoryUtilizationFunc           func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
+	getNodesFunc                       func(ctx context.Context) ([]domain.NodeMetric, error)
+	getNamespacesFunc                  func(ctx context.Context) ([]domain.NamespaceMetric, error)
+	getDatabaseIOMetricsFunc           func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
+	getProjectUsageMetricsFunc         func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
 	getProjectUsageMetricsWithDaysFunc func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error)
+	getSystemUptimeFunc                func(ctx context.Context) (float64, error)
+	getUptimeMetricsFunc               func(ctx context.Context, duration string) (*domain.UptimeMetrics, error)
 }
 
 func (m *mockMetricsRepository) GetClusterOverview(ctx context.Context) (*domain.ClusterOverview, error) {
@@ -352,7 +354,7 @@ func TestGetDatabaseIOMetrics_Success(t *testing.T) {
 	}
 
 	if result.DiskReadBytesPerSec != expectedMetrics.DiskReadBytesPerSec {
-		t.Errorf("Expected DiskReadBytesPerSec %.2f, got %.2f", 
+		t.Errorf("Expected DiskReadBytesPerSec %.2f, got %.2f",
 			expectedMetrics.DiskReadBytesPerSec, result.DiskReadBytesPerSec)
 	}
 }
@@ -681,10 +683,10 @@ func TestGetDatabaseIOMetrics_Error(t *testing.T) {
 
 func TestGetProjectUsageMetricsWithDays_Success(t *testing.T) {
 	expectedMetrics := &domain.ProjectUsageMetrics{
-		ProjectID:         "project-123",
-		MemoryUsageGB:     4.2,
-		CPURequestCores:   1.5,
-		Window:            "7d",
+		ProjectID:       "project-123",
+		MemoryUsageGB:   4.2,
+		CPURequestCores: 1.5,
+		Window:          "7d",
 	}
 
 	mockRepo := &mockMetricsRepository{
@@ -714,5 +716,415 @@ func TestGetProjectUsageMetricsWithDays_Success(t *testing.T) {
 
 	if result.Window != expectedMetrics.Window {
 		t.Errorf("Expected Window '%s', got '%s'", expectedMetrics.Window, result.Window)
+	}
+}
+
+// Add these methods to the mockMetricsRepository struct
+func (m *mockMetricsRepository) GetSystemUptime(ctx context.Context) (float64, error) {
+	if m.getSystemUptimeFunc != nil {
+		return m.getSystemUptimeFunc(ctx)
+	}
+	return 0, errors.New("not implemented")
+}
+
+func (m *mockMetricsRepository) GetUptimeMetrics(ctx context.Context, duration string) (*domain.UptimeMetrics, error) {
+	if m.getUptimeMetricsFunc != nil {
+		return m.getUptimeMetricsFunc(ctx, duration)
+	}
+	return nil, errors.New("not implemented")
+}
+
+// Tests for GetSystemUptime
+
+func TestGetSystemUptime_Success(t *testing.T) {
+	expectedUptime := 864000.0 // 10 days in seconds
+
+	mockRepo := &mockMetricsRepository{
+		getSystemUptimeFunc: func(ctx context.Context) (float64, error) {
+			return expectedUptime, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetSystemUptime(ctx)
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if result != expectedUptime {
+		t.Errorf("Expected uptime %.2f, got %.2f", expectedUptime, result)
+	}
+}
+
+func TestGetSystemUptime_Error(t *testing.T) {
+	expectedError := errors.New("failed to query system uptime")
+
+	mockRepo := &mockMetricsRepository{
+		getSystemUptimeFunc: func(ctx context.Context) (float64, error) {
+			return 0, expectedError
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetSystemUptime(ctx)
+
+	if err == nil {
+		t.Fatal("Expected error, got nil")
+	}
+
+	if err.Error() != expectedError.Error() {
+		t.Errorf("Expected error '%v', got '%v'", expectedError, err)
+	}
+
+	if result != 0 {
+		t.Errorf("Expected uptime 0, got %.2f", result)
+	}
+}
+
+func TestGetSystemUptime_ZeroUptime(t *testing.T) {
+	mockRepo := &mockMetricsRepository{
+		getSystemUptimeFunc: func(ctx context.Context) (float64, error) {
+			return 0, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetSystemUptime(ctx)
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if result != 0 {
+		t.Errorf("Expected uptime 0, got %.2f", result)
+	}
+}
+
+// Tests for GetUptimeMetrics
+
+func TestGetUptimeMetrics_Success(t *testing.T) {
+	expectedMetrics := &domain.UptimeMetrics{
+		SystemUptimeSeconds:    864000.0,
+		SystemUptimeFormatted:  "10d 0h 0m",
+		AverageUptimeSeconds:   864000.0,
+		AverageUptimeFormatted: "10d 0h 0m",
+		NodeUptimes: []domain.NodeUptimeMetric{
+			{
+				NodeName:         "192.168.0.203:9100",
+				UptimeSeconds:    864000.0,
+				UptimeFormatted:  "10d 0h 0m",
+				BootTimestamp:    1736500000,
+				BootTimeReadable: "2025-01-10 05:06:40 UTC",
+			},
+			{
+				NodeName:         "192.168.0.201:9100",
+				UptimeSeconds:    864000.0,
+				UptimeFormatted:  "10d 0h 0m",
+				BootTimestamp:    1736500000,
+				BootTimeReadable: "2025-01-10 05:06:40 UTC",
+			},
+		},
+		UptimeHistory: []domain.TimeSeriesDataPoint{
+			{Timestamp: 1000000, Value: 864000.0},
+			{Timestamp: 2000000, Value: 864000.0},
+			{Timestamp: 3000000, Value: 864000.0},
+		},
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getUptimeMetricsFunc: func(ctx context.Context, duration string) (*domain.UptimeMetrics, error) {
+			if duration != "7d" {
+				t.Errorf("Expected duration '7d', got '%s'", duration)
+			}
+			return expectedMetrics, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetUptimeMetrics(ctx, "7d")
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if result.SystemUptimeSeconds != expectedMetrics.SystemUptimeSeconds {
+		t.Errorf("Expected SystemUptimeSeconds %.2f, got %.2f",
+			expectedMetrics.SystemUptimeSeconds, result.SystemUptimeSeconds)
+	}
+
+	if result.SystemUptimeFormatted != expectedMetrics.SystemUptimeFormatted {
+		t.Errorf("Expected SystemUptimeFormatted '%s', got '%s'",
+			expectedMetrics.SystemUptimeFormatted, result.SystemUptimeFormatted)
+	}
+
+	if len(result.NodeUptimes) != len(expectedMetrics.NodeUptimes) {
+		t.Errorf("Expected %d node uptimes, got %d",
+			len(expectedMetrics.NodeUptimes), len(result.NodeUptimes))
+	}
+
+	if len(result.UptimeHistory) != len(expectedMetrics.UptimeHistory) {
+		t.Errorf("Expected %d history points, got %d",
+			len(expectedMetrics.UptimeHistory), len(result.UptimeHistory))
+	}
+}
+
+func TestGetUptimeMetrics_Error(t *testing.T) {
+	expectedError := errors.New("prometheus query failed")
+
+	mockRepo := &mockMetricsRepository{
+		getUptimeMetricsFunc: func(ctx context.Context, duration string) (*domain.UptimeMetrics, error) {
+			return nil, expectedError
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetUptimeMetrics(ctx, "24h")
+
+	if err == nil {
+		t.Fatal("Expected error, got nil")
+	}
+
+	if err.Error() != expectedError.Error() {
+		t.Errorf("Expected error '%v', got '%v'", expectedError, err)
+	}
+
+	if result != nil {
+		t.Errorf("Expected nil result, got %v", result)
+	}
+}
+
+func TestGetUptimeMetrics_EmptyNodes(t *testing.T) {
+	expectedMetrics := &domain.UptimeMetrics{
+		SystemUptimeSeconds:    0,
+		SystemUptimeFormatted:  "0m",
+		AverageUptimeSeconds:   0,
+		AverageUptimeFormatted: "0m",
+		NodeUptimes:            []domain.NodeUptimeMetric{},
+		UptimeHistory:          []domain.TimeSeriesDataPoint{},
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getUptimeMetricsFunc: func(ctx context.Context, duration string) (*domain.UptimeMetrics, error) {
+			return expectedMetrics, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetUptimeMetrics(ctx, "1h")
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if len(result.NodeUptimes) != 0 {
+		t.Errorf("Expected 0 node uptimes, got %d", len(result.NodeUptimes))
+	}
+
+	if len(result.UptimeHistory) != 0 {
+		t.Errorf("Expected 0 history points, got %d", len(result.UptimeHistory))
+	}
+}
+
+func TestGetUptimeMetrics_SingleNode(t *testing.T) {
+	expectedMetrics := &domain.UptimeMetrics{
+		SystemUptimeSeconds:    432000.0,
+		SystemUptimeFormatted:  "5d 0h 0m",
+		AverageUptimeSeconds:   432000.0,
+		AverageUptimeFormatted: "5d 0h 0m",
+		NodeUptimes: []domain.NodeUptimeMetric{
+			{
+				NodeName:         "192.168.0.203:9100",
+				UptimeSeconds:    432000.0,
+				UptimeFormatted:  "5d 0h 0m",
+				BootTimestamp:    1736932000,
+				BootTimeReadable: "2025-01-15 05:06:40 UTC",
+			},
+		},
+		UptimeHistory: []domain.TimeSeriesDataPoint{
+			{Timestamp: 1000000, Value: 432000.0},
+		},
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getUptimeMetricsFunc: func(ctx context.Context, duration string) (*domain.UptimeMetrics, error) {
+			return expectedMetrics, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetUptimeMetrics(ctx, "30d")
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if len(result.NodeUptimes) != 1 {
+		t.Errorf("Expected 1 node uptime, got %d", len(result.NodeUptimes))
+	}
+
+	if result.NodeUptimes[0].NodeName != expectedMetrics.NodeUptimes[0].NodeName {
+		t.Errorf("Expected node name '%s', got '%s'",
+			expectedMetrics.NodeUptimes[0].NodeName, result.NodeUptimes[0].NodeName)
+	}
+}
+
+func TestGetUptimeMetrics_DifferentDurations(t *testing.T) {
+	durations := []string{"24h", "7d", "30d", "90d"}
+
+	for _, duration := range durations {
+		t.Run("Duration_"+duration, func(t *testing.T) {
+			mockRepo := &mockMetricsRepository{
+				getUptimeMetricsFunc: func(ctx context.Context, d string) (*domain.UptimeMetrics, error) {
+					if d != duration {
+						t.Errorf("Expected duration '%s', got '%s'", duration, d)
+					}
+					return &domain.UptimeMetrics{
+						SystemUptimeSeconds:    864000.0,
+						SystemUptimeFormatted:  "10d 0h 0m",
+						AverageUptimeSeconds:   864000.0,
+						AverageUptimeFormatted: "10d 0h 0m",
+						NodeUptimes:            []domain.NodeUptimeMetric{},
+						UptimeHistory:          []domain.TimeSeriesDataPoint{},
+					}, nil
+				},
+			}
+
+			service := NewMetricsService(mockRepo)
+			ctx := context.Background()
+
+			result, err := service.GetUptimeMetrics(ctx, duration)
+
+			if err != nil {
+				t.Fatalf("Expected no error for duration %s, got %v", duration, err)
+			}
+
+			if result == nil {
+				t.Fatalf("Expected result for duration %s, got nil", duration)
+			}
+		})
+	}
+}
+
+func TestGetUptimeMetrics_VerifyNodeDetails(t *testing.T) {
+	expectedNode := domain.NodeUptimeMetric{
+		NodeName:         "test-node:9100",
+		UptimeSeconds:    123456.0,
+		UptimeFormatted:  "1d 10h 17m",
+		BootTimestamp:    1736000000,
+		BootTimeReadable: "2025-01-05 00:00:00 UTC",
+	}
+
+	expectedMetrics := &domain.UptimeMetrics{
+		SystemUptimeSeconds:    123456.0,
+		SystemUptimeFormatted:  "1d 10h 17m",
+		AverageUptimeSeconds:   123456.0,
+		AverageUptimeFormatted: "1d 10h 17m",
+		NodeUptimes:            []domain.NodeUptimeMetric{expectedNode},
+		UptimeHistory:          []domain.TimeSeriesDataPoint{},
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getUptimeMetricsFunc: func(ctx context.Context, duration string) (*domain.UptimeMetrics, error) {
+			return expectedMetrics, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetUptimeMetrics(ctx, "24h")
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if len(result.NodeUptimes) != 1 {
+		t.Fatalf("Expected 1 node, got %d", len(result.NodeUptimes))
+	}
+
+	node := result.NodeUptimes[0]
+
+	if node.NodeName != expectedNode.NodeName {
+		t.Errorf("Expected NodeName '%s', got '%s'", expectedNode.NodeName, node.NodeName)
+	}
+
+	if node.UptimeSeconds != expectedNode.UptimeSeconds {
+		t.Errorf("Expected UptimeSeconds %.2f, got %.2f", expectedNode.UptimeSeconds, node.UptimeSeconds)
+	}
+
+	if node.UptimeFormatted != expectedNode.UptimeFormatted {
+		t.Errorf("Expected UptimeFormatted '%s', got '%s'", expectedNode.UptimeFormatted, node.UptimeFormatted)
+	}
+
+	if node.BootTimestamp != expectedNode.BootTimestamp {
+		t.Errorf("Expected BootTimestamp %d, got %d", expectedNode.BootTimestamp, node.BootTimestamp)
+	}
+
+	if node.BootTimeReadable != expectedNode.BootTimeReadable {
+		t.Errorf("Expected BootTimeReadable '%s', got '%s'", expectedNode.BootTimeReadable, node.BootTimeReadable)
+	}
+}
+
+func TestGetUptimeMetrics_VerifyHistoryData(t *testing.T) {
+	expectedHistory := []domain.TimeSeriesDataPoint{
+		{Timestamp: 1000000, Value: 100000.0},
+		{Timestamp: 2000000, Value: 200000.0},
+		{Timestamp: 3000000, Value: 300000.0},
+		{Timestamp: 4000000, Value: 400000.0},
+	}
+
+	expectedMetrics := &domain.UptimeMetrics{
+		SystemUptimeSeconds:    400000.0,
+		SystemUptimeFormatted:  "4d 15h 6m",
+		AverageUptimeSeconds:   400000.0,
+		AverageUptimeFormatted: "4d 15h 6m",
+		NodeUptimes:            []domain.NodeUptimeMetric{},
+		UptimeHistory:          expectedHistory,
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getUptimeMetricsFunc: func(ctx context.Context, duration string) (*domain.UptimeMetrics, error) {
+			return expectedMetrics, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	ctx := context.Background()
+
+	result, err := service.GetUptimeMetrics(ctx, "7d")
+
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
+	}
+
+	if len(result.UptimeHistory) != len(expectedHistory) {
+		t.Fatalf("Expected %d history points, got %d", len(expectedHistory), len(result.UptimeHistory))
+	}
+
+	for i, expected := range expectedHistory {
+		actual := result.UptimeHistory[i]
+
+		if actual.Timestamp != expected.Timestamp {
+			t.Errorf("History[%d]: Expected Timestamp %d, got %d", i, expected.Timestamp, actual.Timestamp)
+		}
+
+		if actual.Value != expected.Value {
+			t.Errorf("History[%d]: Expected Value %.2f, got %.2f", i, expected.Value, actual.Value)
+		}
 	}
 }

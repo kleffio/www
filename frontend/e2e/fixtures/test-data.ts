@@ -4,6 +4,7 @@ export const routes = {
   faq: "/faq",
   terms: "/terms",
   privacy: "/privacy",
+  status: "/status",
 
   auth: {
     signin: "/auth/signin",

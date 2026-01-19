@@ -24,17 +24,24 @@ export class ProjectsPage extends BasePage {
 
   async expectProject(name: string, description: string) {
     validateTestString(name);
-    const project = this.page.getByRole("cell", { name, exact: true });
-    const projectDesc = this.page.getByRole("cell", { name: description, exact: true });
-
-    await expect(project).toBeVisible();
-    await expect(projectDesc).toBeVisible();
+    
+    // Projects are displayed as cards, not table rows
+    // Look for the project name in a heading and the description nearby
+    await expect(this.page.getByRole("heading", { name, exact: true })).toBeVisible({ timeout: 10_000 });
+    
+    // Description is optional - only check if provided and not empty
+    if (description && description.trim()) {
+      await expect(this.page.getByText(description)).toBeVisible({ timeout: 10_000 });
+    }
   }
 
   async openProject(name: string) {
     validateTestString(name);
-    const project = this.page.getByRole("cell", { name, exact: true });
-    await project.click();
+    
+    // Projects are displayed as cards with links, not table cells
+    // Find the link that contains the project name
+    const projectLink = this.page.locator('a[href*="/dashboard/projects/"]').filter({ hasText: name });
+    await projectLink.click();
 
     const detailPage = new ProjectDetailPage(this.page);
     await detailPage.expectLoaded();

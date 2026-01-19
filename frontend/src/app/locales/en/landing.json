@@ -1,4 +1,5 @@
-{ "landing": {
+{
+  "landing": {
     "badges": {
       "open_source": "Open-source • Self-hosted or fully managed",
       "open_source_platform": "Open-source hosting platform",
@@ -53,7 +54,7 @@
       "metrics": {
         "latency": "P95 latency",
         "error_rate": "Error rate",
-        "regions": "Active regions"
+        "regions": "Regions"
       },
       "regions_card": {
         "title": "Regions",
@@ -72,11 +73,11 @@
       "title": "Everything you need to go from",
       "title_code": "git push",
       "title_end": "to observable production.",
-      "description": "Kleff's core is open source. Run it on your own machines or use our managed offering — the workflow stays the same.",
+      "description": "Kleff's core is open source. Run it on your own machines or use our managed offering – the workflow stays the same.",
       "features": {
         "fast": {
           "title": "Fast from day one",
-          "description": "Zero-config deploys, preview environments, and instant rollbacks — without drowning in YAML."
+          "description": "Zero-config deploys, preview environments, and instant rollbacks – without drowning in YAML."
         },
         "open": {
           "title": "Open by default",
@@ -88,10 +89,27 @@
         }
       }
     },
+    "reliability": {
+      "badge": "Enterprise Reliability",
+      "title": "Built for Mission-Critical Workloads",
+      "description": "Kleff delivers industry-leading uptime with battle-tested infrastructure. Deploy with confidence knowing your applications are backed by proven reliability.",
+      "uptime_label": "Uptime",
+      "uptime_period": "Last 30 days",
+      "features": {
+        "zero_downtime": {
+          "title": "Zero Downtime Deploys",
+          "description": "Rolling updates"
+        },
+        "health_monitoring": {
+          "title": "Health Monitoring",
+          "description": "Real-time alerts"
+        }
+      }
+    },
     "platform": {
       "label": "Kleff platform",
       "title": "A complete toolkit for modern services.",
-      "description": "Mix and match the pieces you need: deployments, identity, observability, data, and automation — all with sane defaults and self-hostable control.",
+      "description": "Mix and match the pieces you need: deployments, identity, observability, data, and automation – all with sane defaults and self-hostable control.",
       "deployments": {
         "title": "Deployments",
         "description": "Build and ship containers with zero-config pipelines.",

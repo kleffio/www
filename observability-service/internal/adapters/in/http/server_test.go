@@ -19,7 +19,8 @@ func TestSetupRouter(t *testing.T) {
 	}
 
 	handler := NewMetricsHandler(mockService)
-	router := SetupRouter(handler)
+	logsHandler := &LogsHandler{} 
+	router := SetupRouter(handler, logsHandler)
 
 	if router == nil {
 		t.Fatal("Expected router to be created, got nil")
@@ -34,7 +35,8 @@ func TestSetupRouter(t *testing.T) {
 func TestHealthEndpoint(t *testing.T) {
 	mockService := &mockMetricsService{}
 	handler := NewMetricsHandler(mockService)
-	router := SetupRouter(handler)
+	logsHandler := &LogsHandler{}
+	router := SetupRouter(handler, logsHandler)
 
 	req := httptest.NewRequest(http.MethodGet, "/health", nil)
 	w := httptest.NewRecorder()
@@ -64,7 +66,8 @@ func TestRouteGroupSetup(t *testing.T) {
 	}
 
 	handler := NewMetricsHandler(mockService)
-	router := SetupRouter(handler)
+	logsHandler := &LogsHandler{}
+	router := SetupRouter(handler, logsHandler)
 
 	// Test that the /api/v1/systems group is working
 	req := httptest.NewRequest(http.MethodGet, "/api/v1/systems/overview", nil)
@@ -80,7 +83,8 @@ func TestRouteGroupSetup(t *testing.T) {
 func TestCORSConfiguration(t *testing.T) {
 	mockService := &mockMetricsService{}
 	handler := NewMetricsHandler(mockService)
-	router := SetupRouter(handler)
+	logsHandler := &LogsHandler{}
+	router := SetupRouter(handler, logsHandler)
 
 	// Test OPTIONS request (preflight)
 	req := httptest.NewRequest(http.MethodOptions, "/api/v1/systems/overview", nil)
@@ -129,7 +133,8 @@ func TestAllRoutes(t *testing.T) {
 	}
 
 	handler := NewMetricsHandler(mockService)
-	router := SetupRouter(handler)
+	logsHandler := &LogsHandler{}
+	router := SetupRouter(handler, logsHandler)
 
 	routes := []string{
 		"/api/v1/systems/requests-metric",
