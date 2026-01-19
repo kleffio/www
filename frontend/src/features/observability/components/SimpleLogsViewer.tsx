@@ -48,13 +48,26 @@ export default function SimpleLogsViewer({ projectId, containerName }: SimpleLog
     );
   }
 
-  if (error) {
-    return (
-      <SoftPanel>
-        <p className="text-sm text-red-400 py-6">{error}</p>
-      </SoftPanel>
-    );
-  }
+if (error) {
+  return (
+    <SoftPanel>
+      <div style={{ textAlign: 'center', padding: '3rem 1.5rem' }}>
+        <h3 className="text-xl font-semibold text-kleff-gold mb-3">
+          Failed to Load Logs
+        </h3>
+        <p className="text-sm text-red-400 mb-2">
+          Unable to retrieve logs for <span className="font-mono">{containerName}</span>
+        </p>
+        <p className="text-sm text-neutral-500 mb-6">
+          This could be due to network issues or the observability service being unavailable.
+        </p>
+        <Button onClick={fetchLogs} disabled={loading} size="sm">
+          {loading ? 'Retrying...' : 'Try Again'}
+        </Button>
+      </div>
+    </SoftPanel>
+  );
+}
 
   return (
     <SoftPanel>
