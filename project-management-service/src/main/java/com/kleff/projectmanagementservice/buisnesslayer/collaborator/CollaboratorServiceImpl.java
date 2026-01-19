@@ -86,9 +86,7 @@ public class CollaboratorServiceImpl implements CollaboratorService {
                 .map(collaborator -> {
                     Set<ProjectPermission> permissions = collaborator.getPermissions();
                     
-                    // If no explicit permissions, use role-based permissions
                     if (permissions == null || permissions.isEmpty()) {
-                        // Check for custom role first
                         if (collaborator.getCustomRoleId() != null) {
                             return customRoleRepo.findById(collaborator.getCustomRoleId())
                                     .map(customRole -> customRole.getPermissions().stream()
@@ -96,7 +94,6 @@ public class CollaboratorServiceImpl implements CollaboratorService {
                                             .toList())
                                     .orElse(getRoleBasedPermissions(collaborator.getRole()));
                         }
-                        // Fall back to role-based permissions
                         return getRoleBasedPermissions(collaborator.getRole());
                     }
                     

@@ -115,9 +115,4 @@ public class ProjectServiceImpl implements ProjectService {
         toDelete.setProjectStatus(ProjectStatus.DELETED);
         return projectRepository.save(toDelete);
     }
-
-    @Override
-    public List<String> getAllProjectIds() {
-        return projectRepository.getAllProjectIds();
-    }
 }

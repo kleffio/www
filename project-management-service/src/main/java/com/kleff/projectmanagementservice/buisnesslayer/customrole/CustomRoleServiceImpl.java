@@ -21,7 +21,6 @@ public class CustomRoleServiceImpl implements CustomRoleService {
 
     @Override
     public CustomRoleResponseModel createCustomRole(CustomRoleRequestModel request, String createdBy) {
-        // Check if role name already exists for this project
         if (customRoleRepository.existsByProjectIdAndName(request.getProjectId(), request.getName())) {
             throw new IllegalArgumentException("A custom role with this name already exists for this project");
         }
