@@ -18,7 +18,6 @@ export class ContainerModal extends BaseComponent {
     await expect(this.containerCreateModal()).toBeVisible({ timeout: 30_000 });
 
     await expect(this.containerNameInput()).toBeVisible({ timeout: 30_000 });
-    await expect(this.imageInput()).toBeVisible({ timeout: 30_000 });
     await expect(this.portInput()).toBeVisible({ timeout: 30_000 });
     await expect(this.createButton()).toBeVisible({ timeout: 30_000 });
   }
@@ -69,7 +68,6 @@ export class ContainerModal extends BaseComponent {
 
   async fillBasicInfo(name: string, image: string, port: string) {
     await this.containerNameInput().fill(name);
-    await this.imageInput().fill(image);
     await this.portInput().fill(port);
   }
 

@@ -117,4 +117,115 @@ export class ProjectDetailPage extends BasePage {
     await expect(statusCard).toContainText(`${count}`);
     await expect(statusCard).toContainText("running");
   }
+
+  async expectViewLogsButton(containerName: string) {
+    const containerCard = this.page.locator(`[data-container-name="${containerName}"]`).or(
+      this.page.getByText(containerName).locator('..')
+    );
+    const viewLogsButton = containerCard.getByRole('button', { name: /view logs/i });
+    await expect(viewLogsButton).toBeVisible({ timeout: 10_000 });
+  }
+
+  async clickViewLogs(containerName: string) {
+    const containerCard = this.page.locator(`[data-container-name="${containerName}"]`).or(
+      this.page.getByText(containerName).locator('../..')
+    );
+    const viewLogsButton = containerCard.getByRole('button', { name: /view logs/i });
+    await viewLogsButton.click();
+  }
+
+  async expectLogsSheetOpen(containerName: string) {
+    // Sheet should be visible
+    const sheet = this.page.locator('[role="dialog"]').or(
+      this.page.locator('[data-testid="logs-sheet"]')
+    );
+    await expect(sheet).toBeVisible({ timeout: 10_000 });
+  }
+
+  async expectLogsSheetClosed() {
+    const sheet = this.page.locator('[role="dialog"]').or(
+      this.page.locator('[data-testid="logs-sheet"]')
+    );
+    await expect(sheet).not.toBeVisible({ timeout: 5_000 });
+  }
+
+  async closeLogsSheet() {
+    // Look for close button (X icon)
+    const closeButton = this.page.locator('[role="dialog"]').getByRole('button', { name: /close/i }).or(
+      this.page.locator('button[aria-label="Close"]')
+    );
+    await closeButton.click();
+  }
+
+  async expectLogsSheetTitle(containerName: string) {
+    const sheet = this.page.locator('[role="dialog"]');
+    await expect(sheet.getByText(containerName)).toBeVisible({ timeout: 5_000 });
+  }
+
+  async expectNoLogsMessage() {
+    await expect(this.page.getByText(/no logs found/i)).toBeVisible({ timeout: 10_000 });
+  }
+
+  async expectLogsViewerVisible() {
+    // Look for the logs viewer container
+    const logsViewer = this.page.locator('[data-testid="logs-viewer"]').or(
+      this.page.getByText(/logs:/i).locator('..')
+    );
+    await expect(logsViewer).toBeVisible({ timeout: 5_000 });
+  }
+
+  async expectRefreshButtonVisible() {
+  const refreshButton = this.page.locator('[role="dialog"] .lucide-refresh-cw');
+  await expect(refreshButton).toBeVisible({ timeout: 5_000 });
+}
+
+  async clickRefreshLogs() {
+  const refreshButton = this.page.locator('[role="dialog"]').getByRole('button').last();
+  await refreshButton.click();
+}
+
+  async expectRefreshButtonLoading() {
+  const refreshIcon = this.page.locator('[role="dialog"] .lucide-refresh-cw');
+  await expect(refreshIcon).toHaveClass(/animate-spin/, { timeout: 2_000 });
+}
+
+  async expectLogsSheetAnimatesFromRight() {
+    const sheet = this.page.locator('[role="dialog"]');
+    await expect(sheet).toBeVisible({ timeout: 5_000 });
+    
+    // Verify sheet has right-side positioning
+    const box = await sheet.boundingBox();
+    if (box) {
+      const viewportSize = this.page.viewportSize();
+      if (viewportSize) {
+        // Sheet should be on the right side of the viewport
+        expect(box.x).toBeGreaterThan(viewportSize.width / 2);
+      }
+    }
+  }
+
+  async expectLogsContent(expectedLogLines: string[]) {
+    const logsContainer = this.page.locator('[role="dialog"]').locator('.font-mono');
+    
+    for (const logLine of expectedLogLines) {
+      await expect(logsContainer.getByText(logLine, { exact: false })).toBeVisible();
+    }
+  }
+
+  async expectLogTimestampsVisible() {
+    const logsContainer = this.page.locator('[role="dialog"]').locator('.font-mono');
+    const timestamps = logsContainer.locator('span').filter({ hasText: /\d{1,2}:\d{2}:\d{2}/ });
+    await expect(timestamps.first()).toBeVisible({ timeout: 5_000 });
+  }
+
+  async expectErrorCount(count: number) {
+    const sheet = this.page.locator('[role="dialog"]');
+    await expect(sheet.getByText(`${count} error`, { exact: false })).toBeVisible();
+  }
+
+  async expectWarningCount(count: number) {
+    const sheet = this.page.locator('[role="dialog"]');
+    await expect(sheet.getByText(`${count} warning`, { exact: false })).toBeVisible();
+  }
+
 }
