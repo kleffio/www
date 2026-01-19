@@ -1,24 +1,22 @@
-
-
-CREATE TABLE if NOT EXISTS reserved_allocations (
+CREATE TABLE IF NOT EXISTS reserved_allocations (
         allocation_id UUID PRIMARY KEY,
         user_id UUID,
         workspace_id UUID,
         project_id UUID,
-        cpu_cores Double,
-        memory_gb Double,
-        storage_gb Double,
-        container_limit int,
-        monthly_price Double,
-        start_date Date,
-        end_date Date
+        cpu_cores DOUBLE PRECISION,
+        memory_gb DOUBLE PRECISION,
+        storage_gb DOUBLE PRECISION,
+        container_limit INT,
+        monthly_price DOUBLE PRECISION,
+        start_date DATE,
+        end_date DATE
 );
 
-CREATE TABLE if NOT EXISTS invoices (
+CREATE TABLE IF NOT EXISTS invoices (
     invoice_id UUID PRIMARY KEY,
     workspace_id UUID,
-    start_date Date,
-    end_date Date,
+    start_date DATE,
+    end_date DATE,
     status VARCHAR(20),
     total_cpu DECIMAL(19,2),
     total_ram DECIMAL(19,2),
@@ -29,10 +27,10 @@ CREATE TABLE if NOT EXISTS invoices (
     total_paid DECIMAL(19,2)
     );
 
-CREATE TABLE if NOT EXISTS prices(
+CREATE TABLE IF NOT EXISTS prices(
     metric VARCHAR(20) PRIMARY KEY,
-    price Double
-    );
+    price DOUBLE PRECISION
+);
 
 -- Initialize pricing for resources
 INSERT INTO prices (metric, price) VALUES ('CPU_HOURS', 0.10)
