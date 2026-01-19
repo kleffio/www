@@ -3,6 +3,14 @@ import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Button } from "@shared/ui/Button";
 import { X, Plus, Trash2, Save } from "lucide-react";
 import type { Container } from "@features/projects/types/Container";
+import enTranslations from "@app/locales/en/projects.json";
+import frTranslations from "@app/locales/fr/projects.json";
+import { getLocale } from "@app/locales/locale";
+
+const translations = {
+  en: enTranslations,
+  fr: frTranslations
+};
 
 interface EditEnvVariablesModalProps {
   isOpen: boolean;
@@ -16,6 +24,18 @@ export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: Ed
   const [envVariables, setEnvVariables] = useState<Array<{ key: string; value: string }>>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [locale, setLocale] = useState(getLocale());
+  const t = translations[locale].editEnvModal;
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLocale = getLocale();
+      if (currentLocale !== locale) {
+        setLocale(currentLocale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [locale]);
 
   useEffect(() => {
     if (container && isOpen) {
@@ -57,7 +77,7 @@ export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: Ed
       onClose();
     } catch (err) {
       console.error(err);
-      setError("Failed to update environment variables. Please try again.");
+      setError(t.failed_update);
     } finally {
       setIsSubmitting(false);
     }
@@ -96,9 +116,9 @@ export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: Ed
         <SoftPanel className="border border-white/10 bg-black/70 shadow-2xl shadow-black/60 flex flex-col max-h-full">
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-neutral-50">Edit Environment Variables</h2>
+              <h2 className="text-lg font-semibold text-neutral-50">{t.title}</h2>
               <p className="mt-1 text-xs text-neutral-400">
-                Manage environment variables for <span className="font-mono text-neutral-300">{container.name}</span>
+                {t.subtitle} <span className="font-mono text-neutral-300">{container.name}</span>
               </p>
             </div>
             <button
@@ -122,7 +142,7 @@ export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: Ed
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <label className="block text-xs font-medium tracking-wide text-neutral-300 uppercase">
-                    Environment Variables
+                    {t.environment_variables}
                   </label>
                   <Button
                     type="button"
@@ -132,14 +152,14 @@ export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: Ed
                     className="text-xs rounded-full px-3 py-1.5"
                   >
                     <Plus className="mr-1 h-3 w-3" />
-                    Add Variable
+                    {t.add_variable}
                   </Button>
                 </div>
 
                 {envVariables.length === 0 && (
                   <div className="rounded-lg border border-white/5 bg-white/5 p-6 text-center">
-                    <p className="text-sm text-neutral-400">No environment variables configured</p>
-                    <p className="mt-1 text-xs text-neutral-500">Click "Add Variable" to create one</p>
+                    <p className="text-sm text-neutral-400">{t.no_env_vars}</p>
+                    <p className="mt-1 text-xs text-neutral-500">{t.no_env_vars_hint}</p>
                   </div>
                 )}
 
@@ -150,14 +170,14 @@ export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: Ed
                   >
                     <input
                       type="text"
-                      placeholder="KEY"
+                      placeholder={t.key}
                       value={envVar.key}
                       onChange={(e) => handleUpdateKey(index, e.target.value)}
                       className={inputBase}
                     />
                     <input
                       type="text"
-                      placeholder="value"
+                      placeholder={t.value}
                       value={envVar.value}
                       onChange={(e) => handleUpdateValue(index, e.target.value)}
                       className={inputBase}
@@ -185,7 +205,7 @@ export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: Ed
                 disabled={isSubmitting}
                 className="rounded-full px-4 py-2 text-sm"
               >
-                Cancel
+                {t.cancel}
               </Button>
               <Button
                 type="submit"
@@ -194,11 +214,11 @@ export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: Ed
                 className="bg-gradient-kleff rounded-full px-5 py-2 text-sm font-semibold text-black shadow-md shadow-black/40 hover:brightness-110 disabled:opacity-50"
               >
                 {isSubmitting ? (
-                  <>Saving...</>
+                  <>{t.saving}</>
                 ) : (
                   <>
                     <Save className="mr-1.5 h-4 w-4" />
-                    Save Changes
+                    {t.save_button}
                   </>
                 )}
               </Button>

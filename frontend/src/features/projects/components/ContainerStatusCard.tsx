@@ -3,6 +3,15 @@ import { Button } from "@shared/ui/Button";
 import { Badge } from "@shared/ui/Badge";
 import { Box, ExternalLink, FileText } from "lucide-react";
 import type { Container } from "@features/projects/types/Container";
+import { SecureComponent } from "@app/components/SecureComponent";
+import enTranslations from "@app/locales/en/projects.json";
+import frTranslations from "@app/locales/fr/projects.json";
+import { getLocale } from "@app/locales/locale";
+
+const translations = {
+  en: enTranslations,
+  fr: frTranslations
+};
 
 interface ContainerStatusCardProps {
   container: Container;
@@ -12,6 +21,18 @@ interface ContainerStatusCardProps {
 
 export function ContainerStatusCard({ container, onManage, onViewLogs }: ContainerStatusCardProps) {
   const appUrl = `https://app-${container.containerId}.kleff.io`;
+  const [locale, setLocale] = React.useState(getLocale());
+  const t = translations[locale].projectDetail.containerDetail;
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLocale = getLocale();
+      if (currentLocale !== locale) {
+        setLocale(currentLocale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [locale]);
 
   const handleVisitApp = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -44,24 +65,26 @@ export function ContainerStatusCard({ container, onManage, onViewLogs }: Contain
         }
         className="text-xs justify-self-center"
       >
-        {container.status || "Unknown"}
+        {container.status || t.unknown}
       </Badge>
 
       {/* Right side: Actions */}
       <div className="flex items-center gap-2 justify-end">
         {onViewLogs && (
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={(e) => {
-              e.stopPropagation();
-              onViewLogs(container);
-            }}
-            className="h-8 px-3 text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
-          >
-            <FileText className="mr-1 h-3 w-3" />
-            View Logs
-          </Button>
+          <SecureComponent requiredPermission="VIEW_LOGS">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={(e) => {
+                e.stopPropagation();
+                onViewLogs(container);
+              }}
+              className="h-8 px-3 text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
+            >
+              <FileText className="mr-1 h-3 w-3" />
+              {t.view_logs}
+            </Button>
+          </SecureComponent>
         )}
         <Button
           size="sm"
@@ -70,7 +93,7 @@ export function ContainerStatusCard({ container, onManage, onViewLogs }: Contain
           className="h-8 px-3 text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
         >
           <ExternalLink className="mr-1 h-3 w-3" />
-          Visit App
+          {t.visit_app}
         </Button>
       </div>
     </button>

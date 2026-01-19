@@ -5,6 +5,14 @@ import { X, Plus, Trash2 } from "lucide-react";
 import updateContainer from "@features/projects/api/updateContainer";
 import type { Container } from "@features/projects/types/Container";
 import createContainer from "@features/projects/api/createContainer";
+import enTranslations from "@app/locales/en/projects.json";
+import frTranslations from "@app/locales/fr/projects.json";
+import { getLocale } from "@app/locales/locale";
+
+const translations = {
+  en: enTranslations,
+  fr: frTranslations
+};
 
 
 interface ContainerModalProps {
@@ -23,8 +31,20 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
   const [envVariables, setEnvVariables] = useState<Array<{ key: string; value: string }>>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [locale, setLocale] = useState(getLocale());
+  const t = translations[locale].containerModal;
 
   const isEditMode = !!container;
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentLocale = getLocale();
+      if (currentLocale !== locale) {
+        setLocale(currentLocale);
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, [locale]);
 
   // Initialize fields if in edit mode
   useEffect(() => {
@@ -55,13 +75,13 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!name.trim()) {
-      setError("Container name is required.");
+      setError(t.container_name_required);
       return;
     }
 
     const portNum = parseInt(port);
     if (isNaN(portNum) || portNum <= 0) {
-      setError("Port must be a positive number.");
+      setError(t.port_required);
       return;
     }
 
@@ -92,7 +112,7 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
       onSuccess?.();
       onClose();
     } catch (err) {
-      setError("Failed to save container.");
+      setError(t.failed_save);
     } finally {
       setIsSubmitting(false);
     }
@@ -113,10 +133,10 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold text-neutral-50">
-                {isEditMode ? "Update container" : "Create container"}
+                {isEditMode ? t.update_title : t.create_title}
               </h2>
               <p className="mt-1 text-xs text-neutral-400">
-                {isEditMode ? "Update the container details for this project." : "Define the container details for this project."}
+                {isEditMode ? t.update_subtitle : t.create_subtitle}
               </p>
             </div>
 
@@ -141,7 +161,7 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
                 htmlFor="container-name"
                 className="block text-xs font-medium tracking-wide text-neutral-300 uppercase"
               >
-                Container name <span className="text-red-400">*</span>
+                {t.container_name} <span className="text-red-400">*</span>
               </label>
               <input
                 id="container-name"
@@ -159,7 +179,7 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
                 htmlFor="container-port"
                 className="block text-xs font-medium tracking-wide text-neutral-300 uppercase"
               >
-                Port <span className="text-red-400">*</span>
+                {t.port} <span className="text-red-400">*</span>
               </label>
               <input
                 id="container-port"
@@ -177,7 +197,7 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
                 htmlFor="container-repo-url"
                 className="block text-xs font-medium tracking-wide text-neutral-300 uppercase"
               >
-                Repository URL
+                {t.repository_url}
               </label>
               <input
                 id="container-repo-url"
@@ -195,7 +215,7 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
                 htmlFor="container-branch"
                 className="block text-xs font-medium tracking-wide text-neutral-300 uppercase"
               >
-                Branch
+                {t.branch}
               </label>
               <input
                 id="container-branch"
@@ -212,7 +232,7 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
             <div className="space-y-2 pt-2">
               <div className="flex items-center justify-between">
                 <label className="block text-xs font-medium tracking-wide text-neutral-300 uppercase">
-                  Environment Variables
+                  {t.environment_variables}
                 </label>
                 <Button
                   type="button"
@@ -222,11 +242,11 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
                   className="border-white/20 bg-white/5 text-xs text-neutral-200 hover:border-white/40 hover:bg-white/10"
                 >
                   <Plus className="mr-1 h-3 w-3" />
-                  Add Variable
+                  {t.add_variable}
                 </Button>
               </div>
               {envVariables.length === 0 && (
-                <p className="text-xs text-neutral-500 italic">No environment variables added yet</p>
+                <p className="text-xs text-neutral-500 italic">{t.no_env_vars}</p>
               )}
               {envVariables.map((envVar, index) => (
                 <div key={index} className="flex gap-2 items-start">
@@ -239,7 +259,7 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
                       setEnvVariables(updated);
                     }}
                     className={`${inputBase} flex-1`}
-                    placeholder="KEY"
+                    placeholder={t.key}
                   />
                   <input
                     type="text"
@@ -250,7 +270,7 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
                       setEnvVariables(updated);
                     }}
                     className={`${inputBase} flex-1`}
-                    placeholder="value"
+                    placeholder={t.value}
                   />
                   <Button
                     type="button"
@@ -275,14 +295,14 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
                 onClick={onClose}
                 className="border-white/20 bg-white/5 text-xs font-medium text-neutral-200 hover:border-white/40 hover:bg-white/10"
               >
-                Cancel
+                {t.cancel}
               </Button>
               <Button
                 type="submit"
                 disabled={isSubmitting}
                 className="bg-gradient-kleff rounded-full px-5 py-2 text-xs font-semibold text-black shadow-md shadow-black/40 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isSubmitting ? (isEditMode ? "Updating…" : "Creating…") : (isEditMode ? "Update container" : "Create container")}
+                {isSubmitting ? (isEditMode ? t.updating : t.creating) : (isEditMode ? t.update_button : t.create_button)}
               </Button>
             </div>
           </form>
