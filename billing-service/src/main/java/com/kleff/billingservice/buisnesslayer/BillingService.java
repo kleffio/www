@@ -16,6 +16,7 @@ public interface BillingService {
     public void payInvoice(String invoiceId);
     public void createReservedAllocation(ReservedAllocation reservedAllocation);
     public List<Invoice> getInvoicesForAProject(String projectId);
+    public Invoice getInvoiceById(String invoiceId);
     public Price getPrice(String itemId);
     public void setPrice(Price price);
     public long computeOutstandingCents(String invoiceId);

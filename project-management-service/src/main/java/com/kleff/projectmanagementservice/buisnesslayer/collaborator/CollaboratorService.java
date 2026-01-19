@@ -14,4 +14,6 @@ public interface CollaboratorService {
     List<CollaboratorResponseModel> getProjectCollaborators(String projectId);
 
     void removeCollaborator(String projectId, String userId);
+    
+    List<String> getUserPermissions(String projectId, String userId);
 }

@@ -52,4 +52,13 @@ public class CollaboratorController {
         collaboratorService.removeCollaborator(projectId, userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @GetMapping("/collaborators/{projectId}/user/{userId}/permissions")
+    public ResponseEntity<List<String>> getUserPermissions(
+            @PathVariable String projectId,
+            @PathVariable String userId,
+            @AuthenticationPrincipal Jwt jwt) {
+        List<String> permissions = collaboratorService.getUserPermissions(projectId, userId);
+        return ResponseEntity.ok(permissions);
+    }
 }

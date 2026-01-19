@@ -56,9 +56,10 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       STRIPE_API_KEY: ${STRIPE_API_KEY}
       FRONTEND_URL: ${FRONTEND_URL}
-      VITE_BACKEND_URL: ${VITE_BACKEND_URL}
+      VITE_BACKEND_URL: http://project-management-service:8080
     depends_on:
       - billing-db
+      - project-management-service
 
   billing-db:
     image: postgres:16

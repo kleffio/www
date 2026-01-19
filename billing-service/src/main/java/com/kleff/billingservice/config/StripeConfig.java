@@ -8,14 +8,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class StripeConfig {
 
-    @Value("${stripe.api.key}")
+    @Value("${stripe.api.key:}")
     private String apiKey;
 
     @PostConstruct
     public void init() {
-        if (apiKey == null || apiKey.isEmpty()) {
-            throw new IllegalStateException("Stripe API key not configured");
+        if (apiKey != null && !apiKey.isEmpty()) {
+            Stripe.apiKey = apiKey;
         }
-        Stripe.apiKey = apiKey;
     }
 }

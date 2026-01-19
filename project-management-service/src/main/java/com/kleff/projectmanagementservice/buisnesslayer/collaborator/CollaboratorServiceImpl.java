@@ -1,7 +1,9 @@
 package com.kleff.projectmanagementservice.buisnesslayer.collaborator;
 
 import com.kleff.projectmanagementservice.datalayer.collaborator.Collaborator;
+import com.kleff.projectmanagementservice.datalayer.collaborator.CollaboratorRole;
 import com.kleff.projectmanagementservice.datalayer.collaborator.CollaboratorStatus;
+import com.kleff.projectmanagementservice.datalayer.collaborator.ProjectPermission;
 import com.kleff.projectmanagementservice.datalayer.collaborator.collaboratorRepository;
 import com.kleff.projectmanagementservice.datalayer.customrole.CustomRole;
 import com.kleff.projectmanagementservice.datalayer.customrole.CustomRoleRepository;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -75,5 +78,69 @@ public class CollaboratorServiceImpl implements CollaboratorService {
     public void removeCollaborator(String projectId, String userId) {
         collaboratorRepo.findByProjectIdAndUserId(projectId, userId)
                 .ifPresent(collaboratorRepo::delete);
+    }
+
+    @Override
+    public List<String> getUserPermissions(String projectId, String userId) {
+        return collaboratorRepo.findByProjectIdAndUserId(projectId, userId)
+                .map(collaborator -> {
+                    Set<ProjectPermission> permissions = collaborator.getPermissions();
+                    
+                    // If no explicit permissions, use role-based permissions
+                    if (permissions == null || permissions.isEmpty()) {
+                        // Check for custom role first
+                        if (collaborator.getCustomRoleId() != null) {
+                            return customRoleRepo.findById(collaborator.getCustomRoleId())
+                                    .map(customRole -> customRole.getPermissions().stream()
+                                            .map(Enum::name)
+                                            .toList())
+                                    .orElse(getRoleBasedPermissions(collaborator.getRole()));
+                        }
+                        // Fall back to role-based permissions
+                        return getRoleBasedPermissions(collaborator.getRole());
+                    }
+                    
+                    return permissions.stream()
+                            .map(Enum::name)
+                            .toList();
+                })
+                .orElse(List.<String>of());
+    }
+    
+    private List<String> getRoleBasedPermissions(CollaboratorRole role) {
+        return switch (role) {
+            case OWNER -> List.of(
+                "READ_PROJECT",
+                "WRITE_PROJECT",
+                "DEPLOY",
+                "MANAGE_ENV_VARS",
+                "VIEW_LOGS",
+                "VIEW_METRICS",
+                "MANAGE_COLLABORATORS",
+                "DELETE_PROJECT",
+                "MANAGE_BILLING"
+            );
+            case ADMIN -> List.of(
+                "READ_PROJECT",
+                "WRITE_PROJECT",
+                "DEPLOY",
+                "MANAGE_ENV_VARS",
+                "VIEW_LOGS",
+                "VIEW_METRICS",
+                "MANAGE_COLLABORATORS"
+            );
+            case DEVELOPER -> List.of(
+                "READ_PROJECT",
+                "WRITE_PROJECT",
+                "DEPLOY",
+                "VIEW_LOGS",
+                "VIEW_METRICS"
+            );
+            case VIEWER -> List.of(
+                "READ_PROJECT",
+                "VIEW_LOGS",
+                "VIEW_METRICS"
+            );
+        };
     }
 }

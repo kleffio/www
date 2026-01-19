@@ -25,6 +25,7 @@ import InvoiceTable from "@features/billing/components/InvoiceTable";
 import ProjectMetricsCard from "@features/observability/components/ProjectMetricsCard";
 import { usePermissions } from "@features/projects/hooks/usePermissions";
 import { TeamModal } from "@features/projects/components/TeamModal";
+import { SecureComponent } from "@app/components/SecureComponent";
 
 const translations = {
   en: enTranslations,
@@ -41,7 +42,7 @@ export function ProjectDetailPage() {
     reload
   } = useProjectContainers(projectId || "");
   
-  const { role, canDeploy } = usePermissions(projectId);
+  const { role } = usePermissions(projectId);
 
   // State for the Unified Container Modal (Create/Edit)
   const [isContainerModalOpen, setIsContainerModalOpen] = useState(false);
@@ -159,7 +160,7 @@ export function ProjectDetailPage() {
               {t.team}
             </Button>
 
-            {canDeploy && (
+            <SecureComponent requiredPermission="DEPLOY">
               <Button
                 size="lg"
                 onClick={handleCreateNew}
@@ -167,7 +168,7 @@ export function ProjectDetailPage() {
               >
                 {t.create_container}
               </Button>
-            )}
+            </SecureComponent>
           </div>
         </header>
 
@@ -217,9 +218,11 @@ export function ProjectDetailPage() {
           </div>
         </SoftPanel>
 
-        <ProjectMetricsCard
-          projectId={project.projectId}
-        />
+        <SecureComponent requiredPermission="VIEW_METRICS">
+          <ProjectMetricsCard
+            projectId={project.projectId}
+          />
+        </SecureComponent>
 
         <SoftPanel>
           <div className="mb-6 flex items-center gap-3">
@@ -255,9 +258,11 @@ export function ProjectDetailPage() {
           )}
         </SoftPanel>
 
-        <div className="space-y-6">
-          <InvoiceTable projectId={project.projectId} />
-        </div>
+        <SecureComponent requiredPermission="MANAGE_BILLING">
+          <div className="space-y-6">
+            <InvoiceTable projectId={project.projectId} />
+          </div>
+        </SecureComponent>
       </div>
 
    
