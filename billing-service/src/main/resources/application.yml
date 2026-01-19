@@ -1,3 +1,9 @@
 ---
-spring.jpa.defer-datasource-initialization=true
-spring.sql.init.mode=always
+vite:
+  backend:
+    url: ${VITE_BACKEND_URL}
+stripe:
+  api:
+    key: ${STRIPE_API_KEY}
+frontend:
+  url: ${FRONTEND_URL}

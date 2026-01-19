@@ -20,6 +20,9 @@ repositories {
 }
 
 dependencies {
+
+
+
     //Security dependencies
     implementation 'org.springframework.boot:spring-boot-starter-web'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -44,6 +47,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-webflux' // WebClient only; no reactive server activated unless you add controllers
 
+    // For stripe payments
+    implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+    implementation "com.stripe:stripe-java:31.0.0"
     // ---- Test dependencies ----
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

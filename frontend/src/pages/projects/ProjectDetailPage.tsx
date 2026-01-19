@@ -211,9 +211,21 @@ export function ProjectDetailPage() {
         </SoftPanel>
 
         <div className="space-y-6">
-          <InvoiceTable projectId={projectId || ""} />
+          <InvoiceTable projectId={project.projectId} />
         </div>
       </div>
+
+   
+      <div className="p-0">
+        <BillingModal
+          isOpen={isBillingModalOpen}
+          onClose={() => setIsBillingModalOpen(false)}
+          projectId={projectId || ""}
+         
+        />
+      </div>
+  
+          <InvoiceTable projectId={projectId || ""} />
 
       {/* Container Modal - Handles both Create and Edit */}
       <ContainerModal

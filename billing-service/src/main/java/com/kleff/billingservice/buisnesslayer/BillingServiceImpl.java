@@ -5,71 +5,59 @@ import com.kleff.billingservice.datalayer.Allocation.ReservedAllocationRepositor
 import com.kleff.billingservice.datalayer.Invoice.Invoice;
 import com.kleff.billingservice.datalayer.Invoice.InvoiceRepository;
 import com.kleff.billingservice.datalayer.Invoice.InvoiceStatus;
+import com.kleff.billingservice.datalayer.Pricing.Price;
+import com.kleff.billingservice.datalayer.Pricing.PriceRepository;
 import com.kleff.billingservice.datalayer.Record.*;
-import org.springframework.data.crossstore.ChangeSetPersister;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
+import lombok.extern.slf4j.Slf4j;
+import java.math.BigDecimal;
+import java.time.YearMonth;
 import java.util.List;
-
+@Slf4j
 @Service
 public class BillingServiceImpl implements BillingService {
 
+    //Initialisation
+    private ApiService apiService;
     private ReservedAllocationRepository reservedAllocationRepository;
-    private InvoiceItemRepository invoiceItemRepository;
     private InvoiceRepository invoiceRepository;
     private UsageRecordRepository usageRecordRepository;
-    private Double taxes = 0.15;
-    private Double cpu_hour_rate = 2.0;
-    private Double ram_hour_rate = 2.0;
-    private Double storage_hour_rate = 2.0;
+    private PriceRepository priceRepository;
+    private double taxes = 0.114975;
+
     public BillingServiceImpl(
             ReservedAllocationRepository reservedAllocationRepository,
-            InvoiceItemRepository invoiceItemRepository,
             InvoiceRepository invoiceRepository,
-            UsageRecordRepository usageRecordRepository
+            UsageRecordRepository usageRecordRepository,
+            PriceRepository priceRepository,
+            ApiService apiService
     ) {
         this.reservedAllocationRepository = reservedAllocationRepository;
-        this.invoiceItemRepository = invoiceItemRepository;
         this.invoiceRepository = invoiceRepository;
         this.usageRecordRepository = usageRecordRepository;
-    }
-    @Override
-    public void createInvoiceItem(UsageRecord records) {
-    InvoiceItem invoiceItem = new InvoiceItem();
-    invoiceItem.setMetric(records.getMetric());
-    invoiceItem.setQuantity(records.getQuantity());
-    switch (records.getMetric()) {
-        case CPU_HOURS -> invoiceItem.setUnitPrice(cpu_hour_rate);
-        case MEMORY_GB_HOURS -> invoiceItem.setUnitPrice(ram_hour_rate);
-        case STORAGE_GB -> invoiceItem.setUnitPrice(storage_hour_rate);
-    }
-    invoiceItem.setAmount((records.getQuantity() * invoiceItem.getUnitPrice()));
+        this.priceRepository = priceRepository;
+        this.apiService = apiService;
     }
 
-    @Override
-    public List<InvoiceItem> getInvoiceItemsForProject(String projectId) {
-        return invoiceItemRepository.findByProjectId(projectId);
-    }
+    //All the invoice logic
+
 
     @Override
-    public Invoice createInvoice(List<InvoiceItem> items) {
-        Invoice  invoice = aggregateInvoiceItems(items);
+    public Invoice createInvoice(Invoice invoice) {
+        invoice.setTotalPaid(BigDecimal.valueOf(0));
         return invoiceRepository.save(invoice);
     }
 
-    @Override
-    public InvoiceItem getInvoiceItem(String invoiceId) {
-        return invoiceItemRepository.findById(invoiceId).orElse(null);
-    }
 
-    @Override
-    public List<InvoiceItem> getInvoiceItemsForAProject(String projectId) {
-        return invoiceItemRepository.findByProjectId(projectId);
-    }
+
+    //Usage record logic
 
     @Override
     public void createUsageRecord(UsageRecord records) {
-    usageRecordRepository.save(records);
+        usageRecordRepository.save(records);
     }
 
     @Override
@@ -79,20 +67,19 @@ public class BillingServiceImpl implements BillingService {
 
     @Override
     public void payInvoice(String invoiceId) {
-    try {
-        Invoice bill = invoiceRepository.findByInvoiceId(invoiceId);
-        bill.setStatus(InvoiceStatus.PAID);
-        invoiceRepository.save(bill);
-    }
-    catch (Exception e){
-        throw new RuntimeException("Payment registry failed");
-    }
+        try {
+            Invoice bill = invoiceRepository.findByInvoiceId(invoiceId);
+            bill.setStatus(InvoiceStatus.PAID);
+            invoiceRepository.save(bill);
+        } catch (Exception e) {
+            throw new RuntimeException("Payment registry failed");
+        }
     }
 
 
     @Override
     public void createReservedAllocation(ReservedAllocation reservedAllocation) {
-    reservedAllocationRepository.save(reservedAllocation);
+        reservedAllocationRepository.save(reservedAllocation);
     }
 
     @Override
@@ -100,17 +87,123 @@ public class BillingServiceImpl implements BillingService {
         return invoiceRepository.findByProjectId(projectId);
     }
 
-    public Invoice aggregateInvoiceItems(List<InvoiceItem> invoiceItems) {
-        Invoice invoice = new Invoice();
-        Double total = 0.0;
-        for (InvoiceItem item : invoiceItems) {
-            total += item.getAmount();
+
+    // Validation for payment
+    public long computeOutstandingCents(String invoiceId) {
+
+        // 1. Find the invoice
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new EntityNotFoundException("Invoice not found: " + invoiceId));
+
+
+//        if (!project.getOwnerUsername().equals(username)) {
+//            throw new UnauthorizedException("You don't have permission to pay this invoice");
+//        }
+
+        // 3. Verify invoice is payable
+        if (invoice.getStatus() == InvoiceStatus.PAID) {
+            throw new IllegalArgumentException("Invoice is already paid");
         }
-        invoice.setSubtotal(total);
-        Double taxAmmount = total * taxes;
-        invoice.setTaxes(taxAmmount);
-        invoice.setTotal(total+taxAmmount);
+
+        if (invoice.getStatus() == InvoiceStatus.VOID) {
+            throw new IllegalArgumentException("Invoice is cancelled");
+        }
+
+        // 4. Calculate outstanding amount (in cents for Stripe)
+        long totalCents = invoice.getTotal().multiply(BigDecimal.valueOf(100)).longValue();
+        long paidCents;
+        if (invoice.getTotalPaid() == null){
+            paidCents = 0;
+        }
+        else {
+            paidCents = invoice.getTotalPaid().multiply(BigDecimal.valueOf(100)).longValue();
+        }
+        long outstandingCents = totalCents - paidCents;
+            if (outstandingCents <= 0) {
+                throw new IllegalArgumentException("No outstanding balance on this invoice");
+            }
+
+            // 5. Optional: Check for minimum amount
+            if (outstandingCents < 50) { // Stripe minimum is $0.50
+                throw new IllegalArgumentException("Amount too small for payment processing");
+            }
+
+        return outstandingCents;
+    }
+
+
+    //Bellow is where the price endpoints will be
+
+    public Price getPrice(String itemId) {
+        return priceRepository.findById(itemId).orElse(null);
+    }
+
+    // THIS ENDPOINT SHOULD ALWAYS BE RESTRICTED
+    public void setPrice(Price price) {
+        Price price1 = priceRepository.findByMetric(price.getMetric());
+        price1.setPrice(price.getPrice());
+        priceRepository.save(price1);
+    }
+
+
+    public Invoice getLastsMonthUsageRecordsAverage(String projectId, int days) {
+        UsageMonth usage = apiService.usageRecordForLastMonth(projectId, days);
+
+        Invoice invoice = new Invoice();
+        BigDecimal CPU = BigDecimal.valueOf(usage.getCpuRequestCores());
+        BigDecimal MEMORY = BigDecimal.valueOf(usage.getMemoryUsageGB());
+        BigDecimal STORAGE = BigDecimal.valueOf(0);
+        invoice.setTotalPaid(BigDecimal.valueOf(0));
+        
+        // Fetch prices with null safety checks
+        Price cpuPrice = getPrice("CPU_HOURS");
+        Price memoryPrice = getPrice("MEMORY_GB_HOURS");
+        Price storagePrice = getPrice("STORAGE_GB");
+        
+        if (cpuPrice == null || memoryPrice == null || storagePrice == null) {
+            throw new EntityNotFoundException("One or more price records not found");
+        }
+        
+        BigDecimal cpuPriceValue = BigDecimal.valueOf(cpuPrice.getPrice());
+        BigDecimal memoryPriceValue = BigDecimal.valueOf(memoryPrice.getPrice());
+        BigDecimal storagePriceValue = BigDecimal.valueOf(storagePrice.getPrice());
+        
+        invoice.setTotalCPU(CPU.multiply(cpuPriceValue));
+        invoice.setTotalRAM(MEMORY.multiply(memoryPriceValue));
+        invoice.setTotalSTORAGE(STORAGE.multiply(storagePriceValue));
+        
+        BigDecimal subtotal = invoice.getTotalCPU().add(invoice.getTotalRAM()).add(invoice.getTotalSTORAGE());
+        invoice.setSubtotal(subtotal);
+        
+        BigDecimal taxAmount = subtotal.multiply(BigDecimal.valueOf(taxes));
+        invoice.setTaxes(taxAmount);
+        
+        BigDecimal total = subtotal.add(taxAmount).setScale(2, BigDecimal.ROUND_HALF_UP);
+        invoice.setTotal(total);
         return invoice;
     }
 
+
+
+
+    @Scheduled(cron = "0 0 3 1 * ?")
+    @Transactional
+    public void CreateMonthlyBills(){
+        YearMonth previousMonth = YearMonth.now().minusMonths(1);
+        int daysInPreviousMonth = previousMonth.lengthOfMonth();
+        List<String> listOfProjectIds = apiService.getListOfProjectIds();
+
+        for(String projectId : listOfProjectIds){
+            try {
+                invoiceRepository.save(getLastsMonthUsageRecordsAverage(projectId, daysInPreviousMonth));
+            } catch (Exception e) {
+                log.info("Failed to create invoice for project: " + projectId, e);
+                // Continue with other projects
+            }
+        }
+    }
 }
+
+
+
+

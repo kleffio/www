@@ -12,6 +12,7 @@ public interface ProjectService {
     Project createProject(Project project);
     Project updateProject(String projectId, Project updatedProject);
     Project deleteProject(String projectId);
+    List<String> getAllProjectIds();
 
 
 }
