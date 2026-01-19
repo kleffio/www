@@ -115,7 +115,7 @@ export const NodesList: React.FC<Props> = ({ nodes, loading }) => {
                   <div className="relative flex h-6 items-center rounded bg-black/50 px-2">
                     <div
                       className="absolute top-0 left-0 h-full rounded bg-gradient-to-r from-orange-400 via-amber-500 to-yellow-400 transition-all duration-300"
-                      style={{ width: `${node.cpuUsagePercent}%` }}
+                      style={{ width: `${Math.min(node.cpuUsagePercent, 100)}%` }}
                     ></div>
                     <span className="relative z-10 text-xs font-semibold text-white">
                       {node.cpuUsagePercent?.toFixed(1) ?? "0.0"}%
@@ -128,7 +128,7 @@ export const NodesList: React.FC<Props> = ({ nodes, loading }) => {
                   <div className="relative flex h-6 items-center rounded bg-black/50 px-2">
                     <div
                       className="absolute top-0 left-0 h-full rounded bg-gradient-to-r from-emerald-500 to-green-600 transition-all duration-300"
-                      style={{ width: `${node.memoryUsagePercent}%` }}
+                      style={{ width: `${Math.min(node.memoryUsagePercent, 100)}%` }}
                     ></div>
                     <span className="relative z-10 text-xs font-semibold text-white">
                       {node.memoryUsagePercent?.toFixed(1) ?? "0.0"}%
