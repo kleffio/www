@@ -269,7 +269,6 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
         onClick={(e) => e.stopPropagation()}
       >
         <div className="relative bg-neutral-900 rounded-2xl border border-white/10 shadow-2xl max-h-[85vh] flex flex-col">
-          {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-white/10">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-full bg-blue-500/10">
@@ -303,7 +302,6 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
             </div>
           </div>
 
-          {/* Content */}
           <div className="overflow-y-auto p-6 space-y-6">
             {success && (
               <div className="rounded-md bg-green-500/10 border border-green-500/20 p-3 text-sm text-green-400">
@@ -317,7 +315,6 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
               </div>
             )}
 
-            {/* Team Members Section */}
             <div>
               <h3 className="text-md font-semibold text-neutral-50 mb-3">{t.team_members}</h3>
               <div className="rounded-lg border border-white/10 overflow-hidden">
@@ -440,7 +437,6 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
               </div>
             </div>
 
-            {/* Pending Invitations Section - Only for Admins/Owners */}
             {canViewInvitations && (
               <div>
                 <h3 className="text-md font-semibold text-neutral-50 mb-3 flex items-center gap-2">
@@ -512,7 +508,6 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
         </div>
       </div>
 
-      {/* Invite Modal */}
       {isInviteModalOpen && createPortal(
         <div 
           className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
@@ -611,7 +606,6 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
                   </div>
                 </div>
 
-                {/* Display Selected Role Permissions */}
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-neutral-200 flex items-center gap-2">
                     <Lock className="h-3 w-3" />
@@ -658,7 +652,6 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
         document.body
       )}
 
-      {/* Create Custom Role Modal */}
       {isCreateRoleModalOpen && createPortal(
         <div 
           className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"

@@ -55,11 +55,9 @@ export function ProjectDetailPage() {
   
   const { role } = usePermissions(projectId);
 
-  // State for the Unified Container Modal (Create/Edit)
   const [isContainerModalOpen, setIsContainerModalOpen] = useState(false);
   const [selectedContainerForEdit, setSelectedContainerForEdit] = useState<Container | null>(null);
 
-  // State for other modals
   const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -88,17 +86,11 @@ export function ProjectDetailPage() {
     setIsLogsOpen(true);
   };
 
-  /**
-   * Logic for Creating a new container
-   */
   const handleCreateNew = () => {
     setSelectedContainerForEdit(null); // Explicitly null for "Create" mode
     setIsContainerModalOpen(true);
   };
 
-  /**
-   * Logic for quick Env editing (if you still want the separate modal)
-   */
   const handleEditEnv = (container: Container) => {
     console.log('handleEditEnv called with container:', container.name);
     setSelectedContainer(container);
@@ -110,7 +102,6 @@ export function ProjectDetailPage() {
     console.log('handleEditContainer called with container:', container.name);
     setSelectedContainerForEdit(container);
     setIsContainerModalOpen(true);
-    // Keep detail modal open so edit modal appears on top
   };
 
   const handleSaveEnvVariables = async (containerId: string, envVariables: Record<string, string>) => {
@@ -294,7 +285,6 @@ export function ProjectDetailPage() {
         />
       </div>
 
-      {/* Container Modal - Handles both Create and Edit */}
       <ContainerModal
         isOpen={isContainerModalOpen}
         onClose={() => {
@@ -316,7 +306,6 @@ export function ProjectDetailPage() {
         isOpen={isEnvModalOpen}
         onClose={() => {
           setIsEnvModalOpen(false);
-          // Don't clear selectedContainer here as ContainerDetailModal is still open
         }}
         container={selectedContainer}
         onSave={handleSaveEnvVariables}

@@ -43,7 +43,6 @@ export function ProjectsPage() {
   
   const currentUserId = auth.user?.profile?.sub;
 
-  // Load invitation count and projects
   useEffect(() => {
     const loadInvitationCount = async () => {
       try {
@@ -57,12 +56,10 @@ export function ProjectsPage() {
     
     loadInvitationCount();
     
-    // Poll every 30 seconds for new invitations
     const interval = setInterval(loadInvitationCount, 30000);
     return () => clearInterval(interval);
   }, []);
 
-  // Reload projects when the page becomes visible (user returns to tab/window)
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
@@ -83,7 +80,6 @@ export function ProjectsPage() {
     };
   }, [reload]);
 
-  // Separate owned and collaborated projects
   const { ownedProjects, collaboratedProjects } = useMemo(() => {
     const owned: Project[] = [];
     const collaborated: Project[] = [];
@@ -175,11 +171,9 @@ export function ProjectsPage() {
                     <X className="h-6 w-6 text-neutral-400 hover:text-neutral-200" />
                   </button>
                 </div>
-                
-                {/* Scrollable content */}
+
                 <div className="overflow-y-auto p-6">
                   <PendingInvitations onUpdate={() => {
-                    // Reload invitation count after accepting/rejecting
                     getMyInvitations().then(invitations => {
                       const pendingCount = invitations.filter(inv => inv.status === 'PENDING').length;
                       setInvitationCount(pendingCount);
