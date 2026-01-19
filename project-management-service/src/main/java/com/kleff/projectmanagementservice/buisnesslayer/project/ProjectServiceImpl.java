@@ -28,13 +28,10 @@ public class ProjectServiceImpl implements ProjectService {
         this.collaboratorRepo = collaboratorRepo;
     }
 
-    //this currently only gets all projects
     @Override
     public List<Project> getAllOwnedProjects(String userId) {
-        // Get projects owned by user
         List<Project> ownedProjects = projectRepository.findByOwnerIdEquals(userId);
         
-        // Get projects where user is a collaborator
         List<Collaborator> collaborations = collaboratorRepo.findByUserId(userId);
         List<String> collaboratedProjectIds = collaborations.stream()
                 .map(Collaborator::getProjectId)
@@ -48,7 +45,6 @@ public class ProjectServiceImpl implements ProjectService {
             }
         }
         
-        // Combine both lists
         List<Project> allProjects = new ArrayList<>(ownedProjects);
         allProjects.addAll(collaboratedProjects);
         
@@ -70,7 +66,6 @@ public class ProjectServiceImpl implements ProjectService {
     public Project createProject(Project project) {
         Project saved = projectRepository.save(project);
         
-        // Auto-create OWNER collaborator for project creator
         try {
             CollaboratorRequestModel ownerCollab = CollaboratorRequestModel.builder()
                     .projectId(saved.getProjectId())
@@ -81,7 +76,6 @@ public class ProjectServiceImpl implements ProjectService {
             
             collaboratorService.addCollaborator(ownerCollab, "system");
         } catch (Exception e) {
-            // Log but don't fail project creation if collaborator creation fails
             System.err.println("Failed to create owner collaborator: " + e.getMessage());
         }
         
@@ -114,5 +108,12 @@ public class ProjectServiceImpl implements ProjectService {
         Project toDelete = projectRepository.findByProjectId(projectId);
         toDelete.setProjectStatus(ProjectStatus.DELETED);
         return projectRepository.save(toDelete);
+    }
+
+    @Override
+    public List<String> getAllProjectIds() {
+        return projectRepository.findAll().stream()
+                .map(Project::getProjectId)
+                .collect(Collectors.toList());
     }
 }
