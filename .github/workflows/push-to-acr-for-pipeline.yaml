@@ -3,13 +3,9 @@ name: Build and Push to ACR
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     env:
       REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
     strategy:
@@ -56,30 +52,18 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Build image
+      - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: ${{ matrix.service.context }}
-          load: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ matrix.service.tag }}:latest
-            ${{ env.REGISTRY }}/${{ matrix.service.tag }}:${{ github.sha }}
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ matrix.service.tag }}:latest
           build-args: |
             VITE_AUTH_CLIENT_ID=${{ vars.VITE_AUTH_CLIENT_ID }}
             VITE_BACKEND_URL=${{ vars.VITE_BACKEND_URL }}
 
-      - name: Push images with latest tag
-        if: github.event_name == 'push'
-        run: docker push ${{ env.REGISTRY }}/${{ matrix.service.tag }}:latest
-
-      - name: Push images with commit SHA tag
-        if: github.event_name == 'push'
-        run: docker push ${{ env.REGISTRY }}/${{ matrix.service.tag }}:${{ github.sha }}
-
   build-operator:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     env:
       REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
     steps:
@@ -96,12 +80,7 @@ jobs:
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
-      - name: Build operator image locally
-        working-directory: ./operator
-        run: docker buildx build --load --platform linux/amd64 -t ${{ env.REGISTRY }}/webapp-operator:latest -t ${{ env.REGISTRY }}/webapp-operator:${{ github.sha }} .
-
-      - name: Build and Push Operator with latest tag
-        if: github.event_name == 'push'
+      - name: Build and Push Operator
         working-directory: ./operator
         run: |
           make docker-buildx \
@@ -109,11 +88,3 @@ jobs:
             PLATFORMS="linux/amd64,linux/arm64"
           make build-installer \
             IMG="${{ env.REGISTRY }}/webapp-operator:latest"
-
-      - name: Build and Push Operator with commit SHA tag
-        if: github.event_name == 'push'
-        working-directory: ./operator
-        run: |
-          make docker-buildx \
-            IMG="${{ env.REGISTRY }}/webapp-operator:${{ github.sha }}" \
-            PLATFORMS="linux/amd64,linux/arm64"
