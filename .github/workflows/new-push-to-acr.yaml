@@ -62,7 +62,9 @@ jobs:
         with:
           context: ${{ matrix.service.context }}
           load: true
-          tags: ${{ env.REGISTRY }}/${{ matrix.service.tag }}:latest
+          tags: |
+            ${{ env.REGISTRY }}/${{ matrix.service.tag }}:latest
+            ${{ env.REGISTRY }}/${{ matrix.service.tag }}:${{ github.sha }}
           build-args: |
             VITE_AUTH_CLIENT_ID=${{ vars.VITE_AUTH_CLIENT_ID }}
             VITE_BACKEND_URL=${{ vars.VITE_BACKEND_URL }}
@@ -94,9 +96,13 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
-      - name: Push image
+      - name: Push images with latest tag
         if: github.event_name == 'push'
         run: docker push ${{ env.REGISTRY }}/${{ matrix.service.tag }}:latest
+
+      - name: Push images with commit SHA tag
+        if: github.event_name == 'push'
+        run: docker push ${{ env.REGISTRY }}/${{ matrix.service.tag }}:${{ github.sha }}
 
   build-operator:
     runs-on: ubuntu-latest
@@ -121,7 +127,7 @@ jobs:
 
       - name: Build operator image locally for scanning
         working-directory: ./operator
-        run: docker buildx build --load --platform linux/amd64 -t ${{ env.REGISTRY }}/webapp-operator:latest .
+        run: docker buildx build --load --platform linux/amd64 -t ${{ env.REGISTRY }}/webapp-operator:latest -t ${{ env.REGISTRY }}/webapp-operator:${{ github.sha }} .
 
       - name: Run Trivy vulnerability scanner on operator (console output)
         uses: aquasecurity/trivy-action@0.28.0
@@ -150,7 +156,7 @@ jobs:
         with:
           sarif_file: 'trivy-operator-results.sarif'
 
-      - name: Build and Push Operator
+      - name: Build and Push Operator with latest tag
         if: github.event_name == 'push'
         working-directory: ./operator
         run: |
@@ -159,3 +165,11 @@ jobs:
             PLATFORMS="linux/amd64,linux/arm64"
           make build-installer \
             IMG="${{ env.REGISTRY }}/webapp-operator:latest"
+
+      - name: Build and Push Operator with commit SHA tag
+        if: github.event_name == 'push'
+        working-directory: ./operator
+        run: |
+          make docker-buildx \
+            IMG="${{ env.REGISTRY }}/webapp-operator:${{ github.sha }}" \
+            PLATFORMS="linux/amd64,linux/arm64"
