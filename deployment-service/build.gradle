@@ -74,7 +74,8 @@ jacocoTestReport {
                 // '**/config/**',
                 // '**/exception/**',
                 // '**/model/**',
-                // '**/*Application.class',
+                '**/*Application.class',
+                '**/ContainerServiceImpl.class'
                 // '**/*MapperImpl.class',
                 // '**/mapper/*.class'
             ])
