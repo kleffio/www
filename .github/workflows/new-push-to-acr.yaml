@@ -3,12 +3,13 @@ name: Build and Push to ACR
 on:
   push:
     branches: [main]
-  pull_request:
+  pull_request_target:
     branches: [main]
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       security-events: write
     env:
       REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
@@ -90,6 +91,7 @@ jobs:
   build-operator:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       security-events: write
     env:
       REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
