@@ -93,47 +93,26 @@ jobs:
 
           echo "Updating images to tag: $SHA"
 
-          # 1. User Service (Added select(.kind == "Deployment"))
-          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] \
-            |= select(.name == "user-service").image = env(REGISTRY) + \
-            "/user-service:" + env(SHA)' \
-            charts/kleff/microservices/user/user-service-deployment.yaml
+          # 1. User Service
+          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "user-service").image = env(REGISTRY) + "/user-service:" + env(SHA)' charts/kleff/microservices/user/user-service-deployment.yaml
 
           # 2. Server API
-          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] \
-            |= select(.name == "deployment-backend").image = env(REGISTRY) + \
-            "/deployment-backend:" + env(SHA)' \
-            charts/kleff/microservices/server-api/server-api.yaml
+          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "deployment-backend").image = env(REGISTRY) + "/deployment-backend:" + env(SHA)' charts/kleff/microservices/server-api/server-api.yaml
 
           # 3. Project Management
-          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] \
-            |= select(.name == "project-management-service").image = \
-            env(REGISTRY) + "/project-management-service:" + env(SHA)' \
-            charts/kleff/microservices/projects/project-management-service.yaml
+          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "project-management-service").image = env(REGISTRY) + "/project-management-service:" + env(SHA)' charts/kleff/microservices/projects/project-management-service.yaml
 
           # 4. Frontend
-          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] \
-            |= select(.name == "kleff-frontend").image = env(REGISTRY) + \
-            "/frontend:" + env(SHA)' \
-            charts/kleff/microservices/frontend/frontend-deployment.yaml
+          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "kleff-frontend").image = env(REGISTRY) + "/frontend:" + env(SHA)' charts/kleff/microservices/frontend/frontend-deployment.yaml
 
           # 5. Deployment Service
-          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] \
-            |= select(.name == "deployment-service").image = env(REGISTRY) + \
-            "/deployment-service:" + env(SHA)' \
-            charts/kleff/microservices/container/deployment-service.yaml
+          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "deployment-service").image = env(REGISTRY) + "/deployment-service:" + env(SHA)' charts/kleff/microservices/container/deployment-service.yaml
 
           # 6. Billing Service
-          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] \
-            |= select(.name == "billing-service").image = env(REGISTRY) + \
-            "/billing-service:" + env(SHA)' \
-            charts/kleff/microservices/billing/billing-service.yaml
+          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "billing-service").image = env(REGISTRY) + "/billing-service:" + env(SHA)' charts/kleff/microservices/billing/billing-service.yaml
 
           # 7. Observability Service
-          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] \
-            |= select(.name == "observability-service").image = env(REGISTRY) \
-            + "/observability-service:" + env(SHA)' \
-            charts/kleff/microservices/observability/observability-service.yaml
+          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "observability-service").image = env(REGISTRY) + "/observability-service:" + env(SHA)' charts/kleff/microservices/observability/observability-service.yaml
 
           # Check if there are changes
           if [[ -n $(git status -s) ]]; then
