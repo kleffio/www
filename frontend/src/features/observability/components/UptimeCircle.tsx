@@ -25,15 +25,16 @@ export function UptimeCircle({ size = 140, strokeWidth = 10, locale = "en" }: Up
 
   const t = labels[locale];
 
-  const uptimePercentage = data && data.uptimeHistory
-    ? (() => {
-        const recordedPoints = data.uptimeHistory.filter((p) => p.value >= 0);
-        const operationalPoints = recordedPoints.filter((p) => p.value > 0);
-        return recordedPoints.length > 0
-          ? (operationalPoints.length / recordedPoints.length) * 100
-          : 99.99;
-      })()
-    : 99.99;
+  const uptimePercentage =
+    data && data.uptimeHistory
+      ? (() => {
+          const recordedPoints = data.uptimeHistory.filter((p) => p.value >= 0);
+          const operationalPoints = recordedPoints.filter((p) => p.value > 0);
+          return recordedPoints.length > 0
+            ? (operationalPoints.length / recordedPoints.length) * 100
+            : 99.99;
+        })()
+      : 99.99;
 
   useEffect(() => {
     const duration = 1500;
@@ -115,7 +116,9 @@ export function UptimeCircle({ size = 140, strokeWidth = 10, locale = "en" }: Up
         <div className="mb-1 flex h-7 w-7 items-center justify-center rounded-full bg-green-500/10">
           <Activity className="h-4 w-4 text-green-400" />
         </div>
-        <div className="text-3xl font-bold text-neutral-50">{animatedPercentage.toFixed(2)}%</div>
+        <div className="text-3xl font-bold text-neutral-50">
+          {animatedPercentage.toFixed(2)}%
+        </div>
         <div className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
           {t.uptime}
         </div>
