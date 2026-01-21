@@ -1,10 +1,10 @@
-import { useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useState } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
 
 const PaymentSuccessPage = () => {
   const { invoiceId } = useParams<{ invoiceId: string }>();
   const [searchParams] = useSearchParams();
-  const sessionId = searchParams.get('session_id');
+  const sessionId = searchParams.get("session_id");
   const [verified] = useState(false);
 
   return (

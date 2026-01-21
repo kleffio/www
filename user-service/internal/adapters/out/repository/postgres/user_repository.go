@@ -231,7 +231,6 @@ func (r *PostgresUserRepository) UpdateProfile(ctx context.Context, id domain.ID
 	if update.Bio != nil {
 		setClauses = append(setClauses, fmt.Sprintf("bio = $%d", argNum))
 		args = append(args, *update.Bio)
-		argNum++
 	}
 
 	if len(setClauses) == 1 {

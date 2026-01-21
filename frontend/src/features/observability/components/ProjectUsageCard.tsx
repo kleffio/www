@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { getProjectTotalUsageMetrics } from '../api/getProjectTotalUsageMetrics';
-import type { ProjectTotalUsageMetrics } from '../types/projectTotalUsageMetrics.types';
-import { SoftPanel } from '@shared/ui/SoftPanel';
-import { MiniCard } from '@shared/ui/MiniCard';
-import { GradientIcon } from '@shared/ui/GradientIcon';
-import { Cpu, HardDrive, TrendingUp } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { getProjectTotalUsageMetrics } from "../api/getProjectTotalUsageMetrics";
+import type { ProjectTotalUsageMetrics } from "../types/projectTotalUsageMetrics.types";
+import { SoftPanel } from "@shared/ui/SoftPanel";
+import { MiniCard } from "@shared/ui/MiniCard";
+import { GradientIcon } from "@shared/ui/GradientIcon";
+import { Cpu, HardDrive, TrendingUp } from "lucide-react";
 
 interface ProjectUsageCardProps {
   projectId: string;
@@ -22,8 +22,8 @@ export default function ProjectUsageCard({ projectId }: ProjectUsageCardProps) {
       const data = await getProjectTotalUsageMetrics(projectId);
       setUsageMetrics(data);
     } catch (err) {
-      setError('Unable to retrieve usage metrics. Please check your connection.');
-      console.error('Error fetching project total usage metrics:', err);
+      setError("Unable to retrieve usage metrics. Please check your connection.");
+      console.error("Error fetching project total usage metrics:", err);
     } finally {
       setLoading(false);
     }
@@ -34,6 +34,7 @@ export default function ProjectUsageCard({ projectId }: ProjectUsageCardProps) {
     // Refresh every 5 minutes since these are 30-day averages
     const interval = setInterval(fetchUsageMetrics, 300000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   if (loading && !usageMetrics) {
@@ -87,9 +88,7 @@ export default function ProjectUsageCard({ projectId }: ProjectUsageCardProps) {
         <MiniCard title="Time Window">
           <div className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-neutral-400" />
-            <span className="text-sm font-semibold text-neutral-50">
-              {usageMetrics.window}
-            </span>
+            <span className="text-sm font-semibold text-neutral-50">{usageMetrics.window}</span>
           </div>
         </MiniCard>
       </div>

@@ -57,16 +57,16 @@ export class TeamModal extends BaseComponent {
     // Open the role select dropdown and choose role
     const selectTrigger = this.page.locator('[role="combobox"]').first();
     await selectTrigger.click();
-    
+
     // Wait for dropdown to open and click the role option
     await this.page.waitForTimeout(300);
     const roleOption = this.page.locator(`[role="option"]`).filter({ hasText: role }).first();
     await roleOption.click();
 
     // Find the submit button within the modal and click it
-    const submitButton = this.inviteModal().locator("button[type='submit']").or(
-      this.inviteModal().getByRole("button", { name: /invite/i })
-    );
+    const submitButton = this.inviteModal()
+      .locator("button[type='submit']")
+      .or(this.inviteModal().getByRole("button", { name: /invite/i }));
     await submitButton.click();
 
     // Wait a bit for the invitation to be processed
@@ -86,7 +86,7 @@ export class TeamModal extends BaseComponent {
   async expectPendingInvitation(email: string) {
     // Scroll to pending invitations section
     await this.page.getByText("Pending Invitations").scrollIntoViewIfNeeded();
-    
+
     // Check if email appears in the table
     await expect(this.page.getByText(email)).toBeVisible({ timeout: 10_000 });
   }
@@ -97,9 +97,12 @@ export class TeamModal extends BaseComponent {
   async cancelInvitation(email: string) {
     // Find the row with the email
     const row = this.page.locator("tr").filter({ hasText: email });
-    
+
     // Click the delete button in that row
-    await row.locator("button").filter({ has: this.page.locator('svg.lucide-trash-2') }).click();
+    await row
+      .locator("button")
+      .filter({ has: this.page.locator("svg.lucide-trash-2") })
+      .click();
 
     // Wait for it to disappear
     await expect(row).not.toBeVisible({ timeout: 10_000 });
@@ -112,9 +115,12 @@ export class TeamModal extends BaseComponent {
     // Find the row with the email in Team Members section
     const teamMembersSection = this.page.locator("text=Team Members").locator("..");
     const row = teamMembersSection.locator("tr").filter({ hasText: email });
-    
+
     // Click the remove button (trash icon)
-    await row.locator("button").filter({ has: this.page.locator('svg.lucide-trash-2') }).click();
+    await row
+      .locator("button")
+      .filter({ has: this.page.locator("svg.lucide-trash-2") })
+      .click();
 
     // Wait for it to disappear
     await expect(row).not.toBeVisible({ timeout: 10_000 });
@@ -126,9 +132,12 @@ export class TeamModal extends BaseComponent {
   async updateCollaboratorRole(email: string, newRole: string) {
     // Find the row with the email
     const row = this.page.locator("tr").filter({ hasText: email });
-    
+
     // Click the edit button
-    await row.locator("button").filter({ has: this.page.locator('svg.lucide-edit-2') }).click();
+    await row
+      .locator("button")
+      .filter({ has: this.page.locator("svg.lucide-edit-2") })
+      .click();
 
     // Select new role in the dropdown
     const roleSelect = row.locator("select");
@@ -143,7 +152,11 @@ export class TeamModal extends BaseComponent {
    * Close the modal
    */
   async close() {
-    await this.page.locator("button").filter({ has: this.page.locator('svg.lucide-x') }).first().click();
+    await this.page
+      .locator("button")
+      .filter({ has: this.page.locator("svg.lucide-x") })
+      .first()
+      .click();
     await expect(this.modal()).not.toBeVisible({ timeout: 10_000 });
   }
 }

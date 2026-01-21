@@ -132,10 +132,10 @@ test.describe("Container Logs", () => {
 
     await detailPage.clickViewLogs(containerName);
     await detailPage.expectLogsSheetOpen(containerName);
-    
+
     // Wait for logs to load
     await page.waitForTimeout(2000);
-    
+
     await detailPage.expectNoLogsMessage();
   });
 
@@ -178,7 +178,7 @@ test.describe("Container Logs", () => {
     await detailPage.expectLogsSheetOpen(containerName);
 
     await detailPage.clickRefreshLogs();
-    
+
     // Verify refresh button shows loading state
     await detailPage.expectRefreshButtonLoading();
   });
@@ -232,7 +232,7 @@ test.describe("Container Logs", () => {
     await detailPage.expectContainerExists(containerName);
 
     await detailPage.clickViewLogs(containerName);
-    
+
     // Verify sheet animation and position
     await detailPage.expectLogsSheetAnimatesFromRight();
   });

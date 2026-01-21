@@ -1,7 +1,9 @@
-import type { ProjectUsageMetrics } from '../types/projectUsageMetrics.types.ts';
-import { client } from '@shared/lib/client';
+import type { ProjectUsageMetrics } from "../types/projectUsageMetrics.types.ts";
+import { client } from "@shared/lib/client";
 
 export async function getProjectUsageMetrics(projectID: string): Promise<ProjectUsageMetrics> {
-  const response = await client.get<ProjectUsageMetrics>(`/api/v1/systems/projects/${projectID}/usage`);
+  const response = await client.get<ProjectUsageMetrics>(
+    `/api/v1/systems/projects/${projectID}/usage`
+  );
   return response.data;
 }

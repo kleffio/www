@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
-import { getProjectUsage } from '@features/observability/api/getProjectMetrics';
-import type { ProjectUsage } from '@features/observability/types/projectUsage.types';
-import { SoftPanel } from '@shared/ui/SoftPanel';
-import { MiniCard } from '@shared/ui/MiniCard';
-import { GradientIcon } from '@shared/ui/GradientIcon';
-import { Cpu, HardDrive, Clock } from 'lucide-react';
+import { useEffect, useState } from "react";
+import { getProjectUsage } from "@features/observability/api/getProjectMetrics";
+import type { ProjectUsage } from "@features/observability/types/projectUsage.types";
+import { SoftPanel } from "@shared/ui/SoftPanel";
+import { MiniCard } from "@shared/ui/MiniCard";
+import { GradientIcon } from "@shared/ui/GradientIcon";
+import { Cpu, HardDrive, Clock } from "lucide-react";
 
 interface ProjectMetricsCardProps {
   projectId: string;
@@ -22,8 +22,8 @@ export default function ProjectMetricsCard({ projectId }: ProjectMetricsCardProp
       const data = await getProjectUsage(projectId);
       setUsage(data);
     } catch (err) {
-      setError('Unable to retrieve project usage metrics.');
-      console.error('Error fetching project usage:', err);
+      setError("Unable to retrieve project usage metrics.");
+      console.error("Error fetching project usage:", err);
     } finally {
       setLoading(false);
     }
@@ -34,6 +34,7 @@ export default function ProjectMetricsCard({ projectId }: ProjectMetricsCardProp
     // Update every 5 minutes for usage metrics (less frequent than real-time metrics)
     const interval = setInterval(fetchUsage, 300000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   if (loading && !usage) {
@@ -87,9 +88,7 @@ export default function ProjectMetricsCard({ projectId }: ProjectMetricsCardProp
         <MiniCard title="Time Window">
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-neutral-400" />
-            <span className="text-sm font-semibold text-neutral-50">
-              {usage.window || '30d'}
-            </span>
+            <span className="text-sm font-semibold text-neutral-50">{usage.window || "30d"}</span>
           </div>
         </MiniCard>
       </div>

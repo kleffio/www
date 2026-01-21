@@ -83,6 +83,7 @@ export const MetricsDashboard: React.FC = () => {
     fetchData();
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeRange]);
 
   return (
@@ -113,7 +114,7 @@ export const MetricsDashboard: React.FC = () => {
                 </span>
                 <button
                   onClick={() => fetchData()}
-                  className="rounded-md border border-white/20 bg-white/5 px-3 py-1.5 text-xs text-neutral-200 hover:border-white/40 hover:bg-white/10 flex items-center gap-1.5"
+                  className="flex items-center gap-1.5 rounded-md border border-white/20 bg-white/5 px-3 py-1.5 text-xs text-neutral-200 hover:border-white/40 hover:bg-white/10"
                 >
                   <RefreshCw className="h-3.5 w-3.5" />
                   Refresh

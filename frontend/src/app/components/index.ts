@@ -1,1 +1,1 @@
-export { SecureComponent } from './SecureComponent';
+export { SecureComponent } from "./SecureComponent";

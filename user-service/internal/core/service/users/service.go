@@ -88,7 +88,7 @@ func (s *Service) EnsureUserFromToken(ctx context.Context, claims *port.TokenCla
 			}
 		}
 
-		log.Printf(authentikID)
+		log.Print(authentikID)
 
 		user = &domain.User{
 			ID:            domain.ID(claims.Sub),

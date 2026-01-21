@@ -5,9 +5,10 @@ export default async function fetchProjects(): Promise<Project[]> {
   try {
     const res = await client.get<Project[]>("/api/v1/projects");
     return res.data ?? [];
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const err = error as { response?: { status?: number } };
     // If the API returns 404 (no projects found), treat it as successful empty response
-    if (error.response?.status === 404) {
+    if (err.response?.status === 404) {
       return [];
     }
     // Re-throw other errors

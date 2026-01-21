@@ -19,8 +19,13 @@ interface EditEnvVariablesModalProps {
   onSave?: (containerId: string, envVariables: Record<string, string>) => Promise<void>;
 }
 
-export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: EditEnvVariablesModalProps) {
-  console.log('EditEnvVariablesModal render - isOpen:', isOpen, 'container:', container?.name);
+export function EditEnvVariablesModal({
+  isOpen,
+  onClose,
+  container,
+  onSave
+}: EditEnvVariablesModalProps) {
+  console.log("EditEnvVariablesModal render - isOpen:", isOpen, "container:", container?.name);
   const [envVariables, setEnvVariables] = useState<Array<{ key: string; value: string }>>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +48,7 @@ export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: Ed
       if (container.envVariables) {
         const envArray = Object.entries(container.envVariables).map(([key, value]) => ({
           key,
-          value,
+          value
         }));
         setEnvVariables(envArray);
       } else {
@@ -57,18 +62,21 @@ export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: Ed
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     setIsSubmitting(true);
     setError(null);
 
     try {
       // Convert env variables array to object, filtering out empty keys
-      const envVarsObject = envVariables.reduce((acc, { key, value }) => {
-        if (key.trim()) {
-          acc[key.trim()] = value;
-        }
-        return acc;
-      }, {} as Record<string, string>);
+      const envVarsObject = envVariables.reduce(
+        (acc, { key, value }) => {
+          if (key.trim()) {
+            acc[key.trim()] = value;
+          }
+          return acc;
+        },
+        {} as Record<string, string>
+      );
 
       if (onSave) {
         await onSave(container.containerId, envVarsObject);
@@ -112,8 +120,8 @@ export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: Ed
     <section className="fixed inset-0 z-60 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
-      <section className="relative z-10 w-full max-w-2xl max-h-[90vh] flex flex-col px-4 sm:px-0">
-        <SoftPanel className="border border-white/10 bg-black/70 shadow-2xl shadow-black/60 flex flex-col max-h-full">
+      <section className="relative z-10 flex max-h-[90vh] w-full max-w-2xl flex-col px-4 sm:px-0">
+        <SoftPanel className="flex max-h-full flex-col border border-white/10 bg-black/70 shadow-2xl shadow-black/60">
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold text-neutral-50">{t.title}</h2>
@@ -136,8 +144,8 @@ export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: Ed
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
-            <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+          <form onSubmit={handleSubmit} className="flex flex-1 flex-col overflow-hidden">
+            <div className="flex-1 space-y-4 overflow-y-auto pr-2">
               {/* Environment Variables Section */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -149,7 +157,7 @@ export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: Ed
                     size="sm"
                     variant="ghost"
                     onClick={handleAddVariable}
-                    className="text-xs rounded-full px-3 py-1.5"
+                    className="rounded-full px-3 py-1.5 text-xs"
                   >
                     <Plus className="mr-1 h-3 w-3" />
                     {t.add_variable}
@@ -166,7 +174,7 @@ export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: Ed
                 {envVariables.map((envVar, index) => (
                   <div
                     key={index}
-                    className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-2 rounded-lg border border-white/5 bg-white/5 p-3"
+                    className="grid grid-cols-1 gap-2 rounded-lg border border-white/5 bg-white/5 p-3 md:grid-cols-[1fr_1fr_auto]"
                   >
                     <input
                       type="text"
@@ -196,7 +204,7 @@ export function EditEnvVariablesModal({ isOpen, onClose, container, onSave }: Ed
             </div>
 
             {/* Footer Actions */}
-            <div className="flex items-center justify-end gap-3 pt-6 mt-6 border-t border-white/10">
+            <div className="mt-6 flex items-center justify-end gap-3 border-t border-white/10 pt-6">
               <Button
                 type="button"
                 variant="ghost"

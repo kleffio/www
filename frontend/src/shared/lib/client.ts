@@ -9,9 +9,9 @@ export function setAccessToken(token: string | null) {
 export const client = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL ?? "http://localhost:8080",
   headers: {
-    'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0'
+    "Cache-Control": "no-cache, no-store, must-revalidate",
+    Pragma: "no-cache",
+    Expires: "0"
   }
 });
 

@@ -1,14 +1,14 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Sparkles } from 'lucide-react';
-import { cn } from '@shared/lib/utils';
-import { Section } from '@shared/ui/Section';
-import { Badge } from '@shared/ui/Badge';
-import { SoftPanel } from '@shared/ui/SoftPanel';
-import enTranslations from '@app/locales/en/legal.json';
-import frTranslations from '@app/locales/fr/legal.json';
-import { getLocale } from '@app/locales/locale';
-import type { Price } from '@features/billing/types/Price';
-import fetchPrices from '@features/billing/api/viewPrices';
+import React, { useState, useMemo, useEffect } from "react";
+import { Sparkles } from "lucide-react";
+import { cn } from "@shared/lib/utils";
+import { Section } from "@shared/ui/Section";
+import { Badge } from "@shared/ui/Badge";
+import { SoftPanel } from "@shared/ui/SoftPanel";
+import enTranslations from "@app/locales/en/legal.json";
+import frTranslations from "@app/locales/fr/legal.json";
+import { getLocale } from "@app/locales/locale";
+import type { Price } from "@features/billing/types/Price";
+import fetchPrices from "@features/billing/api/viewPrices";
 
 const translations = {
   en: enTranslations,
@@ -47,8 +47,8 @@ const PricingPage: React.FC = () => {
         const fetchedPrices = await fetchPrices();
         setPrices(fetchedPrices);
       } catch (err) {
-        console.error('Error fetching prices:', err);
-        setError('Failed to load pricing information');
+        console.error("Error fetching prices:", err);
+        setError("Failed to load pricing information");
       } finally {
         setLoading(false);
       }
@@ -67,29 +67,29 @@ const PricingPage: React.FC = () => {
       {
         metric: t.metrics.cpu.label,
         description: t.metrics.cpu.description,
-        price: prices.find((p) => p.metric === 'CPU_HOURS')?.price || 0,
+        price: prices.find((p) => p.metric === "CPU_HOURS")?.price || 0
       },
       {
         metric: t.metrics.ram.label,
         description: t.metrics.ram.description,
-        price: prices.find((p) => p.metric === 'MEMORY_GB_HOURS')?.price || 0,
+        price: prices.find((p) => p.metric === "MEMORY_GB_HOURS")?.price || 0
       },
       {
         metric: t.metrics.storage.label,
         description: t.metrics.storage.description,
-        price: prices.find((p) => p.metric === 'STORAGE_GB')?.price || 0,
-      },
+        price: prices.find((p) => p.metric === "STORAGE_GB")?.price || 0
+      }
     ];
-  }, [prices, locale, t]);
+  }, [prices, t]);
 
   const filteredItems = pricingItems;
 
   if (loading) {
     return (
       <div className="relative isolate overflow-hidden">
-        <Section className="flex flex-col items-center justify-center gap-8 px-4 pt-16 pb-12 min-h-screen">
+        <Section className="flex min-h-screen flex-col items-center justify-center gap-8 px-4 pt-16 pb-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-kleff-primary mx-auto mb-4"></div>
+            <div className="border-kleff-primary mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2"></div>
             <p className="text-neutral-300">{t.loading}</p>
           </div>
         </Section>
@@ -100,9 +100,9 @@ const PricingPage: React.FC = () => {
   if (error) {
     return (
       <div className="relative isolate overflow-hidden">
-        <Section className="flex flex-col items-center justify-center gap-8 px-4 pt-16 pb-12 min-h-screen">
+        <Section className="flex min-h-screen flex-col items-center justify-center gap-8 px-4 pt-16 pb-12">
           <div className="text-center">
-            <p className="text-red-400 mb-4">{error}</p>
+            <p className="mb-4 text-red-400">{error}</p>
             <button
               onClick={() => window.location.reload()}
               className="bg-gradient-kleff inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-black shadow-md shadow-black/40 transition-all hover:brightness-110"
@@ -133,9 +133,7 @@ const PricingPage: React.FC = () => {
               <br />
               <span className="text-gradient-kleff">{t.title_line2}</span>
             </h1>
-            <p className="text-xs text-neutral-300 sm:text-sm">
-              {t.subtitle}
-            </p>
+            <p className="text-xs text-neutral-300 sm:text-sm">{t.subtitle}</p>
           </div>
         </div>
       </Section>
@@ -146,26 +144,24 @@ const PricingPage: React.FC = () => {
             <div className="glass-panel p-12 text-center">
               <div className="mb-4 text-4xl">🔍</div>
               <h3 className="mb-2 text-lg font-semibold text-white">{t.no_results.title}</h3>
-              <p className="mb-6 text-sm text-neutral-400">
-                {t.no_results.description}
-              </p>
+              <p className="mb-6 text-sm text-neutral-400">{t.no_results.description}</p>
             </div>
           ) : (
             <div className="glass-panel p-3">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
                 {filteredItems.map((item, idx) => (
                   <div
                     key={idx}
                     className={cn(
-                      'rounded-lg border border-white/10 bg-black/40 p-4 transition-all hover:bg-black/50'
+                      "rounded-lg border border-white/10 bg-black/40 p-4 transition-all hover:bg-black/50"
                     )}
                   >
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="mb-3 flex items-start justify-between">
                       <div>
                         <h3 className="text-xs font-semibold text-neutral-50 sm:text-sm">
                           {item.metric}
                         </h3>
-                        <p className="text-[10px] text-neutral-400 sm:text-xs mt-1">
+                        <p className="mt-1 text-[10px] text-neutral-400 sm:text-xs">
                           {item.description}
                         </p>
                       </div>
@@ -173,7 +169,7 @@ const PricingPage: React.FC = () => {
                         {idx + 1}
                       </div>
                     </div>
-                    <p className="text-lg font-semibold text-kleff-primary">
+                    <p className="text-kleff-primary text-lg font-semibold">
                       ${item.price.toFixed(4)}
                     </p>
                   </div>

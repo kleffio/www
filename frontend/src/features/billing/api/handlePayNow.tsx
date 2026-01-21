@@ -1,7 +1,7 @@
 import { client } from "@shared/lib/client";
 
 export const handlePayNow = async (
-    invoiceId: string,
+  invoiceId: string,
   setPayError: (error: string | null) => void,
   setPayLoading: (loading: boolean) => void
 ) => {
@@ -14,8 +14,11 @@ export const handlePayNow = async (
     } else {
       throw new Error(res.data.error || "No checkout URL returned");
     }
-  } catch (err: any) {
-    setPayError(err?.response?.data?.error || err?.message || "Unexpected error during payment");
+  } catch (err: unknown) {
+    const error = err as { response?: { data?: { error?: string } }; message?: string };
+    setPayError(
+      error?.response?.data?.error || error?.message || "Unexpected error during payment"
+    );
   } finally {
     setPayLoading(false);
   }

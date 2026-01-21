@@ -16,8 +16,9 @@ export function useProject(projectId: string) {
       try {
         const data = await fetchProject(projectId);
         setProject(data);
-      } catch (err: any) {
-        setError(err?.message || "Failed to load project");
+      } catch (err: unknown) {
+        const error = err as { message?: string };
+        setError(error?.message || "Failed to load project");
       } finally {
         setIsLoading(false);
       }
@@ -34,8 +35,9 @@ export function useProject(projectId: string) {
         try {
           const data = await fetchProject(projectId);
           setProject(data);
-        } catch (err: any) {
-          setError(err?.message || "Failed to load project");
+        } catch (err: unknown) {
+          const error = err as { message?: string };
+          setError(error?.message || "Failed to load project");
         } finally {
           setIsLoading(false);
         }

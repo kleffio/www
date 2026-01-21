@@ -26,7 +26,7 @@ func TestNewLogsService(t *testing.T) {
 	service := NewLogsService(mockRepo)
 
 	assert.NotNil(t, service)
-	
+
 	// Cast to concrete type to verify internal field
 	logsService := service.(*logsService)
 	assert.Equal(t, mockRepo, logsService.logsRepo)
@@ -180,7 +180,7 @@ func TestLogsService_GetProjectContainerLogs_MultipleContainers(t *testing.T) {
 	assert.Equal(t, 2, result.TotalErrors)
 	assert.Equal(t, 1, result.TotalWarnings)
 	assert.Len(t, result.Containers, 2)
-	
+
 	// Verify web container
 	webContainer := result.Containers[0]
 	assert.Equal(t, "web-container", webContainer.ContainerName)
@@ -188,7 +188,7 @@ func TestLogsService_GetProjectContainerLogs_MultipleContainers(t *testing.T) {
 	assert.Equal(t, 1, webContainer.ErrorCount)
 	assert.Equal(t, 1, webContainer.WarningCount)
 	assert.False(t, webContainer.HasMore)
-	
+
 	// Verify worker container
 	workerContainer := result.Containers[1]
 	assert.Equal(t, "worker-container", workerContainer.ContainerName)

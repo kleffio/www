@@ -8,19 +8,21 @@ import { BaseComponent } from "./base.component";
 export class EditEnvModal extends BaseComponent {
   async openForContainer(containerName: string) {
     // Find the Edit Env button for the specific container
-    const containerRow = this.page.locator('tr').filter({ hasText: containerName });
+    const containerRow = this.page.locator("tr").filter({ hasText: containerName });
     await containerRow.getByRole("button", { name: /edit env/i }).click();
   }
 
   async expectLoaded() {
     // Wait for the modal to appear
     await expect(this.editEnvModal()).toBeVisible({ timeout: 30_000 });
-    await expect(this.page.getByText("Edit Environment Variables")).toBeVisible({ timeout: 30_000 });
+    await expect(this.page.getByText("Edit Environment Variables")).toBeVisible({
+      timeout: 30_000
+    });
   }
 
   editEnvModal() {
-    return this.page.locator("section.fixed.inset-0.z-50").filter({ 
-      has: this.page.getByText("Edit Environment Variables") 
+    return this.page.locator("section.fixed.inset-0.z-50").filter({
+      has: this.page.getByText("Edit Environment Variables")
     });
   }
 
@@ -52,14 +54,14 @@ export class EditEnvModal extends BaseComponent {
   async addEnvVariable(key: string, value: string) {
     // Click add variable button
     await this.addVariableButton().click();
-    
+
     // Wait a moment for the inputs to appear
     await this.page.waitForTimeout(300);
-    
+
     // Get the count of current env variables
     const keyInputs = this.page.locator('input[placeholder="KEY"]');
     const count = await keyInputs.count();
-    
+
     // Fill the last added (newest) env variable
     await this.envKeyInput(count - 1).fill(key);
     await this.envValueInput(count - 1).fill(value);
@@ -76,7 +78,7 @@ export class EditEnvModal extends BaseComponent {
       await keyInput.clear();
       await keyInput.fill(key);
     }
-    
+
     if (value !== undefined) {
       const valueInput = this.envValueInput(index);
       await valueInput.clear();
@@ -99,15 +101,15 @@ export class EditEnvModal extends BaseComponent {
   }
 
   async expectNoVariables() {
-    await expect(this.page.getByText("No environment variables configured")).toBeVisible({ 
-      timeout: 10_000 
+    await expect(this.page.getByText("No environment variables configured")).toBeVisible({
+      timeout: 10_000
     });
   }
 
   async expectVariableExists(key: string, value?: string) {
     const keyInputs = this.page.locator('input[placeholder="KEY"]');
     const count = await keyInputs.count();
-    
+
     let found = false;
     for (let i = 0; i < count; i++) {
       const keyInputValue = await this.envKeyInput(i).inputValue();
@@ -121,7 +123,7 @@ export class EditEnvModal extends BaseComponent {
         if (found) break;
       }
     }
-    
+
     expect(found).toBeTruthy();
   }
 }

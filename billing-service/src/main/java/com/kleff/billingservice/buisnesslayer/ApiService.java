@@ -21,7 +21,6 @@ public class ApiService {
                 .build();
     }
 
-    // GET request that returns a list
     public List<String> getListOfProjectIds() {
         return restClient.get()
                 .uri("api/v1/projects/ListID")

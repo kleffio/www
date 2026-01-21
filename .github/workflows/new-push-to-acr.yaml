@@ -1,14 +1,18 @@
----
 name: Build and Push to ACR
 on:
   push:
     branches: [main]
+  pull_request:         # <--- 1. Trigger on PRs
+    branches: [main]
+
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     env:
       REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
     strategy:
+      fail-fast: false
       matrix:
         service:
           - name: frontend
@@ -57,34 +61,65 @@ jobs:
         with:
           context: ${{ matrix.service.context }}
           push: true
-          tags: ${{ env.REGISTRY }}/${{ matrix.service.tag }}:latest
+          tags: |
+            ${{ env.REGISTRY }}/${{ matrix.service.tag }}:latest
+            ${{ env.REGISTRY }}/${{ matrix.service.tag }}:${{ github.sha }}
           build-args: |
             VITE_AUTH_CLIENT_ID=${{ vars.VITE_AUTH_CLIENT_ID }}
             VITE_BACKEND_URL=${{ vars.VITE_BACKEND_URL }}
 
-  build-operator:
+
+      # 3. Update Manifests
+  update-manifests:
+    needs: [build-and-push]
     runs-on: ubuntu-latest
-    env:
-      REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
+    if: success()
     steps:
-      - name: Checkout code
+      - name: Checkout Manifest Repository
         uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to ACR
-        uses: azure/docker-login@v1
         with:
-          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
-          username: ${{ secrets.ACR_USERNAME }}
-          password: ${{ secrets.ACR_PASSWORD }}
+          repository: jeremy-misola/GitOps-Homelab
+          ref: develop
+          token: ${{ secrets.GITOPS_PAT }} 
+          persist-credentials: true 
 
-      - name: Build and Push Operator
-        working-directory: ./operator
+      - name: Update Image Tags
+        env:
+          REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
+          SHA: ${{ github.sha }}
         run: |
-          make docker-buildx \
-            IMG="${{ env.REGISTRY }}/webapp-operator:latest" \
-            PLATFORMS="linux/amd64,linux/arm64"
-          make build-installer \
-            IMG="${{ env.REGISTRY }}/webapp-operator:latest"
+          # Configure Git
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+
+          echo "Updating images to tag: $SHA"
+
+          # 1. User Service (Added select(.kind == "Deployment"))
+          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "user-service").image = env(REGISTRY) + "/user-service:" + env(SHA)' charts/kleff/microservices/user/user-service-deployment.yaml
+
+          # 2. Server API
+          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "deployment-backend").image = env(REGISTRY) + "/deployment-backend:" + env(SHA)' charts/kleff/microservices/server-api/server-api.yaml
+
+          # 3. Project Management
+          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "project-management-service").image = env(REGISTRY) + "/project-management-service:" + env(SHA)' charts/kleff/microservices/projects/project-management-service.yaml
+
+          # 4. Frontend
+          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "kleff-frontend").image = env(REGISTRY) + "/frontend:" + env(SHA)' charts/kleff/microservices/frontend/frontend-deployment.yaml
+
+          # 5. Deployment Service
+          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "deployment-service").image = env(REGISTRY) + "/deployment-service:" + env(SHA)' charts/kleff/microservices/container/deployment-service.yaml
+
+          # 6. Billing Service
+          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "billing-service").image = env(REGISTRY) + "/billing-service:" + env(SHA)' charts/kleff/microservices/billing/billing-service.yaml
+          
+          # 7. Observability Service 
+          yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "observability-service").image = env(REGISTRY) + "/observability-service:" + env(SHA)' charts/kleff/microservices/observability/observability-service.yaml
+
+          # Check if there are changes
+          if [[ -n $(git status -s) ]]; then
+            git add .
+            git commit -m "ci: update deployment images to sha-${SHA}"
+            git push origin develop
+          else
+            echo "No changes to commit."
+          fi

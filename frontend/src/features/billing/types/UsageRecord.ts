@@ -4,7 +4,6 @@ export type UsageRecord = {
   containerId: string;
   pricingModel: string;
   metric: string;
-  quantity : number;
-  recordedAt : Date;
-
-}
+  quantity: number;
+  recordedAt: Date;
+};

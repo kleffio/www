@@ -18,7 +18,7 @@ func TestNewLokiClient(t *testing.T) {
 	client := NewLokiClient(baseURL)
 
 	assert.NotNil(t, client)
-	
+
 	// Cast to concrete type to access internal fields
 	lokiClient := client.(*lokiClient)
 	assert.Equal(t, baseURL, lokiClient.baseURL)
@@ -32,7 +32,7 @@ func TestGetProjectContainerLogs_SuccessWithPrimaryQuery(t *testing.T) {
 		query := r.URL.Query().Get("query")
 		assert.Contains(t, query, `k8s_namespace_name="test-project"`)
 		assert.Contains(t, query, `k8s_deployment_name="app-test-container"`)
-		
+
 		// Mock successful Loki response
 		response := LokiResponse{
 			Status: "success",
@@ -59,9 +59,9 @@ func TestGetProjectContainerLogs_SuccessWithPrimaryQuery(t *testing.T) {
 				}{
 					{
 						Stream: map[string]string{
-							"k8s_namespace_name":   "test-project",
-							"k8s_deployment_name":  "app-test-container",
-							"k8s_pod_name":         "app-test-container-123",
+							"k8s_namespace_name":  "test-project",
+							"k8s_deployment_name": "app-test-container",
+							"k8s_pod_name":        "app-test-container-123",
 						},
 						Values: [][]string{
 							{"1640995200000000000", "Application started successfully"},
@@ -74,12 +74,14 @@ func TestGetProjectContainerLogs_SuccessWithPrimaryQuery(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Fatalf("failed to encode response: %v", err)
+		}
 	}))
 	defer server.Close()
 
 	client := NewLokiClient(server.URL)
-	
+
 	// Test the debug logging by calling GetProjectContainerLogs
 	result, err := client.GetProjectContainerLogs(
 		context.Background(),
@@ -96,7 +98,7 @@ func TestGetProjectContainerLogs_SuccessWithPrimaryQuery(t *testing.T) {
 	assert.Equal(t, 1, result.TotalErrors) // One log contains "Error"
 	assert.Equal(t, 0, result.TotalWarnings)
 	assert.Len(t, result.Containers, 1)
-	
+
 	container := result.Containers[0]
 	assert.Equal(t, "test-container", container.ContainerName)
 	assert.Len(t, container.Logs, 3)
@@ -108,17 +110,17 @@ func TestGetProjectContainerLogs_SuccessWithPrimaryQuery(t *testing.T) {
 
 func TestGetProjectContainerLogs_FallbackQuery(t *testing.T) {
 	callCount := 0
-	
+
 	// Create mock server that fails on first call, succeeds on second
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		callCount++
 		query := r.URL.Query().Get("query")
-		
+
 		if callCount == 1 {
 			// First call should use primary query format
 			assert.Contains(t, query, `k8s_namespace_name="test-project"`)
 			assert.Contains(t, query, `k8s_deployment_name="app-test-container"`)
-			
+
 			// Return empty result to trigger fallback
 			response := LokiResponse{
 				Status: "success",
@@ -139,20 +141,22 @@ func TestGetProjectContainerLogs_FallbackQuery(t *testing.T) {
 					} `json:"stats"`
 				}{
 					ResultType: "streams",
-					Result:     []struct {
+					Result: []struct {
 						Stream map[string]string `json:"stream"`
 						Values [][]string        `json:"values"`
 					}{},
 				},
 			}
-			
+
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(response)
+			if err := json.NewEncoder(w).Encode(response); err != nil {
+				t.Fatalf("failed to encode response: %v", err)
+			}
 		} else {
 			// Second call should use fallback query format
 			assert.Contains(t, query, `namespace="test-project"`)
 			assert.Contains(t, query, `deployment="app-test-container"`)
-			
+
 			// Return successful result
 			response := LokiResponse{
 				Status: "success",
@@ -191,13 +195,15 @@ func TestGetProjectContainerLogs_FallbackQuery(t *testing.T) {
 			}
 
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(response)
+			if err := json.NewEncoder(w).Encode(response); err != nil {
+				t.Fatalf("failed to encode response: %v", err)
+			}
 		}
 	}))
 	defer server.Close()
 
 	client := NewLokiClient(server.URL)
-	
+
 	result, err := client.GetProjectContainerLogs(
 		context.Background(),
 		"test-project",
@@ -216,10 +222,10 @@ func TestGetProjectContainerLogs_FallbackQuery(t *testing.T) {
 
 func TestGetProjectContainerLogs_BothQueriesFail(t *testing.T) {
 	callCount := 0
-	
+
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		callCount++
-		
+
 		// Return empty result for both calls
 		response := LokiResponse{
 			Status: "success",
@@ -240,7 +246,7 @@ func TestGetProjectContainerLogs_BothQueriesFail(t *testing.T) {
 				} `json:"stats"`
 			}{
 				ResultType: "streams",
-				Result:     []struct {
+				Result: []struct {
 					Stream map[string]string `json:"stream"`
 					Values [][]string        `json:"values"`
 				}{},
@@ -248,12 +254,14 @@ func TestGetProjectContainerLogs_BothQueriesFail(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Fatalf("failed to encode response: %v", err)
+		}
 	}))
 	defer server.Close()
 
 	client := NewLokiClient(server.URL)
-	
+
 	result, err := client.GetProjectContainerLogs(
 		context.Background(),
 		"test-project",
@@ -316,12 +324,14 @@ func TestGetProjectContainerLogs_ErrorAndWarningCounting(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Fatalf("failed to encode response: %v", err)
+		}
 	}))
 	defer server.Close()
 
 	client := NewLokiClient(server.URL)
-	
+
 	result, err := client.GetProjectContainerLogs(
 		context.Background(),
 		"test-project",
@@ -333,10 +343,10 @@ func TestGetProjectContainerLogs_ErrorAndWarningCounting(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Len(t, result.Containers, 1)
-	
+
 	container := result.Containers[0]
 	assert.Equal(t, 7, container.LogCount)
-	assert.Equal(t, 3, container.ErrorCount) // "Error", "Exception", "FATAL"
+	assert.Equal(t, 3, container.ErrorCount)   // "Error", "Exception", "FATAL"
 	assert.Equal(t, 2, container.WarningCount) // "Warning:", "WARN:"
 	assert.Equal(t, 7, result.TotalLogs)
 	assert.Equal(t, 3, result.TotalErrors)
@@ -346,7 +356,7 @@ func TestGetProjectContainerLogs_ErrorAndWarningCounting(t *testing.T) {
 func TestGetProjectContainerLogs_MultipleContainers(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query().Get("query")
-		
+
 		var values [][]string
 		if strings.Contains(query, "app-container1") {
 			values = [][]string{
@@ -392,12 +402,14 @@ func TestGetProjectContainerLogs_MultipleContainers(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Fatalf("failed to encode response: %v", err)
+		}
 	}))
 	defer server.Close()
 
 	client := NewLokiClient(server.URL)
-	
+
 	result, err := client.GetProjectContainerLogs(
 		context.Background(),
 		"test-project",
@@ -409,8 +421,8 @@ func TestGetProjectContainerLogs_MultipleContainers(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Len(t, result.Containers, 2)
-	assert.Equal(t, 4, result.TotalLogs) // 2 + 2
-	assert.Equal(t, 1, result.TotalErrors) // "error" in container1
+	assert.Equal(t, 4, result.TotalLogs)     // 2 + 2
+	assert.Equal(t, 1, result.TotalErrors)   // "error" in container1
 	assert.Equal(t, 1, result.TotalWarnings) // "warning" in container2
 }
 
@@ -454,12 +466,14 @@ func TestGetProjectContainerLogs_HasMoreFlag(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Fatalf("failed to encode response: %v", err)
+		}
 	}))
 	defer server.Close()
 
 	client := NewLokiClient(server.URL)
-	
+
 	result, err := client.GetProjectContainerLogs(
 		context.Background(),
 		"test-project",
@@ -482,7 +496,7 @@ func TestGetProjectContainerLogs_HTTPError(t *testing.T) {
 	defer server.Close()
 
 	client := NewLokiClient(server.URL)
-	
+
 	result, err := client.GetProjectContainerLogs(
 		context.Background(),
 		"test-project",
@@ -550,17 +564,17 @@ func TestConvertToLogEntries(t *testing.T) {
 	logs := convertToLogEntries(lokiResp)
 
 	assert.Len(t, logs, 3)
-	
+
 	// First log
 	assert.Equal(t, "1640995200000000000", logs[0].Timestamp)
 	assert.Equal(t, "First log entry", logs[0].Log)
 	assert.Equal(t, "test-project", logs[0].Labels["namespace"])
 	assert.Equal(t, "test-pod", logs[0].Labels["pod"])
-	
+
 	// Second log
 	assert.Equal(t, "1640995260000000000", logs[1].Timestamp)
 	assert.Equal(t, "Second log entry", logs[1].Log)
-	
+
 	// Third log (from different stream)
 	assert.Equal(t, "1640995280000000000", logs[2].Timestamp)
 	assert.Equal(t, "Third log entry", logs[2].Log)

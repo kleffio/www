@@ -34,7 +34,6 @@ const translations = {
   fr: frTranslations
 };
 
-
 export function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const { project, isLoading: projectLoading, error: projectError } = useProject(projectId || "");
@@ -44,7 +43,7 @@ export function ProjectDetailPage() {
     error: containersError,
     reload
   } = useProjectContainers(projectId || "");
-  
+
   const { role } = usePermissions(projectId);
 
   const [isContainerModalOpen, setIsContainerModalOpen] = useState(false);
@@ -84,19 +83,22 @@ export function ProjectDetailPage() {
   };
 
   const handleEditEnv = (container: Container) => {
-    console.log('handleEditEnv called with container:', container.name);
+    console.log("handleEditEnv called with container:", container.name);
     setSelectedContainer(container);
     setIsEnvModalOpen(true);
-    console.log('isEnvModalOpen set to true');
+    console.log("isEnvModalOpen set to true");
   };
 
   const handleEditContainer = (container: Container) => {
-    console.log('handleEditContainer called with container:', container.name);
+    console.log("handleEditContainer called with container:", container.name);
     setSelectedContainerForEdit(container);
     setIsContainerModalOpen(true);
   };
 
-  const handleSaveEnvVariables = async (containerId: string, envVariables: Record<string, string>) => {
+  const handleSaveEnvVariables = async (
+    containerId: string,
+    envVariables: Record<string, string>
+  ) => {
     await updateContainerEnvVariables(containerId, envVariables);
     await reload();
   };
@@ -104,7 +106,9 @@ export function ProjectDetailPage() {
   if (projectLoading) {
     return (
       <section className="h-full">
-        <div className="app-container py-8 flex justify-center"><Spinner /></div>
+        <div className="app-container flex justify-center py-8">
+          <Spinner />
+        </div>
       </section>
     );
   }
@@ -127,8 +131,6 @@ export function ProjectDetailPage() {
       </section>
     );
   }
-
-
 
   return (
     <section className="h-full">
@@ -155,7 +157,7 @@ export function ProjectDetailPage() {
             <Button
               size="lg"
               onClick={() => setIsTeamModalOpen(true)}
-              className="rounded-full px-5 py-2 text-sm font-semibold bg-white/5 border border-white/10 hover:bg-white/10 text-neutral-50"
+              className="rounded-full border border-white/10 bg-white/5 px-5 py-2 text-sm font-semibold text-neutral-50 hover:bg-white/10"
             >
               <Users className="mr-2 h-4 w-4" />
               {t.team}
@@ -198,7 +200,9 @@ export function ProjectDetailPage() {
               <div className="flex items-center gap-2">
                 <Activity className="h-4 w-4 text-neutral-400" />
                 {project.projectStatus ? (
-                  <Badge variant="success" className="text-xs">{project.projectStatus}</Badge>
+                  <Badge variant="success" className="text-xs">
+                    {project.projectStatus}
+                  </Badge>
                 ) : (
                   <span className="text-sm text-neutral-400">—</span>
                 )}
@@ -220,20 +224,17 @@ export function ProjectDetailPage() {
         </SoftPanel>
 
         <SecureComponent requiredPermission="VIEW_METRICS">
-          <ProjectMetricsCard
-            projectId={project.projectId}
-          />
+          <ProjectMetricsCard projectId={project.projectId} />
         </SecureComponent>
 
-        <ProjectBillingEstimatesCard
-            projectId={project.projectId}
-          />
+        <ProjectBillingEstimatesCard projectId={project.projectId} />
 
         <SoftPanel>
           <div className="mb-6 flex items-center gap-3">
             <GradientIcon icon={Box} />
             <h2 className="text-lg font-semibold text-neutral-50">
-              {t.running_containers} {containers && containers.length > 0 && `(${containers.length})`}
+              {t.running_containers}{" "}
+              {containers && containers.length > 0 && `(${containers.length})`}
             </h2>
           </div>
 
@@ -271,13 +272,11 @@ export function ProjectDetailPage() {
         </SecureComponent>
       </div>
 
-   
       <div className="p-0">
         <BillingModal
           isOpen={isBillingModalOpen}
           onClose={() => setIsBillingModalOpen(false)}
           projectId={projectId || ""}
-         
         />
       </div>
 
@@ -311,7 +310,7 @@ export function ProjectDetailPage() {
         isOpen={isTeamModalOpen}
         onClose={() => setIsTeamModalOpen(false)}
         projectId={projectId || ""}
-        userRole={(role as 'OWNER' | 'ADMIN' | 'DEVELOPER' | 'VIEWER') || 'VIEWER'}
+        userRole={(role as "OWNER" | "ADMIN" | "DEVELOPER" | "VIEWER") || "VIEWER"}
       />
 
       <ContainerDetailModal

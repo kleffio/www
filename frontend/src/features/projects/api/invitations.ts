@@ -1,14 +1,14 @@
-import { client } from '@shared/lib/client';
+import { client } from "@shared/lib/client";
 
 export interface Invitation {
   id: number;
   projectId: string;
   inviterId: string;
   inviteeEmail: string;
-  role: 'OWNER' | 'ADMIN' | 'DEVELOPER' | 'VIEWER';
+  role: "OWNER" | "ADMIN" | "DEVELOPER" | "VIEWER";
   customRoleId?: number;
   customRoleName?: string;
-  status: 'PENDING' | 'ACCEPTED' | 'REFUSED' | 'EXPIRED';
+  status: "PENDING" | "ACCEPTED" | "REFUSED" | "EXPIRED";
   expiresAt: string;
   createdAt: string;
 }
@@ -16,19 +16,22 @@ export interface Invitation {
 export interface CreateInvitationRequest {
   projectId: string;
   inviteeEmail: string;
-  role: 'OWNER' | 'ADMIN' | 'DEVELOPER' | 'VIEWER';
+  role: "OWNER" | "ADMIN" | "DEVELOPER" | "VIEWER";
   customRoleId?: number;
   permissions?: string[];
 }
 
 export async function createInvitation(data: CreateInvitationRequest): Promise<Invitation> {
   const { projectId, ...payload } = data;
-  const response = await client.post<Invitation>(`/api/v1/projects/${projectId}/invitations`, payload);
+  const response = await client.post<Invitation>(
+    `/api/v1/projects/${projectId}/invitations`,
+    payload
+  );
   return response.data;
 }
 
 export async function getMyInvitations(): Promise<Invitation[]> {
-  const response = await client.get<Invitation[]>('/api/v1/users/me/invitations');
+  const response = await client.get<Invitation[]>("/api/v1/users/me/invitations");
   return response.data;
 }
 

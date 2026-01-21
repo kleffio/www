@@ -350,7 +350,9 @@ test.describe("Project Metrics", () => {
     await detailPage.expectAllMetricCardsVisible();
   });
 
-  test("metrics section positioned between project overview and running containers", async ({ page }) => {
+  test("metrics section positioned between project overview and running containers", async ({
+    page
+  }) => {
     const projectsPage = new ProjectsPage(page);
     await projectsPage.open();
     await projectsPage.expectLoaded();
@@ -361,17 +363,15 @@ test.describe("Project Metrics", () => {
     const detailPage = new ProjectDetailPage(page);
     await detailPage.expectLoaded();
 
- 
     await detailPage.expectRunningContainersSection();
     await detailPage.expectContainerExists(containerName);
-
 
     await detailPage.expectMetricsBetweenSections();
   });
 
   test("does not display metrics on project without containers", async ({ page }) => {
     const emptyProjectName = generateTestString("empty-project");
-    
+
     const dash = new DashboardPage(page);
     await dash.open();
     await dash.expectLoaded();
@@ -442,13 +442,18 @@ test.describe("Container Detail Modal", () => {
     const containerModal = new ContainerModal(page);
     await containerModal.open();
     await containerModal.expectLoaded();
-    await containerModal.createContainer(containerName, "8080", {
-      url: "https://github.com/user/repo.git",
-      branch: "main"
-    }, [
-      { key: "NODE_ENV", value: "production" },
-      { key: "PORT", value: "8080" }
-    ]);
+    await containerModal.createContainer(
+      containerName,
+      "8080",
+      {
+        url: "https://github.com/user/repo.git",
+        branch: "main"
+      },
+      [
+        { key: "NODE_ENV", value: "production" },
+        { key: "PORT", value: "8080" }
+      ]
+    );
 
     await context.close();
   });

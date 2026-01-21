@@ -1,15 +1,15 @@
-export type CollaboratorRole = 'OWNER' | 'ADMIN' | 'DEVELOPER' | 'VIEWER';
+export type CollaboratorRole = "OWNER" | "ADMIN" | "DEVELOPER" | "VIEWER";
 
 export type ProjectPermission =
-  | 'READ_PROJECT'
-  | 'WRITE_PROJECT'
-  | 'DEPLOY'
-  | 'MANAGE_ENV_VARS'
-  | 'VIEW_LOGS'
-  | 'VIEW_METRICS'
-  | 'MANAGE_COLLABORATORS'
-  | 'DELETE_PROJECT'
-  | 'MANAGE_BILLING';
+  | "READ_PROJECT"
+  | "WRITE_PROJECT"
+  | "DEPLOY"
+  | "MANAGE_ENV_VARS"
+  | "VIEW_LOGS"
+  | "VIEW_METRICS"
+  | "MANAGE_COLLABORATORS"
+  | "DELETE_PROJECT"
+  | "MANAGE_BILLING";
 
 export interface Collaborator {
   id: number;

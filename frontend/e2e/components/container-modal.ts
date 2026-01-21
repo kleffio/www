@@ -21,8 +21,12 @@ export class ContainerModal extends BaseComponent {
     await expect(this.portInput()).toBeVisible({ timeout: 30_000 });
 
     // Could be create or update button depending on mode
-    const hasCreateButton = await this.createButton().isVisible().catch(() => false);
-    const hasUpdateButton = await this.updateButton().isVisible().catch(() => false);
+    const hasCreateButton = await this.createButton()
+      .isVisible()
+      .catch(() => false);
+    const hasUpdateButton = await this.updateButton()
+      .isVisible()
+      .catch(() => false);
     expect(hasCreateButton || hasUpdateButton).toBe(true);
   }
 
@@ -72,7 +76,10 @@ export class ContainerModal extends BaseComponent {
   }
 
   removeEnvButton(index: number) {
-    return this.page.locator('button').filter({ has: this.page.locator('svg.lucide-trash-2') }).nth(index);
+    return this.page
+      .locator("button")
+      .filter({ has: this.page.locator("svg.lucide-trash-2") })
+      .nth(index);
   }
 
   async fillBasicInfo(name: string, port: string) {
@@ -95,14 +102,14 @@ export class ContainerModal extends BaseComponent {
   async addEnvVariable(key: string, value: string) {
     // Click add variable button
     await this.addEnvVariableButton().click();
-    
+
     // Wait a moment for the inputs to appear
     await this.page.waitForTimeout(300);
-    
+
     // Get the count of current env variables
     const keyInputs = this.page.locator('input[placeholder="KEY"]');
     const count = await keyInputs.count();
-    
+
     // Fill the last added (newest) env variable
     await this.envKeyInput(count - 1).fill(key);
     await this.envValueInput(count - 1).fill(value);

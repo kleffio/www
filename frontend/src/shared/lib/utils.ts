@@ -15,14 +15,14 @@ export function formatRepoUrl(url: string | null | undefined) {
 
   try {
     const urlObj = new URL(url);
-    if (urlObj.hostname === 'github.com') {
-      const pathParts = urlObj.pathname.split('/').filter(Boolean);
+    if (urlObj.hostname === "github.com") {
+      const pathParts = urlObj.pathname.split("/").filter(Boolean);
       if (pathParts.length >= 2) {
         const repoName = `${pathParts[0]}/${pathParts[1]}`;
         return { display: repoName, link: url };
       }
     }
-  } catch (e) {
+  } catch {
     // Invalid URL, return as-is
   }
 
@@ -44,19 +44,19 @@ export function formatTimeAgo(timestamp: string) {
     const diffDays = Math.floor(diffHours / 24);
 
     if (diffMinutes < 1) return "Just now";
-    if (diffMinutes < 60) return `${diffMinutes} minute${diffMinutes !== 1 ? 's' : ''} ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
-    if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+    if (diffMinutes < 60) return `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
 
     // For older dates, show formatted date
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit'
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit"
     });
-  } catch (e) {
+  } catch {
     return timestamp;
   }
 }

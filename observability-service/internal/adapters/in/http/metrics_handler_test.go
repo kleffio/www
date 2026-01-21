@@ -15,20 +15,22 @@ import (
 
 // mockMetricsService is a mock implementation of ports.MetricsService
 type mockMetricsService struct {
-	getClusterOverviewFunc      func(ctx context.Context) (*domain.ClusterOverview, error)
-	getRequestsMetricFunc       func(ctx context.Context, duration string) (*domain.MetricCard, error)
-	getPodsMetricFunc           func(ctx context.Context, duration string) (*domain.MetricCard, error)
-	getNodesMetricFunc          func(ctx context.Context, duration string) (*domain.MetricCard, error)
-	getTenantsMetricFunc        func(ctx context.Context, duration string) (*domain.MetricCard, error)
-	getCPUUtilizationFunc       func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
-	getMemoryUtilizationFunc    func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
-	getNodesFunc                func(ctx context.Context) ([]domain.NodeMetric, error)
-	getNamespacesFunc           func(ctx context.Context) ([]domain.NamespaceMetric, error)
-	getUptimeMetricsFunc        func(ctx context.Context, duration string) (*domain.UptimeMetrics, error)
-	getSystemUptimeFunc         func(ctx context.Context) (float64, error)
-	getDatabaseIOMetricsFunc         func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
-	getProjectUsageMetricsFunc       func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
-	getProjectUsageMetricsWithDaysFunc func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error)
+	getClusterOverviewFunc                  func(ctx context.Context) (*domain.ClusterOverview, error)
+	getRequestsMetricFunc                   func(ctx context.Context, duration string) (*domain.MetricCard, error)
+	getPodsMetricFunc                       func(ctx context.Context, duration string) (*domain.MetricCard, error)
+	getNodesMetricFunc                      func(ctx context.Context, duration string) (*domain.MetricCard, error)
+	getTenantsMetricFunc                    func(ctx context.Context, duration string) (*domain.MetricCard, error)
+	getCPUUtilizationFunc                   func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
+	getMemoryUtilizationFunc                func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
+	getNodesFunc                            func(ctx context.Context) ([]domain.NodeMetric, error)
+	getNamespacesFunc                       func(ctx context.Context) ([]domain.NamespaceMetric, error)
+	getUptimeMetricsFunc                    func(ctx context.Context, duration string) (*domain.UptimeMetrics, error)
+	getSystemUptimeFunc                     func(ctx context.Context) (float64, error)
+	getDatabaseIOMetricsFunc                func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
+	getProjectUsageMetricsFunc              func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
+	getProjectUsageMetricsWithDaysFunc      func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error)
+	getProjectTotalUsageMetricsFunc         func(ctx context.Context, projectID string) (*domain.ProjectTotalUsageMetrics, error)
+	getProjectTotalUsageMetricsWithDaysFunc func(ctx context.Context, projectID string, days int) (*domain.ProjectTotalUsageMetrics, error)
 }
 
 func (m *mockMetricsService) GetClusterOverview(ctx context.Context) (*domain.ClusterOverview, error) {
@@ -127,6 +129,20 @@ func (m *mockMetricsService) GetSystemUptime(ctx context.Context) (float64, erro
 		return m.getSystemUptimeFunc(ctx)
 	}
 	return 0, errors.New("not implemented")
+}
+
+func (m *mockMetricsService) GetProjectTotalUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectTotalUsageMetrics, error) {
+	if m.getProjectTotalUsageMetricsFunc != nil {
+		return m.getProjectTotalUsageMetricsFunc(ctx, projectID)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsService) GetProjectTotalUsageMetricsWithDays(ctx context.Context, projectID string, days int) (*domain.ProjectTotalUsageMetrics, error) {
+	if m.getProjectTotalUsageMetricsWithDaysFunc != nil {
+		return m.getProjectTotalUsageMetricsWithDaysFunc(ctx, projectID, days)
+	}
+	return nil, errors.New("not implemented")
 }
 
 func setupTestRouter() *gin.Engine {
@@ -296,7 +312,7 @@ func TestGetCPUUtilization_Success(t *testing.T) {
 	}
 
 	if response.CurrentValue != expectedUtilization.CurrentValue {
-		t.Errorf("Expected CurrentValue %.2f, got %.2f", 
+		t.Errorf("Expected CurrentValue %.2f, got %.2f",
 			expectedUtilization.CurrentValue, response.CurrentValue)
 	}
 }
@@ -423,7 +439,7 @@ func TestGetDatabaseIOMetrics_Success(t *testing.T) {
 	}
 
 	if response.DiskReadBytesPerSec != expectedMetrics.DiskReadBytesPerSec {
-		t.Errorf("Expected DiskReadBytesPerSec %.2f, got %.2f", 
+		t.Errorf("Expected DiskReadBytesPerSec %.2f, got %.2f",
 			expectedMetrics.DiskReadBytesPerSec, response.DiskReadBytesPerSec)
 	}
 }
@@ -739,10 +755,10 @@ func TestGetDatabaseIOMetrics_Error(t *testing.T) {
 
 func TestGetProjectUsageMetrics_Success(t *testing.T) {
 	expectedMetrics := &domain.ProjectUsageMetrics{
-		ProjectID:         "project-123",
-		MemoryUsageGB:     8.5,
-		CPURequestCores:   2.0,
-		Window:            "30d",
+		ProjectID:       "project-123",
+		MemoryUsageGB:   8.5,
+		CPURequestCores: 2.0,
+		Window:          "30d",
 	}
 
 	mockService := &mockMetricsService{
@@ -825,10 +841,10 @@ func TestGetProjectUsageMetrics_MissingProjectID(t *testing.T) {
 
 func TestGetProjectUsageMetricsWithDays_Success(t *testing.T) {
 	expectedMetrics := &domain.ProjectUsageMetrics{
-		ProjectID:         "project-123",
-		MemoryUsageGB:     4.2,
-		CPURequestCores:   1.5,
-		Window:            "7d",
+		ProjectID:       "project-123",
+		MemoryUsageGB:   4.2,
+		CPURequestCores: 1.5,
+		Window:          "7d",
 	}
 
 	mockService := &mockMetricsService{

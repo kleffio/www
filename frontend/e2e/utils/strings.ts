@@ -3,7 +3,6 @@ export function generateTestString(identifier: string) {
 }
 
 export function validateTestString(testString: string) {
-  const e = testString.substring(0, 3);
   if (testString.substring(0, 3) !== "pw_") {
     throw new Error(
       "Invalid Playwright string format! Use the strings generator to create unique strings"

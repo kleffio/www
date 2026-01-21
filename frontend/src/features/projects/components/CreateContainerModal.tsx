@@ -14,7 +14,6 @@ const translations = {
   fr: frTranslations
 };
 
-
 interface ContainerModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -23,7 +22,13 @@ interface ContainerModalProps {
   container?: Container | null; // Added: if null, we are creating. If object, we are editing.
 }
 
-export function ContainerModal({ isOpen, onClose, projectId, onSuccess, container }: ContainerModalProps) {
+export function ContainerModal({
+  isOpen,
+  onClose,
+  projectId,
+  onSuccess,
+  container
+}: ContainerModalProps) {
   const [name, setName] = useState("");
   const [port, setPort] = useState("");
   const [repoUrl, setRepoUrl] = useState("");
@@ -89,10 +94,13 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
     setError(null);
 
     try {
-      const envVarsObject = envVariables.reduce((acc, { key, value }) => {
-        if (key.trim()) acc[key.trim()] = value;
-        return acc;
-      }, {} as Record<string, string>);
+      const envVarsObject = envVariables.reduce(
+        (acc, { key, value }) => {
+          if (key.trim()) acc[key.trim()] = value;
+          return acc;
+        },
+        {} as Record<string, string>
+      );
 
       const payload = {
         projectID: projectId,
@@ -111,7 +119,7 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
 
       onSuccess?.();
       onClose();
-    } catch (err) {
+    } catch {
       setError(t.failed_save);
     } finally {
       setIsSubmitting(false);
@@ -249,7 +257,7 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
                 <p className="text-xs text-neutral-500 italic">{t.no_env_vars}</p>
               )}
               {envVariables.map((envVar, index) => (
-                <div key={index} className="flex gap-2 items-start">
+                <div key={index} className="flex items-start gap-2">
                   <input
                     type="text"
                     value={envVar.key}
@@ -302,7 +310,13 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
                 disabled={isSubmitting}
                 className="bg-gradient-kleff rounded-full px-5 py-2 text-xs font-semibold text-black shadow-md shadow-black/40 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {isSubmitting ? (isEditMode ? t.updating : t.creating) : (isEditMode ? t.update_button : t.create_button)}
+                {isSubmitting
+                  ? isEditMode
+                    ? t.updating
+                    : t.creating
+                  : isEditMode
+                    ? t.update_button
+                    : t.create_button}
               </Button>
             </div>
           </form>
