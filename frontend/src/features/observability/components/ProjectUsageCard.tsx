@@ -31,7 +31,6 @@ export default function ProjectUsageCard({ projectId }: ProjectUsageCardProps) {
 
   useEffect(() => {
     fetchUsageMetrics();
-    // Refresh every 5 minutes since these are 30-day averages
     const interval = setInterval(fetchUsageMetrics, 300000);
     return () => clearInterval(interval);
   }, [projectId]);
