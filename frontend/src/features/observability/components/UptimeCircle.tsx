@@ -8,11 +8,7 @@ interface UptimeCircleProps {
   locale?: "en" | "fr";
 }
 
-export function UptimeCircle({
-  size = 140,
-  strokeWidth = 10,
-  locale = "en"
-}: UptimeCircleProps) {
+export function UptimeCircle({ size = 140, strokeWidth = 10, locale = "en" }: UptimeCircleProps) {
   const { data, isLoading } = useUptime({ duration: "30d" });
   const [animatedPercentage, setAnimatedPercentage] = useState(0);
 
@@ -120,9 +116,7 @@ export function UptimeCircle({
         <div className="mb-1 flex h-7 w-7 items-center justify-center rounded-full bg-green-500/10">
           <Activity className="h-4 w-4 text-green-400" />
         </div>
-        <div className="text-3xl font-bold text-neutral-50">
-          {animatedPercentage.toFixed(2)}%
-        </div>
+        <div className="text-3xl font-bold text-neutral-50">{animatedPercentage.toFixed(2)}%</div>
         <div className="text-[10px] font-medium tracking-wider text-neutral-400 uppercase">
           {t.uptime}
         </div>
