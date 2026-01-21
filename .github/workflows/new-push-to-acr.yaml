@@ -92,7 +92,7 @@ jobs:
 
           echo "Updating images to tag: $SHA"
 
-          # 1. User Service (Added select(.kind == "Deployment"))
+          # 1. User Service
           yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "user-service").image = env(REGISTRY) + "/user-service:" + env(SHA)' charts/kleff/microservices/user/user-service-deployment.yaml
 
           # 2. Server API
@@ -109,8 +109,8 @@ jobs:
 
           # 6. Billing Service
           yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "billing-service").image = env(REGISTRY) + "/billing-service:" + env(SHA)' charts/kleff/microservices/billing/billing-service.yaml
-          
-          # 7. Observability Service 
+
+          # 7. Observability Service
           yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "observability-service").image = env(REGISTRY) + "/observability-service:" + env(SHA)' charts/kleff/microservices/observability/observability-service.yaml
 
           # Check if there are changes
