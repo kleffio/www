@@ -150,7 +150,7 @@ func main() {
 
 func (s *Server) handleHelloWorld(w http.ResponseWriter, r *http.Request) {
     w.WriteHeader(http.StatusOK)
-    w.Write([]byte("Hello World"))
+    w.Write([]byte("Hello World, this is a CD test"))
 }
 
 func (s *Server) handleCreateBuild(w http.ResponseWriter, r *http.Request) {
