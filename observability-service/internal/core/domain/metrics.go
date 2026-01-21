@@ -74,10 +74,10 @@ type ProjectUsageMetrics struct {
 }
 
 type ProjectTotalUsageMetrics struct {
-	ProjectID       string  `json:"projectID"`
-	MemoryUsageGB   float64 `json:"memoryUsageGB"`
-	CPURequestCores float64 `json:"cpuRequestCores"`
-	Window          string  `json:"window"`
+	ProjectID     string  `json:"projectID"`
+	CPUHours      float64 `json:"cpuHours"`
+	MemoryGBHours float64 `json:"memoryGBHours"`
+	Window        string  `json:"window"`
 }
 
 type UptimeMetrics struct {
