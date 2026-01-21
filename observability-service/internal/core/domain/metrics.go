@@ -73,6 +73,13 @@ type ProjectUsageMetrics struct {
 	Window          string  `json:"window"`
 }
 
+type ProjectTotalUsageMetrics struct {
+	ProjectID     string  `json:"projectID"`
+	CPUHours      float64 `json:"cpuHours"`
+	MemoryGBHours float64 `json:"memoryGBHours"`
+	Window        string  `json:"window"`
+}
+
 type UptimeMetrics struct {
 	SystemUptimeSeconds    float64               `json:"systemUptimeSeconds"`
 	SystemUptimeFormatted  string                `json:"systemUptimeFormatted"`

@@ -32,4 +32,6 @@ type MetricsRepository interface {
 	GetDatabaseIOMetrics(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
 	GetProjectUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
 	GetProjectUsageMetricsWithDays(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error)
+	GetProjectTotalUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectTotalUsageMetrics, error)
+	GetProjectTotalUsageMetricsWithDays(ctx context.Context, projectID string, days int) (*domain.ProjectTotalUsageMetrics, error)
 }

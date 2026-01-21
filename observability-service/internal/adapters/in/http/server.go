@@ -37,6 +37,7 @@ func SetupRouter(handler *MetricsHandler, logsHandler *LogsHandler) *gin.Engine 
 		api.POST("/logs/project-containers", logsHandler.GetProjectContainerLogs)
 		api.GET("/projects/:projectID/usage/:days", handler.GetProjectUsageMetricsWithDays)
 		api.GET("/projects/:projectID/usage", handler.GetProjectUsageMetrics)
+		api.GET("/projects/:projectID/totalusage", handler.GetProjectTotalUsageMetrics)
 
 		api.GET("/uptime", handler.GetUptimeMetrics)
 		api.GET("/system-uptime", handler.GetSystemUptime)
