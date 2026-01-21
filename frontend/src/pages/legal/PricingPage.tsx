@@ -4,10 +4,11 @@ import { cn } from '@shared/lib/utils';
 import { Section } from '@shared/ui/Section';
 import { Badge } from '@shared/ui/Badge';
 import { SoftPanel } from '@shared/ui/SoftPanel';
-import { viewPricesApi, type Price } from '@features/billing/api/viewPrices';
 import enTranslations from '@app/locales/en/legal.json';
 import frTranslations from '@app/locales/fr/legal.json';
 import { getLocale } from '@app/locales/locale';
+import type { Price } from '@features/billing/types/Price';
+import fetchPrices from '@features/billing/api/viewPrices';
 
 const translations = {
   en: enTranslations,
@@ -40,10 +41,10 @@ const PricingPage: React.FC = () => {
 
   // Fetch prices on component mount
   useEffect(() => {
-    const fetchPrices = async () => {
+    const fetchPrice = async () => {
       try {
         setLoading(true);
-        const fetchedPrices = await viewPricesApi.getPrices();
+        const fetchedPrices = await fetchPrices();
         setPrices(fetchedPrices);
       } catch (err) {
         console.error('Error fetching prices:', err);
@@ -53,7 +54,7 @@ const PricingPage: React.FC = () => {
       }
     };
 
-    fetchPrices();
+    fetchPrice();
   }, []);
 
   // Build pricing items from fetched prices

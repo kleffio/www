@@ -27,21 +27,13 @@ import { usePermissions } from "@features/projects/hooks/usePermissions";
 import { TeamModal } from "@features/projects/components/TeamModal";
 import { SecureComponent } from "@app/components/SecureComponent";
 import { SimpleContainerLogsSheet } from "@features/projects/components/SimpleContainerLogsSheet";
+import ProjectBillingEstimatesCard from "@features/billing/components/getEstimateBilling";
 
 const translations = {
   en: enTranslations,
   fr: frTranslations
 };
 
-
-// const sanitizeAppName = (name: string) => {
-//   if (!name) return "";
-//   return name
-//     .toLowerCase()
-//     .replace(/_/g, '-')      
-//     .replace(/\s+/g, '-')    
-//     .replace(/^-+|-+$/g, ''); 
-// };
 
 export function ProjectDetailPage() {
   const { projectId } = useParams<{ projectId: string }>();
@@ -232,6 +224,10 @@ export function ProjectDetailPage() {
             projectId={project.projectId}
           />
         </SecureComponent>
+
+        <ProjectBillingEstimatesCard
+            projectId={project.projectId}
+          />
 
         <SoftPanel>
           <div className="mb-6 flex items-center gap-3">
