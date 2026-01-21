@@ -68,6 +68,7 @@ jobs:
             VITE_AUTH_CLIENT_ID=${{ vars.VITE_AUTH_CLIENT_ID }}
             VITE_BACKEND_URL=${{ vars.VITE_BACKEND_URL }}
 
+
       # 3. Update Manifests
   update-manifests:
     needs: [build-and-push]
