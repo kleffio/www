@@ -58,7 +58,7 @@ export function PendingInvitations({ onUpdate }: PendingInvitationsProps) {
     try {
       setLoading(true);
       const data = await getMyInvitations();
-      const pending = data.filter(inv => inv.status === 'PENDING');
+      const pending = data?.filter(inv => inv.status === 'PENDING') || [];
       
       const enriched = await Promise.all(
         pending.map(async (inv) => {

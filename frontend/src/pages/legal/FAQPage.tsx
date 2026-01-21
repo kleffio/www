@@ -21,9 +21,9 @@ export function FAQPage() {
     return faqData
       .map((category) => ({
         ...category,
-        questions: category.questions.filter(
+        questions: category.questions?.filter(
           (q) => q.q.toLowerCase().includes(query) || q.a.toLowerCase().includes(query)
-        )
+        ) || []
       }))
       .filter((category) => category.questions.length > 0);
   }, [searchQuery]);

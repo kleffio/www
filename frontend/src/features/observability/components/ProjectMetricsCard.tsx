@@ -1,42 +1,42 @@
 import { useEffect, useState } from 'react';
-import { getProjectUsage } from '@features/observability/api/getProjectMetrics';
-import type { ProjectUsage } from '@features/observability/types/projectUsage.types';
+import { getProjectTotalUsageMetrics } from '@features/observability/api/getProjectTotalUsageMetrics';
+import type { ProjectTotalUsageMetrics } from '@features/observability/types/projectTotalUsageMetrics.types';
 import { SoftPanel } from '@shared/ui/SoftPanel';
 import { MiniCard } from '@shared/ui/MiniCard';
 import { GradientIcon } from '@shared/ui/GradientIcon';
-import { Cpu, HardDrive, Clock } from 'lucide-react';
+import { Cpu, HardDrive, TrendingUp } from 'lucide-react';
 
 interface ProjectMetricsCardProps {
   projectId: string;
 }
 
 export default function ProjectMetricsCard({ projectId }: ProjectMetricsCardProps) {
-  const [usage, setUsage] = useState<ProjectUsage | null>(null);
+  const [usageMetrics, setUsageMetrics] = useState<ProjectTotalUsageMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchUsage = async () => {
+  const fetchUsageMetrics = async () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await getProjectUsage(projectId);
-      setUsage(data);
+      const data = await getProjectTotalUsageMetrics(projectId);
+      setUsageMetrics(data);
     } catch (err) {
-      setError('Unable to retrieve project usage metrics.');
-      console.error('Error fetching project usage:', err);
+      setError('Unable to retrieve usage metrics. Please check your connection.');
+      console.error('Error fetching project total usage metrics:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUsage();
-    // Update every 5 minutes for usage metrics (less frequent than real-time metrics)
-    const interval = setInterval(fetchUsage, 300000);
+    fetchUsageMetrics();
+    // Refresh every 5 minutes since these are total lifetime metrics
+    const interval = setInterval(fetchUsageMetrics, 300000);
     return () => clearInterval(interval);
   }, [projectId]);
 
-  if (loading && !usage) {
+  if (loading && !usageMetrics) {
     return (
       <SoftPanel>
         <div className="flex justify-center py-10">
@@ -54,41 +54,41 @@ export default function ProjectMetricsCard({ projectId }: ProjectMetricsCardProp
     );
   }
 
-  if (!usage) return null;
+  if (!usageMetrics) return null;
 
   return (
     <SoftPanel>
       <div className="mb-6 flex items-center gap-3">
-        <GradientIcon icon={Clock} />
-        <h2 className="text-lg font-semibold text-neutral-50">Project Usage (30 Days)</h2>
+        <GradientIcon icon={TrendingUp} />
+        <h2 className="text-lg font-semibold text-neutral-50">Total Lifetime Usage</h2>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <MiniCard title="Avg CPU Requests">
+        <MiniCard title="Total CPU Usage">
           <div className="flex items-center gap-2">
             <Cpu className="h-4 w-4 text-neutral-400" />
             <span className="text-2xl font-semibold text-neutral-50">
-              {(usage.cpuRequestCores || 0).toFixed(3)}
+              {usageMetrics?.cpuHours?.toFixed(2) || '0.00'}
             </span>
-            <span className="text-xs text-neutral-400">cores</span>
+            <span className="text-xs text-neutral-400">core·h</span>
           </div>
         </MiniCard>
 
-        <MiniCard title="Avg Memory Usage">
+        <MiniCard title="Total Memory Usage">
           <div className="flex items-center gap-2">
             <HardDrive className="h-4 w-4 text-neutral-400" />
             <span className="text-2xl font-semibold text-neutral-50">
-              {(usage.memoryUsageGB || 0).toFixed(2)}
+              {usageMetrics?.memoryGBHours?.toFixed(2) || '0.00'}
             </span>
-            <span className="text-xs text-neutral-400">GB</span>
+            <span className="text-xs text-neutral-400">GB·h</span>
           </div>
         </MiniCard>
 
         <MiniCard title="Time Window">
           <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-neutral-400" />
+            <TrendingUp className="h-4 w-4 text-neutral-400" />
             <span className="text-sm font-semibold text-neutral-50">
-              {usage.window || '30d'}
+              {usageMetrics?.window || 'Lifetime'}
             </span>
           </div>
         </MiniCard>
