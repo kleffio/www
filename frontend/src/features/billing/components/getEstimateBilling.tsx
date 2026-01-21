@@ -5,7 +5,8 @@ import { SoftPanel } from '@shared/ui/SoftPanel';
 import { MiniCard } from '@shared/ui/MiniCard';
 import { GradientIcon } from '@shared/ui/GradientIcon';
 import { Cpu, HardDrive, DollarSign } from 'lucide-react';
-import { viewPricesApi, type Price } from '@features/billing/api/viewPrices';
+import type { Price } from '../types/Price';
+import fetchPrices from '../api/viewPrices';
 
 interface ProjectBillingEstimatesCardProps {
   projectId: string;
@@ -23,7 +24,7 @@ export default function ProjectBillingEstimatesCard({ projectId }: ProjectBillin
       setError(null);
       const [usageData, pricesData] = await Promise.all([
         getProjectUsage(projectId),
-        viewPricesApi.getPrices()
+        fetchPrices()
       ]);
       setUsage(usageData);
       setPrices(pricesData);
@@ -62,7 +63,6 @@ export default function ProjectBillingEstimatesCard({ projectId }: ProjectBillin
 
   if (!usage || prices.length < 2) return null;
 
-  // Calculate costs by multiplying the first two prices with corresponding metrics
   const cpuCost = (usage.cpuRequestCores || 0) * (prices[0]?.price || 0);
   const memoryCost = (usage.memoryUsageGB || 0) * (prices[1]?.price || 0);
   const totalCost = cpuCost + memoryCost;
