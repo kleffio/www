@@ -1,3 +1,4 @@
+---
 name: Golang CI
 
 on:
@@ -19,7 +20,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/user-service/go.sum') }}
+          key: >-
+            ${{ runner.os }}-go-${{
+            hashFiles('**/user-service/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Go mod tidy
@@ -55,7 +58,9 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/observability-service/go.sum') }}
+          key: >-
+            ${{ runner.os }}-go-${{
+            hashFiles('**/observability-service/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Go mod tidy
@@ -83,7 +88,8 @@ jobs:
     needs: [user_service_test, observability_service_test]
     if: >-
       always() && (github.event_name == 'pull_request' ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/main'))
+      (github.event_name == 'push' &&
+      github.ref == 'refs/heads/main'))
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -93,16 +99,20 @@ jobs:
           path: golang-coverage-reports
       - name: Generate coverage summary
         run: |
-          echo "## Golang Code Coverage Summary" >> $GITHUB_STEP_SUMMARY
+          summary="## Golang Code Coverage Summary"
+          echo "$summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Coverage reports generated for Golang microservices." >> $GITHUB_STEP_SUMMARY
+          echo "Coverage reports generated for Golang microservices." \
+            >> $GITHUB_STEP_SUMMARY
           echo "### Coverage Results" >> $GITHUB_STEP_SUMMARY
 
           for report_file in golang-coverage-reports/*/*.html; do
             if [ -f "$report_file" ]; then
-              service_name=$(basename "$(dirname "$report_file")" | sed 's/coverage-reports-//')
+              service_name=$(basename "$(dirname "$report_file")" | \
+                sed 's/coverage-reports-//')
               # Extract coverage percentage from HTML (basic extraction)
-              coverage=$(grep -o '[0-9]\+\.[0-9]\+%' "$report_file" | head -1)
+              coverage=$(grep -o '[0-9]\+\.[0-9]\+%' "$report_file" | \
+                head -1)
               if [ -z "$coverage" ]; then
                 coverage="No coverage data"
               fi
