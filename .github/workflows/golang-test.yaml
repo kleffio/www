@@ -7,6 +7,56 @@ on:
   pull_request:
 
 jobs:
+  golang_format_check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - name: Check user-service formatting
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "The following files are not formatted:"
+            echo "$unformatted"
+            exit 1
+          fi
+        working-directory: ./user-service
+      - name: Check observability-service formatting
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "The following files are not formatted:"
+            echo "$unformatted"
+            exit 1
+          fi
+        working-directory: ./observability-service
+
+  golang_lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - name: Lint user-service
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          working-directory: ./user-service
+          args: --timeout=5m
+      - name: Lint observability-service
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+          working-directory: ./observability-service
+          args: --timeout=5m
+
   user_service_test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
