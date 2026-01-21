@@ -22,7 +22,7 @@ type mockMetricsRepository struct {
 	getDatabaseIOMetricsFunc           func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
 	getProjectUsageMetricsFunc         func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
 	getProjectUsageMetricsWithDaysFunc func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error)
-	getProjectTotalUsageMetricsFunc    func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
+	getProjectTotalUsageMetricsFunc    func(ctx context.Context, projectID string) (*domain.ProjectTotalUsageMetrics, error)
 	getSystemUptimeFunc                func(ctx context.Context) (float64, error)
 	getUptimeMetricsFunc               func(ctx context.Context, duration string) (*domain.UptimeMetrics, error)
 }
@@ -111,7 +111,7 @@ func (m *mockMetricsRepository) GetProjectUsageMetricsWithDays(ctx context.Conte
 	return nil, errors.New("not implemented")
 }
 
-func (m *mockMetricsRepository) GetProjectTotalUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error) {
+func (m *mockMetricsRepository) GetProjectTotalUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectTotalUsageMetrics, error) {
 	if m.getProjectTotalUsageMetricsFunc != nil {
 		return m.getProjectTotalUsageMetricsFunc(ctx, projectID)
 	}
