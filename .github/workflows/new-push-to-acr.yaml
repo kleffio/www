@@ -79,7 +79,7 @@ jobs:
         with:
           repository: jeremy-misola/GitOps-Homelab
           ref: develop
-          token: ${{ secrets.GIT_PAT }} 
+          token: ${{ secrets.GITOPS_PAT }} 
           persist-credentials: true 
 
       - name: Update Image Tags
