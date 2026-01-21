@@ -167,7 +167,9 @@ func TestGetMe(t *testing.T) {
 
 			if tt.expectedError != "" {
 				var errResp errorResponse
-				json.NewDecoder(w.Body).Decode(&errResp)
+				if err := json.NewDecoder(w.Body).Decode(&errResp); err != nil {
+					t.Fatalf("failed to decode error response: %v", err)
+				}
 				if errResp.Error != tt.expectedError {
 					t.Errorf("expected error %s, got %s", tt.expectedError, errResp.Error)
 				}
@@ -359,7 +361,9 @@ func TestPatchMeProfile(t *testing.T) {
 
 			if tt.expectedError != "" {
 				var errResp errorResponse
-				json.NewDecoder(w.Body).Decode(&errResp)
+				if err := json.NewDecoder(w.Body).Decode(&errResp); err != nil {
+					t.Fatalf("failed to decode error response: %v", err)
+				}
 				if errResp.Error != tt.expectedError {
 					t.Errorf("expected error %s, got %s", tt.expectedError, errResp.Error)
 				}
@@ -445,7 +449,9 @@ func TestGetPublicProfile(t *testing.T) {
 
 			if tt.expectedError != "" {
 				var errResp errorResponse
-				json.NewDecoder(w.Body).Decode(&errResp)
+				if err := json.NewDecoder(w.Body).Decode(&errResp); err != nil {
+					t.Fatalf("failed to decode error response: %v", err)
+				}
 				if errResp.Error != tt.expectedError {
 					t.Errorf("expected error %s, got %s", tt.expectedError, errResp.Error)
 				}
