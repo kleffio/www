@@ -20,7 +20,10 @@ const InvoicePage = () => {
     // Fetch invoice details
     client.get(`/api/v1/billing/invoice/${invoiceId}`)
       .then(res => setInvoice(res.data))
-      .catch(err => setError(err.response?.data?.error || 'Failed to fetch invoice'));
+      .catch((err: unknown) => {
+        const error = err as { response?: { data?: { error?: string } } };
+        setError(error.response?.data?.error || 'Failed to fetch invoice');
+      });
   }, [invoiceId]);
 
   const handlePayInvoice = async () => {
@@ -34,8 +37,9 @@ const InvoicePage = () => {
 
       // Redirect to Stripe
       window.location.href = data.url;
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to process payment');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      setError(error.response?.data?.error || 'Failed to process payment');
       setLoading(false);
     }
   };

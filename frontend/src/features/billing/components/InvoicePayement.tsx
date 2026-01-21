@@ -22,8 +22,9 @@ const InvoicePayment = ({ invoiceId }: { invoiceId: string }) => {
       // Redirect to Stripe
       window.location.href = data.url;
       
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Payment failed');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      setError(error.response?.data?.error || 'Payment failed');
       setLoading(false);
     }
   };

@@ -111,7 +111,7 @@ export function ContainerModal({ isOpen, onClose, projectId, onSuccess, containe
 
       onSuccess?.();
       onClose();
-    } catch (err) {
+    } catch {
       setError(t.failed_save);
     } finally {
       setIsSubmitting(false);

@@ -22,7 +22,7 @@ export function formatRepoUrl(url: string | null | undefined) {
         return { display: repoName, link: url };
       }
     }
-  } catch (e) {
+  } catch {
     // Invalid URL, return as-is
   }
 
@@ -56,7 +56,7 @@ export function formatTimeAgo(timestamp: string) {
       hour: 'numeric',
       minute: '2-digit'
     });
-  } catch (e) {
+  } catch {
     return timestamp;
   }
 }

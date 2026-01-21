@@ -7,11 +7,13 @@ import { ContainerModal } from "../components/container-modal";
 import { EditEnvModal } from "../components/edit-env-modal";
 import { generateTestString } from "../utils/strings";
 
+import type { Browser } from '@playwright/test';
+
 test.describe("Container Environment Variables", () => {
   let projectName: string;
   let projectDesc: string;
 
-  test.beforeAll(async ({ browser }: { browser: any }) => {
+  test.beforeAll(async ({ browser }: { browser: Browser }) => {
     projectName = generateTestString("env-project");
     projectDesc = "Project for environment variable tests: " + projectName;
 
@@ -196,7 +198,7 @@ test.describe("Container Environment Variables", () => {
     await editEnvModal.expectLoaded();
 
     // Remove all variables
-    let count = await editEnvModal.getEnvVariableCount();
+    const count = await editEnvModal.getEnvVariableCount();
     for (let i = count - 1; i >= 0; i--) {
       await editEnvModal.removeEnvVariableByIndex(i);
     }

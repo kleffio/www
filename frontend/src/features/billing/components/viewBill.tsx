@@ -31,8 +31,9 @@ export function ViewBillModal({ isOpen, onClose, invoiceId, status }: ViewBillMo
       // Redirect to Stripe
       window.location.href = data.url;
       
-    } catch (err: any) {
-      setPayError(err.response?.data?.error || 'Payment failed');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      setPayError(error.response?.data?.error || 'Payment failed');
       setPayLoading(false);
     }
   };

@@ -131,7 +131,7 @@ export class ProjectDetailPage extends BasePage {
     await viewLogsButton.click();
   }
 
-  async expectLogsSheetOpen(containerName: string) {
+  async expectLogsSheetOpen() {
     // Sheet should be visible
     const sheet = this.page.locator('[role="dialog"]').or(
       this.page.locator('[data-testid="logs-sheet"]')

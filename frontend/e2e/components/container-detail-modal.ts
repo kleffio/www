@@ -201,7 +201,7 @@ export class ContainerDetailModal extends BaseComponent {
     expect(containerId).toMatch(uuidPattern);
   }
 
-  async expectVisitAppUrl(containerId: string) {
+  async expectVisitAppUrl() {
     // Since the button uses window.open which may not work in test environment,
     // just verify the button exists and can be clicked
     await expect(this.visitAppButton()).toBeVisible();

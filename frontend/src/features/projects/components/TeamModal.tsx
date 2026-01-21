@@ -111,8 +111,9 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
       const data = await getProjectCollaborators(projectId);
       setCollaborators(data);
       setError(null);
-    } catch (err: any) {
-      setError(err.response?.data?.message || t.messages.error_loading);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || t.messages.error_loading);
     } finally {
       setLoading(false);
     }
@@ -123,7 +124,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
     try {
       const data = await getProjectInvitations(projectId);
       setInvitations(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load invitations:', err);
     }
   };
@@ -132,7 +133,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
     try {
       const data = await getProjectCustomRoles(projectId);
       setCustomRoles(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load custom roles:', err);
     }
   };
@@ -143,6 +144,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
       loadInvitations();
       loadCustomRoles();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, projectId]);
 
   const handleInvite = async (e: FormEvent) => {
@@ -208,8 +210,9 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
       await loadCustomRoles();
       
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
-      setError(err.response?.data?.message || t.messages.error_creating_role);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || t.messages.error_creating_role);
     } finally {
       setCreatingRole(false);
     }
@@ -221,8 +224,9 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
       setSuccess(t.messages.member_removed);
       await loadCollaborators();
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
-      setError(err.response?.data?.message || t.messages.error_removing);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || t.messages.error_removing);
       setTimeout(() => setError(null), 3000);
     }
   };
@@ -233,8 +237,9 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
       setSuccess(t.messages.invitation_cancelled);
       await loadInvitations();
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
-      setError(err.response?.data?.message || t.messages.error_inviting);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || t.messages.error_inviting);
       setTimeout(() => setError(null), 3000);
     }
   };
@@ -246,8 +251,9 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
       setEditingUserId(null);
       await loadCollaborators();
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
-      setError(err.response?.data?.message || t.messages.error_updating);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || t.messages.error_updating);
       setTimeout(() => setError(null), 3000);
     }
   };

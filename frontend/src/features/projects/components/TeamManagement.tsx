@@ -53,8 +53,9 @@ export function TeamManagement({ projectId, canManageCollaborators }: TeamManage
       const data = await getProjectCollaborators(projectId);
       setCollaborators(data);
       setError(null);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load team members');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to load team members');
     } finally {
       setLoading(false);
     }
@@ -64,7 +65,7 @@ export function TeamManagement({ projectId, canManageCollaborators }: TeamManage
     try {
       const data = await getProjectInvitations(projectId);
       setInvitations(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load invitations:', err);
     }
   };
@@ -72,6 +73,7 @@ export function TeamManagement({ projectId, canManageCollaborators }: TeamManage
   useEffect(() => {
     loadCollaborators();
     loadInvitations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   const handleInvite = async (e: FormEvent) => {
@@ -99,8 +101,9 @@ export function TeamManagement({ projectId, canManageCollaborators }: TeamManage
       await loadInvitations();
       
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to send invitation');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to send invitation');
     } finally {
       setInviting(false);
     }
@@ -112,8 +115,9 @@ export function TeamManagement({ projectId, canManageCollaborators }: TeamManage
       setSuccess('Collaborator removed');
       await loadCollaborators();
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to remove collaborator');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to remove collaborator');
       setTimeout(() => setError(null), 3000);
     }
   };
@@ -124,8 +128,9 @@ export function TeamManagement({ projectId, canManageCollaborators }: TeamManage
       setSuccess('Invitation deleted');
       await loadInvitations();
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to delete invitation');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to delete invitation');
       setTimeout(() => setError(null), 3000);
     }
   };
@@ -137,8 +142,9 @@ export function TeamManagement({ projectId, canManageCollaborators }: TeamManage
       setEditingUserId(null);
       await loadCollaborators();
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update role');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to update role');
       setTimeout(() => setError(null), 3000);
     }
   };
