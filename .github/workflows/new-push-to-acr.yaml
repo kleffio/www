@@ -2,8 +2,6 @@ name: Build and Push to ACR
 on:
   push:
     branches: [main]
-  pull_request:         # <--- 1. Trigger on PRs
-    branches: [main]
 
 
 jobs:
