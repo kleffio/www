@@ -19,7 +19,7 @@ func TestSetupRouter(t *testing.T) {
 	}
 
 	handler := NewMetricsHandler(mockService)
-	logsHandler := &LogsHandler{} 
+	logsHandler := &LogsHandler{}
 	router := SetupRouter(handler, logsHandler)
 
 	if router == nil {

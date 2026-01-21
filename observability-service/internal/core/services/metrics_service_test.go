@@ -10,22 +10,22 @@ import (
 
 // mockMetricsRepository is a mock implementation of ports.MetricsRepository
 type mockMetricsRepository struct {
-	getClusterOverviewFunc             func(ctx context.Context) (*domain.ClusterOverview, error)
-	getRequestsMetricFunc              func(ctx context.Context, duration string) (*domain.MetricCard, error)
-	getPodsMetricFunc                  func(ctx context.Context, duration string) (*domain.MetricCard, error)
-	getNodesMetricFunc                 func(ctx context.Context, duration string) (*domain.MetricCard, error)
-	getTenantsMetricFunc               func(ctx context.Context, duration string) (*domain.MetricCard, error)
-	getCPUUtilizationFunc              func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
-	getMemoryUtilizationFunc           func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
-	getNodesFunc                       func(ctx context.Context) ([]domain.NodeMetric, error)
-	getNamespacesFunc                  func(ctx context.Context) ([]domain.NamespaceMetric, error)
-	getDatabaseIOMetricsFunc           func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
-	getProjectUsageMetricsFunc         func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
-	getProjectUsageMetricsWithDaysFunc func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error)
-	getProjectTotalUsageMetricsFunc    func(ctx context.Context, projectID string) (*domain.ProjectTotalUsageMetrics, error)
+	getClusterOverviewFunc                  func(ctx context.Context) (*domain.ClusterOverview, error)
+	getRequestsMetricFunc                   func(ctx context.Context, duration string) (*domain.MetricCard, error)
+	getPodsMetricFunc                       func(ctx context.Context, duration string) (*domain.MetricCard, error)
+	getNodesMetricFunc                      func(ctx context.Context, duration string) (*domain.MetricCard, error)
+	getTenantsMetricFunc                    func(ctx context.Context, duration string) (*domain.MetricCard, error)
+	getCPUUtilizationFunc                   func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
+	getMemoryUtilizationFunc                func(ctx context.Context, duration string) (*domain.ResourceUtilization, error)
+	getNodesFunc                            func(ctx context.Context) ([]domain.NodeMetric, error)
+	getNamespacesFunc                       func(ctx context.Context) ([]domain.NamespaceMetric, error)
+	getDatabaseIOMetricsFunc                func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
+	getProjectUsageMetricsFunc              func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
+	getProjectUsageMetricsWithDaysFunc      func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error)
+	getProjectTotalUsageMetricsFunc         func(ctx context.Context, projectID string) (*domain.ProjectTotalUsageMetrics, error)
 	getProjectTotalUsageMetricsWithDaysFunc func(ctx context.Context, projectID string, days int) (*domain.ProjectTotalUsageMetrics, error)
-	getSystemUptimeFunc                func(ctx context.Context) (float64, error)
-	getUptimeMetricsFunc               func(ctx context.Context, duration string) (*domain.UptimeMetrics, error)
+	getSystemUptimeFunc                     func(ctx context.Context) (float64, error)
+	getUptimeMetricsFunc                    func(ctx context.Context, duration string) (*domain.UptimeMetrics, error)
 }
 
 func (m *mockMetricsRepository) GetClusterOverview(ctx context.Context) (*domain.ClusterOverview, error) {
