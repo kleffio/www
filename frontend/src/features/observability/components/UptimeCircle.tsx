@@ -25,7 +25,7 @@ export function UptimeCircle({ size = 140, strokeWidth = 10, locale = "en" }: Up
 
   const t = labels[locale];
 
-  const uptimePercentage = data
+  const uptimePercentage = data && data.uptimeHistory
     ? (() => {
         const recordedPoints = data.uptimeHistory.filter((p) => p.value >= 0);
         const operationalPoints = recordedPoints.filter((p) => p.value > 0);
