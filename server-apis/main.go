@@ -134,11 +134,7 @@ func main() {
 	mux.HandleFunc("/api/v1/hello", enableCors(server.handleHelloWorld))
 	mux.HandleFunc("/api/v1/webapp/update", enableCors(server.handleUpdateWebApp))
 
-	func (s *Server) handleHelloWorld(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Hello World"))
-	}
-	srv := &http.Server{
+		srv := &http.Server{
 		Addr:         ":8080",
 		Handler:      mux,
 		ReadTimeout:  5 * time.Second,
@@ -151,6 +147,12 @@ func main() {
 		logger.Error("Server failed", "error", err)
 	}
 }
+
+func (s *Server) handleHelloWorld(w http.ResponseWriter, r *http.Request) {
+    w.WriteHeader(http.StatusOK)
+    w.Write([]byte("Hello World"))
+}
+
 func (s *Server) handleCreateBuild(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
