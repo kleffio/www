@@ -47,7 +47,7 @@ export function ProjectsPage() {
     const loadInvitationCount = async () => {
       try {
         const invitations = await getMyInvitations();
-        const pendingCount = invitations.filter((inv) => inv.status === "PENDING").length;
+        const pendingCount = (invitations || []).filter((inv) => inv.status === "PENDING").length;
         setInvitationCount(pendingCount);
       } catch (error) {
         console.error("Failed to load invitation count:", error);
@@ -174,7 +174,7 @@ export function ProjectsPage() {
                   <PendingInvitations
                     onUpdate={() => {
                       getMyInvitations().then((invitations) => {
-                        const pendingCount = invitations.filter(
+                        const pendingCount = (invitations || []).filter(
                           (inv) => inv.status === "PENDING"
                         ).length;
                         setInvitationCount(pendingCount);
