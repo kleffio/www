@@ -131,8 +131,13 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/v1/build/create", enableCors(server.handleCreateBuild))
+	mux.HandleFunc("/api/v1/hello", enableCors(server.handleHelloWorld))
 	mux.HandleFunc("/api/v1/webapp/update", enableCors(server.handleUpdateWebApp))
 
+	func (s *Server) handleHelloWorld(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Hello World"))
+	}
 	srv := &http.Server{
 		Addr:         ":8080",
 		Handler:      mux,
