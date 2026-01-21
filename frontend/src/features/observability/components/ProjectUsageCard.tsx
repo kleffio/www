@@ -68,7 +68,7 @@ export default function ProjectUsageCard({ projectId }: ProjectUsageCardProps) {
           <div className="flex items-center gap-2">
             <HardDrive className="h-4 w-4 text-neutral-400" />
             <span className="text-2xl font-semibold text-neutral-50">
-              {usageMetrics.memoryGBHours.toFixed(2)}
+              {usageMetrics?.memoryGBHours?.toFixed(2) || '0.00'}
             </span>
             <span className="text-xs text-neutral-400">GB·h</span>
           </div>
@@ -78,7 +78,7 @@ export default function ProjectUsageCard({ projectId }: ProjectUsageCardProps) {
           <div className="flex items-center gap-2">
             <Cpu className="h-4 w-4 text-neutral-400" />
             <span className="text-2xl font-semibold text-neutral-50">
-              {usageMetrics.cpuHours.toFixed(2)}
+              {usageMetrics?.cpuHours?.toFixed(2) || '0.00'}
             </span>
             <span className="text-xs text-neutral-400">core·h</span>
           </div>
@@ -88,7 +88,7 @@ export default function ProjectUsageCard({ projectId }: ProjectUsageCardProps) {
           <div className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-neutral-400" />
             <span className="text-sm font-semibold text-neutral-50">
-              {usageMetrics.window}
+              {usageMetrics?.window || 'Lifetime'}
             </span>
           </div>
         </MiniCard>
