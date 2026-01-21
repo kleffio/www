@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -155,17 +154,6 @@ func parseDuration(duration string) (time.Duration, error) {
 	}
 }
 
-func calculateStep(duration time.Duration) string {
-	if duration <= 1*time.Hour {
-		return "30s"
-	} else if duration <= 6*time.Hour {
-		return "1m"
-	} else if duration <= 24*time.Hour {
-		return "5m"
-	}
-	return "15m"
-}
-
 func extractValue(value []interface{}) (float64, error) {
 	if len(value) < 2 {
 		return 0, fmt.Errorf("invalid value format")
@@ -224,30 +212,4 @@ func determineStatus(value float64, warningThreshold, criticalThreshold float64)
 		return "good"
 	}
 	return "excellent"
-}
-
-func formatValue(value float64, unit string) string {
-	if unit == "percent" {
-		return fmt.Sprintf("%.1f%%", value)
-	} else if unit == "count" {
-		return fmt.Sprintf("%.0f", value)
-	} else if unit == "bytes" {
-		return formatBytes(value)
-	}
-	return fmt.Sprintf("%.2f", value)
-}
-
-func formatBytes(bytes float64) string {
-	units := []string{"B", "KB", "MB", "GB", "TB"}
-	if bytes == 0 {
-		return "0 B"
-	}
-
-	i := int(math.Floor(math.Log(bytes) / math.Log(1024)))
-	if i >= len(units) {
-		i = len(units) - 1
-	}
-
-	value := bytes / math.Pow(1024, float64(i))
-	return fmt.Sprintf("%.2f %s", value, units[i])
 }

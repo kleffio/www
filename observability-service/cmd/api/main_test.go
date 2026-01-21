@@ -107,6 +107,7 @@ func TestMain_Timeout(t *testing.T) {
 		defer func() {
 			if r := recover(); r != nil {
 				// Expected behavior - main() should not be called in tests
+				_ = r // Suppress unused variable warning
 			}
 			done <- true
 		}()
