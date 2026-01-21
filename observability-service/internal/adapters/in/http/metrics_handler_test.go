@@ -30,6 +30,7 @@ type mockMetricsService struct {
 	getProjectUsageMetricsFunc       func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
 	getProjectUsageMetricsWithDaysFunc func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error)
 	getProjectTotalUsageMetricsFunc  func(ctx context.Context, projectID string) (*domain.ProjectTotalUsageMetrics, error)
+	getProjectTotalUsageMetricsWithDaysFunc func(ctx context.Context, projectID string, days int) (*domain.ProjectTotalUsageMetrics, error)
 }
 
 func (m *mockMetricsService) GetClusterOverview(ctx context.Context) (*domain.ClusterOverview, error) {
@@ -133,6 +134,13 @@ func (m *mockMetricsService) GetSystemUptime(ctx context.Context) (float64, erro
 func (m *mockMetricsService) GetProjectTotalUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectTotalUsageMetrics, error) {
 	if m.getProjectTotalUsageMetricsFunc != nil {
 		return m.getProjectTotalUsageMetricsFunc(ctx, projectID)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsService) GetProjectTotalUsageMetricsWithDays(ctx context.Context, projectID string, days int) (*domain.ProjectTotalUsageMetrics, error) {
+	if m.getProjectTotalUsageMetricsWithDaysFunc != nil {
+		return m.getProjectTotalUsageMetricsWithDaysFunc(ctx, projectID, days)
 	}
 	return nil, errors.New("not implemented")
 }

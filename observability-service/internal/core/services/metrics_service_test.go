@@ -23,6 +23,7 @@ type mockMetricsRepository struct {
 	getProjectUsageMetricsFunc         func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
 	getProjectUsageMetricsWithDaysFunc func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error)
 	getProjectTotalUsageMetricsFunc    func(ctx context.Context, projectID string) (*domain.ProjectTotalUsageMetrics, error)
+	getProjectTotalUsageMetricsWithDaysFunc func(ctx context.Context, projectID string, days int) (*domain.ProjectTotalUsageMetrics, error)
 	getSystemUptimeFunc                func(ctx context.Context) (float64, error)
 	getUptimeMetricsFunc               func(ctx context.Context, duration string) (*domain.UptimeMetrics, error)
 }
@@ -114,6 +115,13 @@ func (m *mockMetricsRepository) GetProjectUsageMetricsWithDays(ctx context.Conte
 func (m *mockMetricsRepository) GetProjectTotalUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectTotalUsageMetrics, error) {
 	if m.getProjectTotalUsageMetricsFunc != nil {
 		return m.getProjectTotalUsageMetricsFunc(ctx, projectID)
+	}
+	return nil, errors.New("not implemented")
+}
+
+func (m *mockMetricsRepository) GetProjectTotalUsageMetricsWithDays(ctx context.Context, projectID string, days int) (*domain.ProjectTotalUsageMetrics, error) {
+	if m.getProjectTotalUsageMetricsWithDaysFunc != nil {
+		return m.getProjectTotalUsageMetricsWithDaysFunc(ctx, projectID, days)
 	}
 	return nil, errors.New("not implemented")
 }
