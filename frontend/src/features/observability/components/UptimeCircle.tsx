@@ -8,7 +8,11 @@ interface UptimeCircleProps {
   locale?: "en" | "fr";
 }
 
-export function UptimeCircle({ size = 140, strokeWidth = 10, locale = "en" }: UptimeCircleProps) {
+export function UptimeCircle({
+  size = 140,
+  strokeWidth = 10,
+  locale = "en"
+}: UptimeCircleProps) {
   const { data, isLoading } = useUptime({ duration: "30d" });
   const [animatedPercentage, setAnimatedPercentage] = useState(0);
 
