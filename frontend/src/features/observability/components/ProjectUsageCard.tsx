@@ -34,6 +34,7 @@ export default function ProjectUsageCard({ projectId }: ProjectUsageCardProps) {
     // Refresh every 5 minutes since these are 30-day averages
     const interval = setInterval(fetchUsageMetrics, 300000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   if (loading && !usageMetrics) {

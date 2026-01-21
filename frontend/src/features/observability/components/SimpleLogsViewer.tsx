@@ -32,6 +32,7 @@ export default function SimpleLogsViewer({ projectId, containerName }: SimpleLog
     fetchLogs();
     const interval = setInterval(fetchLogs, 10000); // Refresh every 10 seconds
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, containerName]);
 
   const formatTimestamp = (timestamp: string): string => {

@@ -80,7 +80,7 @@ const PricingPage: React.FC = () => {
         price: prices.find((p) => p.metric === 'STORAGE_GB')?.price || 0,
       },
     ];
-  }, [prices, locale, t]);
+  }, [prices, t]);
 
   const filteredItems = pricingItems;
 

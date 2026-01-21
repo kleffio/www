@@ -41,6 +41,7 @@ export default function ProjectBillingEstimatesCard({ projectId }: ProjectBillin
     // Update every 5 minutes for usage metrics
     const interval = setInterval(fetchUsage, 300000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   if (loading && !usage) {

@@ -176,8 +176,9 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
       await loadInvitations();
       
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
-      setError(err.response?.data?.message || t.messages.error_inviting);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || t.messages.error_inviting);
     } finally {
       setInviting(false);
     }
