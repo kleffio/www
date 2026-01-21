@@ -2,7 +2,21 @@ import React from "react";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { Button } from "@shared/ui/Button";
 import { Badge } from "@shared/ui/Badge";
-import { X, ExternalLink, Settings, Hash, Box, Code, GitBranch, Copy, Play, Square, Trash2, Network, Edit } from "lucide-react";
+import {
+  X,
+  ExternalLink,
+  Settings,
+  Hash,
+  Box,
+  Code,
+  GitBranch,
+  Copy,
+  Play,
+  Square,
+  Trash2,
+  Network,
+  Edit
+} from "lucide-react";
 import { formatRepoUrl, formatPort } from "@shared/lib/utils";
 import type { Container } from "@features/projects/types/Container";
 import enTranslations from "@app/locales/en/projects.json";
@@ -23,7 +37,13 @@ interface ContainerDetailModalProps {
   onEditContainer?: (container: Container) => void;
 }
 
-export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, onEditContainer }: ContainerDetailModalProps) {
+export function ContainerDetailModal({
+  isOpen,
+  onClose,
+  container,
+  onEditEnv,
+  onEditContainer
+}: ContainerDetailModalProps) {
   const [copiedId, setCopiedId] = React.useState(false);
   const [locale, setLocale] = React.useState(getLocale());
   const t = translations[locale].projectDetail.containerDetail;
@@ -48,7 +68,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, on
       setCopiedId(true);
       setTimeout(() => setCopiedId(false), 2000);
     } catch (err) {
-      console.error('Failed to copy container ID:', err);
+      console.error("Failed to copy container ID:", err);
     }
   };
 
@@ -61,7 +81,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, on
     <section className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={onClose} />
 
-      <section className="relative z-10 w-full max-w-4xl px-4 sm:px-0 max-h-[90vh] overflow-y-auto">
+      <section className="relative z-10 max-h-[90vh] w-full max-w-4xl overflow-y-auto px-4 sm:px-0">
         <SoftPanel className="border border-white/10 bg-black/70 shadow-2xl shadow-black/60">
           {/* Header */}
           <div className="mb-6 flex items-center justify-between">
@@ -93,8 +113,8 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, on
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={() => window.open(appUrl, '_blank')}
-                className="text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
+                onClick={() => window.open(appUrl, "_blank")}
+                className="text-blue-400 hover:bg-blue-400/10 hover:text-blue-300"
               >
                 <ExternalLink className="mr-2 h-4 w-4" />
                 {t.visit_app}
@@ -112,33 +132,33 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, on
           {/* Details Section */}
           <div>
             <h3 className="mb-4 text-lg font-semibold text-white">{t.details}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {/* Container ID */}
               <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
-                <Hash className="h-5 w-5 text-neutral-400 flex-shrink-0" />
+                <Hash className="h-5 w-5 flex-shrink-0 text-neutral-400" />
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold text-neutral-100">{t.container_id}</div>
                   <button
                     onClick={handleCopyId}
-                    className="font-mono text-sm text-neutral-200 hover:text-blue-400 transition-colors truncate flex items-center gap-1 group"
+                    className="group flex items-center gap-1 truncate font-mono text-sm text-neutral-200 transition-colors hover:text-blue-400"
                     title="Click to copy"
                     data-container-id={container.containerId}
                   >
                     {truncateId(container.containerId)}
-                    <Copy className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Copy className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
                   </button>
                   {copiedId && (
-                    <span className="text-xs text-emerald-400 animate-pulse">{t.copied}</span>
+                    <span className="animate-pulse text-xs text-emerald-400">{t.copied}</span>
                   )}
                 </div>
               </div>
 
               {/* Ports */}
               <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
-                <Network className="h-5 w-5 text-neutral-400 flex-shrink-0" />
+                <Network className="h-5 w-5 flex-shrink-0 text-neutral-400" />
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold text-neutral-100">{t.ports}</div>
-                  <div className="font-mono text-sm text-neutral-200 truncate">
+                  <div className="truncate font-mono text-sm text-neutral-200">
                     {container.ports.length > 0 ? (
                       container.ports.map((port, index) => (
                         <span key={index}>
@@ -155,10 +175,10 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, on
 
               {/* Branch */}
               <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4">
-                <GitBranch className="h-5 w-5 text-neutral-400 flex-shrink-0" />
+                <GitBranch className="h-5 w-5 flex-shrink-0 text-neutral-400" />
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold text-neutral-100">{t.branch}</div>
-                  <div className="font-mono text-sm text-neutral-200 truncate">
+                  <div className="truncate font-mono text-sm text-neutral-200">
                     {container.branch || t.main}
                   </div>
                 </div>
@@ -170,10 +190,10 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, on
           <div className="mt-8">
             <h3 className="mb-4 text-lg font-semibold text-white">{t.source_code}</h3>
             <div
-              className="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 p-4 cursor-pointer hover:bg-white/10 hover:border-white/20 transition-colors"
+              className="flex cursor-pointer items-center justify-between rounded-xl border border-white/10 bg-white/5 p-4 transition-colors hover:border-white/20 hover:bg-white/10"
               onClick={() => {
                 const repo = formatRepoUrl(container.repoUrl);
-                if (repo.link) window.open(repo.link, '_blank');
+                if (repo.link) window.open(repo.link, "_blank");
               }}
             >
               <div className="flex items-center gap-3">
@@ -194,7 +214,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, on
 
           {/* Environment Variables Section - Full Width */}
           {container.envVariables && Object.keys(container.envVariables).length > 0 && (
-            <div className="mt-8 bg-slate-900/60 rounded-lg p-6">
+            <div className="mt-8 rounded-lg bg-slate-900/60 p-6">
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-white">{t.environment_variables}</h3>
                 {onEditEnv && (
@@ -213,10 +233,17 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, on
               </div>
               <div className="space-y-3">
                 {Object.entries(container.envVariables).map(([key, value]) => (
-                  <div key={key} className="flex items-center gap-3 rounded border border-slate-700 bg-slate-800/60 p-3">
-                    <span className="font-mono text-sm font-semibold text-slate-300 min-w-0 flex-1">{key}</span>
+                  <div
+                    key={key}
+                    className="flex items-center gap-3 rounded border border-slate-700 bg-slate-800/60 p-3"
+                  >
+                    <span className="min-w-0 flex-1 font-mono text-sm font-semibold text-slate-300">
+                      {key}
+                    </span>
                     <span className="text-sm text-slate-500">=</span>
-                    <span className="font-mono text-sm text-white min-w-0 flex-1 break-all">{value}</span>
+                    <span className="min-w-0 flex-1 font-mono text-sm break-all text-white">
+                      {value}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -224,8 +251,8 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, on
           )}
 
           {/* Footer - Action Buttons */}
-          <div className="mt-8 pt-6 border-t border-slate-700">
-            <div className="flex flex-wrap gap-3 justify-end">
+          <div className="mt-8 border-t border-slate-700 pt-6">
+            <div className="flex flex-wrap justify-end gap-3">
               <SecureComponent requiredPermission="DEPLOY">
                 <Button
                   size="sm"
@@ -276,7 +303,7 @@ export function ContainerDetailModal({ isOpen, onClose, container, onEditEnv, on
                 <Button
                   size="sm"
                   variant="destructive"
-                  className="bg-red-600 hover:bg-red-700 text-white"
+                  className="bg-red-600 text-white hover:bg-red-700"
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   {t.delete}

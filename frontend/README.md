@@ -1,25 +1,28 @@
-
 # Frontend
 
 ## Tech Stack
 
 ### Core Framework
+
 - **React 19** - Latest React with concurrent features
 - **TypeScript** - Type-safe development
 - **Vite** - Fast build tool and dev server
 
 ### UI & Styling
+
 - **Tailwind CSS** - Utility-first CSS framework
 - **Radix UI** - Accessible component primitives
 - **Lucide React** - Beautiful icons
 - **Tailwind Animate** - Animation utilities
 
 ### State & Data
+
 - **React Router** - Client-side routing
 - **Axios** - HTTP client for API calls
 - **React OIDC Context** - Authentication state management
 
 ### Development Tools
+
 - **ESLint** - Code linting
 - **Prettier** - Code formatting
 - **TypeScript ESLint** - Type-aware linting
@@ -74,12 +77,14 @@ src/
 ### Quick Start with Docker
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd <project-root>
    ```
 
 2. **Start the full stack** (frontend + backend)
+
    ```bash
    docker-compose up
    ```
@@ -91,6 +96,7 @@ src/
 If you prefer to run the frontend separately:
 
 1. **Install dependencies**
+
    ```bash
    cd frontend
    yarn install
@@ -99,9 +105,11 @@ If you prefer to run the frontend separately:
    ```
 
 2. **Configure environment variables**
+
    ```bash
    cp .env.example .env.local
    ```
+
    Edit `.env.local` with your configuration (see `.env.example` for details)
 
 3. **Start development server**
@@ -139,6 +147,7 @@ This project uses several tools to maintain code quality:
 
 1. **Create feature directory** in `src/features/`
 2. **Structure your feature**:
+
    ```
    src/features/new-feature/
    ├── api/          # API calls
@@ -166,7 +175,6 @@ The project uses a component library approach:
 - Follow the **design system** defined in component variants
 - Use **CSS variables** for theme colors
 - Maintain **responsive design** principles
-
 
 ### Code Standards
 

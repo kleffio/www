@@ -36,7 +36,7 @@ export function ContainerStatusCard({ container, onManage, onViewLogs }: Contain
 
   const handleVisitApp = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.open(appUrl, '_blank');
+    window.open(appUrl, "_blank");
   };
 
   const handleCardClick = () => {
@@ -46,7 +46,7 @@ export function ContainerStatusCard({ container, onManage, onViewLogs }: Contain
   return (
     <button
       onClick={handleCardClick}
-      className="grid w-full grid-cols-[1fr_auto_auto] items-center gap-4 rounded-lg border border-white/10 bg-white/5 p-4 hover:bg-white/10 focus:bg-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-colors cursor-pointer"
+      className="grid w-full cursor-pointer grid-cols-[1fr_auto_auto] items-center gap-4 rounded-lg border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10 focus:bg-white/10 focus:ring-2 focus:ring-blue-500/50 focus:outline-none"
     >
       {/* Left side: Icon + Container Name */}
       <div className="flex items-center gap-3">
@@ -63,13 +63,13 @@ export function ContainerStatusCard({ container, onManage, onViewLogs }: Contain
               ? "secondary"
               : "warning"
         }
-        className="text-xs justify-self-center"
+        className="justify-self-center text-xs"
       >
         {container.status || t.unknown}
       </Badge>
 
       {/* Right side: Actions */}
-      <div className="flex items-center gap-2 justify-end">
+      <div className="flex items-center justify-end gap-2">
         {onViewLogs && (
           <SecureComponent requiredPermission="VIEW_LOGS">
             <Button
@@ -79,7 +79,7 @@ export function ContainerStatusCard({ container, onManage, onViewLogs }: Contain
                 e.stopPropagation();
                 onViewLogs(container);
               }}
-              className="h-8 px-3 text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
+              className="h-8 px-3 text-xs text-blue-400 hover:bg-blue-400/10 hover:text-blue-300"
             >
               <FileText className="mr-1 h-3 w-3" />
               {t.view_logs}
@@ -90,7 +90,7 @@ export function ContainerStatusCard({ container, onManage, onViewLogs }: Contain
           size="sm"
           variant="ghost"
           onClick={handleVisitApp}
-          className="h-8 px-3 text-xs text-blue-400 hover:text-blue-300 hover:bg-blue-400/10"
+          className="h-8 px-3 text-xs text-blue-400 hover:bg-blue-400/10 hover:text-blue-300"
         >
           <ExternalLink className="mr-1 h-3 w-3" />
           {t.visit_app}

@@ -5,7 +5,7 @@ export type InvoiceItem = {
   description: string;
   pricingModel: string;
   metric: string;
-  quantity : number;
-  unitPrice : number;
-  amount : number;
-}
+  quantity: number;
+  unitPrice: number;
+  amount: number;
+};

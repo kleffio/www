@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { client } from '@shared/lib/client';
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { client } from "@shared/lib/client";
 
 interface Invoice {
   invoiceId: string;
@@ -18,17 +18,18 @@ const InvoicePage = () => {
 
   useEffect(() => {
     // Fetch invoice details
-    client.get(`/api/v1/billing/invoice/${invoiceId}`)
-      .then(res => setInvoice(res.data))
+    client
+      .get(`/api/v1/billing/invoice/${invoiceId}`)
+      .then((res) => setInvoice(res.data))
       .catch((err: unknown) => {
         const error = err as { response?: { data?: { error?: string } } };
-        setError(error.response?.data?.error || 'Failed to fetch invoice');
+        setError(error.response?.data?.error || "Failed to fetch invoice");
       });
   }, [invoiceId]);
 
   const handlePayInvoice = async () => {
     if (!invoiceId) return;
-    
+
     setLoading(true);
     setError(null);
 
@@ -39,7 +40,7 @@ const InvoicePage = () => {
       window.location.href = data.url;
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string } } };
-      setError(error.response?.data?.error || 'Failed to process payment');
+      setError(error.response?.data?.error || "Failed to process payment");
       setLoading(false);
     }
   };
@@ -57,14 +58,11 @@ const InvoicePage = () => {
       <p>Paid: ${invoice.totalPaid.toFixed(2)}</p>
       <p>Outstanding: ${outstandingAmount.toFixed(2)}</p>
 
-      {error && <div style={{ color: 'red' }}>{error}</div>}
+      {error && <div style={{ color: "red" }}>{error}</div>}
 
       {outstandingAmount > 0 && (
-        <button 
-          onClick={handlePayInvoice}
-          disabled={loading}
-        >
-          {loading ? 'Redirecting to payment...' : `Pay $${outstandingAmount.toFixed(2)}`}
+        <button onClick={handlePayInvoice} disabled={loading}>
+          {loading ? "Redirecting to payment..." : `Pay $${outstandingAmount.toFixed(2)}`}
         </button>
       )}
     </div>

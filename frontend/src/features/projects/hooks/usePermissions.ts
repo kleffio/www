@@ -1,32 +1,32 @@
-import { useState, useEffect } from 'react';
-import type { CollaboratorRole, ProjectPermission, Collaborator } from '../types/permissions';
-import { getProjectCollaborators } from '../api/collaborators';
-import { useAuth } from 'react-oidc-context';
+import { useState, useEffect } from "react";
+import type { CollaboratorRole, ProjectPermission, Collaborator } from "../types/permissions";
+import { getProjectCollaborators } from "../api/collaborators";
+import { useAuth } from "react-oidc-context";
 
 // Default permissions for each role
 const ROLE_PERMISSIONS: Record<CollaboratorRole, ProjectPermission[]> = {
   OWNER: [
-    'READ_PROJECT',
-    'WRITE_PROJECT',
-    'DEPLOY',
-    'MANAGE_ENV_VARS',
-    'VIEW_LOGS',
-    'VIEW_METRICS',
-    'MANAGE_COLLABORATORS',
-    'DELETE_PROJECT',
-    'MANAGE_BILLING',
+    "READ_PROJECT",
+    "WRITE_PROJECT",
+    "DEPLOY",
+    "MANAGE_ENV_VARS",
+    "VIEW_LOGS",
+    "VIEW_METRICS",
+    "MANAGE_COLLABORATORS",
+    "DELETE_PROJECT",
+    "MANAGE_BILLING"
   ],
   ADMIN: [
-    'READ_PROJECT',
-    'WRITE_PROJECT',
-    'DEPLOY',
-    'MANAGE_ENV_VARS',
-    'VIEW_LOGS',
-    'VIEW_METRICS',
-    'MANAGE_COLLABORATORS',
+    "READ_PROJECT",
+    "WRITE_PROJECT",
+    "DEPLOY",
+    "MANAGE_ENV_VARS",
+    "VIEW_LOGS",
+    "VIEW_METRICS",
+    "MANAGE_COLLABORATORS"
   ],
-  DEVELOPER: ['READ_PROJECT', 'WRITE_PROJECT', 'DEPLOY', 'VIEW_LOGS', 'VIEW_METRICS'],
-  VIEWER: ['READ_PROJECT', 'VIEW_LOGS', 'VIEW_METRICS'],
+  DEVELOPER: ["READ_PROJECT", "WRITE_PROJECT", "DEPLOY", "VIEW_LOGS", "VIEW_METRICS"],
+  VIEWER: ["READ_PROJECT", "VIEW_LOGS", "VIEW_METRICS"]
 };
 
 export function usePermissions(projectId: string | undefined) {
@@ -60,7 +60,7 @@ export function usePermissions(projectId: string | undefined) {
           setPermissions([]);
         }
       } catch (error) {
-        console.error('Failed to fetch permissions:', error);
+        console.error("Failed to fetch permissions:", error);
         setRole(null);
         setPermissions([]);
       } finally {
@@ -90,10 +90,10 @@ export function usePermissions(projectId: string | undefined) {
     hasPermission,
     hasRole,
     hasAnyRole,
-    canDeploy: hasPermission('DEPLOY'),
-    canManageEnvVars: hasPermission('MANAGE_ENV_VARS'),
-    canManageCollaborators: hasPermission('MANAGE_COLLABORATORS'),
-    canDeleteProject: hasPermission('DELETE_PROJECT'),
-    canManageBilling: hasPermission('MANAGE_BILLING'),
+    canDeploy: hasPermission("DEPLOY"),
+    canManageEnvVars: hasPermission("MANAGE_ENV_VARS"),
+    canManageCollaborators: hasPermission("MANAGE_COLLABORATORS"),
+    canDeleteProject: hasPermission("DELETE_PROJECT"),
+    canManageBilling: hasPermission("MANAGE_BILLING")
   };
 }

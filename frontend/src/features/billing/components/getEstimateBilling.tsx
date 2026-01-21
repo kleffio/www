@@ -1,18 +1,20 @@
-import { useEffect, useState } from 'react';
-import { getProjectUsage } from '@features/observability/api/getProjectMetricsCumulative';
-import type { ProjectUsage } from '@features/observability/types/projectUsage.types';
-import { SoftPanel } from '@shared/ui/SoftPanel';
-import { MiniCard } from '@shared/ui/MiniCard';
-import { GradientIcon } from '@shared/ui/GradientIcon';
-import { Cpu, HardDrive, DollarSign } from 'lucide-react';
-import type { Price } from '../types/Price';
-import fetchPrices from '../api/viewPrices';
+import { useEffect, useState } from "react";
+import { getProjectUsage } from "@features/observability/api/getProjectMetricsCumulative";
+import type { ProjectUsage } from "@features/observability/types/projectUsage.types";
+import { SoftPanel } from "@shared/ui/SoftPanel";
+import { MiniCard } from "@shared/ui/MiniCard";
+import { GradientIcon } from "@shared/ui/GradientIcon";
+import { Cpu, HardDrive, DollarSign } from "lucide-react";
+import type { Price } from "../types/Price";
+import fetchPrices from "../api/viewPrices";
 
 interface ProjectBillingEstimatesCardProps {
   projectId: string;
 }
 
-export default function ProjectBillingEstimatesCard({ projectId }: ProjectBillingEstimatesCardProps) {
+export default function ProjectBillingEstimatesCard({
+  projectId
+}: ProjectBillingEstimatesCardProps) {
   const [usage, setUsage] = useState<ProjectUsage | null>(null);
   const [prices, setPrices] = useState<Price[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,8 +31,8 @@ export default function ProjectBillingEstimatesCard({ projectId }: ProjectBillin
       setUsage(usageData);
       setPrices(pricesData);
     } catch (err) {
-      setError('Unable to retrieve project usage metrics.');
-      console.error('Error fetching project usage:', err);
+      setError("Unable to retrieve project usage metrics.");
+      console.error("Error fetching project usage:", err);
     } finally {
       setLoading(false);
     }
@@ -79,21 +81,18 @@ export default function ProjectBillingEstimatesCard({ projectId }: ProjectBillin
         <MiniCard title="CPU Cost">
           <div className="flex items-center gap-2">
             <Cpu className="h-4 w-4 text-neutral-400" />
-            <span className="text-2xl font-semibold text-neutral-50">
-              ${cpuCost.toFixed(2)}
-            </span>
+            <span className="text-2xl font-semibold text-neutral-50">${cpuCost.toFixed(2)}</span>
           </div>
           <p className="mt-1 text-xs text-neutral-500">
-            {(usage.cpuRequestCores || 0).toFixed(3)} cores × ${(prices[0]?.price || 0).toFixed(2)}/core
+            {(usage.cpuRequestCores || 0).toFixed(3)} cores × ${(prices[0]?.price || 0).toFixed(2)}
+            /core
           </p>
         </MiniCard>
 
         <MiniCard title="Memory Cost">
           <div className="flex items-center gap-2">
             <HardDrive className="h-4 w-4 text-neutral-400" />
-            <span className="text-2xl font-semibold text-neutral-50">
-              ${memoryCost.toFixed(2)}
-            </span>
+            <span className="text-2xl font-semibold text-neutral-50">${memoryCost.toFixed(2)}</span>
           </div>
           <p className="mt-1 text-xs text-neutral-500">
             {(usage.memoryUsageGB || 0).toFixed(2)} GB × ${(prices[1]?.price || 0).toFixed(2)}/GB
@@ -103,13 +102,9 @@ export default function ProjectBillingEstimatesCard({ projectId }: ProjectBillin
         <MiniCard title="Total Estimate">
           <div className="flex items-center gap-2">
             <DollarSign className="h-4 w-4 text-neutral-400" />
-            <span className="text-2xl font-semibold text-green-400">
-              ${totalCost.toFixed(2)}
-            </span>
+            <span className="text-2xl font-semibold text-green-400">${totalCost.toFixed(2)}</span>
           </div>
-          <p className="mt-1 text-xs text-neutral-500">
-            {usage.window || '30d'} period
-          </p>
+          <p className="mt-1 text-xs text-neutral-500">{usage.window || "30d"} period</p>
         </MiniCard>
       </div>
     </SoftPanel>

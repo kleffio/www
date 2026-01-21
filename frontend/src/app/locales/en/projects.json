@@ -1,5 +1,5 @@
 {
-    "projects": {
+  "projects": {
     "title": "Projects",
     "subtitle": "Manage your projects and deployments",
     "no_projects": "You haven't created any projects yet.",
@@ -23,8 +23,8 @@
       "docker_compose": "Docker Compose",
       "repo_link": "Repo"
     }
-    },
-    "projectModal": {
+  },
+  "projectModal": {
     "title": "Create Project",
     "subtitle": "Set up a new project for deployment",
     "project_name": "Project Name *",
@@ -39,7 +39,7 @@
     "failed_create": "Failed to create project. Please try again.",
     "create_button": "Create Project"
   },
-   "projectDetail": {
+  "projectDetail": {
     "project_not_found": "Project not found",
     "back_to_projects": "Back to Projects",
     "back_to_projects_arrow": "← Back to Projects",

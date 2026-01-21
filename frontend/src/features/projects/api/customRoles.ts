@@ -1,4 +1,4 @@
-import { client } from '@shared/lib/client';
+import { client } from "@shared/lib/client";
 
 export interface CustomRole {
   id: number;
@@ -20,7 +20,10 @@ export interface CreateCustomRoleRequest {
 
 export async function createCustomRole(data: CreateCustomRoleRequest): Promise<CustomRole> {
   const { projectId, ...payload } = data;
-  const response = await client.post<CustomRole>(`/api/v1/projects/${projectId}/custom-roles`, payload);
+  const response = await client.post<CustomRole>(
+    `/api/v1/projects/${projectId}/custom-roles`,
+    payload
+  );
   return response.data;
 }
 
@@ -29,7 +32,10 @@ export async function getProjectCustomRoles(projectId: string): Promise<CustomRo
   return response.data;
 }
 
-export async function updateCustomRole(roleId: number, data: Partial<CreateCustomRoleRequest>): Promise<CustomRole> {
+export async function updateCustomRole(
+  roleId: number,
+  data: Partial<CreateCustomRoleRequest>
+): Promise<CustomRole> {
   const response = await client.put<CustomRole>(`/api/v1/custom-roles/${roleId}`, data);
   return response.data;
 }

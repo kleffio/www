@@ -11,4 +11,4 @@ export type Invoice = {
   taxes: number;
   total: number;
   totalPaid: number;
-}
+};

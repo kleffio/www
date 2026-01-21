@@ -33,7 +33,9 @@ export class ContainerDetailModal extends BaseComponent {
   }
 
   closeButton() {
-    return this.containerDetailModal().locator('button').filter({ has: this.page.locator('svg.lucide-x') });
+    return this.containerDetailModal()
+      .locator("button")
+      .filter({ has: this.page.locator("svg.lucide-x") });
   }
 
   // Header section
@@ -42,7 +44,9 @@ export class ContainerDetailModal extends BaseComponent {
   }
 
   containerStatus() {
-    return this.containerDetailModal().locator('[data-testid="container-status"], .flex.items-center.gap-2').first();
+    return this.containerDetailModal()
+      .locator('[data-testid="container-status"], .flex.items-center.gap-2')
+      .first();
   }
 
   visitAppButton() {
@@ -72,7 +76,9 @@ export class ContainerDetailModal extends BaseComponent {
   }
 
   sourceCodeLink() {
-    return this.containerDetailModal().locator("a").filter({ hasText: /click to open repo/i });
+    return this.containerDetailModal()
+      .locator("a")
+      .filter({ hasText: /click to open repo/i });
   }
 
   // Environment variables section
@@ -81,7 +87,9 @@ export class ContainerDetailModal extends BaseComponent {
   }
 
   envVariableRows() {
-    return this.containerDetailModal().locator('[class*="rounded border"]').filter({ hasText: "=" });
+    return this.containerDetailModal()
+      .locator('[class*="rounded border"]')
+      .filter({ hasText: "=" });
   }
 
   editEnvVariablesButton() {
@@ -112,14 +120,16 @@ export class ContainerDetailModal extends BaseComponent {
   // Actions
   async visitApp() {
     const [newPage] = await Promise.all([
-      this.page.context().waitForEvent('page'),
+      this.page.context().waitForEvent("page"),
       this.visitAppButton().click()
     ]);
     return newPage;
   }
 
   async copyContainerId() {
-    const copyButton = this.containerDetailModal().locator('button').filter({ has: this.page.locator('svg.lucide-copy') });
+    const copyButton = this.containerDetailModal()
+      .locator("button")
+      .filter({ has: this.page.locator("svg.lucide-copy") });
     await copyButton.click();
 
     // Note: "Copied" text may not appear in test environment due to clipboard API limitations
@@ -128,7 +138,7 @@ export class ContainerDetailModal extends BaseComponent {
 
   async openSourceCode() {
     const [newPage] = await Promise.all([
-      this.page.context().waitForEvent('page'),
+      this.page.context().waitForEvent("page"),
       this.sourceCodeLink().click()
     ]);
     return newPage;
@@ -145,13 +155,16 @@ export class ContainerDetailModal extends BaseComponent {
   }
 
   // Verifications
-  async expectContainerDetails(containerName: string, expectedDetails: {
-    status?: string;
-    ports?: string[];
-    branch?: string;
-    hasEnvVars?: boolean;
-    envVarCount?: number;
-  }) {
+  async expectContainerDetails(
+    containerName: string,
+    expectedDetails: {
+      status?: string;
+      ports?: string[];
+      branch?: string;
+      hasEnvVars?: boolean;
+      envVarCount?: number;
+    }
+  ) {
     await expect(this.containerName()).toContainText(containerName);
 
     if (expectedDetails.status) {
@@ -189,9 +202,9 @@ export class ContainerDetailModal extends BaseComponent {
 
   // Container ID extraction and verification methods
   async getContainerId(): Promise<string> {
-    const containerIdElement = this.containerDetailModal().locator('button[data-container-id]');
-    const containerId = await containerIdElement.getAttribute('data-container-id');
-    return containerId || '';
+    const containerIdElement = this.containerDetailModal().locator("button[data-container-id]");
+    const containerId = await containerIdElement.getAttribute("data-container-id");
+    return containerId || "";
   }
 
   async expectContainerIdIsUUID() {

@@ -1,7 +1,7 @@
-import type { ReactNode } from 'react';
-import { useParams } from 'react-router-dom';
-import { usePermissions } from '@features/projects/hooks/usePermissions';
-import type { ProjectPermission, CollaboratorRole } from '@features/projects/types/permissions';
+import type { ReactNode } from "react";
+import { useParams } from "react-router-dom";
+import { usePermissions } from "@features/projects/hooks/usePermissions";
+import type { ProjectPermission, CollaboratorRole } from "@features/projects/types/permissions";
 
 interface SecureComponentProps {
   children: ReactNode;
@@ -20,7 +20,7 @@ export function SecureComponent({
   anyOfPermissions,
   anyOfRoles,
   fallback = null,
-  loadingFallback = null,
+  loadingFallback = null
 }: SecureComponentProps) {
   const { projectId } = useParams<{ projectId: string }>();
   const { hasPermission, hasRole, hasAnyRole, isLoading } = usePermissions(projectId);

@@ -1,5 +1,5 @@
- {
-    "dashboard": {
+{
+  "dashboard": {
     "overview_title": "Vue d'ensemble",
     "overview_subtitle": "Surveillez vos déploiements, le trafic et la santé de l'infrastructure",
     "traffic_performance": "Trafic et performance",

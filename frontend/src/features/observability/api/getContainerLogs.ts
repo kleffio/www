@@ -1,4 +1,4 @@
-import { client } from '@shared/lib/client';
+import { client } from "@shared/lib/client";
 
 export interface LogEntry {
   timestamp: string;
@@ -29,15 +29,15 @@ export async function getContainerLogs(
   containerName: string
 ): Promise<LogEntry[]> {
   const response = await client.post<ContainerLogsResponse>(
-    '/api/v1/systems/logs/project-containers',
+    "/api/v1/systems/logs/project-containers",
     {
       projectId,
       containerNames: [containerName],
       limit: 200,
-      duration: '1h'
+      duration: "1h"
     }
   );
-  
+
   // Extract just the logs from the first container
   const containerData = response.data.containers?.[0];
   return containerData?.logs || [];

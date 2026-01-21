@@ -1,4 +1,5 @@
-{ "header": {
+{
+  "header": {
     "common": {
       "mega_menu_footer": "Infrastructure open-source conçue pour les équipes modernes."
     },
@@ -86,7 +87,7 @@
       "signup": "Commencez votre projet"
     }
   },
-    
+
   "dashboardNavItems": [
     {
       "label": "Tableau de bord",

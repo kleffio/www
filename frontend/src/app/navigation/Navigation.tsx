@@ -31,8 +31,17 @@ const translations = {
 };
 
 export const DASHBOARD_NAV_ITEMS: DashboardNavItem[] = [
-  { to: ROUTES.DASHBOARD, label: translations.en.dashboardNavItems[0].label, icon: LayoutDashboard, exact: true },
-  { to: ROUTES.DASHBOARD_PROJECTS, label: translations.en.dashboardNavItems[1].label, icon: FolderKanban },
+  {
+    to: ROUTES.DASHBOARD,
+    label: translations.en.dashboardNavItems[0].label,
+    icon: LayoutDashboard,
+    exact: true
+  },
+  {
+    to: ROUTES.DASHBOARD_PROJECTS,
+    label: translations.en.dashboardNavItems[1].label,
+    icon: FolderKanban
+  },
   { to: ROUTES.DASHBOARD_SYSTEMS, label: translations.en.dashboardNavItems[2].label, icon: Server }
 ];
 

@@ -1,5 +1,10 @@
 import fs from "node:fs";
-import { test as base, expect as baseExpect, type BrowserContext, type Page } from "@playwright/test";
+import {
+  test as base,
+  expect as baseExpect,
+  type BrowserContext,
+  type Page
+} from "@playwright/test";
 import { storage } from "./test-data";
 
 export { baseExpect as expect };

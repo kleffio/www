@@ -46,14 +46,14 @@ type TabType = "invoices" | "usage" | "items";
 export function BillingModal({ isOpen, onClose, projectId }: BillingModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>("invoices");
   const [isLoading] = useState(false);
-  
+
   const [invoices] = useState<Invoice[]>([
     {
       invoiceId: "inv_001",
       projectId: projectId,
-      totalAmount: 156.80,
-      taxAmount: 20.40,
-      subtotal: 136.40,
+      totalAmount: 156.8,
+      taxAmount: 20.4,
+      subtotal: 136.4,
       status: "PAID",
       billingPeriodStart: "2024-11-01",
       billingPeriodEnd: "2024-11-30",
@@ -102,9 +102,9 @@ export function BillingModal({ isOpen, onClose, projectId }: BillingModalProps) 
   if (!isOpen) return null;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD"
     }).format(amount);
   };
 
@@ -123,7 +123,7 @@ export function BillingModal({ isOpen, onClose, projectId }: BillingModalProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="relative w-full max-w-5xl max-h-[90vh] overflow-hidden rounded-2xl bg-gradient-to-br from-neutral-900 to-neutral-800 border border-white/10 shadow-2xl">
+      <div className="relative max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-neutral-900 to-neutral-800 shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 bg-white/5 px-6 py-4">
           <div className="flex items-center gap-3">
@@ -228,7 +228,7 @@ export function BillingModal({ isOpen, onClose, projectId }: BillingModalProps) 
                               {formatCurrency(invoice.totalAmount)}
                             </TableCell>
                             <TableCell>
-                              <Badge 
+                              <Badge
                               // variant={getStatusColor(invoice.status)} className="text-xs"
                               >
                                 {invoice.status}
@@ -321,12 +321,8 @@ export function BillingModal({ isOpen, onClose, projectId }: BillingModalProps) 
                             <TableCell className="font-mono text-xs text-neutral-300">
                               {item.itemId}
                             </TableCell>
-                            <TableCell className="text-neutral-200">
-                              {item.description}
-                            </TableCell>
-                            <TableCell className="text-neutral-300">
-                              {item.quantity}
-                            </TableCell>
+                            <TableCell className="text-neutral-200">{item.description}</TableCell>
+                            <TableCell className="text-neutral-300">{item.quantity}</TableCell>
                             <TableCell className="font-semibold text-neutral-200">
                               {formatCurrency(item.unitPrice)}
                             </TableCell>
@@ -347,11 +343,7 @@ export function BillingModal({ isOpen, onClose, projectId }: BillingModalProps) 
         {/* Footer */}
         <div className="border-t border-white/10 bg-white/5 px-6 py-4">
           <div className="flex justify-end">
-            <Button
-              onClick={onClose}
-              variant="ghost"
-              className="rounded-full px-6 py-2 text-sm"
-            >
+            <Button onClick={onClose} variant="ghost" className="rounded-full px-6 py-2 text-sm">
               Close
             </Button>
           </div>

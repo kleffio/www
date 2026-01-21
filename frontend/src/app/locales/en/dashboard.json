@@ -1,4 +1,5 @@
-{"dashboard": {
+{
+  "dashboard": {
     "overview_title": "Overview",
     "overview_subtitle": "Monitor your deployments, traffic, and infrastructure health",
     "traffic_performance": "Traffic & Performance",

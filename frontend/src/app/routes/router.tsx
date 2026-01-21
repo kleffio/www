@@ -34,7 +34,7 @@ export const router = createBrowserRouter([
       { path: "terms", element: <TermsOfServicePage /> },
       { path: "privacy", element: <PrivacyPolicyPage /> },
       { path: "pricing", element: <PricingPage /> },
-      
+
       { path: "status", element: <StatusPage /> },
       // Auth routes
       {

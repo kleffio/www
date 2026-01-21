@@ -1,5 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
-import { Save, AlertCircle, CheckCircle2, User, ArrowLeft, FolderGit2, Palette, Mail, CreditCard } from "lucide-react";
+import {
+  Save,
+  AlertCircle,
+  CheckCircle2,
+  User,
+  ArrowLeft,
+  FolderGit2,
+  Palette,
+  Mail,
+  CreditCard
+} from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { updateUserProfile } from "@features/users/api/UpdateUserProfile";
@@ -95,7 +105,7 @@ function AuditPagination({
               className={
                 "inline-flex h-8 min-w-8 items-center justify-center rounded-md px-2 text-sm transition " +
                 (isActive
-                  ? "bg-gradient-kleff text-neutral-950 font-medium"
+                  ? "bg-gradient-kleff font-medium text-neutral-950"
                   : "text-neutral-300 hover:bg-neutral-900 disabled:text-neutral-500")
               }
             >
@@ -251,7 +261,10 @@ export function SettingsPage() {
         </div>
         <div className="relative z-10 mx-auto max-w-5xl px-4 py-8">
           <Skeleton className="h-8 w-48 bg-neutral-900" data-testid="settings-profile-skeleton" />
-          <Skeleton className="mt-8 h-96 w-full bg-neutral-900" data-testid="settings-audit-skeleton" />
+          <Skeleton
+            className="mt-8 h-96 w-full bg-neutral-900"
+            data-testid="settings-audit-skeleton"
+          />
         </div>
       </div>
     );
@@ -297,13 +310,10 @@ export function SettingsPage() {
       <header className="relative z-50 border-b border-white/10 bg-[#0f0f10]/40 backdrop-blur-xl">
         <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-[#0f0f10]/60 via-[#0f0f10]/50 to-[#0f0f10]/60" />
         <div className="pointer-events-none absolute inset-0 z-0 shadow-[0_1px_0_0_rgba(255,255,255,0.05)]" />
-        
+
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            <Link 
-              to={ROUTES.DASHBOARD} 
-              className="flex items-center gap-3 transition group"
-            >
+            <Link to={ROUTES.DASHBOARD} className="group flex items-center gap-3 transition">
               <KleffDot variant="full" size={24} />
               <span className="text-sm font-semibold tracking-[0.32em] text-neutral-100 uppercase">
                 LEFF
@@ -313,7 +323,7 @@ export function SettingsPage() {
             </Link>
             <Link
               to={ROUTES.DASHBOARD}
-              className="flex items-center gap-2 text-sm text-neutral-400 hover:text-neutral-50 transition"
+              className="flex items-center gap-2 text-sm text-neutral-400 transition hover:text-neutral-50"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Dashboard
@@ -324,10 +334,10 @@ export function SettingsPage() {
 
       {/* Main Content with Sidebar */}
       <main className="relative z-0 flex-1">
-        <div className="mx-auto max-w-7xl w-full px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           {/* Account Settings Heading - Required by E2E tests */}
           <h1 className="sr-only">Account Settings</h1>
-          
+
           <div className="flex gap-8">
             {/* Sidebar */}
             <aside className="w-64 flex-shrink-0">
@@ -336,7 +346,7 @@ export function SettingsPage() {
                   onClick={() => setActiveTab("profile")}
                   className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition ${
                     activeTab === "profile"
-                      ? "bg-neutral-800/50 text-neutral-50 font-medium"
+                      ? "bg-neutral-800/50 font-medium text-neutral-50"
                       : "text-neutral-400 hover:bg-neutral-800/30 hover:text-neutral-200"
                   }`}
                 >
@@ -346,7 +356,7 @@ export function SettingsPage() {
                 <button
                   onClick={() => setActiveTab("projects")}
                   disabled
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-500 cursor-not-allowed"
+                  className="flex w-full cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-500"
                 >
                   <FolderGit2 className="h-4 w-4" />
                   Your projects
@@ -354,7 +364,7 @@ export function SettingsPage() {
                 <button
                   onClick={() => setActiveTab("appearance")}
                   disabled
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-500 cursor-not-allowed"
+                  className="flex w-full cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-500"
                 >
                   <Palette className="h-4 w-4" />
                   Appearance
@@ -362,7 +372,7 @@ export function SettingsPage() {
                 <button
                   onClick={() => setActiveTab("email")}
                   disabled
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-500 cursor-not-allowed"
+                  className="flex w-full cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-500"
                 >
                   <Mail className="h-4 w-4" />
                   Email
@@ -370,7 +380,7 @@ export function SettingsPage() {
                 <button
                   onClick={() => setActiveTab("billing")}
                   disabled
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-500 cursor-not-allowed"
+                  className="flex w-full cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-500"
                 >
                   <CreditCard className="h-4 w-4" />
                   Billing
@@ -379,7 +389,7 @@ export function SettingsPage() {
             </aside>
 
             {/* Main Content Area */}
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               {/* Notification */}
               {notification && (
                 <div
@@ -400,9 +410,9 @@ export function SettingsPage() {
 
               <div className="space-y-8">
                 {/* Profile Section */}
-                <div className="rounded-xl border border-neutral-800/80 bg-neutral-900/60 backdrop-blur-sm p-8 shadow-xl">
-                  <div className="mb-6 pb-6 border-b border-neutral-800/50">
-                    <h2 className="text-xl font-bold text-neutral-50 mb-2">Public profile</h2>
+                <div className="rounded-xl border border-neutral-800/80 bg-neutral-900/60 p-8 shadow-xl backdrop-blur-sm">
+                  <div className="mb-6 border-b border-neutral-800/50 pb-6">
+                    <h2 className="mb-2 text-xl font-bold text-neutral-50">Public profile</h2>
                     <p className="text-sm text-neutral-400">
                       This information will be displayed publicly so be careful what you share.
                     </p>
@@ -410,16 +420,20 @@ export function SettingsPage() {
 
                   <form onSubmit={handleSubmit} className="space-y-8">
                     {/* Profile Picture */}
-                    <div className="flex items-start gap-8 pb-8 border-b border-neutral-800/50">
+                    <div className="flex items-start gap-8 border-b border-neutral-800/50 pb-8">
                       <div className="flex-shrink-0">
                         <UserAvatar initial={initial} size="lg" src={displayAvatar} />
-                        <p className="mt-3 text-xs text-neutral-500 text-center">
-                          Member since<br />
-                          <span className="text-neutral-400 font-medium">{createdAtLabel}</span>
+                        <p className="mt-3 text-center text-xs text-neutral-500">
+                          Member since
+                          <br />
+                          <span className="font-medium text-neutral-400">{createdAtLabel}</span>
                         </p>
                       </div>
                       <div className="flex-1">
-                        <Label htmlFor="avatarUrl" className="text-sm font-semibold text-neutral-200 mb-2 block">
+                        <Label
+                          htmlFor="avatarUrl"
+                          className="mb-2 block text-sm font-semibold text-neutral-200"
+                        >
                           Avatar URL
                         </Label>
                         <Input
@@ -429,7 +443,7 @@ export function SettingsPage() {
                             setFormData((prev) => ({ ...prev, avatarUrl: e.target.value }))
                           }
                           placeholder="https://example.com/avatar.png"
-                          className="bg-neutral-950/80 border-neutral-800 text-neutral-50"
+                          className="border-neutral-800 bg-neutral-950/80 text-neutral-50"
                         />
                         <p className="mt-3 text-xs text-neutral-500">
                           Enter a URL to your profile picture. File uploads coming soon.
@@ -439,26 +453,35 @@ export function SettingsPage() {
 
                     {/* Username */}
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                      <Label htmlFor="username" className="text-sm font-semibold text-neutral-200 md:text-right md:pt-3">
+                      <Label
+                        htmlFor="username"
+                        className="text-sm font-semibold text-neutral-200 md:pt-3 md:text-right"
+                      >
                         Username
                       </Label>
                       <div className="md:col-span-2">
                         <Input
                           id="username"
                           value={formData.username}
-                          onChange={(e) => setFormData((prev) => ({ ...prev, username: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, username: e.target.value }))
+                          }
                           placeholder="your-username"
-                          className="bg-neutral-950/80 border-neutral-800 text-neutral-50"
+                          className="border-neutral-800 bg-neutral-950/80 text-neutral-50"
                         />
                         <p className="mt-3 text-xs text-neutral-500">
-                          Used in URLs and mentions. Only lowercase letters, numbers, dashes and underscores.
+                          Used in URLs and mentions. Only lowercase letters, numbers, dashes and
+                          underscores.
                         </p>
                       </div>
                     </div>
 
                     {/* Display Name */}
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                      <Label htmlFor="displayName" className="text-sm font-semibold text-neutral-200 md:text-right md:pt-3">
+                      <Label
+                        htmlFor="displayName"
+                        className="text-sm font-semibold text-neutral-200 md:pt-3 md:text-right"
+                      >
                         Display Name
                       </Label>
                       <div className="md:col-span-2">
@@ -469,14 +492,17 @@ export function SettingsPage() {
                             setFormData((prev) => ({ ...prev, displayName: e.target.value }))
                           }
                           placeholder="How you appear in the app"
-                          className="bg-neutral-950/80 border-neutral-800 text-neutral-50"
+                          className="border-neutral-800 bg-neutral-950/80 text-neutral-50"
                         />
                       </div>
                     </div>
 
                     {/* Email */}
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                      <Label htmlFor="email" className="text-sm font-semibold text-neutral-200 md:text-right md:pt-3">
+                      <Label
+                        htmlFor="email"
+                        className="text-sm font-semibold text-neutral-200 md:pt-3 md:text-right"
+                      >
                         Email
                       </Label>
                       <div className="md:col-span-2">
@@ -485,7 +511,7 @@ export function SettingsPage() {
                           type="email"
                           value={formData.email}
                           disabled
-                          className="bg-neutral-900/80 border-neutral-800 text-neutral-500 cursor-not-allowed"
+                          className="cursor-not-allowed border-neutral-800 bg-neutral-900/80 text-neutral-500"
                         />
                         <p className="mt-3 text-xs text-neutral-500">
                           Email is managed by Authentik and cannot be changed here.
@@ -495,34 +521,39 @@ export function SettingsPage() {
 
                     {/* Bio */}
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                      <Label htmlFor="bio" className="text-sm font-semibold text-neutral-200 md:text-right md:pt-3">
+                      <Label
+                        htmlFor="bio"
+                        className="text-sm font-semibold text-neutral-200 md:pt-3 md:text-right"
+                      >
                         Bio
                       </Label>
                       <div className="md:col-span-2">
                         <textarea
                           id="bio"
                           value={formData.bio}
-                          onChange={(e) => setFormData((prev) => ({ ...prev, bio: e.target.value }))}
+                          onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, bio: e.target.value }))
+                          }
                           maxLength={512}
                           rows={5}
-                          className="w-full rounded-lg border border-neutral-800 bg-neutral-950/80 px-4 py-3 text-sm text-neutral-50 outline-none transition focus:border-kleff-gold focus:ring-2 focus:ring-kleff-gold/20 resize-none"
+                          className="focus:border-kleff-gold focus:ring-kleff-gold/20 w-full resize-none rounded-lg border border-neutral-800 bg-neutral-950/80 px-4 py-3 text-sm text-neutral-50 transition outline-none focus:ring-2"
                           placeholder="Tell people a bit about yourself."
                         />
                         <div className="mt-3 flex justify-between text-xs text-neutral-500">
-                          <span>You can @mention other users and organizations to link to them.</span>
-                          <span className="font-medium">
-                            {formData.bio.length}/512
+                          <span>
+                            You can @mention other users and organizations to link to them.
                           </span>
+                          <span className="font-medium">{formData.bio.length}/512</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Save Button */}
-                    <div className="flex justify-end pt-6 border-t border-neutral-800/50">
+                    <div className="flex justify-end border-t border-neutral-800/50 pt-6">
                       <Button
                         type="submit"
                         disabled={isSaving}
-                        className="bg-gradient-kleff inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-bold text-neutral-950 shadow-lg shadow-kleff-gold/20 hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="bg-gradient-kleff shadow-kleff-gold/20 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-bold text-neutral-950 shadow-lg hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         <Save className="h-4 w-4" />
                         {isSaving ? "Saving..." : "Save"}
@@ -532,9 +563,9 @@ export function SettingsPage() {
                 </div>
 
                 {/* Account Activity */}
-                <div className="rounded-xl border border-neutral-800/80 bg-neutral-900/60 backdrop-blur-sm p-8 shadow-xl">
-                  <div className="mb-6 pb-6 border-b border-neutral-800/50">
-                    <h2 className="text-xl font-bold text-neutral-50 mb-2">Account activity</h2>
+                <div className="rounded-xl border border-neutral-800/80 bg-neutral-900/60 p-8 shadow-xl backdrop-blur-sm">
+                  <div className="mb-6 border-b border-neutral-800/50 pb-6">
+                    <h2 className="mb-2 text-xl font-bold text-neutral-50">Account activity</h2>
                     <p className="text-sm text-neutral-400">
                       Security-relevant events recorded by the user-service.
                     </p>
@@ -559,16 +590,22 @@ export function SettingsPage() {
 
                   {!showAuditSkeleton && !auditError && (
                     <>
-                      <div className="space-y-0 divide-y divide-neutral-800/50" data-testid="settings-audit-list">
+                      <div
+                        className="space-y-0 divide-y divide-neutral-800/50"
+                        data-testid="settings-audit-list"
+                      >
                         {displayLogs.map((log) => (
                           <div key={log.id} className="flex items-center justify-between py-4">
-                            <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-sm text-neutral-50 mb-1">{log.action}</div>
-                              <div className="text-xs text-neutral-500 truncate">
-                                {log.ipAddress ?? "unknown"} · {log.userAgent?.slice(0, 80) ?? "unknown"}
+                            <div className="min-w-0 flex-1">
+                              <div className="mb-1 text-sm font-semibold text-neutral-50">
+                                {log.action}
+                              </div>
+                              <div className="truncate text-xs text-neutral-500">
+                                {log.ipAddress ?? "unknown"} ·{" "}
+                                {log.userAgent?.slice(0, 80) ?? "unknown"}
                               </div>
                             </div>
-                            <div className="text-xs text-neutral-500 ml-4 flex-shrink-0">
+                            <div className="ml-4 flex-shrink-0 text-xs text-neutral-500">
                               {new Date(log.timestamp).toLocaleString()}
                             </div>
                           </div>
@@ -576,7 +613,7 @@ export function SettingsPage() {
                       </div>
 
                       {auditLogs.length === 0 && (
-                        <p className="mt-6 text-xs text-neutral-500 italic text-center">
+                        <p className="mt-6 text-center text-xs text-neutral-500 italic">
                           Note: Showing example activity data. Real audit logs coming soon.
                         </p>
                       )}
@@ -609,13 +646,13 @@ export function SettingsPage() {
               </span>
             </div>
             <div className="flex gap-8 text-sm text-neutral-400">
-              <Link to="/privacy" className="hover:text-neutral-50 transition font-medium">
+              <Link to="/privacy" className="font-medium transition hover:text-neutral-50">
                 Privacy
               </Link>
-              <Link to="/terms" className="hover:text-neutral-50 transition font-medium">
+              <Link to="/terms" className="font-medium transition hover:text-neutral-50">
                 Terms
               </Link>
-              <Link to="/faq" className="hover:text-neutral-50 transition font-medium">
+              <Link to="/faq" className="font-medium transition hover:text-neutral-50">
                 FAQ
               </Link>
             </div>

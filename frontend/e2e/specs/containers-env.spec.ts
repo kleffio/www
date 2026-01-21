@@ -7,7 +7,7 @@ import { ContainerModal } from "../components/container-modal";
 import { EditEnvModal } from "../components/edit-env-modal";
 import { generateTestString } from "../utils/strings";
 
-import type { Browser } from '@playwright/test';
+import type { Browser } from "@playwright/test";
 
 test.describe("Container Environment Variables", () => {
   let projectName: string;
@@ -47,17 +47,11 @@ test.describe("Container Environment Variables", () => {
     await containerModal.expectLoaded();
 
     // Create container with environment variables
-    await containerModal.createContainer(
-      containerName, 
-      "nginx:latest", 
-      "8080",
-      undefined,
-      [
-        { key: "NODE_ENV", value: "production" },
-        { key: "API_URL", value: "https://api.example.com" },
-        { key: "DEBUG", value: "true" }
-      ]
-    );
+    await containerModal.createContainer(containerName, "nginx:latest", "8080", undefined, [
+      { key: "NODE_ENV", value: "production" },
+      { key: "API_URL", value: "https://api.example.com" },
+      { key: "DEBUG", value: "true" }
+    ]);
 
     // Verify container was created
     await detailPage.expectContainerExists(containerName);
@@ -79,16 +73,10 @@ test.describe("Container Environment Variables", () => {
     const containerModal = new ContainerModal(page);
     await containerModal.open();
     await containerModal.expectLoaded();
-    
-    await containerModal.createContainer(
-      containerName, 
-      "node:18-alpine", 
-      "3000",
-      undefined,
-      [
-        { key: "PORT", value: "3000" }
-      ]
-    );
+
+    await containerModal.createContainer(containerName, "node:18-alpine", "3000", undefined, [
+      { key: "PORT", value: "3000" }
+    ]);
 
     await detailPage.expectContainerExists(containerName);
 
@@ -102,7 +90,7 @@ test.describe("Container Environment Variables", () => {
 
     // Add new environment variable
     await editEnvModal.addEnvVariable("NEW_VAR", "new_value");
-    
+
     // Verify the count increased
     const count = await editEnvModal.getEnvVariableCount();
     expect(count).toBe(2);
@@ -127,18 +115,12 @@ test.describe("Container Environment Variables", () => {
     const containerModal = new ContainerModal(page);
     await containerModal.open();
     await containerModal.expectLoaded();
-    
-    await containerModal.createContainer(
-      containerName, 
-      "redis:alpine", 
-      "6379",
-      undefined,
-      [
-        { key: "REDIS_HOST", value: "localhost" },
-        { key: "REDIS_PORT", value: "6379" },
-        { key: "REDIS_PASSWORD", value: "secret123" }
-      ]
-    );
+
+    await containerModal.createContainer(containerName, "redis:alpine", "6379", undefined, [
+      { key: "REDIS_HOST", value: "localhost" },
+      { key: "REDIS_PORT", value: "6379" },
+      { key: "REDIS_PASSWORD", value: "secret123" }
+    ]);
 
     await detailPage.expectContainerExists(containerName);
 
@@ -178,17 +160,11 @@ test.describe("Container Environment Variables", () => {
     const containerModal = new ContainerModal(page);
     await containerModal.open();
     await containerModal.expectLoaded();
-    
-    await containerModal.createContainer(
-      containerName, 
-      "postgres:15-alpine", 
-      "5432",
-      undefined,
-      [
-        { key: "POSTGRES_USER", value: "admin" },
-        { key: "POSTGRES_PASSWORD", value: "password" }
-      ]
-    );
+
+    await containerModal.createContainer(containerName, "postgres:15-alpine", "5432", undefined, [
+      { key: "POSTGRES_USER", value: "admin" },
+      { key: "POSTGRES_PASSWORD", value: "password" }
+    ]);
 
     await detailPage.expectContainerExists(containerName);
 
@@ -210,7 +186,11 @@ test.describe("Container Environment Variables", () => {
     await editEnvModal.saveChanges();
   });
 
-  test("edit container and update environment variable values", async ({ page }: { page: Page }) => {
+  test("edit container and update environment variable values", async ({
+    page
+  }: {
+    page: Page;
+  }) => {
     const projectsPage = new ProjectsPage(page);
     await projectsPage.open();
     await projectsPage.expectLoaded();
@@ -226,17 +206,11 @@ test.describe("Container Environment Variables", () => {
     const containerModal = new ContainerModal(page);
     await containerModal.open();
     await containerModal.expectLoaded();
-    
-    await containerModal.createContainer(
-      containerName, 
-      "mongo:6", 
-      "27017",
-      undefined,
-      [
-        { key: "MONGO_INITDB_ROOT_USERNAME", value: "olduser" },
-        { key: "MONGO_INITDB_ROOT_PASSWORD", value: "oldpass" }
-      ]
-    );
+
+    await containerModal.createContainer(containerName, "mongo:6", "27017", undefined, [
+      { key: "MONGO_INITDB_ROOT_USERNAME", value: "olduser" },
+      { key: "MONGO_INITDB_ROOT_PASSWORD", value: "oldpass" }
+    ]);
 
     await detailPage.expectContainerExists(containerName);
 
@@ -269,16 +243,10 @@ test.describe("Container Environment Variables", () => {
     const containerModal = new ContainerModal(page);
     await containerModal.open();
     await containerModal.expectLoaded();
-    
-    await containerModal.createContainer(
-      containerName, 
-      "mysql:8", 
-      "3306",
-      undefined,
-      [
-        { key: "MYSQL_ROOT_PASSWORD", value: "rootpass" }
-      ]
-    );
+
+    await containerModal.createContainer(containerName, "mysql:8", "3306", undefined, [
+      { key: "MYSQL_ROOT_PASSWORD", value: "rootpass" }
+    ]);
 
     await detailPage.expectContainerExists(containerName);
 
@@ -300,7 +268,7 @@ test.describe("Container Environment Variables", () => {
     // Reopen and verify the variable was not added
     await editEnvModal.openForContainer(containerName);
     await editEnvModal.expectLoaded();
-    
+
     const count = await editEnvModal.getEnvVariableCount();
     expect(count).toBe(1); // Should still be 1, not 2
   });
@@ -322,11 +290,7 @@ test.describe("Container Environment Variables", () => {
     await containerModal.expectLoaded();
 
     // Create container without environment variables
-    await containerModal.createContainer(
-      containerName, 
-      "alpine:latest", 
-      "8080"
-    );
+    await containerModal.createContainer(containerName, "alpine:latest", "8080");
 
     await detailPage.expectContainerExists(containerName);
 
@@ -334,9 +298,9 @@ test.describe("Container Environment Variables", () => {
     const editEnvModal = new EditEnvModal(page);
     await editEnvModal.openForContainer(containerName);
     await editEnvModal.expectLoaded();
-    
+
     await editEnvModal.expectNoVariables();
-    
+
     await editEnvModal.cancelButton().click();
   });
 });

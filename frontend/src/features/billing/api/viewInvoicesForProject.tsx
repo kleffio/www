@@ -6,7 +6,6 @@ export async function fetchInvoice(projectId: string): Promise<Invoice[]> {
   return res.data;
 }
 
-
 // export default async function fetchInvoice(): Promise<Invoice[]> {
 // return [
 //   {
