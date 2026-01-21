@@ -1,0 +1,33 @@
+{
+  "pricing": {
+    "badge": "Tarification Transparente",
+    "title_line1": "Payez pour ce que vous",
+    "title_line2": "utilisez réellement.",
+    "subtitle": "Tarification simple et transparente basée sur votre consommation réelle. Nous ne facturons que le CPU, la RAM et le stockage. Aucun frais caché.",
+    "metrics": {
+      "cpu": {
+        "label": "CPU",
+        "description": "par cœur CPU par heure"
+      },
+      "ram": {
+        "label": "RAM",
+        "description": "par Go de RAM par heure"
+      },
+      "storage": {
+        "label": "Stockage",
+        "description": "par gigaoctet par mois"
+      }
+    },
+    "no_results": {
+      "title": "Aucun résultat trouvé",
+      "description": "Essayez des mots-clés différents ou parcourez tous les tarifs"
+    },
+    "loading": "Chargement des informations tarifaires...",
+    "error_retry": "Réessayer",
+    "custom_plan": {
+      "title": "Besoin d'un plan personnalisé ?",
+      "description": "Contactez notre équipe commerciale pour les tarifs d'entreprise et les arrangements personnalisés.",
+      "button": "Parler à un représentant"
+    }
+  }
+}

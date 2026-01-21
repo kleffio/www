@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { KleffDot } from "@shared/ui/KleffDot";
 import { cn } from "@shared/lib/utils";
 
-import en from "@app/locales/en.json";
+import en from "@app/locales/en/landing.json";
 type PreviewTranslation = typeof en.landing.preview;
 
 interface DeployPreviewCardProps {
@@ -167,9 +167,7 @@ export function DeployPreviewCard({ preview: t, className }: DeployPreviewCardPr
   const statuses = t.statuses;
   const allDone = state.stage === "completed";
 
-  const rowsToRender = isCompact
-    ? state.rows
-    : state.rows.filter((row) => row.phase !== "hidden");
+  const rowsToRender = isCompact ? state.rows : state.rows.filter((row) => row.phase !== "hidden");
 
   const { metrics } = state;
   const latencyLabel = `${metrics.latencyMs.toFixed(0)}ms`;

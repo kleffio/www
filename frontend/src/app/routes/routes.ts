@@ -30,7 +30,7 @@ export const ROUTES = {
   DASHBOARD: "/dashboard",
   DASHBOARD_PROJECTS: "/dashboard/projects",
   DASHBOARD_SYSTEMS: "/dashboard/systems",
-  DASHBOARD_SETTINGS: "/dashboard/settings"
+  SETTINGS: "/settings"
 } as const;
 
 export const RouteHelpers = {

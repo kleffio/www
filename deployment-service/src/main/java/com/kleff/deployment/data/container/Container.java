@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Map;
 
 @Data
 @Builder
@@ -29,4 +30,7 @@ public class Container {
     private LocalDateTime createdAt;
     private String repoUrl; 
     private String branch;
+    
+    @Column(columnDefinition = "TEXT")
+    private String envVariables;
 }

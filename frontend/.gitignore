@@ -39,3 +39,9 @@ package-lock.json
 .env.production
 .env.test.production
 .env.test.staging
+
+# Testing Environments
+
+e2e/storage/*
+test-results/
+playwright-report/

@@ -56,3 +56,27 @@ func (s *metricsService) GetNamespaces(ctx context.Context) ([]domain.NamespaceM
 func (s *metricsService) GetDatabaseIOMetrics(ctx context.Context, duration string) (*domain.DatabaseMetrics, error) {
 	return s.metricsRepo.GetDatabaseIOMetrics(ctx, duration)
 }
+
+func (s *metricsService) GetProjectUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error) {
+	return s.metricsRepo.GetProjectUsageMetrics(ctx, projectID)
+}
+
+func (s *metricsService) GetProjectUsageMetricsWithDays(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error) {
+	return s.metricsRepo.GetProjectUsageMetricsWithDays(ctx, projectID, days)
+}
+
+func (s *metricsService) GetProjectTotalUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectTotalUsageMetrics, error) {
+	return s.metricsRepo.GetProjectTotalUsageMetrics(ctx, projectID)
+}
+
+func (s *metricsService) GetProjectTotalUsageMetricsWithDays(ctx context.Context, projectID string, days int) (*domain.ProjectTotalUsageMetrics, error) {
+	return s.metricsRepo.GetProjectTotalUsageMetricsWithDays(ctx, projectID, days)
+}
+
+func (s *metricsService) GetUptimeMetrics(ctx context.Context, duration string) (*domain.UptimeMetrics, error) {
+	return s.metricsRepo.GetUptimeMetrics(ctx, duration)
+}
+
+func (s *metricsService) GetSystemUptime(ctx context.Context) (float64, error) {
+	return s.metricsRepo.GetSystemUptime(ctx)
+}

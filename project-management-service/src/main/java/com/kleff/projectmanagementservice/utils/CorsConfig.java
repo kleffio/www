@@ -14,9 +14,10 @@ public class CorsConfig implements WebMvcConfigurer {
                         "http://localhost:5173",
                         "https://api.kleff.io",
                         "http://localhost:3000",
-                        "https://kleff.io"
+                        "https://kleff.io",
+                        "http://localhost:8080"
                 )
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }

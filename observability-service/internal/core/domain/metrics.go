@@ -12,6 +12,8 @@ type ClusterOverview struct {
 	TotalNamespaces    int     `json:"totalNamespaces"`
 	CPUUsagePercent    float64 `json:"cpuUsagePercent"`
 	MemoryUsagePercent float64 `json:"memoryUsagePercent"`
+	UptimeSeconds      float64 `json:"uptimeSeconds"`
+	UptimeFormatted    string  `json:"uptimeFormatted"`
 }
 
 type MetricCard struct {
@@ -37,6 +39,8 @@ type NodeMetric struct {
 	MemoryUsagePercent float64 `json:"memoryUsagePercent"`
 	PodCount           int     `json:"podCount"`
 	Status             string  `json:"status"`
+	UptimeSeconds      float64 `json:"uptimeSeconds"`
+	UptimeFormatted    string  `json:"uptimeFormatted"`
 }
 
 type NamespaceMetric struct {
@@ -60,4 +64,35 @@ type DatabaseMetrics struct {
 	NetworkReceiveHistory      []TimeSeriesDataPoint `json:"networkReceiveHistory"`
 	NetworkTransmitHistory     []TimeSeriesDataPoint `json:"networkTransmitHistory"`
 	Source                     string                `json:"source"`
+}
+
+type ProjectUsageMetrics struct {
+	ProjectID       string  `json:"projectID"`
+	MemoryUsageGB   float64 `json:"memoryUsageGB"`
+	CPURequestCores float64 `json:"cpuRequestCores"`
+	Window          string  `json:"window"`
+}
+
+type ProjectTotalUsageMetrics struct {
+	ProjectID     string  `json:"projectID"`
+	CPUHours      float64 `json:"cpuHours"`
+	MemoryGBHours float64 `json:"memoryGBHours"`
+	Window        string  `json:"window"`
+}
+
+type UptimeMetrics struct {
+	SystemUptimeSeconds    float64               `json:"systemUptimeSeconds"`
+	SystemUptimeFormatted  string                `json:"systemUptimeFormatted"`
+	NodeUptimes            []NodeUptimeMetric    `json:"nodeUptimes"`
+	AverageUptimeSeconds   float64               `json:"averageUptimeSeconds"`
+	AverageUptimeFormatted string                `json:"averageUptimeFormatted"`
+	UptimeHistory          []TimeSeriesDataPoint `json:"uptimeHistory"`
+}
+
+type NodeUptimeMetric struct {
+	NodeName         string  `json:"nodeName"`
+	UptimeSeconds    float64 `json:"uptimeSeconds"`
+	UptimeFormatted  string  `json:"uptimeFormatted"`
+	BootTimestamp    int64   `json:"bootTimestamp"`
+	BootTimeReadable string  `json:"bootTimeReadable"`
 }

@@ -4,24 +4,36 @@ import { Button } from "@shared/ui/Button";
 import { Badge } from "@shared/ui/Badge";
 import { Section, SectionHeader } from "@shared/ui/Section";
 import { GradientIcon } from "@shared/ui/GradientIcon";
-import { Activity, Boxes, Cpu, GitBranch, Shield, SignalHigh, Timer, Workflow } from "lucide-react";
+import {
+  Activity,
+  Boxes,
+  CheckCircle2,
+  Cpu,
+  GitBranch,
+  Shield,
+  SignalHigh,
+  Timer,
+  Workflow,
+  Zap
+} from "lucide-react";
 import { SoftPanel } from "@shared/ui/SoftPanel";
 import { FeatureRow } from "@shared/ui/FeatureRow";
 import { MiniCard } from "@shared/ui/MiniCard";
 import { getLocale } from "../../app/locales/locale";
 import { DeployPreviewCard } from "@shared/widget/DeployPreviewCard";
 
-import enTranslations from "@app/locales/en.json";
-import frTranslations from "@app/locales/fr.json";
+import enLanding from "@app/locales/en/landing.json";
+import frLanding from "@app/locales/fr/landing.json";
 
 import { ROUTES } from "@app/routes/routes";
+import { UptimeCircle } from "@features/observability/components/UptimeCircle";
 
 export function LandingPage() {
   const [locale, setLocaleState] = useState(getLocale());
 
   const translations = {
-    en: enTranslations,
-    fr: frTranslations
+    en: enLanding,
+    fr: frLanding
   };
 
   useEffect(() => {
@@ -157,6 +169,60 @@ export function LandingPage() {
               title={t.why_kleff.features.visibility.title}
               description={t.why_kleff.features.visibility.description}
             />
+          </div>
+        </SoftPanel>
+      </Section>
+
+      <Section className="pb-14">
+        <SoftPanel className="relative overflow-hidden">
+          <div className="absolute top-0 right-0 h-32 w-32 rounded-full bg-green-500/5 blur-3xl" />
+
+          <div className="relative flex flex-col items-center gap-6 py-4 md:flex-row md:gap-8">
+            <div className="shrink-0">
+              <UptimeCircle size={140} strokeWidth={10} locale={locale} />
+            </div>
+
+            <div className="flex-1 space-y-4 text-center md:text-left">
+              <div>
+                <div className="mb-1 flex items-center justify-center gap-2 md:justify-start">
+                  <Shield className="h-4 w-4 text-green-400" />
+                  <span className="text-xs font-semibold tracking-[0.15em] text-green-400 uppercase">
+                    {t.reliability.badge}
+                  </span>
+                </div>
+                <h3 className="text-xl font-semibold text-neutral-50">{t.reliability.title}</h3>
+                <p className="mt-2 text-sm text-neutral-400">{t.reliability.description}</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 text-left">
+                <div className="flex items-start gap-2">
+                  <div className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-green-500/10">
+                    <Zap className="h-3 w-3 text-green-400" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium text-neutral-300">
+                      {t.reliability.features.zero_downtime.title}
+                    </div>
+                    <div className="text-[11px] text-neutral-500">
+                      {t.reliability.features.zero_downtime.description}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <div className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-green-500/10">
+                    <CheckCircle2 className="h-3 w-3 text-green-400" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-medium text-neutral-300">
+                      {t.reliability.features.health_monitoring.title}
+                    </div>
+                    <div className="text-[11px] text-neutral-500">
+                      {t.reliability.features.health_monitoring.description}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </SoftPanel>
       </Section>

@@ -25,5 +25,13 @@ type MetricsRepository interface {
 
 	GetNamespaces(ctx context.Context) ([]domain.NamespaceMetric, error)
 
+	GetUptimeMetrics(ctx context.Context, duration string) (*domain.UptimeMetrics, error)
+
+	GetSystemUptime(ctx context.Context) (float64, error)
+
 	GetDatabaseIOMetrics(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
+	GetProjectUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
+	GetProjectUsageMetricsWithDays(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error)
+	GetProjectTotalUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectTotalUsageMetrics, error)
+	GetProjectTotalUsageMetricsWithDays(ctx context.Context, projectID string, days int) (*domain.ProjectTotalUsageMetrics, error)
 }

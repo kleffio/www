@@ -1,0 +1,18 @@
+{
+  "dashboard": {
+    "overview_title": "Overview",
+    "overview_subtitle": "Monitor your deployments, traffic, and infrastructure health",
+    "traffic_performance": "Traffic & Performance",
+    "total_requests": "Total Requests",
+    "avg_response_time": "Avg Response Time",
+    "cache_hit_rate": "Cache Hit Rate",
+    "recent_deployments": "Recent Deployments",
+    "security": "Security",
+    "infrastructure": "Infrastructure",
+    "quick_actions": "Quick Actions",
+    "create_new_deployment": "Create New Deployment",
+    "view_analytics": "View Analytics",
+    "view_all": "View All",
+    "deploy_new_project": "Deploy New Project"
+  }
+}

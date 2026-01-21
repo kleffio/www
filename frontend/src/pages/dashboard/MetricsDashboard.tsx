@@ -20,6 +20,8 @@ import type {
 import { AlertCircle, RefreshCw } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
+// TODO: Add data-testid="systems-ready" when fully implemented for e2e
+
 export const MetricsDashboard: React.FC = () => {
   const [overview, setOverview] = useState<ClusterOverview | null>(null);
   const [requestsMetric, setRequestsMetric] = useState<MetricCardType | null>(null);
@@ -81,10 +83,14 @@ export const MetricsDashboard: React.FC = () => {
     fetchData();
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeRange]);
 
   return (
-    <div className="bg-kleff-bg relative isolate flex h-screen overflow-hidden">
+    <div
+      className="bg-kleff-bg relative isolate flex h-screen overflow-hidden"
+      data-testid="systems-page"
+    >
       <div className="pointer-events-none absolute inset-0 -z-20">
         <div className="bg-modern-noise bg-kleff-spotlight h-full w-full opacity-60" />
         <div className="bg-kleff-grid absolute inset-0 opacity-[0.25]" />
@@ -102,44 +108,59 @@ export const MetricsDashboard: React.FC = () => {
                   Monitor your Kubernetes cluster metrics
                 </p>
               </div>
-              <select
-                value={timeRange}
-                onChange={(e) => setTimeRange(e.target.value)}
-                className="rounded-md border border-white/20 bg-white/5 px-3 py-2 text-sm text-neutral-200 hover:border-white/40 hover:bg-white/10 focus:ring-2 focus:ring-white/20 focus:outline-none"
-                style={{
-                  colorScheme: "dark"
-                }}
-              >
-                <option value="5m" className="bg-neutral-900 text-neutral-200">
-                  Last 5 minutes
-                </option>
-                <option value="15m" className="bg-neutral-900 text-neutral-200">
-                  Last 15 minutes
-                </option>
-                <option value="30m" className="bg-neutral-900 text-neutral-200">
-                  Last 30 minutes
-                </option>
-                <option value="1h" className="bg-neutral-900 text-neutral-200">
-                  Last 1 hour
-                </option>
-                <option value="3h" className="bg-neutral-900 text-neutral-200">
-                  Last 3 hours
-                </option>
-                <option value="6h" className="bg-neutral-900 text-neutral-200">
-                  Last 6 hours
-                </option>
-                <option value="12h" className="bg-neutral-900 text-neutral-200">
-                  Last 12 hours
-                </option>
-                <option value="24h" className="bg-neutral-900 text-neutral-200">
-                  Last 24 hours
-                </option>
-              </select>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-neutral-400">
+                  Last updated: {lastUpdate.toLocaleTimeString()}
+                </span>
+                <button
+                  onClick={() => fetchData()}
+                  className="flex items-center gap-1.5 rounded-md border border-white/20 bg-white/5 px-3 py-1.5 text-xs text-neutral-200 hover:border-white/40 hover:bg-white/10"
+                >
+                  <RefreshCw className="h-3.5 w-3.5" />
+                  Refresh
+                </button>
+                <select
+                  value={timeRange}
+                  onChange={(e) => setTimeRange(e.target.value)}
+                  className="rounded-md border border-white/20 bg-white/5 px-3 py-2 text-sm text-neutral-200 hover:border-white/40 hover:bg-white/10 focus:ring-2 focus:ring-white/20 focus:outline-none"
+                  style={{
+                    colorScheme: "dark"
+                  }}
+                >
+                  <option value="5m" className="bg-neutral-900 text-neutral-200">
+                    Last 5 minutes
+                  </option>
+                  <option value="15m" className="bg-neutral-900 text-neutral-200">
+                    Last 15 minutes
+                  </option>
+                  <option value="30m" className="bg-neutral-900 text-neutral-200">
+                    Last 30 minutes
+                  </option>
+                  <option value="1h" className="bg-neutral-900 text-neutral-200">
+                    Last 1 hour
+                  </option>
+                  <option value="3h" className="bg-neutral-900 text-neutral-200">
+                    Last 3 hours
+                  </option>
+                  <option value="6h" className="bg-neutral-900 text-neutral-200">
+                    Last 6 hours
+                  </option>
+                  <option value="12h" className="bg-neutral-900 text-neutral-200">
+                    Last 12 hours
+                  </option>
+                  <option value="24h" className="bg-neutral-900 text-neutral-200">
+                    Last 24 hours
+                  </option>
+                </select>
+              </div>
             </div>
           </div>
 
           {error && (
-            <div className="mb-4 flex items-center gap-3 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-red-400">
+            <div
+              className="mb-4 flex items-center gap-3 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-red-400"
+              data-testid="systems-error"
+            >
               <AlertCircle size={20} className="flex-shrink-0" />
               <span className="text-sm">{error}</span>
             </div>
@@ -214,13 +235,6 @@ export const MetricsDashboard: React.FC = () => {
             />
           </div>
 
-          <button
-            className="mb-6 w-full rounded-md border border-white/20 bg-white/5 px-6 py-2 text-sm text-neutral-200 hover:border-white/40 hover:bg-white/10"
-            onClick={() => fetchData()}
-          >
-            <RefreshCw className="mr-2 inline-block h-4 w-4" /> Refresh Metrics
-          </button>
-
           <div className="mb-6">
             <h2 className="mb-4 text-lg font-semibold text-neutral-50">Performance</h2>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -262,10 +276,6 @@ export const MetricsDashboard: React.FC = () => {
                 loading={loading || namespaces.length === 0}
               />
             </div>
-          </div>
-
-          <div className="mt-6 text-sm text-neutral-400">
-            Last updated: {lastUpdate.toLocaleTimeString()}
           </div>
         </div>
       </div>

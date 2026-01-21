@@ -1,12 +1,14 @@
 import { Outlet } from "react-router-dom";
-import { DashboardNav } from "@app/layout/DashboardNav";
-import { TokenDebugPanel } from "@features/auth/components/TokenDebugPanel";
-import { AppBackground } from "@app/layout/AppBackground";
+import { TokenDebugPanel } from "@features/users/components/TokenDebugPanel";
+import { AppBackground } from "@app/layout/components/AppBackground";
+import { AppShellNav } from "@app/navigation/AppShellNav";
 
 export function DashboardLayout() {
   return (
     <div className="bg-kleff-bg text-foreground relative flex h-screen flex-col overflow-hidden lg:flex-row">
-      <DashboardNav />
+      <header>
+        <AppShellNav />
+      </header>
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col overflow-hidden">
         <main className="flex-1 overflow-auto">

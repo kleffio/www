@@ -1,0 +1,33 @@
+{
+  "pricing": {
+    "badge": "Transparent Pricing",
+    "title_line1": "Pay for what you",
+    "title_line2": "actually use.",
+    "subtitle": "Simple, transparent pricing based on your actual consumption. We only charge for CPU, RAM, and storage. No hidden fees.",
+    "metrics": {
+      "cpu": {
+        "label": "CPU",
+        "description": "per CPU core per hour"
+      },
+      "ram": {
+        "label": "RAM",
+        "description": "per GB of RAM per hour"
+      },
+      "storage": {
+        "label": "Storage",
+        "description": "per gigabyte per month"
+      }
+    },
+    "no_results": {
+      "title": "No results found",
+      "description": "Try different keywords or browse all pricing"
+    },
+    "loading": "Loading pricing information...",
+    "error_retry": "Retry",
+    "custom_plan": {
+      "title": "Need a custom plan?",
+      "description": "Contact our sales team for enterprise pricing and custom arrangements.",
+      "button": "Talk to Sales"
+    }
+  }
+}

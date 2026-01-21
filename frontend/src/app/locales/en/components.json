@@ -1,0 +1,184 @@
+{
+  "header": {
+    "common": {
+      "mega_menu_footer": "Open-source-first infrastructure built for modern teams."
+    },
+    "product": {
+      "label": "Product",
+      "tagline": "Everything you need to ship modern services.",
+      "overview": {
+        "label": "Overview",
+        "description": "Deploy, scale, and observe your apps on Kleff."
+      },
+      "deployments": {
+        "label": "Deployments",
+        "description": "Git-based deployments with rollbacks."
+      },
+      "runtime": {
+        "label": "Runtime",
+        "description": "Managed runtimes tuned for modern stacks."
+      },
+      "observability": {
+        "label": "Observability",
+        "description": "Metrics, logs, and alerts out of the box."
+      },
+      "customer_stories": {
+        "header": "Customer Stories",
+        "title": "Built for fast-moving teams",
+        "description": "Teams use Kleff to deploy fleets of services, keep infra observable, and stay in full control whether self-hosted or managed."
+      },
+      "compare": {
+        "header": "Compare Kleff",
+        "vs_vercel": "Kleff vs Vercel",
+        "vs_amplify": "Kleff vs AWS Amplify",
+        "vs_kubernetes": "Kleff vs DIY Kubernetes"
+      }
+    },
+    "developers": {
+      "label": "Developers",
+      "tagline": "Tools that feel like they were built by devs, for devs.",
+      "docs": {
+        "label": "Docs",
+        "description": "Everything you need to get started."
+      },
+      "api": {
+        "label": "API Reference",
+        "description": "REST and CLI endpoints for automation."
+      },
+      "sdks": {
+        "label": "SDKs",
+        "description": "Language & framework integrations."
+      },
+      "changelog": {
+        "label": "Changelog",
+        "description": "Follow platform updates week by week."
+      },
+      "footer_note": "Open-source-first infrastructure built for modern teams."
+    },
+    "solutions": {
+      "label": "Solutions",
+      "tagline": "Kleff for teams of every size.",
+      "startups": {
+        "label": "Startups",
+        "description": "Ship faster with sane defaults and pricing."
+      },
+      "agencies": {
+        "label": "Agencies",
+        "description": "Multi-tenant projects for your clients."
+      },
+      "indie": {
+        "label": "Indie hackers",
+        "description": "Pay only for what you actually use."
+      },
+      "enterprise": {
+        "label": "Enterprise",
+        "description": "Controls & compliance for larger orgs."
+      }
+    },
+    "links": {
+      "pricing": "Pricing",
+      "docs": "Docs",
+      "blog": "Blog"
+    },
+    "mobile": {
+      "nav_title": "Kleff navigation",
+      "nav_description": "Main navigation menu for the Kleff platform, including product, developer, and solution links.",
+      "signin": "Sign in",
+      "signup": "Start your project"
+    }
+  },
+  "dashboardNavItems": [
+    {
+      "label": "Dashboard",
+      "exact": true
+    },
+    {
+      "label": "Projects"
+    },
+    {
+      "label": "Systems"
+    }
+  ],
+  "megaMenuSections": [
+    {
+      "key": "product",
+      "label": "Product",
+      "tagline": "Everything you need to ship modern services.",
+      "items": [
+        {
+          "label": "Overview",
+          "description": "Deploy, scale, and observe your apps on Kleff."
+        },
+        {
+          "label": "Deployments",
+          "description": "Git-based deployments with rollbacks."
+        },
+        {
+          "label": "Runtime",
+          "description": "Managed runtimes tuned for modern stacks."
+        },
+        {
+          "label": "Observability",
+          "description": "Metrics, logs, and alerts out of the box."
+        }
+      ]
+    },
+    {
+      "key": "developers",
+      "label": "Developers",
+      "tagline": "Tools that feel like they were built by devs, for devs.",
+      "items": [
+        {
+          "label": "Docs",
+          "description": "Everything you need to get started."
+        },
+        {
+          "label": "API Reference",
+          "description": "REST and CLI endpoints for automation."
+        },
+        {
+          "label": "SDKs",
+          "description": "Language & framework integrations."
+        },
+        {
+          "label": "Changelog",
+          "description": "Follow platform updates week by week."
+        }
+      ]
+    },
+    {
+      "key": "solutions",
+      "label": "Solutions",
+      "tagline": "Kleff for teams of every size.",
+      "items": [
+        {
+          "label": "Startups",
+          "description": "Ship faster with sane defaults and pricing."
+        },
+        {
+          "label": "Agencies",
+          "description": "Multi-tenant projects for your clients."
+        },
+        {
+          "label": "Indie hackers",
+          "description": "Pay only for what you actually use."
+        },
+        {
+          "label": "Enterprise",
+          "description": "Controls & compliance for larger orgs."
+        }
+      ]
+    }
+  ],
+  "simpleNavLinks": [
+    {
+      "label": "Pricing"
+    },
+    {
+      "label": "Docs"
+    },
+    {
+      "label": "Blog"
+    }
+  ]
+}

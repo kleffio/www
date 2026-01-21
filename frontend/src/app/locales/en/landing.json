@@ -1,0 +1,157 @@
+{
+  "landing": {
+    "badges": {
+      "open_source": "Open-source • Self-hosted or fully managed",
+      "open_source_platform": "Open-source hosting platform",
+      "self_hosted": "Self-hosted or fully managed"
+    },
+    "hero": {
+      "title_line1": "Deploy in seconds,",
+      "title_line2": "scale without lock-in.",
+      "subtitle": "Kleff is an open-source hosting platform for modern teams. From a single service to fleets of applications, ship with Vercel-level DX while keeping full control over your infrastructure.",
+      "get_started": "Get started for free",
+      "view_docs": "View docs"
+    },
+    "mini_cards": {
+      "git_push": {
+        "title": "Git push deploys",
+        "description": "Connect GitHub, GitLab, or your own registry."
+      },
+      "self_hosted": {
+        "title": "Self-hosted first",
+        "description": "Run Kleff on your own hardware or use our cloud."
+      },
+      "batteries": {
+        "title": "Batteries included",
+        "description": "Identity, observability, networking, and automation."
+      }
+    },
+    "trusted_by": {
+      "prefix": "Trusted by teams running:",
+      "mobile": "Trusted by teams running Next.js, Go APIs, and microservices.",
+      "nextjs": "Next.js",
+      "go_apis": "Go APIs",
+      "microservices": "Microservices"
+    },
+    "preview": {
+      "domain": "deploys.kleff.io",
+      "preview_label": "Preview",
+      "recent_deploys": "Recent deploys",
+      "branch_info": "main • Production",
+      "git_push": "git push origin main",
+      "statuses": {
+        "started": "Starting",
+        "ready": "Ready",
+        "building": "Building",
+        "queued": "Queued",
+        "failed": "Failed",
+        "done": "Done"
+      },
+      "branches": {
+        "observability": "feat/observability-dashboard",
+        "runtime": "chore/update-runtime"
+      },
+      "metrics": {
+        "latency": "P95 latency",
+        "error_rate": "Error rate",
+        "regions": "Regions"
+      },
+      "regions_card": {
+        "title": "Regions",
+        "healthy": "Healthy",
+        "us_east": "iad1 • US-East",
+        "eu_central": "fra1 • EU-Central",
+        "ca_east": "yul1 • CA-East"
+      },
+      "deploy_preview": {
+        "title": "Deploy preview created",
+        "description": "Share this URL with your team to review changes before promoting to production."
+      }
+    },
+    "why_kleff": {
+      "label": "Why teams choose Kleff",
+      "title": "Everything you need to go from",
+      "title_code": "git push",
+      "title_end": "to observable production.",
+      "description": "Kleff's core is open source. Run it on your own machines or use our managed offering – the workflow stays the same.",
+      "features": {
+        "fast": {
+          "title": "Fast from day one",
+          "description": "Zero-config deploys, preview environments, and instant rollbacks – without drowning in YAML."
+        },
+        "open": {
+          "title": "Open by default",
+          "description": "Inspect the code, contribute features, and run the same stack locally, on-prem, or in any cloud."
+        },
+        "visibility": {
+          "title": "Visibility first",
+          "description": "Logs, metrics, and alerts that actually make sense. Plug into Prometheus/Grafana or use built-in dashboards."
+        }
+      }
+    },
+    "reliability": {
+      "badge": "Enterprise Reliability",
+      "title": "Built for Mission-Critical Workloads",
+      "description": "Kleff delivers industry-leading uptime with battle-tested infrastructure. Deploy with confidence knowing your applications are backed by proven reliability.",
+      "uptime_label": "Uptime",
+      "uptime_period": "Last 30 days",
+      "features": {
+        "zero_downtime": {
+          "title": "Zero Downtime Deploys",
+          "description": "Rolling updates"
+        },
+        "health_monitoring": {
+          "title": "Health Monitoring",
+          "description": "Real-time alerts"
+        }
+      }
+    },
+    "platform": {
+      "label": "Kleff platform",
+      "title": "A complete toolkit for modern services.",
+      "description": "Mix and match the pieces you need: deployments, identity, observability, data, and automation – all with sane defaults and self-hostable control.",
+      "deployments": {
+        "title": "Deployments",
+        "description": "Build and ship containers with zero-config pipelines.",
+        "preview": {
+          "title": "Preview environments",
+          "description": "One per pull request, automatically."
+        },
+        "rollbacks": {
+          "title": "Safe rollbacks",
+          "description": "Instantly revert to a known-good deploy."
+        }
+      },
+      "identity": {
+        "title": "Identity & Access",
+        "description": "Bring Kleff Auth or your own IDP.",
+        "multi_tenant": {
+          "title": "Multi-tenant aware",
+          "description": "Org & project boundaries modeled correctly."
+        },
+        "audit": {
+          "title": "Audit-friendly",
+          "description": "Sessions, tokens, and key changes tracked."
+        }
+      },
+      "observability": {
+        "title": "Observability",
+        "description": "Centralized logs, metrics, and alerts.",
+        "dashboards": {
+          "title": "Dashboards",
+          "description": "See health across services at a glance."
+        },
+        "integrations": {
+          "title": "Integrations",
+          "description": "Prometheus / Grafana friendly from day one."
+        }
+      }
+    },
+    "cta": {
+      "title": "Start building on Kleff in minutes.",
+      "description": "Ship your next project with an open platform you can run anywhere. Explore templates, example repos, and the full Kleff stack on GitHub.",
+      "view_templates": "View starter templates",
+      "browse_examples": "Browse GitHub examples"
+    }
+  }
+}

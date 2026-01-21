@@ -80,7 +80,7 @@ export const ResourceChart: React.FC<Props> = ({
 
   const timeFormatter = (ts: number | string) => {
     const n = typeof ts === "number" ? ts : Number(ts);
-    return new Date(n).toLocaleTimeString("en-US", tickOptions as any);
+    return new Date(n).toLocaleTimeString("en-US", tickOptions);
   };
 
   // Use a full formatter for the displayed start/end so small ranges are explicit
@@ -162,7 +162,7 @@ export const ResourceChart: React.FC<Props> = ({
                 borderRadius: "8px",
                 color: "#fff"
               }}
-              formatter={(value: number) => [`${value?.toFixed(2) ?? "0.00"}%`, "Usage"]}
+              formatter={(value: number | string) => [`${Number(value || 0).toFixed(2)}%`, "Usage"]}
               labelFormatter={(label) => timeFormatter(label as number)}
             />
             <Area

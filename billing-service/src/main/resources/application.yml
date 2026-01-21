@@ -1,0 +1,26 @@
+---
+vite:
+  backend:
+    url: ${VITE_BACKEND_URL}
+stripe:
+  api:
+    key: ${STRIPE_API_KEY}
+frontend:
+  url: ${FRONTEND_URL}
+spring:
+  application:
+    name: billing-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://billing-db:5432/mydb}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:validate}
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+      continue-on-error: false
