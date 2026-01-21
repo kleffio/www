@@ -70,7 +70,7 @@ jobs:
 
       # 3. Update Manifests
   update-manifests:
-    needs: [build-and-push, build-operator]
+    needs: [build-and-push]
     runs-on: ubuntu-latest
     if: success()
     steps:
