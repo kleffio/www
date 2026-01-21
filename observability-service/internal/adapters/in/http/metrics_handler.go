@@ -161,6 +161,21 @@ func (h *MetricsHandler) GetProjectUsageMetricsWithDays(c *gin.Context) {
 	c.JSON(http.StatusOK, metrics)
 }
 
+func (h *MetricsHandler) GetProjectTotalUsageMetrics(c *gin.Context) {
+	projectID := c.Param("projectID")
+	if projectID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "projectID is required"})
+		return
+	}
+
+	metrics, err := h.metricsService.GetProjectTotalUsageMetrics(c.Request.Context(), projectID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, metrics)
+}
+
 func (h *MetricsHandler) GetUptimeMetrics(c *gin.Context) {
 	duration := c.DefaultQuery("duration", "24h")
 

@@ -68,11 +68,11 @@ func TestGetProjectContainerLogs_Success(t *testing.T) {
 		Timestamp: 1640995260,
 	}
 
-	mockService.On("GetProjectContainerLogs", 
-		mock.Anything, 
-		"test-project", 
-		[]string{"app-container"}, 
-		100, 
+	mockService.On("GetProjectContainerLogs",
+		mock.Anything,
+		"test-project",
+		[]string{"app-container"},
+		100,
 		"1h").Return(expectedLogs, nil)
 
 	handler := NewLogsHandler(mockService)
@@ -84,11 +84,11 @@ func TestGetProjectContainerLogs_Success(t *testing.T) {
 		Limit:          100,
 		Duration:       "1h",
 	}
-	
+
 	jsonBody, _ := json.Marshal(requestBody)
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/systems/logs/project-containers", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
-	
+
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
@@ -98,7 +98,7 @@ func TestGetProjectContainerLogs_Success(t *testing.T) {
 
 	// Verify
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response domain.ProjectLogs
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -123,11 +123,11 @@ func TestGetProjectContainerLogs_DefaultValues(t *testing.T) {
 	}
 
 	// Expect the service to be called with default values
-	mockService.On("GetProjectContainerLogs", 
-		mock.Anything, 
-		"test-project", 
-		[]string{"app-container"}, 
-		100,  // default limit
+	mockService.On("GetProjectContainerLogs",
+		mock.Anything,
+		"test-project",
+		[]string{"app-container"},
+		100,                            // default limit
 		"1h").Return(expectedLogs, nil) // default duration
 
 	handler := NewLogsHandler(mockService)
@@ -138,11 +138,11 @@ func TestGetProjectContainerLogs_DefaultValues(t *testing.T) {
 		ContainerNames: []string{"app-container"},
 		// Limit and Duration omitted to test defaults
 	}
-	
+
 	jsonBody, _ := json.Marshal(requestBody)
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/systems/logs/project-containers", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
-	
+
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
@@ -167,11 +167,11 @@ func TestGetProjectContainerLogs_ZeroLimitDefaultsTo100(t *testing.T) {
 	}
 
 	// Expect the service to be called with default limit of 100
-	mockService.On("GetProjectContainerLogs", 
-		mock.Anything, 
-		"test-project", 
-		[]string{"app-container"}, 
-		100,  // should be converted from 0 to 100
+	mockService.On("GetProjectContainerLogs",
+		mock.Anything,
+		"test-project",
+		[]string{"app-container"},
+		100, // should be converted from 0 to 100
 		"2h").Return(expectedLogs, nil)
 
 	handler := NewLogsHandler(mockService)
@@ -182,11 +182,11 @@ func TestGetProjectContainerLogs_ZeroLimitDefaultsTo100(t *testing.T) {
 		Limit:          0, // Should be converted to 100
 		Duration:       "2h",
 	}
-	
+
 	jsonBody, _ := json.Marshal(requestBody)
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/systems/logs/project-containers", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
-	
+
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
@@ -205,7 +205,7 @@ func TestGetProjectContainerLogs_InvalidJSON(t *testing.T) {
 	// Create invalid JSON request
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/systems/logs/project-containers", bytes.NewBufferString("invalid json"))
 	req.Header.Set("Content-Type", "application/json")
-	
+
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
@@ -215,7 +215,7 @@ func TestGetProjectContainerLogs_InvalidJSON(t *testing.T) {
 
 	// Verify
 	assert.Equal(t, http.StatusBadRequest, w.Code)
-	
+
 	var response map[string]string
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -231,11 +231,11 @@ func TestGetProjectContainerLogs_MissingRequiredFields(t *testing.T) {
 	requestBody := ProjectLogsRequest{
 		ContainerNames: []string{"app-container"},
 	}
-	
+
 	jsonBody, _ := json.Marshal(requestBody)
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/systems/logs/project-containers", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
-	
+
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
@@ -243,7 +243,7 @@ func TestGetProjectContainerLogs_MissingRequiredFields(t *testing.T) {
 	handler.GetProjectContainerLogs(c)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
-	
+
 	var response map[string]string
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -255,11 +255,11 @@ func TestGetProjectContainerLogs_ServiceError(t *testing.T) {
 	mockService := &mockLogsService{}
 
 	// Mock service to return error
-	mockService.On("GetProjectContainerLogs", 
-		mock.Anything, 
-		"test-project", 
-		[]string{"app-container"}, 
-		100, 
+	mockService.On("GetProjectContainerLogs",
+		mock.Anything,
+		"test-project",
+		[]string{"app-container"},
+		100,
 		"1h").Return((*domain.ProjectLogs)(nil), errors.New("loki connection failed"))
 
 	handler := NewLogsHandler(mockService)
@@ -268,11 +268,11 @@ func TestGetProjectContainerLogs_ServiceError(t *testing.T) {
 		ProjectID:      "test-project",
 		ContainerNames: []string{"app-container"},
 	}
-	
+
 	jsonBody, _ := json.Marshal(requestBody)
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/systems/logs/project-containers", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
-	
+
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
@@ -282,7 +282,7 @@ func TestGetProjectContainerLogs_ServiceError(t *testing.T) {
 
 	// Verify
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	
+
 	var response map[string]string
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -326,11 +326,11 @@ func TestGetProjectContainerLogs_MultipleContainers(t *testing.T) {
 		Timestamp: 1640995280,
 	}
 
-	mockService.On("GetProjectContainerLogs", 
-		mock.Anything, 
-		"test-project", 
-		[]string{"app-container", "worker-container"}, 
-		200, 
+	mockService.On("GetProjectContainerLogs",
+		mock.Anything,
+		"test-project",
+		[]string{"app-container", "worker-container"},
+		200,
 		"2h").Return(expectedLogs, nil)
 
 	handler := NewLogsHandler(mockService)
@@ -341,11 +341,11 @@ func TestGetProjectContainerLogs_MultipleContainers(t *testing.T) {
 		Limit:          200,
 		Duration:       "2h",
 	}
-	
+
 	jsonBody, _ := json.Marshal(requestBody)
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/systems/logs/project-containers", bytes.NewBuffer(jsonBody))
 	req.Header.Set("Content-Type", "application/json")
-	
+
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 	c.Request = req
@@ -353,7 +353,7 @@ func TestGetProjectContainerLogs_MultipleContainers(t *testing.T) {
 	handler.GetProjectContainerLogs(c)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response domain.ProjectLogs
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
