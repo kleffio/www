@@ -20,6 +20,7 @@ public interface BillingService {
     public Price getPrice(String itemId);
     public void setPrice(Price price);
     public long computeOutstandingCents(String invoiceId);
+    public List<Price> getPrices();
 
 
 }
