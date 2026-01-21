@@ -29,6 +29,7 @@ type mockMetricsService struct {
 	getDatabaseIOMetricsFunc         func(ctx context.Context, duration string) (*domain.DatabaseMetrics, error)
 	getProjectUsageMetricsFunc       func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
 	getProjectUsageMetricsWithDaysFunc func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error)
+	getProjectTotalUsageMetricsFunc  func(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error)
 }
 
 func (m *mockMetricsService) GetClusterOverview(ctx context.Context) (*domain.ClusterOverview, error) {
@@ -127,6 +128,13 @@ func (m *mockMetricsService) GetSystemUptime(ctx context.Context) (float64, erro
 		return m.getSystemUptimeFunc(ctx)
 	}
 	return 0, errors.New("not implemented")
+}
+
+func (m *mockMetricsService) GetProjectTotalUsageMetrics(ctx context.Context, projectID string) (*domain.ProjectUsageMetrics, error) {
+	if m.getProjectTotalUsageMetricsFunc != nil {
+		return m.getProjectTotalUsageMetricsFunc(ctx, projectID)
+	}
+	return nil, errors.New("not implemented")
 }
 
 func setupTestRouter() *gin.Engine {
