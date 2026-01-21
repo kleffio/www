@@ -57,7 +57,9 @@ jobs:
         with:
           context: ${{ matrix.service.context }}
           push: true
-          tags: ${{ env.REGISTRY }}/${{ matrix.service.tag }}:latest
+          tags: |
+            ${{ env.REGISTRY }}/${{ matrix.service.tag }}:latest
+            ${{ env.REGISTRY }}/${{ matrix.service.tag }}:${{ github.sha }}
           build-args: |
             VITE_AUTH_CLIENT_ID=${{ vars.VITE_AUTH_CLIENT_ID }}
             VITE_BACKEND_URL=${{ vars.VITE_BACKEND_URL }}
