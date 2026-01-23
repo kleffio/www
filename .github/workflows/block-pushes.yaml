@@ -3,7 +3,7 @@ name: "Code Freeze Check"
 on:
   pull_request:
     branches:
-      - main  
+      - main
 
 jobs:
   check-freeze:
