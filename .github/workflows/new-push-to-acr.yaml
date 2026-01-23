@@ -129,7 +129,7 @@ jobs:
           # This logic mirrors the mapping in the build job
           for service in $(echo $SERVICES_JSON | jq -r '.[]'); do
             echo "Updating manifest for: $service"
-    
+
             case $service in
               "frontend")
                 yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "kleff-frontend").image = env(REGISTRY) + "/frontend:" + env(SHA)' charts/kleff/microservices/frontend/frontend-deployment.yaml
