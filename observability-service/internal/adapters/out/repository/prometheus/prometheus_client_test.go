@@ -21,7 +21,7 @@ func TestNewPrometheusClient(t *testing.T) {
 	// Cast to concrete type to verify internal fields
 	promClient := client.(*prometheusClient)
 	assert.Equal(t, baseURL, promClient.baseURL)
-	assert.Equal(t, 30*time.Second, promClient.httpClient.Timeout)
+	assert.Equal(t, 45*time.Second, promClient.httpClient.Timeout)
 }
 
 func TestQueryPrometheus_Success(t *testing.T) {
