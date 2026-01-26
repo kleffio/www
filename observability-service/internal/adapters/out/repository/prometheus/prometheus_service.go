@@ -616,6 +616,7 @@ func (c *prometheusClient) GetUptimeMetrics(ctx context.Context, duration string
 }
 
 func (c *prometheusClient) GetAllMetrics(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+	startTime := time.Now()
 	result := &domain.AggregatedMetrics{}
 
 	var wg sync.WaitGroup
@@ -639,6 +640,46 @@ func (c *prometheusClient) GetAllMetrics(ctx context.Context, duration string) (
 		} else {
 			mu.Lock()
 			result.Overview = overview
+			mu.Unlock()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		uptime, err := c.GetSystemUptime(ctx)
+		if err != nil {
+			addError(fmt.Errorf("GetSystemUptime: %w", err))
+		} else {
+			mu.Lock()
+			result.SystemUptime = uptime
+			result.SystemUptimeFormatted = formatUptime(uptime)
+			mu.Unlock()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		nodes, err := c.GetNodes(ctx)
+		if err != nil {
+			addError(fmt.Errorf("GetNodes: %w", err))
+		} else {
+			mu.Lock()
+			result.Nodes = nodes
+			mu.Unlock()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		namespaces, err := c.GetNamespaces(ctx)
+		if err != nil {
+			addError(fmt.Errorf("GetNamespaces: %w", err))
+		} else {
+			mu.Lock()
+			result.Namespaces = namespaces
 			mu.Unlock()
 		}
 	}()
@@ -724,32 +765,6 @@ func (c *prometheusClient) GetAllMetrics(ctx context.Context, duration string) (
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		nodes, err := c.GetNodes(ctx)
-		if err != nil {
-			addError(fmt.Errorf("GetNodes: %w", err))
-		} else {
-			mu.Lock()
-			result.Nodes = nodes
-			mu.Unlock()
-		}
-	}()
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		namespaces, err := c.GetNamespaces(ctx)
-		if err != nil {
-			addError(fmt.Errorf("GetNamespaces: %w", err))
-		} else {
-			mu.Lock()
-			result.Namespaces = namespaces
-			mu.Unlock()
-		}
-	}()
-
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
 		dbMetrics, err := c.GetDatabaseIOMetrics(ctx, duration)
 		if err != nil {
 			addError(fmt.Errorf("GetDatabaseIOMetrics: %w", err))
@@ -773,24 +788,14 @@ func (c *prometheusClient) GetAllMetrics(ctx context.Context, duration string) (
 		}
 	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		uptime, err := c.GetSystemUptime(ctx)
-		if err != nil {
-			addError(fmt.Errorf("GetSystemUptime: %w", err))
-		} else {
-			mu.Lock()
-			result.SystemUptime = uptime
-			result.SystemUptimeFormatted = formatUptime(uptime)
-			mu.Unlock()
-		}
-	}()
-
 	wg.Wait()
 
+	elapsed := time.Since(startTime)
+
 	if len(errors) > 0 {
-		fmt.Printf("GetAllMetrics completed with %d errors: %v\n", len(errors), errors)
+		fmt.Printf("GetAllMetrics completed in %v with %d errors: %v\n", elapsed, len(errors), errors)
+	} else {
+		fmt.Printf("GetAllMetrics completed successfully in %v\n", elapsed)
 	}
 
 	return result, nil
