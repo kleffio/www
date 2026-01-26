@@ -20,6 +20,17 @@ func NewMetricsHandler(metricsService ports.MetricsService) *MetricsHandler {
 	}
 }
 
+func (h *MetricsHandler) GetAllMetrics(c *gin.Context) {
+	duration := c.DefaultQuery("duration", "1h")
+
+	metrics, err := h.metricsService.GetAllMetrics(c.Request.Context(), duration)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, metrics)
+}
+
 func (h *MetricsHandler) GetOverview(c *gin.Context) {
 	overview, err := h.metricsService.GetClusterOverview(c.Request.Context())
 	if err != nil {

@@ -10,6 +10,8 @@ export interface ClusterOverview {
   totalNamespaces: number;
   cpuUsagePercent: number;
   memoryUsagePercent: number;
+  uptimeSeconds?: number;
+  uptimeFormatted?: string;
 }
 
 export interface MetricCard {
@@ -35,6 +37,8 @@ export interface NodeMetric {
   memoryUsagePercent: number;
   podCount: number;
   status: string;
+  uptimeSeconds?: number;
+  uptimeFormatted?: string;
 }
 
 export interface NamespaceMetric {

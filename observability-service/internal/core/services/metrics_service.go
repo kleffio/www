@@ -17,6 +17,10 @@ func NewMetricsService(metricsRepo ports.MetricsRepository) ports.MetricsService
 	}
 }
 
+func (s *metricsService) GetAllMetrics(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+	return s.metricsRepo.GetAllMetrics(ctx, duration)
+}
+
 func (s *metricsService) GetClusterOverview(ctx context.Context) (*domain.ClusterOverview, error) {
 	return s.metricsRepo.GetClusterOverview(ctx)
 }
