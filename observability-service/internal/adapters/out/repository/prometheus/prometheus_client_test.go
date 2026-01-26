@@ -316,9 +316,21 @@ func TestPrometheusClient_GetAllMetrics_Success(t *testing.T) {
 	assert.NotNil(t, result.Overview)
 }
 
-func TestPrometheusClient_GetAllMetrics_AllFailures(t *testing.T) {
+func TestPrometheusClient_GetAllMetrics_PartialFailure(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		if r.URL.Query().Get("query") != "" {
+			response := createSimpleResponse("42")
+			w.Header().Set("Content-Type", "application/json")
+			if err := json.NewEncoder(w).Encode(response); err != nil {
+				t.Errorf("failed to encode response: %v", err)
+			}
+		} else {
+			response := createRangeResponse([]string{"40", "41", "42"})
+			w.Header().Set("Content-Type", "application/json")
+			if err := json.NewEncoder(w).Encode(response); err != nil {
+				t.Errorf("failed to encode response: %v", err)
+			}
+		}
 	}))
 	defer server.Close()
 
@@ -327,6 +339,9 @@ func TestPrometheusClient_GetAllMetrics_AllFailures(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
+
+	assert.NotNil(t, result.Overview, "Overview should be present")
+	assert.Greater(t, result.Overview.TotalNodes, 0, "Should have node data")
 }
 
 func TestPrometheusClient_GetAllMetrics_Timeout(t *testing.T) {
@@ -335,7 +350,9 @@ func TestPrometheusClient_GetAllMetrics_Timeout(t *testing.T) {
 		time.Sleep(100 * time.Millisecond)
 		response := createSimpleResponse("42")
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Errorf("failed to encode response: %v", err)
+		}
 	}))
 	defer server.Close()
 
@@ -358,7 +375,7 @@ func TestPrometheusClient_GetAllMetrics_ConcurrentExecution(t *testing.T) {
 		query string
 		time  time.Time
 	}
-	queries := make([]queryInfo, 0)
+	var queries []queryInfo
 	var mu sync.Mutex
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -375,7 +392,9 @@ func TestPrometheusClient_GetAllMetrics_ConcurrentExecution(t *testing.T) {
 
 		response := createSimpleResponse("42")
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Errorf("failed to encode response: %v", err)
+		}
 	}))
 	defer server.Close()
 
@@ -415,7 +434,9 @@ func TestPrometheusClient_GetAllMetrics_DifferentDurations(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				response := createSimpleResponse("42")
 				w.Header().Set("Content-Type", "application/json")
-				json.NewEncoder(w).Encode(response)
+				if err := json.NewEncoder(w).Encode(response); err != nil {
+					t.Errorf("failed to encode response: %v", err)
+				}
 			}))
 			defer server.Close()
 
@@ -450,7 +471,9 @@ func TestPrometheusClient_GetAllMetrics_EmptyResults(t *testing.T) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			t.Errorf("failed to encode response: %v", err)
+		}
 	}))
 	defer server.Close()
 
@@ -466,12 +489,23 @@ func TestPrometheusClient_GetAllMetrics_EmptyResults(t *testing.T) {
 }
 
 func TestPrometheusClient_GetAllMetrics_NetworkError(t *testing.T) {
-	client := NewPrometheusClient("http://invalid-prometheus-server:9999")
+	client := NewPrometheusClient("http://invalid-prometheus-server.local:9999")
 
-	result, err := client.GetAllMetrics(context.Background(), "1h")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
 
-	assert.NoError(t, err)
-	assert.NotNil(t, result)
+	result, err := client.GetAllMetrics(ctx, "1h")
+
+	assert.NoError(t, err, "Should not return error due to fault tolerance")
+	assert.NotNil(t, result, "Should return empty result struct")
+
+	if result.Overview != nil {
+		assert.Equal(t, 0, result.Overview.TotalNodes, "TotalNodes should be 0 on network error")
+		assert.Equal(t, 0, result.Overview.TotalPods, "TotalPods should be 0 on network error")
+	}
+
+	assert.Empty(t, result.Nodes, "Nodes should be empty on network error")
+	assert.Empty(t, result.Namespaces, "Namespaces should be empty on network error")
 }
 
 func createRangeResponse(values []string) PrometheusResponse {
@@ -480,7 +514,7 @@ func createRangeResponse(values []string) PrometheusResponse {
 
 	for i, val := range values {
 		valuesArray[i] = []interface{}{
-			baseTime + float64(i*60),
+			baseTime + float64(i*60), // 1 minute apart
 			val,
 		}
 	}
