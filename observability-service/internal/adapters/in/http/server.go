@@ -17,6 +17,7 @@ func SetupRouter(handler *MetricsHandler, logsHandler *LogsHandler) *gin.Engine 
 
 	api := router.Group("/api/v1/systems")
 	{
+		api.GET("/metrics", handler.GetAllMetrics)
 		api.GET("/overview", handler.GetOverview)
 
 		api.GET("/requests-metric", handler.GetRequestsMetric)
