@@ -96,3 +96,19 @@ type NodeUptimeMetric struct {
 	BootTimestamp    int64   `json:"bootTimestamp"`
 	BootTimeReadable string  `json:"bootTimeReadable"`
 }
+
+type AggregatedMetrics struct {
+	Overview              *ClusterOverview     `json:"overview"`
+	RequestsMetric        *MetricCard          `json:"requestsMetric"`
+	PodsMetric            *MetricCard          `json:"podsMetric"`
+	NodesMetric           *MetricCard          `json:"nodesMetric"`
+	TenantsMetric         *MetricCard          `json:"tenantsMetric"`
+	CPUUtilization        *ResourceUtilization `json:"cpuUtilization"`
+	MemoryUtilization     *ResourceUtilization `json:"memoryUtilization"`
+	Nodes                 []NodeMetric         `json:"nodes"`
+	Namespaces            []NamespaceMetric    `json:"namespaces"`
+	DatabaseIOMetrics     *DatabaseMetrics     `json:"databaseIOMetrics"`
+	UptimeMetrics         *UptimeMetrics       `json:"uptimeMetrics"`
+	SystemUptime          float64              `json:"systemUptime"`
+	SystemUptimeFormatted string               `json:"systemUptimeFormatted"`
+}

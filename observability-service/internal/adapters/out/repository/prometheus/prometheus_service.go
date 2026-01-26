@@ -3,6 +3,7 @@ package prometheus
 import (
 	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"prometheus-metrics-api/internal/core/domain"
@@ -612,6 +613,192 @@ func (c *prometheusClient) GetUptimeMetrics(ctx context.Context, duration string
 	}
 
 	return metrics, nil
+}
+
+func (c *prometheusClient) GetAllMetrics(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+	startTime := time.Now()
+	result := &domain.AggregatedMetrics{}
+
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	errors := make([]error, 0)
+
+	addError := func(err error) {
+		if err != nil {
+			mu.Lock()
+			errors = append(errors, err)
+			mu.Unlock()
+		}
+	}
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		overview, err := c.GetClusterOverview(ctx)
+		if err != nil {
+			addError(fmt.Errorf("GetClusterOverview: %w", err))
+		} else {
+			mu.Lock()
+			result.Overview = overview
+			mu.Unlock()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		uptime, err := c.GetSystemUptime(ctx)
+		if err != nil {
+			addError(fmt.Errorf("GetSystemUptime: %w", err))
+		} else {
+			mu.Lock()
+			result.SystemUptime = uptime
+			result.SystemUptimeFormatted = formatUptime(uptime)
+			mu.Unlock()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		nodes, err := c.GetNodes(ctx)
+		if err != nil {
+			addError(fmt.Errorf("GetNodes: %w", err))
+		} else {
+			mu.Lock()
+			result.Nodes = nodes
+			mu.Unlock()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		namespaces, err := c.GetNamespaces(ctx)
+		if err != nil {
+			addError(fmt.Errorf("GetNamespaces: %w", err))
+		} else {
+			mu.Lock()
+			result.Namespaces = namespaces
+			mu.Unlock()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		metric, err := c.GetRequestsMetric(ctx, duration)
+		if err != nil {
+			addError(fmt.Errorf("GetRequestsMetric: %w", err))
+		} else {
+			mu.Lock()
+			result.RequestsMetric = metric
+			mu.Unlock()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		metric, err := c.GetPodsMetric(ctx, duration)
+		if err != nil {
+			addError(fmt.Errorf("GetPodsMetric: %w", err))
+		} else {
+			mu.Lock()
+			result.PodsMetric = metric
+			mu.Unlock()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		metric, err := c.GetNodesMetric(ctx, duration)
+		if err != nil {
+			addError(fmt.Errorf("GetNodesMetric: %w", err))
+		} else {
+			mu.Lock()
+			result.NodesMetric = metric
+			mu.Unlock()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		metric, err := c.GetTenantsMetric(ctx, duration)
+		if err != nil {
+			addError(fmt.Errorf("GetTenantsMetric: %w", err))
+		} else {
+			mu.Lock()
+			result.TenantsMetric = metric
+			mu.Unlock()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		utilization, err := c.GetCPUUtilization(ctx, duration)
+		if err != nil {
+			addError(fmt.Errorf("GetCPUUtilization: %w", err))
+		} else {
+			mu.Lock()
+			result.CPUUtilization = utilization
+			mu.Unlock()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		utilization, err := c.GetMemoryUtilization(ctx, duration)
+		if err != nil {
+			addError(fmt.Errorf("GetMemoryUtilization: %w", err))
+		} else {
+			mu.Lock()
+			result.MemoryUtilization = utilization
+			mu.Unlock()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		dbMetrics, err := c.GetDatabaseIOMetrics(ctx, duration)
+		if err != nil {
+			addError(fmt.Errorf("GetDatabaseIOMetrics: %w", err))
+		} else {
+			mu.Lock()
+			result.DatabaseIOMetrics = dbMetrics
+			mu.Unlock()
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		uptimeMetrics, err := c.GetUptimeMetrics(ctx, duration)
+		if err != nil {
+			addError(fmt.Errorf("GetUptimeMetrics: %w", err))
+		} else {
+			mu.Lock()
+			result.UptimeMetrics = uptimeMetrics
+			mu.Unlock()
+		}
+	}()
+
+	wg.Wait()
+
+	elapsed := time.Since(startTime)
+
+	if len(errors) > 0 {
+		fmt.Printf("GetAllMetrics completed in %v with %d errors: %v\n", elapsed, len(errors), errors)
+	} else {
+		fmt.Printf("GetAllMetrics completed successfully in %v\n", elapsed)
+	}
+
+	return result, nil
 }
 
 func formatUptime(seconds float64) string {

@@ -6,10 +6,13 @@ import (
 	"testing"
 
 	"prometheus-metrics-api/internal/core/domain"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // mockMetricsRepository is a mock implementation of ports.MetricsRepository
 type mockMetricsRepository struct {
+	getAllMetricsFunc                       func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error)
 	getClusterOverviewFunc                  func(ctx context.Context) (*domain.ClusterOverview, error)
 	getRequestsMetricFunc                   func(ctx context.Context, duration string) (*domain.MetricCard, error)
 	getPodsMetricFunc                       func(ctx context.Context, duration string) (*domain.MetricCard, error)
@@ -26,6 +29,13 @@ type mockMetricsRepository struct {
 	getProjectTotalUsageMetricsWithDaysFunc func(ctx context.Context, projectID string, days int) (*domain.ProjectTotalUsageMetrics, error)
 	getSystemUptimeFunc                     func(ctx context.Context) (float64, error)
 	getUptimeMetricsFunc                    func(ctx context.Context, duration string) (*domain.UptimeMetrics, error)
+}
+
+func (m *mockMetricsRepository) GetAllMetrics(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+	if m.getAllMetricsFunc != nil {
+		return m.getAllMetricsFunc(ctx, duration)
+	}
+	return nil, errors.New("not implemented")
 }
 
 func (m *mockMetricsRepository) GetClusterOverview(ctx context.Context) (*domain.ClusterOverview, error) {
@@ -1143,4 +1153,346 @@ func TestGetUptimeMetrics_VerifyHistoryData(t *testing.T) {
 			t.Errorf("History[%d]: Expected Value %.2f, got %.2f", i, expected.Value, actual.Value)
 		}
 	}
+}
+
+func TestMetricsService_GetAllMetrics_Success(t *testing.T) {
+	expectedMetrics := &domain.AggregatedMetrics{
+		Overview: &domain.ClusterOverview{
+			TotalNodes:         5,
+			RunningNodes:       5,
+			TotalPods:          120,
+			TotalNamespaces:    15,
+			CPUUsagePercent:    45.2,
+			MemoryUsagePercent: 62.8,
+		},
+		RequestsMetric: &domain.MetricCard{
+			Title:    "HTTP Requests",
+			Value:    "1250 req/s",
+			RawValue: 1250.5,
+		},
+		Nodes: []domain.NodeMetric{
+			{Name: "node-1", Status: "Ready"},
+			{Name: "node-2", Status: "Ready"},
+		},
+		Namespaces: []domain.NamespaceMetric{
+			{Name: "default", PodCount: 25},
+			{Name: "kube-system", PodCount: 30},
+		},
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+			assert.Equal(t, "1h", duration)
+			return expectedMetrics, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	result, err := service.GetAllMetrics(context.Background(), "1h")
+
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, expectedMetrics, result)
+	assert.Equal(t, 5, result.Overview.TotalNodes)
+	assert.Equal(t, 120, result.Overview.TotalPods)
+	assert.Len(t, result.Nodes, 2)
+	assert.Len(t, result.Namespaces, 2)
+}
+
+func TestMetricsService_GetAllMetrics_RepositoryError(t *testing.T) {
+	expectedError := errors.New("repository connection failed")
+
+	mockRepo := &mockMetricsRepository{
+		getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+			return nil, expectedError
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	result, err := service.GetAllMetrics(context.Background(), "1h")
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+	assert.Equal(t, expectedError, err)
+}
+
+func TestMetricsService_GetAllMetrics_WithDifferentDurations(t *testing.T) {
+	testCases := []struct {
+		name     string
+		duration string
+	}{
+		{"1 hour", "1h"},
+		{"6 hours", "6h"},
+		{"24 hours", "24h"},
+		{"7 days", "7d"},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockRepo := &mockMetricsRepository{
+				getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+					assert.Equal(t, tc.duration, duration)
+					return &domain.AggregatedMetrics{
+						Overview: &domain.ClusterOverview{TotalNodes: 5},
+					}, nil
+				},
+			}
+
+			service := NewMetricsService(mockRepo)
+			result, err := service.GetAllMetrics(context.Background(), tc.duration)
+
+			assert.NoError(t, err)
+			assert.NotNil(t, result)
+			assert.Equal(t, 5, result.Overview.TotalNodes)
+		})
+	}
+}
+
+func TestMetricsService_GetAllMetrics_PartialData(t *testing.T) {
+	partialMetrics := &domain.AggregatedMetrics{
+		Overview: &domain.ClusterOverview{
+			TotalNodes: 5,
+		},
+		CPUUtilization:    nil,
+		MemoryUtilization: nil,
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+			return partialMetrics, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	result, err := service.GetAllMetrics(context.Background(), "1h")
+
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.NotNil(t, result.Overview)
+	assert.Nil(t, result.CPUUtilization)
+	assert.Nil(t, result.MemoryUtilization)
+}
+
+func TestMetricsService_GetAllMetrics_EmptyCollections(t *testing.T) {
+	metricsWithEmpty := &domain.AggregatedMetrics{
+		Overview:   &domain.ClusterOverview{TotalNodes: 0},
+		Nodes:      []domain.NodeMetric{},
+		Namespaces: []domain.NamespaceMetric{},
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+			return metricsWithEmpty, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	result, err := service.GetAllMetrics(context.Background(), "1h")
+
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.NotNil(t, result.Nodes)
+	assert.Len(t, result.Nodes, 0)
+	assert.NotNil(t, result.Namespaces)
+	assert.Len(t, result.Namespaces, 0)
+}
+
+func TestMetricsService_GetAllMetrics_ContextCancellation(t *testing.T) {
+	mockRepo := &mockMetricsRepository{
+		getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+			return nil, ctx.Err()
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel() // Cancel immediately
+
+	result, err := service.GetAllMetrics(ctx, "1h")
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+}
+
+func TestMetricsService_GetAllMetrics_AllFieldsPopulated(t *testing.T) {
+	fullMetrics := &domain.AggregatedMetrics{
+		Overview: &domain.ClusterOverview{
+			TotalNodes:         5,
+			RunningNodes:       5,
+			TotalPods:          120,
+			TotalNamespaces:    15,
+			CPUUsagePercent:    45.2,
+			MemoryUsagePercent: 62.8,
+			UptimeSeconds:      1234567,
+			UptimeFormatted:    "14d 6h 56m",
+		},
+		RequestsMetric: &domain.MetricCard{
+			Title:         "HTTP Requests",
+			Value:         "1250 req/s",
+			RawValue:      1250.5,
+			ChangePercent: "+15.2%",
+			ChangeLabel:   "vs 1h ago",
+			Status:        "good",
+			Sparkline: []domain.TimeSeriesDataPoint{
+				{Timestamp: 1640995200000, Value: 1200},
+				{Timestamp: 1640995260000, Value: 1250},
+			},
+		},
+		PodsMetric: &domain.MetricCard{
+			Title:    "Total Pods",
+			Value:    "120",
+			RawValue: 120,
+		},
+		NodesMetric: &domain.MetricCard{
+			Title:    "Cluster Nodes",
+			Value:    "5",
+			RawValue: 5,
+		},
+		TenantsMetric: &domain.MetricCard{
+			Title:    "Active Tenants",
+			Value:    "12",
+			RawValue: 12,
+		},
+		CPUUtilization: &domain.ResourceUtilization{
+			CurrentValue:  45.2,
+			ChangePercent: 2.3,
+			Trend:         "up",
+			History: []domain.TimeSeriesDataPoint{
+				{Timestamp: 1640995200000, Value: 43},
+				{Timestamp: 1640995260000, Value: 45.2},
+			},
+		},
+		MemoryUtilization: &domain.ResourceUtilization{
+			CurrentValue:  62.8,
+			ChangePercent: -1.5,
+			Trend:         "down",
+			History: []domain.TimeSeriesDataPoint{
+				{Timestamp: 1640995200000, Value: 64},
+				{Timestamp: 1640995260000, Value: 62.8},
+			},
+		},
+		Nodes: []domain.NodeMetric{
+			{
+				Name:               "node-1",
+				CPUUsagePercent:    42.5,
+				MemoryUsagePercent: 58.3,
+				PodCount:           45,
+				Status:             "Ready",
+				UptimeSeconds:      987654,
+				UptimeFormatted:    "11d 10h 20m",
+			},
+		},
+		Namespaces: []domain.NamespaceMetric{
+			{
+				Name:        "default",
+				PodCount:    25,
+				CPUUsage:    12.5,
+				MemoryUsage: 8.2,
+			},
+		},
+		DatabaseIOMetrics: &domain.DatabaseMetrics{
+			DiskReadBytesPerSec:        1024000,
+			DiskWriteBytesPerSec:       512000,
+			DiskReadOpsPerSec:          150,
+			DiskWriteOpsPerSec:         75,
+			NetworkReceiveBytesPerSec:  2048000,
+			NetworkTransmitBytesPerSec: 1536000,
+			NetworkReceiveOpsPerSec:    1000,
+			NetworkTransmitOpsPerSec:   800,
+			DiskReadHistory: []domain.TimeSeriesDataPoint{
+				{Timestamp: 1640995200000, Value: 1000000},
+			},
+			DiskWriteHistory: []domain.TimeSeriesDataPoint{
+				{Timestamp: 1640995200000, Value: 500000},
+			},
+			NetworkReceiveHistory: []domain.TimeSeriesDataPoint{
+				{Timestamp: 1640995200000, Value: 2000000},
+			},
+			NetworkTransmitHistory: []domain.TimeSeriesDataPoint{
+				{Timestamp: 1640995200000, Value: 1500000},
+			},
+			Source: "Prometheus",
+		},
+		UptimeMetrics: &domain.UptimeMetrics{
+			SystemUptimeSeconds:    1234567,
+			SystemUptimeFormatted:  "14d 6h 56m",
+			AverageUptimeSeconds:   1111111,
+			AverageUptimeFormatted: "12d 20h 51m",
+			NodeUptimes: []domain.NodeUptimeMetric{
+				{
+					NodeName:         "node-1",
+					UptimeSeconds:    987654,
+					UptimeFormatted:  "11d 10h 20m",
+					BootTimestamp:    1640000000,
+					BootTimeReadable: "2021-12-20 12:00:00 UTC",
+				},
+			},
+			UptimeHistory: []domain.TimeSeriesDataPoint{
+				{Timestamp: 1640995200000, Value: 1234567},
+			},
+		},
+		SystemUptime:          1234567,
+		SystemUptimeFormatted: "14d 6h 56m",
+	}
+
+	mockRepo := &mockMetricsRepository{
+		getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+			return fullMetrics, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	result, err := service.GetAllMetrics(context.Background(), "1h")
+
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+
+	assert.NotNil(t, result.Overview)
+	assert.NotNil(t, result.RequestsMetric)
+	assert.NotNil(t, result.PodsMetric)
+	assert.NotNil(t, result.NodesMetric)
+	assert.NotNil(t, result.TenantsMetric)
+	assert.NotNil(t, result.CPUUtilization)
+	assert.NotNil(t, result.MemoryUtilization)
+	assert.NotNil(t, result.Nodes)
+	assert.NotNil(t, result.Namespaces)
+	assert.NotNil(t, result.DatabaseIOMetrics)
+	assert.NotNil(t, result.UptimeMetrics)
+
+	assert.Len(t, result.RequestsMetric.Sparkline, 2)
+	assert.Len(t, result.CPUUtilization.History, 2)
+	assert.Len(t, result.Nodes, 1)
+	assert.Len(t, result.Namespaces, 1)
+	assert.Len(t, result.DatabaseIOMetrics.DiskReadHistory, 1)
+	assert.Len(t, result.UptimeMetrics.NodeUptimes, 1)
+
+	assert.Equal(t, 5, result.Overview.TotalNodes)
+	assert.Equal(t, "HTTP Requests", result.RequestsMetric.Title)
+	assert.Equal(t, 45.2, result.CPUUtilization.CurrentValue)
+	assert.Equal(t, "node-1", result.Nodes[0].Name)
+	assert.Equal(t, float64(1234567), result.SystemUptime)
+}
+
+func TestMetricsService_GetAllMetrics_WithValidRepository(t *testing.T) {
+	called := false
+	expectedDuration := "6h"
+
+	mockRepo := &mockMetricsRepository{
+		getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+			called = true
+			assert.Equal(t, expectedDuration, duration)
+			return &domain.AggregatedMetrics{
+				Overview: &domain.ClusterOverview{TotalNodes: 10},
+			}, nil
+		},
+	}
+
+	service := NewMetricsService(mockRepo)
+	result, err := service.GetAllMetrics(context.Background(), expectedDuration)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.True(t, called, "Repository method should have been called")
+	assert.Equal(t, 10, result.Overview.TotalNodes)
 }
