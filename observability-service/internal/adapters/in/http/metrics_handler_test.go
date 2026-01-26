@@ -7,14 +7,17 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"prometheus-metrics-api/internal/core/domain"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 )
 
 // mockMetricsService is a mock implementation of ports.MetricsService
 type mockMetricsService struct {
+	getAllMetricsFunc                       func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error)
 	getClusterOverviewFunc                  func(ctx context.Context) (*domain.ClusterOverview, error)
 	getRequestsMetricFunc                   func(ctx context.Context, duration string) (*domain.MetricCard, error)
 	getPodsMetricFunc                       func(ctx context.Context, duration string) (*domain.MetricCard, error)
@@ -31,6 +34,13 @@ type mockMetricsService struct {
 	getProjectUsageMetricsWithDaysFunc      func(ctx context.Context, projectID string, days int) (*domain.ProjectUsageMetrics, error)
 	getProjectTotalUsageMetricsFunc         func(ctx context.Context, projectID string) (*domain.ProjectTotalUsageMetrics, error)
 	getProjectTotalUsageMetricsWithDaysFunc func(ctx context.Context, projectID string, days int) (*domain.ProjectTotalUsageMetrics, error)
+}
+
+func (m *mockMetricsService) GetAllMetrics(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+	if m.getAllMetricsFunc != nil {
+		return m.getAllMetricsFunc(ctx, duration)
+	}
+	return nil, errors.New("not implemented")
 }
 
 func (m *mockMetricsService) GetClusterOverview(ctx context.Context) (*domain.ClusterOverview, error) {
@@ -939,4 +949,474 @@ func TestGetProjectUsageMetricsWithDays_ZeroDays(t *testing.T) {
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
 	}
+}
+
+func TestGetAllMetrics_Success(t *testing.T) {
+	expectedMetrics := &domain.AggregatedMetrics{
+		Overview: &domain.ClusterOverview{
+			TotalNodes:         5,
+			RunningNodes:       5,
+			TotalPods:          120,
+			TotalNamespaces:    15,
+			CPUUsagePercent:    45.2,
+			MemoryUsagePercent: 62.8,
+		},
+		RequestsMetric: &domain.MetricCard{
+			Title:         "HTTP Requests",
+			Value:         "1250 req/s",
+			RawValue:      1250.5,
+			ChangePercent: "+15.2%",
+			ChangeLabel:   "vs 1h ago",
+			Status:        "good",
+			Sparkline:     []domain.TimeSeriesDataPoint{{Timestamp: 1640995200000, Value: 1200}, {Timestamp: 1640995260000, Value: 1250}},
+		},
+		PodsMetric: &domain.MetricCard{
+			Title:         "Total Pods",
+			Value:         "120",
+			RawValue:      120,
+			ChangePercent: "+5.0%",
+			ChangeLabel:   "vs 1h ago",
+			Status:        "good",
+			Sparkline:     []domain.TimeSeriesDataPoint{},
+		},
+		NodesMetric: &domain.MetricCard{
+			Title:         "Cluster Nodes",
+			Value:         "5",
+			RawValue:      5,
+			ChangePercent: "0.0%",
+			ChangeLabel:   "vs 1h ago",
+			Status:        "good",
+			Sparkline:     []domain.TimeSeriesDataPoint{},
+		},
+		TenantsMetric: &domain.MetricCard{
+			Title:         "Active Tenants",
+			Value:         "12",
+			RawValue:      12,
+			ChangePercent: "+8.3%",
+			ChangeLabel:   "vs 1h ago",
+			Status:        "excellent",
+			Sparkline:     []domain.TimeSeriesDataPoint{},
+		},
+		CPUUtilization: &domain.ResourceUtilization{
+			CurrentValue:  45.2,
+			ChangePercent: 2.3,
+			Trend:         "up",
+			History:       []domain.TimeSeriesDataPoint{{Timestamp: 1640995200000, Value: 43}, {Timestamp: 1640995260000, Value: 45.2}},
+		},
+		MemoryUtilization: &domain.ResourceUtilization{
+			CurrentValue:  62.8,
+			ChangePercent: -1.5,
+			Trend:         "down",
+			History:       []domain.TimeSeriesDataPoint{{Timestamp: 1640995200000, Value: 64}, {Timestamp: 1640995260000, Value: 62.8}},
+		},
+		Nodes: []domain.NodeMetric{
+			{
+				Name:               "node-1",
+				CPUUsagePercent:    42.5,
+				MemoryUsagePercent: 58.3,
+				PodCount:           45,
+				Status:             "Ready",
+			},
+			{
+				Name:               "node-2",
+				CPUUsagePercent:    48.1,
+				MemoryUsagePercent: 67.2,
+				PodCount:           55,
+				Status:             "Ready",
+			},
+		},
+		Namespaces: []domain.NamespaceMetric{
+			{
+				Name:        "default",
+				PodCount:    25,
+				CPUUsage:    12.5,
+				MemoryUsage: 8.2,
+			},
+			{
+				Name:        "kube-system",
+				PodCount:    30,
+				CPUUsage:    18.3,
+				MemoryUsage: 15.6,
+			},
+		},
+		DatabaseIOMetrics: &domain.DatabaseMetrics{
+			DiskReadBytesPerSec:        1024000,
+			DiskWriteBytesPerSec:       512000,
+			DiskReadOpsPerSec:          150,
+			DiskWriteOpsPerSec:         75,
+			NetworkReceiveBytesPerSec:  2048000,
+			NetworkTransmitBytesPerSec: 1536000,
+			Source:                     "Prometheus",
+		},
+		SystemUptime:          1234567,
+		SystemUptimeFormatted: "14d 6h 56m",
+	}
+
+	mockService := &mockMetricsService{
+		getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+			assert.Equal(t, "1h", duration)
+			return expectedMetrics, nil
+		},
+	}
+
+	handler := NewMetricsHandler(mockService)
+	router := setupTestRouter()
+	router.GET("/api/v1/systems/metrics", handler.GetAllMetrics)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/systems/metrics?duration=1h", nil)
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var response domain.AggregatedMetrics
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+
+	// Verify overview
+	assert.NotNil(t, response.Overview)
+	assert.Equal(t, 5, response.Overview.TotalNodes)
+	assert.Equal(t, 120, response.Overview.TotalPods)
+	assert.Equal(t, 45.2, response.Overview.CPUUsagePercent)
+
+	// Verify metric cards
+	assert.NotNil(t, response.RequestsMetric)
+	assert.Equal(t, "HTTP Requests", response.RequestsMetric.Title)
+	assert.Equal(t, 1250.5, response.RequestsMetric.RawValue)
+
+	// Verify nodes
+	assert.Len(t, response.Nodes, 2)
+	assert.Equal(t, "node-1", response.Nodes[0].Name)
+
+	// Verify namespaces
+	assert.Len(t, response.Namespaces, 2)
+	assert.Equal(t, "default", response.Namespaces[0].Name)
+
+	// Verify uptime
+	assert.Equal(t, float64(1234567), response.SystemUptime)
+	assert.Equal(t, "14d 6h 56m", response.SystemUptimeFormatted)
+}
+
+func TestGetAllMetrics_WithDifferentDurations(t *testing.T) {
+	testCases := []struct {
+		name            string
+		queryParam      string
+		expectedService string
+	}{
+		{
+			name:            "Default duration (1h)",
+			queryParam:      "",
+			expectedService: "1h",
+		},
+		{
+			name:            "6 hours",
+			queryParam:      "duration=6h",
+			expectedService: "6h",
+		},
+		{
+			name:            "24 hours",
+			queryParam:      "duration=24h",
+			expectedService: "24h",
+		},
+		{
+			name:            "7 days",
+			queryParam:      "duration=7d",
+			expectedService: "7d",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockService := &mockMetricsService{
+				getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+					assert.Equal(t, tc.expectedService, duration)
+					return &domain.AggregatedMetrics{
+						Overview: &domain.ClusterOverview{TotalNodes: 5},
+					}, nil
+				},
+			}
+
+			handler := NewMetricsHandler(mockService)
+			router := setupTestRouter()
+			router.GET("/api/v1/systems/metrics", handler.GetAllMetrics)
+
+			url := "/api/v1/systems/metrics"
+			if tc.queryParam != "" {
+				url += "?" + tc.queryParam
+			}
+
+			req := httptest.NewRequest(http.MethodGet, url, nil)
+			w := httptest.NewRecorder()
+
+			router.ServeHTTP(w, req)
+
+			assert.Equal(t, http.StatusOK, w.Code)
+		})
+	}
+}
+
+func TestGetAllMetrics_ServiceError(t *testing.T) {
+	expectedError := errors.New("prometheus connection failed")
+
+	mockService := &mockMetricsService{
+		getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+			return nil, expectedError
+		},
+	}
+
+	handler := NewMetricsHandler(mockService)
+	router := setupTestRouter()
+	router.GET("/api/v1/systems/metrics", handler.GetAllMetrics)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/systems/metrics", nil)
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+
+	var response map[string]string
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.Equal(t, expectedError.Error(), response["error"])
+}
+
+func TestGetAllMetrics_PartialData(t *testing.T) {
+	partialMetrics := &domain.AggregatedMetrics{
+		Overview: &domain.ClusterOverview{
+			TotalNodes: 5,
+		},
+		RequestsMetric: &domain.MetricCard{
+			Title: "HTTP Requests",
+			Value: "1250 req/s",
+		},
+		CPUUtilization:    nil,
+		MemoryUtilization: nil,
+		DatabaseIOMetrics: nil,
+	}
+
+	mockService := &mockMetricsService{
+		getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+			return partialMetrics, nil
+		},
+	}
+
+	handler := NewMetricsHandler(mockService)
+	router := setupTestRouter()
+	router.GET("/api/v1/systems/metrics", handler.GetAllMetrics)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/systems/metrics", nil)
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var response domain.AggregatedMetrics
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+
+	assert.NotNil(t, response.Overview)
+	assert.Equal(t, 5, response.Overview.TotalNodes)
+	assert.NotNil(t, response.RequestsMetric)
+
+	assert.Nil(t, response.CPUUtilization)
+	assert.Nil(t, response.MemoryUtilization)
+	assert.Nil(t, response.DatabaseIOMetrics)
+}
+
+func TestGetAllMetrics_EmptyCollections(t *testing.T) {
+	metricsWithEmpty := &domain.AggregatedMetrics{
+		Overview: &domain.ClusterOverview{
+			TotalNodes: 0,
+		},
+		Nodes:      []domain.NodeMetric{},
+		Namespaces: []domain.NamespaceMetric{},
+	}
+
+	mockService := &mockMetricsService{
+		getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+			return metricsWithEmpty, nil
+		},
+	}
+
+	handler := NewMetricsHandler(mockService)
+	router := setupTestRouter()
+	router.GET("/api/v1/systems/metrics", handler.GetAllMetrics)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/systems/metrics", nil)
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var response domain.AggregatedMetrics
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+
+	assert.NotNil(t, response.Nodes)
+	assert.Len(t, response.Nodes, 0)
+	assert.NotNil(t, response.Namespaces)
+	assert.Len(t, response.Namespaces, 0)
+}
+
+func TestGetAllMetrics_ContextCancellation(t *testing.T) {
+	mockService := &mockMetricsService{
+		getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+			select {
+			case <-ctx.Done():
+				return nil, ctx.Err()
+			default:
+				return &domain.AggregatedMetrics{}, nil
+			}
+		},
+	}
+
+	handler := NewMetricsHandler(mockService)
+	router := setupTestRouter()
+	router.GET("/api/v1/systems/metrics", handler.GetAllMetrics)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/systems/metrics", nil)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	req = req.WithContext(ctx)
+
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+}
+
+func TestGetAllMetrics_LargeDataSet(t *testing.T) {
+	largeNodes := make([]domain.NodeMetric, 100)
+	for i := 0; i < 100; i++ {
+		largeNodes[i] = domain.NodeMetric{
+			Name:               "node-" + string(rune(i)),
+			CPUUsagePercent:    float64(i % 100),
+			MemoryUsagePercent: float64((i * 2) % 100),
+			PodCount:           i % 50,
+			Status:             "Ready",
+		}
+	}
+
+	largeNamespaces := make([]domain.NamespaceMetric, 50)
+	for i := 0; i < 50; i++ {
+		largeNamespaces[i] = domain.NamespaceMetric{
+			Name:        "namespace-" + string(rune(i)),
+			PodCount:    i * 2,
+			CPUUsage:    float64(i),
+			MemoryUsage: float64(i) * 1.5,
+		}
+	}
+
+	largeMetrics := &domain.AggregatedMetrics{
+		Overview: &domain.ClusterOverview{
+			TotalNodes:      100,
+			TotalNamespaces: 50,
+		},
+		Nodes:      largeNodes,
+		Namespaces: largeNamespaces,
+	}
+
+	mockService := &mockMetricsService{
+		getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+			return largeMetrics, nil
+		},
+	}
+
+	handler := NewMetricsHandler(mockService)
+	router := setupTestRouter()
+	router.GET("/api/v1/systems/metrics", handler.GetAllMetrics)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/systems/metrics", nil)
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var response domain.AggregatedMetrics
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+
+	assert.Len(t, response.Nodes, 100)
+	assert.Len(t, response.Namespaces, 50)
+}
+
+func TestGetAllMetrics_SparklineData(t *testing.T) {
+	sparklineData := []domain.TimeSeriesDataPoint{
+		{Timestamp: 1640995200000, Value: 1000},
+		{Timestamp: 1640995260000, Value: 1100},
+		{Timestamp: 1640995320000, Value: 1200},
+		{Timestamp: 1640995380000, Value: 1250},
+	}
+
+	metricsWithSparklines := &domain.AggregatedMetrics{
+		RequestsMetric: &domain.MetricCard{
+			Title:     "HTTP Requests",
+			Sparkline: sparklineData,
+		},
+		CPUUtilization: &domain.ResourceUtilization{
+			CurrentValue: 45.2,
+			History:      sparklineData,
+		},
+	}
+
+	mockService := &mockMetricsService{
+		getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+			return metricsWithSparklines, nil
+		},
+	}
+
+	handler := NewMetricsHandler(mockService)
+	router := setupTestRouter()
+	router.GET("/api/v1/systems/metrics", handler.GetAllMetrics)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/systems/metrics", nil)
+	w := httptest.NewRecorder()
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	var response domain.AggregatedMetrics
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+
+	assert.NotNil(t, response.RequestsMetric)
+	assert.Len(t, response.RequestsMetric.Sparkline, 4)
+	assert.Equal(t, int64(1640995200000), response.RequestsMetric.Sparkline[0].Timestamp)
+	assert.Equal(t, float64(1000), response.RequestsMetric.Sparkline[0].Value)
+
+	assert.NotNil(t, response.CPUUtilization)
+	assert.Len(t, response.CPUUtilization.History, 4)
+}
+
+func TestGetAllMetrics_ResponseTimeAcceptable(t *testing.T) {
+	mockService := &mockMetricsService{
+		getAllMetricsFunc: func(ctx context.Context, duration string) (*domain.AggregatedMetrics, error) {
+			return &domain.AggregatedMetrics{
+				Overview: &domain.ClusterOverview{TotalNodes: 5},
+			}, nil
+		},
+	}
+
+	handler := NewMetricsHandler(mockService)
+	router := setupTestRouter()
+	router.GET("/api/v1/systems/metrics", handler.GetAllMetrics)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/systems/metrics", nil)
+	w := httptest.NewRecorder()
+
+	start := time.Now()
+	router.ServeHTTP(w, req)
+	elapsed := time.Since(start)
+
+	assert.Equal(t, http.StatusOK, w.Code)
+
+	assert.Less(t, elapsed, 100*time.Millisecond, "Response time should be under 100ms")
 }
