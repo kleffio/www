@@ -5,15 +5,13 @@ export function AppFooter() {
   return (
     <footer className="border-t border-white/5 bg-black/40">
       <div className="app-container py-8">
-        <div className="flex flex-wrap items-start gap-x-12 gap-y-8 justify-between">
+        <div className="flex flex-wrap items-start justify-between gap-x-12 gap-y-8">
           {/* Brand Section */}
-          <div className="flex items-start gap-2 min-w-[200px]">
-            <span className="bg-kleff-primary h-4 w-5 rounded-lg flex-shrink-0 mt-1" />
+          <div className="flex min-w-[200px] items-start gap-2">
+            <span className="bg-kleff-primary mt-1 h-4 w-5 flex-shrink-0 rounded-lg" />
             <div className="flex flex-col">
-              <span className="text-foreground text-[17px] font-semibold">
-                Kleff Platform
-              </span>
-              <span className="text-[15px] text-neutral-500 mt-1 max-w-xs">
+              <span className="text-foreground text-[17px] font-semibold">Kleff Platform</span>
+              <span className="mt-1 max-w-xs text-[15px] text-neutral-500">
                 Open-source-first hosting for modern teams.
               </span>
             </div>
@@ -23,9 +21,7 @@ export function AppFooter() {
           <div className="flex flex-wrap gap-x-12 gap-y-8">
             {/* Product Column */}
             <div className="min-w-[120px]">
-              <h3 className="text-[15px] font-semibold text-neutral-200 mb-3">
-                Product
-              </h3>
+              <h3 className="mb-3 text-[15px] font-semibold text-neutral-200">Product</h3>
               <ul className="space-y-2">
                 <li>
                   <UnderlineLink
@@ -56,9 +52,7 @@ export function AppFooter() {
 
             {/* Company Column */}
             <div className="min-w-[120px]">
-              <h3 className="text-[15px] font-semibold text-neutral-200 mb-3">
-                Company
-              </h3>
+              <h3 className="mb-3 text-[15px] font-semibold text-neutral-200">Company</h3>
               <ul className="space-y-2">
                 <li>
                   <UnderlineLink
@@ -81,9 +75,7 @@ export function AppFooter() {
 
             {/* Legal Column */}
             <div className="min-w-[120px]">
-              <h3 className="text-[15px] font-semibold text-neutral-200 mb-3">
-                Legal
-              </h3>
+              <h3 className="mb-3 text-[15px] font-semibold text-neutral-200">Legal</h3>
               <ul className="space-y-2">
                 <li>
                   <UnderlineLink
@@ -104,11 +96,9 @@ export function AppFooter() {
               </ul>
             </div>
 
-             {/* Contact Us Column */}
-                  <div>
-              <h3 className="text-[15px] font-semibold text-neutral-200 mb-3">
-                Contact Us
-              </h3>
+            {/* Contact Us Column */}
+            <div>
+              <h3 className="mb-3 text-[15px] font-semibold text-neutral-200">Contact Us</h3>
               <ul className="space-y-2">
                 <li>
                   <UnderlineLink
@@ -123,7 +113,7 @@ export function AppFooter() {
                     to={"mailto:kleffioapp@gmail.com"}
                     className="text-[14px] text-neutral-500 hover:text-neutral-200"
                   >
-                      Email
+                    Email
                   </UnderlineLink>
                 </li>
               </ul>
