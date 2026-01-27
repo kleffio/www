@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import { DollarSign, Calendar, X, Eye, Loader2 } from "lucide-react";
+import { DollarSign, Calendar, X, Eye, Receipt, TrendingUp, CreditCard } from "lucide-react";
 import { Button } from "@shared/ui/Button";
 import { Spinner } from "@shared/ui/Spinner";
+import { SoftPanel } from "@shared/ui/SoftPanel";
+import { Badge } from "@shared/ui/Badge";
 import type { Invoice } from "@features/billing/types/Invoice";
 import { fetchInvoice } from "../api/viewInvoicesForProject";
 import { handlePayNow } from "../api/handlePayNow";
@@ -22,7 +24,6 @@ export default function InvoiceTable({ projectId }: InvoiceTableProps) {
 
   useEffect(() => {
     const loadInvoices = async () => {
-      // Don't fetch if user doesn't have permission
       if (!canManageBilling) {
         setLoading(false);
         return;
@@ -46,17 +47,21 @@ export default function InvoiceTable({ projectId }: InvoiceTableProps) {
     }
   }, [projectId, canManageBilling, permissionsLoading]);
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "paid":
-        return "bg-emerald-500/20 text-emerald-400";
-      case "pending":
-        return "bg-yellow-500/20 text-yellow-400";
-      case "overdue":
-        return "bg-red-500/20 text-red-400";
-      default:
-        return "bg-neutral-500/20 text-neutral-400";
-    }
+  const getStatusBadge = (status: string) => {
+    const config = {
+      paid: { variant: "success" as const, label: "Paid" },
+      pending: { variant: "warning" as const, label: "Pending" },
+      overdue: { variant: "destructive" as const, label: "Overdue" }
+    };
+
+    const statusLower = status.toLowerCase();
+    const { variant, label } = config[statusLower as keyof typeof config] || config.pending;
+
+    return (
+      <Badge variant={variant} className="text-[10px] font-semibold">
+        {label}
+      </Badge>
+    );
   };
 
   const handlePay = () => {
@@ -67,269 +72,251 @@ export default function InvoiceTable({ projectId }: InvoiceTableProps) {
 
   if (loading || permissionsLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br p-0">
-        <div className="mx-auto flex h-96 max-w-7xl items-center justify-center">
-          <div className="flex flex-col items-center gap-3">
-            <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
-            <p className="text-neutral-400">Loading invoices...</p>
-          </div>
+      <SoftPanel className="p-12">
+        <div className="flex justify-center">
+          <Spinner />
         </div>
-      </div>
+      </SoftPanel>
     );
   }
 
-  // Don't show anything if user doesn't have permission
   if (!canManageBilling) {
     return null;
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br p-0">
-        <div className="mx-auto flex h-96 max-w-7xl items-center justify-center">
-          <div className="max-w-md rounded-lg border border-red-500/20 bg-red-500/10 p-6">
-            <p className="text-center text-red-400">{error}</p>
-          </div>
-        </div>
-      </div>
+      <SoftPanel className="border-red-500/20 bg-red-500/5 p-8">
+        <p className="text-center text-sm text-red-400">{error}</p>
+      </SoftPanel>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br p-0">
-      <div className="mx-auto max-w-7xl">
-        {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="rounded-lg bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 p-2">
-              <DollarSign className="h-6 w-6 text-emerald-400" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-neutral-50">Invoices</h1>
-              <p className="text-sm text-neutral-400">
-                {invoices.length} {invoices.length === 1 ? "invoice" : "invoices"}
-              </p>
-            </div>
+    <SoftPanel className="p-5">
+      {/* Header */}
+      <div className="mb-5 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="rounded-xl bg-emerald-500/10 p-2 ring-1 ring-emerald-500/20">
+            <Receipt className="h-5 w-5 text-emerald-400" />
+          </div>
+          <div>
+            <h2 className="text-lg font-bold text-neutral-50">Invoices</h2>
+            <p className="text-xs text-neutral-500">
+              {invoices.length} {invoices.length === 1 ? "invoice" : "invoices"}
+            </p>
           </div>
         </div>
-
-        {/* Empty State */}
-        {invoices.length === 0 ? (
-          <div className="rounded-lg border border-neutral-800 bg-neutral-900/50 p-12 backdrop-blur-sm">
-            <div className="text-center">
-              <DollarSign className="mx-auto mb-4 h-12 w-12 text-neutral-600" />
-              <h3 className="mb-2 text-lg font-medium text-neutral-300">No invoices found</h3>
-              <p className="text-sm text-neutral-500">
-                There are no invoices for this project yet.
-              </p>
-            </div>
-          </div>
-        ) : (
-          /* Table Container with dynamic height */
-          <div className="overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900/50 backdrop-blur-sm">
-            <div
-              className="overflow-x-auto overflow-y-auto"
-              style={{
-                maxHeight: invoices.length > 10 ? "600px" : "auto",
-                scrollbarWidth: "thin",
-                scrollbarColor: "#404040 #171717"
-              }}
-            >
-              <table className="w-full">
-                <thead className="sticky top-0 z-10 border-b border-neutral-700 bg-neutral-800/50">
-                  <tr>
-                    <th className="bg-neutral-800/90 px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-400 uppercase">
-                      Invoice ID
-                    </th>
-                    <th className="bg-neutral-800/90 px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-400 uppercase">
-                      Project
-                    </th>
-                    <th className="bg-neutral-800/90 px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-400 uppercase">
-                      Period
-                    </th>
-                    <th className="bg-neutral-800/90 px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-400 uppercase">
-                      Total
-                    </th>
-                    <th className="bg-neutral-800/90 px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-400 uppercase">
-                      Status
-                    </th>
-                    <th className="bg-neutral-800/90 px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-400 uppercase">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-800">
-                  {invoices.map((invoice) => (
-                    <tr
-                      key={invoice.invoiceId}
-                      className="transition-colors hover:bg-neutral-800/30"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-medium text-neutral-200">
-                          {invoice.invoiceId.slice(0, Math.floor(invoice.invoiceId.length / 2))}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm text-neutral-300">
-                          {invoice.projectId.slice(0, Math.floor(invoice.projectId.length / 2))}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center gap-2 text-sm text-neutral-300">
-                          <Calendar className="h-4 w-4 text-neutral-500" />
-                          <span>
-                            {new Date(invoice.startDate).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric"
-                            })}{" "}
-                            -{" "}
-                            {new Date(invoice.endDate).toLocaleDateString("en-US", {
-                              month: "short",
-                              day: "numeric"
-                            })}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm font-semibold text-neutral-50">
-                          ${invoice.total.toFixed(2)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(invoice.status)}`}
-                        >
-                          {invoice.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <button
-                          onClick={() => setSelectedInvoice(invoice)}
-                          className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-400 transition-colors hover:bg-emerald-500/30"
-                        >
-                          <Eye className="h-3 w-3" />
-                          View Details
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Empty State */}
+      {invoices.length === 0 ? (
+        <div className="py-16 text-center">
+          <div className="mx-auto mb-6 w-fit rounded-2xl bg-neutral-800/50 p-6">
+            <DollarSign className="h-12 w-12 text-neutral-600" />
+          </div>
+          <h3 className="mb-2 text-base font-semibold text-neutral-300">No invoices yet</h3>
+          <p className="text-sm text-neutral-500">Invoices will appear here once generated.</p>
+        </div>
+      ) : (
+        /* Invoices Grid */
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {invoices.map((invoice) => (
+            <button
+              key={invoice.invoiceId}
+              onClick={() => setSelectedInvoice(invoice)}
+              className="group relative overflow-hidden rounded-xl border border-white/10 bg-gradient-to-br from-neutral-900/80 to-neutral-900/40 p-4 text-left transition-all hover:border-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/5"
+            >
+              {/* Hover gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.02] via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+
+              <div className="relative space-y-3">
+                {/* Header */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <div className="rounded-lg bg-emerald-500/10 p-1.5">
+                      <Receipt className="h-3.5 w-3.5 text-emerald-400" />
+                    </div>
+                    <span className="text-xs font-medium text-neutral-400">
+                      #{invoice.invoiceId.slice(0, 8)}
+                    </span>
+                  </div>
+                  {getStatusBadge(invoice.status)}
+                </div>
+
+                {/* Amount */}
+                <div>
+                  <p className="text-xs text-neutral-500">Total Amount</p>
+                  <p className="text-2xl font-bold text-neutral-50">${invoice.total.toFixed(2)}</p>
+                </div>
+
+                {/* Period */}
+                <div className="flex items-center gap-1.5 text-xs text-neutral-500">
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span>
+                    {new Date(invoice.startDate).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric"
+                    })}{" "}
+                    -{" "}
+                    {new Date(invoice.endDate).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric"
+                    })}
+                  </span>
+                </div>
+
+                {/* View button */}
+                <div className="flex items-center gap-1.5 pt-2 text-xs font-medium text-emerald-400 transition-colors group-hover:text-emerald-300">
+                  <Eye className="h-3.5 w-3.5" />
+                  View Details
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Modal */}
       {selectedInvoice && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
           onClick={() => setSelectedInvoice(null)}
         >
           <div
-            className="w-full max-w-2xl rounded-lg border border-neutral-800 bg-neutral-900 p-6 shadow-2xl"
+            className="w-full max-w-2xl rounded-2xl border border-white/10 bg-neutral-900 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-6 flex items-center justify-between">
-              <h3 className="text-xl font-semibold text-neutral-50">
-                Invoice Details - #{selectedInvoice.invoiceId}
-              </h3>
-              <button
-                onClick={() => setSelectedInvoice(null)}
-                className="text-neutral-400 transition-colors hover:text-neutral-200"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-1">
-                  <p className="text-sm text-neutral-500">Invoice ID</p>
-                  <p className="text-base font-medium text-neutral-200">
-                    {selectedInvoice.invoiceId}
-                  </p>
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-white/10 p-5">
+              <div className="flex items-center gap-3">
+                <div className="rounded-xl bg-emerald-500/10 p-2 ring-1 ring-emerald-500/20">
+                  <Receipt className="h-5 w-5 text-emerald-400" />
                 </div>
-                <div className="space-y-1">
-                  <p className="text-sm text-neutral-500">Project ID</p>
-                  <p className="text-base font-medium text-neutral-200">
-                    {selectedInvoice.projectId}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm text-neutral-500">Billing Period</p>
-                  <p className="text-base font-medium text-neutral-200">
+                <div>
+                  <h3 className="text-lg font-bold text-neutral-50">
+                    Invoice #{selectedInvoice.invoiceId.slice(0, 12)}
+                  </h3>
+                  <p className="text-xs text-neutral-500">
                     {new Date(selectedInvoice.startDate).toLocaleDateString()} -{" "}
                     {new Date(selectedInvoice.endDate).toLocaleDateString()}
                   </p>
                 </div>
-                <div className="space-y-1">
-                  <p className="text-sm text-neutral-500">Status</p>
-                  <span
-                    className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${getStatusColor(selectedInvoice.status)}`}
-                  >
-                    {selectedInvoice.status}
-                  </span>
+              </div>
+              <button
+                onClick={() => setSelectedInvoice(null)}
+                className="rounded-lg p-2 transition-colors hover:bg-white/10"
+              >
+                <X className="h-5 w-5 text-neutral-400" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="space-y-5 p-5">
+              {/* Key Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="rounded-xl bg-white/[0.02] p-3 ring-1 ring-white/5">
+                  <p className="mb-1 text-xs text-neutral-500">Status</p>
+                  {getStatusBadge(selectedInvoice.status)}
+                </div>
+                <div className="rounded-xl bg-white/[0.02] p-3 ring-1 ring-white/5">
+                  <p className="mb-1 text-xs text-neutral-500">Project ID</p>
+                  <p className="truncate text-sm font-medium text-neutral-200">
+                    {selectedInvoice.projectId}
+                  </p>
                 </div>
               </div>
 
-              <div className="border-t border-neutral-800 pt-6">
-                <h4 className="mb-4 text-sm font-semibold text-neutral-400">Payment Breakdown</h4>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-neutral-300">Total CPU</span>
+              {/* Usage Breakdown */}
+              <div className="space-y-3 rounded-xl bg-white/[0.02] p-4 ring-1 ring-white/5">
+                <div className="flex items-center gap-2 text-sm font-semibold text-neutral-300">
+                  <TrendingUp className="text-kleff-primary h-4 w-4" />
+                  Usage Breakdown
+                </div>
+
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-neutral-400">CPU</span>
                     <span className="font-medium text-neutral-200">
-                      {selectedInvoice.totalCPU.toFixed(2)}
+                      {selectedInvoice.totalCPU.toFixed(2)} cores
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-neutral-300">Total RAM</span>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-400">RAM</span>
                     <span className="font-medium text-neutral-200">
-                      {selectedInvoice.totalRAM.toFixed(2)}
+                      {selectedInvoice.totalRAM.toFixed(2)} GB
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-neutral-300">Total Storage</span>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-400">Storage</span>
                     <span className="font-medium text-neutral-200">
-                      {selectedInvoice.totalSTORAGE.toFixed(2)}
+                      {selectedInvoice.totalSTORAGE.toFixed(2)} GB
                     </span>
                   </div>
-                  <div className="flex items-center justify-between border-t border-neutral-700 pt-3">
-                    <span className="text-neutral-300">Subtotal</span>
+                </div>
+              </div>
+
+              {/* Payment Summary */}
+              <div className="space-y-2 rounded-xl bg-white/[0.02] p-4 ring-1 ring-white/5">
+                <div className="flex items-center gap-2 text-sm font-semibold text-neutral-300">
+                  <CreditCard className="h-4 w-4 text-emerald-400" />
+                  Payment Summary
+                </div>
+
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-neutral-400">Subtotal</span>
                     <span className="font-medium text-neutral-200">
                       ${selectedInvoice.subtotal.toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-neutral-300">Taxes</span>
+                  <div className="flex justify-between">
+                    <span className="text-neutral-400">Taxes</span>
                     <span className="font-medium text-neutral-200">
                       ${selectedInvoice.taxes.toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between border-t border-neutral-800 pt-3">
-                    <span className="text-lg font-semibold text-neutral-50">Total</span>
+                  <div className="flex justify-between border-t border-white/10 pt-2">
+                    <span className="font-semibold text-neutral-50">Total</span>
                     <span className="text-lg font-bold text-emerald-400">
                       ${selectedInvoice.total.toFixed(2)}
                     </span>
                   </div>
                 </div>
               </div>
+
+              {payError && (
+                <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-3">
+                  <p className="text-sm text-red-400">{payError}</p>
+                </div>
+              )}
             </div>
-            {payError && <p className="mt-4 text-sm text-red-400">{payError}</p>}
-            <div className="mt-6 flex gap-3">
+
+            {/* Modal Footer */}
+            <div className="flex gap-2 border-t border-white/10 p-5">
               {selectedInvoice.status.toLowerCase() !== "paid" && (
                 <Button
                   onClick={handlePay}
                   disabled={payLoading}
-                  className="bg-gradient-kleff rounded-full px-4 py-2 text-sm font-semibold text-black"
+                  className="bg-gradient-kleff shadow-kleff-primary/20 flex-1 rounded-xl px-4 py-2.5 text-sm font-bold text-black shadow-lg"
                 >
-                  {payLoading ? <Spinner /> : "Pay Now"}
+                  {payLoading ? (
+                    <>
+                      <Spinner size={16} />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="mr-2 h-4 w-4" />
+                      Pay Now
+                    </>
+                  )}
                 </Button>
               )}
               <Button
                 variant="ghost"
                 onClick={() => setSelectedInvoice(null)}
-                className="rounded-full px-4 py-2 text-sm"
+                className="rounded-xl px-4 py-2.5 text-sm"
               >
                 Close
               </Button>
@@ -337,6 +324,6 @@ export default function InvoiceTable({ projectId }: InvoiceTableProps) {
           </div>
         </div>
       )}
-    </div>
+    </SoftPanel>
   );
 }

@@ -7,6 +7,7 @@ import (
 )
 
 type MetricsService interface {
+	GetAllMetrics(ctx context.Context, duration string) (*domain.AggregatedMetrics, error)
 	GetClusterOverview(ctx context.Context) (*domain.ClusterOverview, error)
 	GetRequestsMetric(ctx context.Context, duration string) (*domain.MetricCard, error)
 	GetPodsMetric(ctx context.Context, duration string) (*domain.MetricCard, error)

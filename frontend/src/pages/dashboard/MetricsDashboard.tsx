@@ -1,11 +1,4 @@
-import { getCPUUtilization } from "@features/observability/api/getCPUUtilization";
-import { getMemoryUtilization } from "@features/observability/api/getMemoryUtilization";
-import { getNamespaces } from "@features/observability/api/getNamespaces";
-import { getNodes } from "@features/observability/api/getNodes";
-import { getNodesMetric } from "@features/observability/api/getNodesMetric";
-import { getOverview } from "@features/observability/api/getOverview";
-import { getPodsMetric } from "@features/observability/api/getPodsMetric";
-import { getRequestsMetric } from "@features/observability/api/getRequestsMetric";
+import { getAllMetrics } from "@features/observability/api/getAllMetrics";
 import { MetricCard } from "@features/observability/components/MetricCard";
 import { NamespacesTable } from "@features/observability/components/NamespacesTable";
 import { NodesList } from "@features/observability/components/NodesList";
@@ -18,11 +11,9 @@ import type {
   ResourceUtilization
 } from "@features/observability/types/metrics";
 import { AlertCircle, RefreshCw } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-// TODO: Add data-testid="systems-ready" when fully implemented for e2e
-
-export const MetricsDashboard: React.FC = () => {
+export function MetricsDashboard() {
   const [overview, setOverview] = useState<ClusterOverview | null>(null);
   const [requestsMetric, setRequestsMetric] = useState<MetricCardType | null>(null);
   const [podsMetric, setPodsMetric] = useState<MetricCardType | null>(null);
@@ -40,34 +31,17 @@ export const MetricsDashboard: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const [
-        overviewRes,
-        requestsRes,
-        podsRes,
-        nodesMetricRes,
-        cpuRes,
-        memoryRes,
-        nodesRes,
-        namespacesRes
-      ] = await Promise.all([
-        getOverview(),
-        getRequestsMetric(timeRange),
-        getPodsMetric(timeRange),
-        getNodesMetric(timeRange),
-        getCPUUtilization(timeRange),
-        getMemoryUtilization(timeRange),
-        getNodes(),
-        getNamespaces()
-      ]);
 
-      setOverview(overviewRes);
-      setRequestsMetric(requestsRes);
-      setPodsMetric(podsRes);
-      setNodesMetric(nodesMetricRes);
-      setCpuData(cpuRes);
-      setMemoryData(memoryRes);
-      setNodes(nodesRes);
-      setNamespaces(namespacesRes);
+      const metrics = await getAllMetrics(timeRange);
+
+      setOverview(metrics.overview);
+      setRequestsMetric(metrics.requestsMetric);
+      setPodsMetric(metrics.podsMetric);
+      setNodesMetric(metrics.nodesMetric);
+      setCpuData(metrics.cpuUtilization);
+      setMemoryData(metrics.memoryUtilization);
+      setNodes(metrics.nodes || []);
+      setNamespaces(metrics.namespaces || []);
       setLastUpdate(new Date());
     } catch (err) {
       setError(
@@ -161,7 +135,7 @@ export const MetricsDashboard: React.FC = () => {
               className="mb-4 flex items-center gap-3 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-red-400"
               data-testid="systems-error"
             >
-              <AlertCircle size={20} className="flex-shrink-0" />
+              <AlertCircle size={20} className="shrink-0" />
               <span className="text-sm">{error}</span>
             </div>
           )}
@@ -281,4 +255,4 @@ export const MetricsDashboard: React.FC = () => {
       </div>
     </div>
   );
-};
+}

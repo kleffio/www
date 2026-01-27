@@ -22,6 +22,40 @@
       "branch": "Branche",
       "docker_compose": "Docker Compose",
       "repo_link": "Dépôt"
+    },
+    "stats": {
+      "total_projects": "Total projets",
+      "collaborations": "Collaborations",
+      "owned_projects": "Projets possédés"
+    },
+    "search_placeholder": "Rechercher des projets…",
+    "filters": {
+      "button": "Filtres",
+      "show_label": "Afficher",
+      "sort_by_label": "Trier par",
+      "all_projects": "Tous les projets",
+      "shared": "Partagés"
+    },
+    "sort": {
+      "newest": "Plus récents",
+      "oldest": "Plus anciens",
+      "name_asc": "A → Z",
+      "name_desc": "Z → A"
+    },
+    "empty": {
+      "no_projects_yet_title": "Aucun projet pour l’instant",
+      "no_projects_found": "Aucun projet trouvé",
+      "matching": "correspondant à",
+      "clear_filters": "Réinitialiser les filtres"
+    },
+    "time": {
+      "today": "Aujourd’hui",
+      "yesterday": "Hier",
+      "days_ago": "il y a {{count}} j",
+      "weeks_ago": "il y a {{count}} sem"
+    },
+    "status": {
+      "active": "Actif"
     }
   },
   "projectModal": {
@@ -40,6 +74,9 @@
     "create_button": "Créer le projet"
   },
   "projectDetail": {
+    "project_not_found_title": "Projet introuvable",
+    "running_label": "En cours",
+    "no_containers_title": "Aucun conteneur pour l’instant",
     "project_not_found": "Projet introuvable",
     "back_to_projects": "Retour aux projets",
     "back_to_projects_arrow": "← Retour aux projets",
