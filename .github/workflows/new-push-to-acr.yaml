@@ -12,6 +12,7 @@ jobs:
     outputs:
       services: ${{ steps.filter.outputs.changes }}
       has_changes: ${{ steps.filter.outputs.changes != '[]' }}
+      matrix: ${{ steps.gen-matrix.outputs.matrix }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,7 +30,77 @@ jobs:
             server-api: ['server-apis/**']
             billing-service: ['billing-service/**']
 
-  # 2. Build and Push (only for changed services)
+      - name: Generate Matrix
+        id: gen-matrix
+        shell: python
+        run: |
+          import json
+          import os
+
+          # 1. Get the list of changed services from the previous step (e.g. ['frontend'])
+          changed_services = json.loads('${{ steps.filter.outputs.changes }}')
+          
+          # 2. Define the configuration for ALL services here (moved from the build job)
+          all_configs = [
+            {
+              "service_name": "frontend",
+              "context": "./frontend",
+              "tag": "frontend",
+              "container_name": "kleff-frontend",
+              "manifest_path": "charts/kleff/microservices/frontend/frontend-deployment.yaml"
+            },
+            {
+              "service_name": "project-management",
+              "context": "./project-management-service",
+              "tag": "project-management-service",
+              "container_name": "project-management-service",
+              "manifest_path": "charts/kleff/microservices/projects/project-management-service.yaml"
+            },
+            {
+              "service_name": "deployment",
+              "context": "./deployment-service",
+              "tag": "deployment-service",
+              "container_name": "deployment-service",
+              "manifest_path": "charts/kleff/microservices/container/deployment-service.yaml"
+            },
+            {
+              "service_name": "observability",
+              "context": "./observability-service",
+              "tag": "observability-service",
+              "container_name": "observability-service",
+              "manifest_path": "charts/kleff/microservices/observability/observability-service.yaml"
+            },
+            {
+              "service_name": "user",
+              "context": "./user-service",
+              "tag": "user-service",
+              "container_name": "user-service",
+              "manifest_path": "charts/kleff/microservices/user/user-service-deployment.yaml"
+            },
+            {
+              "service_name": "server-api",
+              "context": "./server-apis",
+              "tag": "deployment-backend",
+              "container_name": "deployment-backend",
+              "manifest_path": "charts/kleff/microservices/server-api/server-api.yaml"
+            },
+            {
+              "service_name": "billing-service",
+              "context": "./billing-service",
+              "tag": "billing-service",
+              "container_name": "billing-service",
+              "manifest_path": "charts/kleff/microservices/billing/billing-service.yaml"
+            }
+          ]
+
+          # 3. Filter the configs to only include changed services
+          final_matrix = [c for c in all_configs if c['service_name'] in changed_services]
+
+          # 4. Set the output
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              print(f"matrix={json.dumps(final_matrix)}", file=f)
+
+  # 2. Build and Push
   build-and-push:
     needs: [changes]
     if: needs.changes.outputs.has_changes == 'true'
@@ -39,44 +110,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Define the full config for all services
-        service_name: ${{ fromJSON(needs.changes.outputs.services) }}
-        include:
-          - service_name: frontend
-            context: ./frontend
-            tag: frontend
-            container_name: kleff-frontend
-            manifest_path: charts/kleff/microservices/frontend/frontend-deployment.yaml
-          - service_name: project-management
-            context: ./project-management-service
-            tag: project-management-service
-            container_name: project-management-service
-            manifest_path: charts/kleff/microservices/projects/project-management-service.yaml
-          - service_name: deployment
-            context: ./deployment-service
-            tag: deployment-service
-            container_name: deployment-service
-            manifest_path: charts/kleff/microservices/container/deployment-service.yaml
-          - service_name: observability
-            context: ./observability-service
-            tag: observability-service
-            container_name: observability-service
-            manifest_path: charts/kleff/microservices/observability/observability-service.yaml
-          - service_name: user
-            context: ./user-service
-            tag: user-service
-            container_name: user-service
-            manifest_path: charts/kleff/microservices/user/user-service-deployment.yaml
-          - service_name: server-api
-            context: ./server-apis
-            tag: deployment-backend
-            container_name: deployment-backend
-            manifest_path: charts/kleff/microservices/server-api/server-api.yaml
-          - service_name: billing-service
-            context: ./billing-service
-            tag: billing-service
-            container_name: billing-service
-            manifest_path: charts/kleff/microservices/billing/billing-service.yaml
+        # We now simply include the JSON object list generated in the previous job
+        include: ${{ fromJSON(needs.changes.outputs.matrix) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -103,8 +138,9 @@ jobs:
             VITE_AUTH_CLIENT_ID=${{ vars.VITE_AUTH_CLIENT_ID }}
             VITE_BACKEND_URL=${{ vars.VITE_BACKEND_URL }}
 
-  # 3. Update Manifests (only for services that were built)
+  # 3. Update Manifests
   update-manifests:
+    # This job stays exactly the same as your original
     needs: [changes, build-and-push]
     runs-on: ubuntu-latest
     if: needs.changes.outputs.has_changes == 'true'
@@ -121,17 +157,15 @@ jobs:
         env:
           REGISTRY: ${{ secrets.ACR_LOGIN_SERVER }}
           SHA: ${{ github.sha }}
-          # Pass the metadata from the matrix as a JSON string to a script
           SERVICES_JSON: ${{ needs.changes.outputs.services }}
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "actions@github.com"
 
-          # We iterate through the changed services and update their specific files
-          # This logic mirrors the mapping in the build job
           for service in $(echo $SERVICES_JSON | jq -r '.[]'); do
             echo "Updating manifest for: $service"
-
+            
+            # (Your existing case statement logic here...)
             case $service in
               "frontend")
                 yq -i 'select(.kind == "Deployment").spec.template.spec.containers[] |= select(.name == "kleff-frontend").image = env(REGISTRY) + "/frontend:" + env(SHA)' charts/kleff/microservices/frontend/frontend-deployment.yaml
