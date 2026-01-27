@@ -37,7 +37,7 @@ jobs:
 
           # 1. Get the list of changed services from the previous step (e.g. ['frontend'])
           changed_services = json.loads('${{ steps.filter.outputs.changes }}')
-          
+
           # 2. Define the configuration for ALL services here (moved from the build job)
           all_configs = [
             {
@@ -162,7 +162,7 @@ jobs:
 
           for service in $(echo $SERVICES_JSON | jq -r '.[]'); do
             echo "Updating manifest for: $service"
-            
+
             # (Your existing case statement logic here...)
             case $service in
               "frontend")
