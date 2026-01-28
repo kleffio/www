@@ -27,8 +27,10 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 @WebMvcTest(ContainerController.class)
 class ContainerControllerUnitTest {
@@ -146,12 +148,23 @@ class ContainerControllerUnitTest {
                 .thenReturn(response);
 
         // Act & Assert
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/v1/containers/{containerID}", containerId)
+        mockMvc.perform(put("/api/v1/containers/{containerID}", containerId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("updated-app"))
                 .andExpect(jsonPath("$.containerID").value(containerId));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/v1/containers/{containerID} - Success")
+    void deleteContainer_Success() throws Exception {
+        // Arrange
+        String containerId = "c-123";
+
+        // Act & Assert
+        mockMvc.perform(delete("/api/v1/containers/{containerID}", containerId))
+                .andExpect(status().isNoContent());
     }
 
 

@@ -136,7 +136,7 @@ class ContainerServiceImplTest {
         // FIX 1: URL must match Service logic (build/create)
         // FIX 2: Fields must match GoBuildRequest class (camelCase)
         mockServer.expect(ExpectedCount.once(),
-                        requestTo("https://api.kleff.io/api/v1/build/create"))
+                        requestTo("http://deployment-backend-service.kleff-deployment.svc.cluster.local/api/v1/build/create"))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(jsonPath("$.repoUrl").value("https://github.com/kleff/repo"))
                 .andExpect(jsonPath("$.containerID").value("generated-id"))
@@ -183,7 +183,7 @@ class ContainerServiceImplTest {
         when(containerMapper.containerToContainerResponseModel(saved)).thenReturn(response);
 
         // EXPECTATION: External API Fails with 500
-        mockServer.expect(ExpectedCount.once(), requestTo("https://api.kleff.io/api/v1/build/create"))
+        mockServer.expect(ExpectedCount.once(), requestTo("http://deployment-backend-service.kleff-deployment.svc.cluster.local/api/v1/build/create"))
                 .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
 
         // Act
@@ -283,6 +283,22 @@ class ContainerServiceImplTest {
         verify(containerRepository).findContainersByProjectID(projectId);
     }
 
+    @Test
+    @DisplayName("toResponseModel: Should delegate to mapper")
+    void whenToResponseModel_thenDelegateToMapper() {
+        // Arrange
+        Container container = Container.builder().containerID("test-id").build();
+        ContainerResponseModel expectedResponse = ContainerResponseModel.builder().containerID("test-id").build();
+        when(containerMapper.containerToContainerResponseModel(container)).thenReturn(expectedResponse);
+
+        // Act
+        ContainerResponseModel result = containerService.toResponseModel(container);
+
+        // Assert
+        assertThat(result).isEqualTo(expectedResponse);
+        verify(containerMapper).containerToContainerResponseModel(container);
+    }
+
 
     @Test
     @DisplayName("updateContainer: Should update DB and trigger build")
@@ -304,7 +320,7 @@ class ContainerServiceImplTest {
         when(containerMapper.containerToContainerResponseModel(saved)).thenReturn(response);
 
         // Expectation for the external build API
-        mockServer.expect(ExpectedCount.once(), requestTo("https://api.kleff.io/api/v1/build/create"))
+        mockServer.expect(ExpectedCount.once(), requestTo("http://deployment-backend-service.kleff-deployment.svc.cluster.local/api/v1/build/create"))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(jsonPath("$.name").value("updated-name"))
                 .andExpect(jsonPath("$.containerID").value(id))
@@ -320,6 +336,48 @@ class ContainerServiceImplTest {
     }
 
     @Test
+    @DisplayName("updateContainer: Should update envVariables when provided")
+    void whenUpdateContainerWithEnvVariables_thenUpdateAndTriggerBuild() throws JsonProcessingException {
+        // Arrange
+        String id = "uuid-123";
+        Map<String, String> envVars = Map.of("KEY", "VALUE");
+        String jsonEnv = "{\"KEY\":\"VALUE\"}";
+
+        ContainerRequestModel request = ContainerRequestModel.builder()
+                .name("updated-name")
+                .repoUrl("https://github.com/new-repo")
+                .port(9000)
+                .envVariables(envVars)
+                .build();
+
+        Container existing = Container.builder().containerID(id).name("old-name").build();
+        Container saved = Container.builder().containerID(id).name("updated-name").build();
+        ContainerResponseModel response = ContainerResponseModel.builder().containerID(id).name("updated-name").build();
+
+        when(containerRepository.findContainerByContainerID(id)).thenReturn(existing);
+        when(containerMapper.mapToJson(envVars)).thenReturn(jsonEnv);
+        when(containerRepository.save(any(Container.class))).thenReturn(saved);
+        when(containerMapper.containerToContainerResponseModel(saved)).thenReturn(response);
+
+        // Expectation for the external build API
+        mockServer.expect(ExpectedCount.once(), requestTo("http://deployment-backend-service.kleff-deployment.svc.cluster.local/api/v1/build/create"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(jsonPath("$.name").value("updated-name"))
+                .andExpect(jsonPath("$.containerID").value(id))
+                .andExpect(jsonPath("$.envVariables.KEY").value("VALUE"))
+                .andRespond(withSuccess("Updated", MediaType.APPLICATION_JSON));
+
+        // Act
+        ContainerResponseModel result = containerService.updateContainer(id, request);
+
+        // Assert
+        assertThat(result.getName()).isEqualTo("updated-name");
+        mockServer.verify();
+        verify(containerRepository).save(any(Container.class));
+        verify(containerMapper).mapToJson(envVars);
+    }
+
+    @Test
     @DisplayName("updateContainer: Should throw exception if container not found")
     void whenUpdateContainerNotFound_thenThrowException() {
         // Arrange
@@ -332,5 +390,75 @@ class ContainerServiceImplTest {
         });
 
         verify(containerRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("deleteContainer: Should delete from DB after successful upstream delete")
+    void whenDeleteContainer_thenTriggerUpstreamAndDeleteFromDB() throws JsonProcessingException {
+        // Arrange
+        String containerID = "cont-123";
+        Container container = Container.builder()
+                .containerID(containerID)
+                .projectID("proj-456")
+                .name("my-app")
+                .build();
+
+        when(containerRepository.findContainerByContainerID(containerID)).thenReturn(container);
+
+        // Mock successful upstream delete
+        mockServer.expect(ExpectedCount.once(),
+                        requestTo("https://api.kleff.io/api/v1/webapp/delete"))
+                .andExpect(method(HttpMethod.DELETE))
+                .andExpect(jsonPath("$.projectID").value("proj-456"))
+                .andExpect(jsonPath("$.containerID").value(containerID))
+                .andRespond(withSuccess("Deleted", MediaType.APPLICATION_JSON));
+
+        // Act
+        containerService.deleteContainer(containerID);
+
+        // Assert
+        verify(containerRepository, times(1)).deleteById(containerID);
+        mockServer.verify();
+    }
+
+    @Test
+    @DisplayName("deleteContainer: Should throw exception if container not found")
+    void whenDeleteContainerNotFound_thenThrowException() {
+        // Arrange
+        when(containerRepository.findContainerByContainerID("none")).thenReturn(null);
+
+        // Act & Assert
+        org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> {
+            containerService.deleteContainer("none");
+        });
+
+        verify(containerRepository, never()).deleteById(any());
+    }
+
+    @Test
+    @DisplayName("deleteContainer: Should throw exception and not delete DB if upstream delete fails")
+    void whenUpstreamDeleteFails_thenThrowExceptionAndNotDeleteDB() {
+        // Arrange
+        String containerID = "cont-123";
+        Container container = Container.builder()
+                .containerID(containerID)
+                .projectID("proj-456")
+                .name("my-app")
+                .build();
+
+        when(containerRepository.findContainerByContainerID(containerID)).thenReturn(container);
+
+        // Mock upstream delete failure
+        mockServer.expect(ExpectedCount.once(),
+                        requestTo("https://api.kleff.io/api/v1/webapp/delete"))
+                .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
+
+        // Act & Assert
+        org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> {
+            containerService.deleteContainer(containerID);
+        });
+
+        verify(containerRepository, never()).deleteById(any());
+        mockServer.verify();
     }
 }

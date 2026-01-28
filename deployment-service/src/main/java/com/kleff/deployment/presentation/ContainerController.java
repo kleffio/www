@@ -7,6 +7,7 @@ import com.kleff.deployment.data.container.ContainerResponseModel;
 import com.kleff.deployment.data.container.UpdateEnvVariablesRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,7 +44,13 @@ public class ContainerController {
     public ContainerResponseModel updateContainer(@PathVariable String containerID, @RequestBody ContainerRequestModel containerRequest) {
         return containerService.updateContainer(containerID, containerRequest);
     }
-    
+
+    @DeleteMapping("/{containerID}")
+    public ResponseEntity<Void> deleteContainer(@PathVariable String containerID) {
+        containerService.deleteContainer(containerID);
+        return ResponseEntity.noContent().build();
+    }
+
     @PatchMapping("/{containerID}/env")
     public ContainerResponseModel updateContainerEnvVariables(
             @PathVariable String containerID,
