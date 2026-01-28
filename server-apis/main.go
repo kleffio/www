@@ -59,10 +59,6 @@ type Response struct {
 	Message   string `json:"message"`
 	Existed   bool   `json:"existed"`
 }
-type DeleteWebAppRequest struct {
-	ProjectID   string `json:"projectID"`   // Maps to Namespace
-	ContainerID string `json:"containerID"` // Maps to CRD Name (app-<uuid>)
-}
 
 // Regex for DNS-1123 validation
 var validNameRegex = regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`)
@@ -137,7 +133,6 @@ func main() {
 	mux.HandleFunc("/api/v1/build/create", enableCors(server.handleCreateBuild))
 	mux.HandleFunc("/api/v1/build/hello", enableCors(server.handleHelloWorld))
 	mux.HandleFunc("/api/v1/webapp/update", enableCors(server.handleUpdateWebApp))
-	mux.HandleFunc("/api/v1/webapp/delete", enableCors(server.handleDeleteWebApp))
 
 		srv := &http.Server{
 		Addr:         ":8080",
@@ -508,67 +503,5 @@ func (s *Server) updateWebAppEnvVariables(ctx context.Context, namespace, name s
 	// Submit Update
 	_, updateErr := s.DynamicClient.Resource(webAppGVR).Namespace(namespace).Update(ctx, existing, metav1.UpdateOptions{})
 	return updateErr
-}
 
-func (s *Server) handleDeleteWebApp(w http.ResponseWriter, r *http.Request) {
-	// Support DELETE (standard) and POST (common for some frontends/proxies)
-	if r.Method != http.MethodDelete && r.Method != http.MethodPost {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var req DeleteWebAppRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
-		return
-	}
-
-	// Validation
-	if req.ProjectID == "" || req.ContainerID == "" {
-		http.Error(w, "projectID and containerID are required", http.StatusBadRequest)
-		return
-	}
-
-	// 1. Sanitize to get the actual Kubernetes Namespace
-	namespaceName, err := validateAndSanitize(req.ProjectID)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Invalid Project ID format: %v", err), http.StatusBadRequest)
-		return
-	}
-
-	// 2. Sanitize and reconstruct the actual CRD Resource Name (app-UUID)
-	rawUUID, err := validateAndSanitize(req.ContainerID)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Invalid Container ID format: %v", err), http.StatusBadRequest)
-		return
-	}
-	resourceName := "app-" + rawUUID
-
-	// 3. Delete the Resource
-	// We use PropagationPolicy "Foreground" to ensure dependent resources (like Pods/Svcs owned by the CRD) 
-	// are deleted before the CRD itself is fully removed.
-	deletePolicy := metav1.DeletePropagationForeground
-	deleteOptions := metav1.DeleteOptions{
-		PropagationPolicy: &deletePolicy,
-	}
-
-	err = s.DynamicClient.Resource(webAppGVR).Namespace(namespaceName).Delete(r.Context(), resourceName, deleteOptions)
-	if err != nil {
-		if k8serrors.IsNotFound(err) {
-			http.Error(w, fmt.Sprintf("WebApp not found: %s", resourceName), http.StatusNotFound)
-			return
-		}
-		s.Logger.Error("Failed to delete WebApp", "namespace", namespaceName, "name", resourceName, "error", err)
-		http.Error(w, "Failed to delete WebApp", http.StatusInternalServerError)
-		return
-	}
-
-	s.Logger.Info("WebApp deleted successfully", "namespace", namespaceName, "name", resourceName)
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(Response{
-		Namespace: namespaceName,
-		AppName:   resourceName,
-		Message:   "WebApp deleted successfully",
-	})
 }
