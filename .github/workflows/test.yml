@@ -18,7 +18,7 @@ jobs:
           - deployment-service
           - project-management-service
           - billing-service
-    
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -76,7 +76,7 @@ jobs:
             if [ -d "$report_dir" ]; then
               service_name=$(basename "$report_dir" | sed 's/coverage-report-//')
               main_index="$report_dir/index.html"
-              
+
               if [ -f "$main_index" ]; then
                 # Extract percentage from Jacoco HTML (looking for the total footer)
                 coverage=$(grep -o 'Total[^%]*[0-9]*%' "$main_index" | grep -o '[0-9]*%' | head -1)
