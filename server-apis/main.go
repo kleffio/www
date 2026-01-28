@@ -60,6 +60,11 @@ type Response struct {
 	Existed   bool   `json:"existed"`
 }
 
+type DeleteWebAppRequest struct {
+	ProjectID   string `json:"projectID"`
+	ContainerID string `json:"containerID"`
+}
+
 // Regex for DNS-1123 validation
 var validNameRegex = regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`)
 
@@ -131,7 +136,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/v1/build/create", enableCors(server.handleCreateBuild))
-	mux.HandleFunc("/api/v1/build/hello", enableCors(server.handleHelloWorld))
+	mux.HandleFunc("/api/v1/webapp/delete", enableCors(server.handleDeleteWebApp))
 	mux.HandleFunc("/api/v1/webapp/update", enableCors(server.handleUpdateWebApp))
 
 		srv := &http.Server{
@@ -146,11 +151,6 @@ func main() {
 	if err := srv.ListenAndServe(); err != nil {
 		logger.Error("Server failed", "error", err)
 	}
-}
-
-func (s *Server) handleHelloWorld(w http.ResponseWriter, r *http.Request) {
-    w.WriteHeader(http.StatusOK)
-    w.Write([]byte("Hello World, this is a CD test for christine"))
 }
 
 func (s *Server) handleCreateBuild(w http.ResponseWriter, r *http.Request) {
@@ -460,6 +460,55 @@ func validateAndSanitize(name string) (string, error) {
 	return name, nil
 }
 
+func (s *Server) handleDeleteWebApp(w http.ResponseWriter, r *http.Request) {
+    // Support both DELETE and POST for flexibility with different clients
+	if r.Method != http.MethodDelete && r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var req DeleteWebAppRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+		return
+	}
+
+	// 1. Validation
+	if req.ProjectID == "" || req.ContainerID == "" {
+		http.Error(w, "projectID and containerID are required", http.StatusBadRequest)
+		return
+	}
+
+	// 2. Sanitize and Format
+	namespaceName, _ := validateAndSanitize(req.ProjectID)
+	rawUUID, _      := validateAndSanitize(req.ContainerID)
+	resourceName    := "app-" + rawUUID
+
+	// 3. Delete from Kubernetes
+	err := s.DynamicClient.Resource(webAppGVR).Namespace(namespaceName).Delete(r.Context(), resourceName, metav1.DeleteOptions{})
+	
+	if err != nil {
+		if k8serrors.IsNotFound(err) {
+			s.Logger.Warn("WebApp not found for deletion", "resourceName", resourceName)
+			http.Error(w, "WebApp not found", http.StatusNotFound)
+			return
+		}
+		s.Logger.Error("Failed to delete WebApp", "resourceName", resourceName, "error", err)
+		http.Error(w, fmt.Sprintf("Failed to delete WebApp: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	s.Logger.Info("WebApp deleted successfully", "resourceName", resourceName, "namespace", namespaceName)
+
+	// 4. Success Response
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(Response{
+		Namespace: namespaceName,
+		AppName:   resourceName,
+		Message:   "WebApp deleted successfully",
+	})
+}
+
 func enableCors(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
@@ -467,7 +516,7 @@ func enableCors(next http.HandlerFunc) http.HandlerFunc {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 		}
 
-		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, DELETE, PATCH")
 		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Authorization")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 
