@@ -18,6 +18,7 @@ import java.util.Map;
 public class ContainerServiceImpl {
 
     private static final Logger log = LoggerFactory.getLogger(ContainerServiceImpl.class);
+    private static final String BASE_URL = "http://deployment-backend-service.kleff-deployment.svc.cluster.local";
 
     private final ContainerRepository containerRepository;
     private final ContainerMapper containerMapper;
@@ -103,7 +104,7 @@ public class ContainerServiceImpl {
     }
 
     private void triggerBuildDeployment(ContainerRequestModel request, String containerID) {
-        String deploymentServiceUrl = "http://deployment-backend-service.kleff-deployment.svc.cluster.local/api/v1/build/create"; 
+        String deploymentServiceUrl = BASE_URL + "/api/v1/build/create";
 
         GoBuildRequest buildRequest = new GoBuildRequest(
                 containerID,
@@ -124,7 +125,7 @@ public class ContainerServiceImpl {
     }
 
     private void triggerWebAppUpdate(Container container, Map<String, String> envVariables) {
-        String updateServiceUrl = "https://api.kleff.io/api/v1/webapp/update";
+        String updateServiceUrl = BASE_URL + "/api/v1/webapp/update";
 
         Map<String, Object> updateRequest = Map.of(
             "projectID", container.getProjectID(),
@@ -157,7 +158,7 @@ public class ContainerServiceImpl {
     }
 
     private void triggerWebAppDelete(String projectID, String containerID) {
-        String deleteServiceUrl = "https://api.kleff.io/api/v1/webapp/delete";
+        String deleteServiceUrl = BASE_URL + "/api/v1/webapp/delete";
 
         Map<String, Object> deleteRequest = Map.of(
             "projectID", projectID,
