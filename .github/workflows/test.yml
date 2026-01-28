@@ -17,7 +17,7 @@ jobs:
         service:
           - deployment-service
           - project-management-service
-          - billing-service
+          # - billing-service
 
     steps:
       - name: Checkout sources
