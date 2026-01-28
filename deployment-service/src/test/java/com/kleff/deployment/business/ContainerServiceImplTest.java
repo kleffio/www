@@ -407,10 +407,8 @@ class ContainerServiceImplTest {
 
         // Mock successful upstream delete
         mockServer.expect(ExpectedCount.once(),
-                        requestTo("https://api.kleff.io/api/v1/webapp/delete"))
+                        requestTo("http://deployment-backend-service.kleff-deployment.svc.cluster.local/api/v1/webapp/proj-456/cont-123"))
                 .andExpect(method(HttpMethod.DELETE))
-                .andExpect(jsonPath("$.projectID").value("proj-456"))
-                .andExpect(jsonPath("$.containerID").value(containerID))
                 .andRespond(withSuccess("Deleted", MediaType.APPLICATION_JSON));
 
         // Act
@@ -450,7 +448,7 @@ class ContainerServiceImplTest {
 
         // Mock upstream delete failure
         mockServer.expect(ExpectedCount.once(),
-                        requestTo("https://api.kleff.io/api/v1/webapp/delete"))
+                        requestTo("http://deployment-backend-service.kleff-deployment.svc.cluster.local/api/v1/webapp/proj-456/cont-123"))
                 .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR));
 
         // Act & Assert

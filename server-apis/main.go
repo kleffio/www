@@ -136,7 +136,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/v1/build/create", enableCors(server.handleCreateBuild))
-	mux.HandleFunc("/api/v1/webapp/delete", enableCors(server.handleDeleteWebApp))
+	mux.HandleFunc("DELETE /api/v1/webapp/{projectID}/{containerID}", enableCors(server.handleDeleteWebApp))
 	mux.HandleFunc("/api/v1/webapp/update", enableCors(server.handleUpdateWebApp))
 
 		srv := &http.Server{
@@ -461,35 +461,38 @@ func validateAndSanitize(name string) (string, error) {
 }
 
 func (s *Server) handleDeleteWebApp(w http.ResponseWriter, r *http.Request) {
-    // Support both DELETE and POST for flexibility with different clients
-	if r.Method != http.MethodDelete && r.Method != http.MethodPost {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+	// 1. Extract parameters from the URL path
+	// (Requires Go 1.22+. For older versions, use strings.Split or a router like chi/gorilla)
+	projectID := r.PathValue("projectID")
+	containerID := r.PathValue("containerID")
+
+	// 2. Validation
+	if projectID == "" || containerID == "" {
+		s.Logger.Warn("Delete request missing path parameters", "projectID", projectID, "containerID", containerID)
+		http.Error(w, "projectID and containerID are required in the URL path", http.StatusBadRequest)
 		return
 	}
 
-	var req DeleteWebAppRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+	// 3. Sanitize and Format (Same logic as before)
+	namespaceName, err := validateAndSanitize(projectID)
+	if err != nil {
+		http.Error(w, "Invalid Project ID", http.StatusBadRequest)
 		return
 	}
-
-	// 1. Validation
-	if req.ProjectID == "" || req.ContainerID == "" {
-		http.Error(w, "projectID and containerID are required", http.StatusBadRequest)
+	
+	rawUUID, err := validateAndSanitize(containerID)
+	if err != nil {
+		http.Error(w, "Invalid Container ID", http.StatusBadRequest)
 		return
 	}
+	resourceName := "app-" + rawUUID
 
-	// 2. Sanitize and Format
-	namespaceName, _ := validateAndSanitize(req.ProjectID)
-	rawUUID, _      := validateAndSanitize(req.ContainerID)
-	resourceName    := "app-" + rawUUID
-
-	// 3. Delete from Kubernetes
-	err := s.DynamicClient.Resource(webAppGVR).Namespace(namespaceName).Delete(r.Context(), resourceName, metav1.DeleteOptions{})
+	// 4. Delete from Kubernetes
+	err = s.DynamicClient.Resource(webAppGVR).Namespace(namespaceName).Delete(r.Context(), resourceName, metav1.DeleteOptions{})
 	
 	if err != nil {
 		if k8serrors.IsNotFound(err) {
-			s.Logger.Warn("WebApp not found for deletion", "resourceName", resourceName)
+			s.Logger.Warn("WebApp not found for deletion", "resourceName", resourceName, "namespace", namespaceName)
 			http.Error(w, "WebApp not found", http.StatusNotFound)
 			return
 		}
@@ -498,9 +501,9 @@ func (s *Server) handleDeleteWebApp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s.Logger.Info("WebApp deleted successfully", "resourceName", resourceName, "namespace", namespaceName)
+	s.Logger.Info("WebApp deleted successfully via upstream call", "resourceName", resourceName, "namespace", namespaceName)
 
-	// 4. Success Response
+	// 5. Success Response
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(Response{
 		Namespace: namespaceName,

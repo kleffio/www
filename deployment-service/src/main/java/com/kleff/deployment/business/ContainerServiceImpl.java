@@ -158,15 +158,10 @@ public class ContainerServiceImpl {
     }
 
     private void triggerWebAppDelete(String projectID, String containerID) {
-        String deleteServiceUrl = BASE_URL + "/api/v1/webapp/delete";
-
-        Map<String, Object> deleteRequest = Map.of(
-            "projectID", projectID,
-            "containerID", containerID
-        );
+        String deleteServiceUrl = BASE_URL + "/api/v1/webapp/" + projectID + "/" + containerID;
 
         try {
-            restTemplate.exchange(deleteServiceUrl, HttpMethod.DELETE, new HttpEntity<>(deleteRequest), String.class);
+            restTemplate.delete(deleteServiceUrl);
             log.info("WebApp delete triggered successfully for containerID: {}", containerID);
         } catch (Exception e) {
             log.error("Failed to trigger WebApp delete for containerID {}: {}", containerID, e.getMessage());
