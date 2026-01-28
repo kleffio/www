@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 type WebsiteStatus = "up" | "down" | "checking";
 
 export function useWebsiteStatus(url: string) {
-  const [status, setStatus] = useState<WebsiteStatus>("checking");
-  const [isLoading, setIsLoading] = useState(true);
+  const [status, setStatus] = useState<WebsiteStatus>(url ? "checking" : "down");
+  const [isLoading, setIsLoading] = useState(!!url);
 
   const pingUrl = async (urlToPing: string): Promise<boolean> => {
     try {
@@ -18,17 +18,13 @@ export function useWebsiteStatus(url: string) {
 
       clearTimeout(timeoutId);
       return response.ok;
-    } catch (error) {
+    } catch {
       return false;
     }
   };
 
   useEffect(() => {
-    if (!url) {
-      setStatus("down");
-      setIsLoading(false);
-      return;
-    }
+    if (!url) return;
 
     const checkStatus = async () => {
       setIsLoading(true);

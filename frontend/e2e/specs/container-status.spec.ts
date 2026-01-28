@@ -1,4 +1,3 @@
-import { expect } from "@playwright/test";
 import { authTest as test } from "../fixtures/auth.fixture";
 import { DashboardPage } from "../pages/dashboard/dashboard.page";
 import { ProjectsPage } from "../pages/dashboard/projects.page";
