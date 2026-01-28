@@ -60,11 +60,6 @@ type Response struct {
 	Existed   bool   `json:"existed"`
 }
 
-type DeleteWebAppRequest struct {
-	ProjectID   string `json:"projectID"`
-	ContainerID string `json:"containerID"`
-}
-
 // Regex for DNS-1123 validation
 var validNameRegex = regexp.MustCompile(`^[a-z0-9]([-a-z0-9]*[a-z0-9])?$`)
 
