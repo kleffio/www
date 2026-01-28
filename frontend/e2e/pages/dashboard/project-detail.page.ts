@@ -227,9 +227,18 @@ export class ProjectDetailPage extends BasePage {
   }
 
   // Container Status methods
-  async expectContainerStatus(containerName: string, expectedStatus: "up" | "down" | "checking", options?: { timeout?: number }) {
-    const containerCard = this.page.getByText(containerName, { exact: true }).locator("..").locator("..");
-    const statusBadge = containerCard.locator("span").filter({ hasText: /^Up$|^Down$|^Checking\.\.\.$/ });
+  async expectContainerStatus(
+    containerName: string,
+    expectedStatus: "up" | "down" | "checking",
+    options?: { timeout?: number }
+  ) {
+    const containerCard = this.page
+      .getByText(containerName, { exact: true })
+      .locator("..")
+      .locator("..");
+    const statusBadge = containerCard
+      .locator("span")
+      .filter({ hasText: /^Up$|^Down$|^Checking\.\.\.$/ });
 
     const timeout = options?.timeout || 10000;
 
@@ -252,14 +261,14 @@ export class ProjectDetailPage extends BasePage {
       if (status === "up") {
         await route.fulfill({
           status: 200,
-          contentType: 'text/html',
-          body: '<html><body>Container is running</body></html>'
+          contentType: "text/html",
+          body: "<html><body>Container is running</body></html>"
         });
       } else {
         await route.fulfill({
           status: 500,
-          contentType: 'text/html',
-          body: '<html><body>Internal Server Error</body></html>'
+          contentType: "text/html",
+          body: "<html><body>Internal Server Error</body></html>"
         });
       }
     });
@@ -269,13 +278,23 @@ export class ProjectDetailPage extends BasePage {
     const containerUrl = `https://app-${containerId}.kleff.io`;
 
     await this.page.route(containerUrl, async (route) => {
-      await route.abort('connectionrefused');
+      await route.abort("connectionrefused");
     });
   }
 
-  async waitForStatusTransition(containerName: string, fromStatus: "checking", toStatus: "up" | "down", timeout = 10000) {
-    const containerCard = this.page.getByText(containerName, { exact: true }).locator("..").locator("..");
-    const statusBadge = containerCard.locator("span").filter({ hasText: /^Up$|^Down$|^Checking\.\.\.$/ });
+  async waitForStatusTransition(
+    containerName: string,
+    fromStatus: "checking",
+    toStatus: "up" | "down",
+    timeout = 10000
+  ) {
+    const containerCard = this.page
+      .getByText(containerName, { exact: true })
+      .locator("..")
+      .locator("..");
+    const statusBadge = containerCard
+      .locator("span")
+      .filter({ hasText: /^Up$|^Down$|^Checking\.\.\.$/ });
 
     // First verify it starts with "checking"
     await expect(statusBadge).toHaveText("Checking...", { timeout: 2000 });
@@ -290,14 +309,19 @@ export class ProjectDetailPage extends BasePage {
 
   async getContainerId(containerName: string): Promise<string> {
     // Open container detail modal to get the container ID
-    const containerCard = this.page.getByText(containerName, { exact: true }).locator("..").locator("..");
+    const containerCard = this.page
+      .getByText(containerName, { exact: true })
+      .locator("..")
+      .locator("..");
     await containerCard.click();
 
     // Wait for modal and get container ID
     const modal = this.page.locator('[role="dialog"]');
     await expect(modal).toBeVisible({ timeout: 5000 });
 
-    const containerIdElement = modal.locator("span").filter({ hasText: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/ });
+    const containerIdElement = modal
+      .locator("span")
+      .filter({ hasText: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/ });
     const containerId = await containerIdElement.textContent();
 
     // Close modal

@@ -58,13 +58,7 @@ export function ContainerStatusCard({ container, onManage, onViewLogs }: Contain
 
       {/* Center: Status Badge */}
       <Badge
-        variant={
-          status === "up"
-            ? "success"
-            : status === "down"
-              ? "secondary"
-              : "warning"
-        }
+        variant={status === "up" ? "success" : status === "down" ? "secondary" : "warning"}
         className="justify-self-center text-xs"
       >
         {status === "up" ? "Up" : status === "down" ? "Down" : "Checking..."}

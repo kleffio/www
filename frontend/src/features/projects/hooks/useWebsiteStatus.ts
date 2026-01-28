@@ -13,7 +13,7 @@ export function useWebsiteStatus(url: string) {
 
       const response = await fetch(urlToPing, {
         method: "HEAD",
-        signal: controller.signal,
+        signal: controller.signal
       });
 
       clearTimeout(timeoutId);
