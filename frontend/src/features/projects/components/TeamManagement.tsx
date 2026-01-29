@@ -19,6 +19,7 @@ import {
   deleteInvitation,
   type Invitation
 } from "../api/invitations";
+import { getUsernameById } from "@features/users/api/getUsernameById";
 
 interface Collaborator {
   id: number;
@@ -55,6 +56,7 @@ export function TeamManagement({ projectId, canManageCollaborators }: TeamManage
   const [success, setSuccess] = useState<string | null>(null);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editingRole, setEditingRole] = useState<"ADMIN" | "DEVELOPER" | "VIEWER">("DEVELOPER");
+  const [usernames, setUsernames] = useState<string[] | null>([]);
 
   const loadCollaborators = async () => {
     try {
@@ -69,6 +71,16 @@ export function TeamManagement({ projectId, canManageCollaborators }: TeamManage
       setLoading(false);
     }
   };
+
+  const loadCollaboratorUsernames = async () => {
+  try {
+    const data = await getUsernameById(projectId);
+    setUsernames([data]);
+  }
+  catch (err: unknown) {
+    console.error("Failed to load collaborators:", err);
+  }
+};
 
   const loadInvitations = async () => {
     try {
@@ -208,7 +220,7 @@ export function TeamManagement({ projectId, canManageCollaborators }: TeamManage
           <Table>
             <TableHeader>
               <TableRow className="border-b border-white/10 bg-white/5 hover:bg-white/5">
-                <TableHead>User ID</TableHead>
+                <TableHead>Username</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Joined</TableHead>
@@ -229,7 +241,7 @@ export function TeamManagement({ projectId, canManageCollaborators }: TeamManage
                 collaborators.map((collaborator) => (
                   <TableRow key={collaborator.id} className="hover:bg-white/5">
                     <TableCell className="font-mono text-sm text-neutral-300">
-                      {collaborator.userId.substring(0, 8)}...
+                      {usernames ? usernames[collaborators.indexOf(collaborator)] : collaborator.userId.substring(0, 8) + "..."}
                     </TableCell>
                     <TableCell>
                       {editingUserId === collaborator.userId ? (
