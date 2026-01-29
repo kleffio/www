@@ -1,7 +1,8 @@
 import { client } from "@shared/lib/client";
 
 export async function getProjectCollaborators(projectId: string) {
-  const response = await client.get(`/api/v1/projects/${projectId}/collaborators`);
+  const userId = await client.get(`/api/v1/projects/${projectId}/collaborators`);
+  const response = await client.get(``);
   return response.data;
 }
 

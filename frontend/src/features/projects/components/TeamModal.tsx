@@ -31,6 +31,7 @@ import {
   type Invitation
 } from "../api/invitations";
 import { getProjectCustomRoles, createCustomRole, type CustomRole } from "../api/customRoles";
+import { getUsernameById } from "@features/users/api/getUsernameById";
 import enTranslations from "@app/locales/en/projects.json";
 import frTranslations from "@app/locales/fr/projects.json";
 import { getLocale } from "@app/locales/locale";
@@ -172,6 +173,7 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
   const [success, setSuccess] = useState<string | null>(null);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [editingRole, setEditingRole] = useState<"ADMIN" | "DEVELOPER" | "VIEWER">("DEVELOPER");
+  const [usernames, setUsernames] = useState<Record<string, string>>({});
 
   const canManageTeam = userRole === "OWNER" || userRole === "ADMIN";
   const canViewInvitations = userRole === "OWNER" || userRole === "ADMIN";
@@ -187,6 +189,30 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
       setError(error.response?.data?.message || t.messages.error_loading);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadCollaboratorUsernames = async () => {
+    try {
+      const usernameMap: Record<string, string> = {};
+      
+      // Use Promise.all for parallel requests (faster)
+      await Promise.all(
+        collaborators.map(async (collaborator) => {
+          try {
+            const username = await getUsernameById(collaborator.userId);
+            usernameMap[collaborator.userId] = username;
+          } catch (err) {
+            console.error(`Failed to load username for ${collaborator.userId}:`, err);
+            // Fallback to truncated userId if username fetch fails
+            usernameMap[collaborator.userId] = collaborator.userId.substring(0, 8) + "...";
+          }
+        })
+      );
+      
+      setUsernames(usernameMap);
+    } catch (error) {
+      console.error("Failed to load usernames:", error);
     }
   };
 
@@ -217,6 +243,14 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, projectId]);
+
+  // Load usernames when collaborators change
+  useEffect(() => {
+    if (collaborators.length > 0) {
+      loadCollaboratorUsernames();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collaborators]);
 
   const handleInvite = async (e: FormEvent) => {
     e.preventDefault();
@@ -430,7 +464,8 @@ export function TeamModal({ isOpen, onClose, projectId, userRole }: TeamModalPro
                       collaborators.map((collaborator) => (
                         <TableRow key={collaborator.id} className="hover:bg-white/5">
                           <TableCell className="font-mono text-sm text-neutral-300">
-                            {collaborator.userId.substring(0, 8)}...
+                            {usernames[collaborator.userId] || 
+                             collaborator.userId.substring(0, 8) + "..."}
                           </TableCell>
                           <TableCell>
                             {editingUserId === collaborator.userId && canManageTeam ? (
